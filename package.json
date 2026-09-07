@@ -1,6 +1,6 @@
 {
   "name": "agentsmesh",
-  "version": "0.35.0",
+  "version": "0.36.0",
   "description": "Sync AI coding agent config from one .agentsmesh source: rules, commands, agents, skills, MCP servers, hooks and permissions for Claude Code, Cursor, GitHub Copilot, Gemini CLI, Codex CLI and every other tool, plus a shared lessons memory that learns from your repo.",
   "type": "module",
   "main": "./dist/index.js",
