@@ -1,9 +1,9 @@
 # Auto-generated. DO NOT EDIT MANUALLY.
 # Tracks the state of all config files for team conflict resolution.
 
-generated_at: 2026-09-06T15:41:29.713Z
+generated_at: 2026-09-07T18:58:21.383Z
 generated_by: serhii
-lib_version: 0.34.0
+lib_version: 0.36.0
 checksums:
   agents/code-debugger.md: sha256:33452bf839256a119a602cd10d085bff3cdb8f537ded76e60053bb9d8e5d33bc
   agents/code-documenter.md: sha256:89b4ebd27718bcd50a7283c95ea1ff9cad153b1112cf695f9f1fc22d90ec85ec
