@@ -740,6 +740,23 @@
         "t-glob-8173701c"
       ]
     },
+    "codex-cli-mcp-any-path-containment-assert-added": {
+      "createdAt": "2026-09-07",
+      "evidence": [
+        "fe37add6"
+      ],
+      "rule": "Any path-containment assert added to the stale sweep (findStaleGeneratedOutputs / findUntrackedManagedDirFiles) must ALSO run in the pre-write check in generate-handlers/convert, covering every active target's managedOutputs.dirs — the sweep runs after all files are written and before writeLockFile, so a managed dir that produced no output this run (feature off) and resolves outside the root aborts with outputs on disk and no lock, leaving check reporting 'Not initialized' on every rerun. Dry-run must run the same check so it cannot say OK for a layout the real run rejects.",
+      "status": "superseded",
+      "supersededBy": "generate-any-path-containment-assert-added",
+      "topics": [
+        "codex-cli-mcp"
+      ],
+      "triggers": [
+        "t-glob-98419953",
+        "t-glob-8964922b",
+        "t-glob-32bb65c6"
+      ]
+    },
     "codex-cli-mcp-codex-rejects-mcp-server-names": {
       "createdAt": "2026-09-07",
       "evidence": [
@@ -1886,6 +1903,22 @@
         "t-kw-34b18081",
         "t-kw-0d87141e",
         "t-kw-45ee2cca"
+      ]
+    },
+    "generate-any-path-containment-assert-added": {
+      "createdAt": "2026-09-07",
+      "evidence": [
+        "fe37add6"
+      ],
+      "rule": "Any path-containment assert added to the stale sweep (findStaleGeneratedOutputs / findUntrackedManagedDirFiles) must ALSO run in the pre-write check in generate-handlers/convert, covering every active target's managedOutputs.dirs — the sweep runs after all files are written and before writeLockFile, so a managed dir that produced no output this run (feature off) and resolves outside the root aborts with outputs on disk and no lock, leaving check reporting Not-initialized on every rerun. Dry-run must run the same check so it cannot say OK for a layout the real run rejects.",
+      "status": "active",
+      "topics": [
+        "generate"
+      ],
+      "triggers": [
+        "t-glob-98419953",
+        "t-glob-8964922b",
+        "t-glob-32bb65c6"
       ]
     },
     "generate-emit-empty-owned-settings-when": {
@@ -10284,6 +10317,10 @@
       "kind": "file_glob",
       "pattern": "website/integrations/*.mjs"
     },
+    "t-glob-32bb65c6": {
+      "kind": "file_glob",
+      "pattern": "src/cli/commands/generate-path.ts"
+    },
     "t-glob-341a7fe1": {
       "kind": "file_glob",
       "pattern": "src/targets/*/permissions-import.ts"
@@ -10715,6 +10752,10 @@
     "t-glob-895a6107": {
       "kind": "file_glob",
       "pattern": "src/install/importers/target-native-commands.ts"
+    },
+    "t-glob-8964922b": {
+      "kind": "file_glob",
+      "pattern": "src/cli/commands/generate-handlers.ts"
     },
     "t-glob-8ac72756": {
       "kind": "file_glob",
