@@ -157,6 +157,8 @@ The pack-lifecycle tools always run non-interactively. MCP has no stdin TTY, so 
 
 The canonical mutation tools and orchestration tools accept an optional `dry_run: true` parameter that returns the planned changes without writing to disk. `install` and `uninstall` also honor `dry_run` (the legacy-manifest migration runs in memory only). The `lessons_add` and `lessons_deprecate` tools are the exception — they mutate the lessons graph directly and do not accept `dry_run`.
 
+MCP server edits preserve untouched server fields and top-level configuration fields. A malformed existing `mcp.json` is rejected instead of overwritten. Skill creation and updates validate all supporting paths and file sizes before writing any files. Change the primary `SKILL.md` through `frontmatter` and `body`; it cannot be overwritten or deleted through `supportingFiles`.
+
 ## Resources reference
 
 The server exposes 17 readable resources, derived from the tools that have a `resourceUri`:

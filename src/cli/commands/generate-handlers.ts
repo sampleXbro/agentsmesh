@@ -7,7 +7,7 @@ import { join } from 'node:path';
 import { writeFileAtomic } from '../../utils/filesystem/fs.js';
 import { acquireProcessLock } from '../../utils/filesystem/process-lock.js';
 import { cleanupStaleGeneratedOutputs } from '../../core/generate/stale-cleanup.js';
-import { ensurePathInsideRoot } from './generate-path.js';
+import { ensureSafeOutputPath } from './generate-path.js';
 import { writeLockFile } from './generate-lock.js';
 import { isFilteredRun } from './generate-empty-run.js';
 import { buildOutputChecksums } from '../../config/core/lock-outputs.js';
@@ -73,9 +73,14 @@ export async function handleGenerateOrDryRun(
       });
   try {
     if (!dryRun) {
+      await Promise.all(
+        results
+          .filter((r) => r.status !== 'skipped')
+          .map((r) => ensureSafeOutputPath(context.rootBase, r.path, r.target)),
+      );
       for (const r of results) {
         if (r.status === 'created' || r.status === 'updated') {
-          const fullPath = ensurePathInsideRoot(context.rootBase, r.path, r.target);
+          const fullPath = await ensureSafeOutputPath(context.rootBase, r.path, r.target);
           await writeFileAtomic(fullPath, r.content);
         }
       }

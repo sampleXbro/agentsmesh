@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "website",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["node_modules/astro/astro.js", "dev", "--host", "127.0.0.1", "--port", "4321"],
+      "cwd": "website",
+      "port": 4321
+    }
+  ]
+}

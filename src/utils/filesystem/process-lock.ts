@@ -1,13 +1,8 @@
 /**
  * Cross-platform process lock backed by an atomic mkdir.
  *
- * Acquire semantics: mkdir with no `recursive` option is atomic per POSIX and
- * returns EEXIST if the directory already exists. That makes it a reliable
- * cross-process mutex without any third-party dependency.
- *
  * Stale recovery: the holder writes its PID and start timestamp into the lock
- * dir. On contention we peek at the PID: a dead same-host holder is evicted at
- * once. A live holder (or one on another host, whose PID we cannot probe) is
+ * dir. A dead same-host holder is evicted at once. A live or remote holder is
  * evicted only past `staleMs` — an hours-long bound that catches a hung
  * process or a recycled PID, never a slow but healthy run.
  */
@@ -75,7 +70,7 @@ export async function acquireProcessLock(
 
     const existing = await inspectLock(lockPath);
     if (existing !== 'young' && isStale(existing, stale)) {
-      await rm(lockPath, { recursive: true, force: true }).catch(() => {});
+      await rm(lockPath, { recursive: true, force: true });
       // Stale eviction is bookkeeping, not a wait — try again without consuming retry budget.
       continue;
     }
@@ -103,7 +98,12 @@ async function tryAcquire(lockPath: string): Promise<LockRelease | null> {
     started: Date.now(),
     hostname: getHostname(),
   };
-  await writeFile(metadataPath, JSON.stringify(metadata), 'utf-8');
+  try {
+    await writeFile(metadataPath, JSON.stringify(metadata), 'utf-8');
+  } catch (error) {
+    await rm(lockPath, { recursive: true, force: true }).catch(() => {});
+    throw error;
+  }
 
   let released = false;
   const cleanup = (): void => {

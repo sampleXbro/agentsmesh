@@ -103,7 +103,7 @@ describe('writeFileAtomic', () => {
   );
 
   it.skipIf(process.platform === 'win32')(
-    'chmod after rename guarantees mode even when tmpfile pre-existed',
+    'sets executable mode without reusing a pre-existing temporary file',
     async () => {
       const path = join(TEST_DIR, 'tmp-collision.sh');
       // Pre-create the tmp file with restrictive mode that wouldn't get the bit set
@@ -120,13 +120,12 @@ describe('writeFileAtomic', () => {
     await expect(writeFileAtomic(path, 'x')).rejects.toThrow(/is a directory/);
   });
 
-  it('cleans up .tmp sidecar if write fails', async () => {
+  it('writes successfully beside an unrelated .tmp directory', async () => {
     const dirAsFile = join(TEST_DIR, 'blocks-tmp');
-    // Create a directory at the .tmp path so writeFile fails.
     mkdirSync(`${dirAsFile}.tmp`, { recursive: true });
-    await expect(writeFileAtomic(dirAsFile, 'x')).rejects.toThrow(/Failed to write/);
-    // The .tmp path still exists as the pre-created dir, but no orphaned file is left behind.
-    // Also validate the happy path: no .tmp orphan after a successful write.
+    await writeFileAtomic(dirAsFile, 'x');
+    expect(await readFileSafe(dirAsFile)).toBe('x');
+    expect(await exists(`${dirAsFile}.tmp`)).toBe(true);
     const happy = join(TEST_DIR, 'happy.txt');
     await writeFileAtomic(happy, 'ok');
     expect(await exists(`${happy}.tmp`)).toBe(false);

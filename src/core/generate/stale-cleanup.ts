@@ -18,8 +18,9 @@
  */
 
 import { readdir, rm } from 'node:fs/promises';
-import { join, relative } from 'node:path';
+import { dirname, join, relative } from 'node:path';
 import { exists } from '../../utils/filesystem/fs.js';
+import { assertPathInsideRoot } from '../../utils/filesystem/path-containment.js';
 import {
   getBuiltinTargetDefinition,
   getTargetLayout,
@@ -136,6 +137,7 @@ export async function findStaleGeneratedOutputs(
     for (const dir of managed.dirs) {
       if (retained.has(dir)) continue;
       const absDir = join(args.projectRoot, dir);
+      await assertPathInsideRoot(args.projectRoot, absDir);
       if (!(await exists(absDir))) continue;
       for (const file of await listFiles(absDir)) {
         const relPath = `${dir}/${file}`.replace(/\/+/g, '/');
@@ -149,6 +151,7 @@ export async function findStaleGeneratedOutputs(
   const found: string[] = [];
   for (const relPath of stale) {
     if (expected.has(relPath) || coOwned.has(relPath)) continue;
+    await assertPathInsideRoot(args.projectRoot, dirname(join(args.projectRoot, relPath)));
     if (await exists(join(args.projectRoot, relPath))) found.push(relPath);
   }
   return found.sort();
@@ -174,6 +177,7 @@ export async function findUntrackedManagedDirFiles(
     for (const dir of getTargetManagedOutputs(target, scope)?.dirs ?? []) {
       if (retained.has(dir)) continue;
       const absDir = join(args.projectRoot, dir);
+      await assertPathInsideRoot(args.projectRoot, absDir);
       if (!(await exists(absDir))) continue;
       for (const file of await listFiles(absDir)) {
         const relPath = `${dir}/${file}`.replace(/\/+/g, '/');

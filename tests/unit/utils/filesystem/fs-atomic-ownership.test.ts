@@ -1,0 +1,102 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  mkdtemp,
+  mkdir,
+  readFile,
+  readdir,
+  readlink,
+  rm,
+  symlink,
+  writeFile,
+} from 'node:fs/promises';
+import * as fs from 'node:fs/promises';
+import { join } from 'node:path';
+import { tmpdir } from 'node:os';
+import { writeFileAtomic } from '../../../../src/utils/filesystem/fs.js';
+
+vi.mock('node:fs/promises', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('node:fs/promises')>();
+  return { ...actual, rename: vi.fn(actual.rename) };
+});
+
+let dir: string;
+beforeEach(async () => {
+  dir = await mkdtemp(join(tmpdir(), 'am-atomic-owner-'));
+});
+afterEach(async () => {
+  vi.restoreAllMocks();
+  await rm(dir, { recursive: true, force: true });
+});
+
+describe('atomic write temporary file ownership', () => {
+  it('preserves an unrelated sibling .tmp file', async () => {
+    const path = join(dir, 'settings.json');
+    await writeFile(`${path}.tmp`, 'user draft');
+    await writeFileAtomic(path, '{}');
+    expect(await readFile(`${path}.tmp`, 'utf8')).toBe('user draft');
+    expect(await readFile(path, 'utf8')).toBe('{}');
+    expect((await readdir(dir)).sort()).toEqual(['settings.json', 'settings.json.tmp']);
+  });
+
+  it('preserves an unrelated sibling .tmp directory', async () => {
+    const path = join(dir, 'settings.json');
+    await mkdir(`${path}.tmp`);
+    await writeFile(join(`${path}.tmp`, 'draft'), 'user draft');
+    await writeFileAtomic(path, '{}');
+    expect(await readFile(join(`${path}.tmp`, 'draft'), 'utf8')).toBe('user draft');
+    expect((await readdir(dir)).sort()).toEqual(['settings.json', 'settings.json.tmp']);
+  });
+
+  it.skipIf(process.platform === 'win32')(
+    'preserves an unrelated sibling .tmp symlink',
+    async () => {
+      const path = join(dir, 'settings.json');
+      await writeFile(join(dir, 'draft'), 'user draft');
+      await symlink(join(dir, 'draft'), `${path}.tmp`);
+      await writeFileAtomic(path, '{}');
+      expect(await readlink(`${path}.tmp`)).toBe(join(dir, 'draft'));
+      expect(await readFile(join(dir, 'draft'), 'utf8')).toBe('user draft');
+      expect((await readdir(dir)).sort()).toEqual(['draft', 'settings.json', 'settings.json.tmp']);
+    },
+  );
+
+  it('completes concurrent writes with one intact payload and no temporary files', async () => {
+    const path = join(dir, 'settings.json');
+    const payloads = Array.from({ length: 16 }, (_, i) => String(i).repeat(100_000));
+    const results = await Promise.allSettled(
+      payloads.map((payload) => writeFileAtomic(path, payload)),
+    );
+    expect(results).toEqual(payloads.map(() => ({ status: 'fulfilled', value: undefined })));
+    expect(payloads).toContain(await readFile(path, 'utf8'));
+    expect(await readdir(dir)).toEqual(['settings.json']);
+  });
+
+  it('preserves the old file and removes only its temporary file when rename fails', async () => {
+    const path = join(dir, 'settings.json');
+    await writeFile(path, 'original');
+    await writeFile(`${path}.tmp`, 'user draft');
+    vi.mocked(fs.rename).mockRejectedValueOnce(
+      Object.assign(new Error('rename denied'), { code: 'EACCES' }),
+    );
+    await expect(writeFileAtomic(path, '{}')).rejects.toThrow('rename denied');
+    expect(await readFile(path, 'utf8')).toBe('original');
+    expect(await readFile(`${path}.tmp`, 'utf8')).toBe('user draft');
+    expect((await readdir(dir)).sort()).toEqual(['settings.json', 'settings.json.tmp']);
+  });
+
+  it.skipIf(process.platform === 'win32')(
+    'preserves the destination symlink when rename fails',
+    async () => {
+      const path = join(dir, 'settings.json');
+      await writeFile(join(dir, 'original'), 'original');
+      await symlink(join(dir, 'original'), path);
+      vi.mocked(fs.rename).mockRejectedValueOnce(
+        Object.assign(new Error('rename denied'), { code: 'EACCES' }),
+      );
+      await expect(writeFileAtomic(path, '{}')).rejects.toThrow('rename denied');
+      expect(await readlink(path)).toBe(join(dir, 'original'));
+      expect(await readFile(path, 'utf8')).toBe('original');
+      expect((await readdir(dir)).sort()).toEqual(['original', 'settings.json']);
+    },
+  );
+});

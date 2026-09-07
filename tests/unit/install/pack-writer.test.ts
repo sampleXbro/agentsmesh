@@ -177,8 +177,7 @@ describe('materializePack', () => {
     expect(meta.content_hash).toMatch(/^sha256:[0-9a-f]{64}$/);
   });
 
-  it('cleans up stale .tmp directory before writing', async () => {
-    // Create a stale .tmp directory
+  it('preserves an unowned .tmp directory while writing', async () => {
     const staleTmp = join(packsDir, 'test-pack.tmp');
     mkdirSync(staleTmp, { recursive: true });
     writeFileSync(join(staleTmp, 'stale-file.txt'), 'stale', 'utf-8');
@@ -202,8 +201,7 @@ describe('materializePack', () => {
       features: ['rules'],
     });
 
-    // stale .tmp should be gone, final pack should exist
-    expect(existsSync(staleTmp)).toBe(false);
+    expect(readFileSync(join(staleTmp, 'stale-file.txt'), 'utf-8')).toBe('stale');
     expect(existsSync(join(packsDir, 'test-pack'))).toBe(true);
   });
 

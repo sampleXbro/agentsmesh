@@ -1,6 +1,9 @@
-import { realpath } from 'node:fs/promises';
-import { basename, dirname, join, resolve, sep } from 'node:path';
+import { resolve } from 'node:path';
 import { McpError } from '../errors.js';
+import {
+  canonicalizePath as canonicalize,
+  isPathInside as isInside,
+} from '../../utils/filesystem/path-containment.js';
 
 /**
  * Resolve a path to its canonical (symlink-free) form. When the leaf does not
@@ -17,17 +20,6 @@ import { McpError } from '../errors.js';
  * dangling link and escape). All current callers (safeWrite / safeConfigWrite /
  * the `atomicWrite` helpers) are rename-based.
  */
-async function canonicalize(path: string): Promise<string> {
-  try {
-    return await realpath(path);
-  } catch (e: unknown) {
-    if ((e as NodeJS.ErrnoException).code !== 'ENOENT') throw e;
-    const parent = dirname(path);
-    if (parent === path) return resolve(path);
-    return join(await canonicalize(parent), basename(path));
-  }
-}
-
 export async function assertContainedPath(opts: {
   root: string;
   target: string;
@@ -53,8 +45,4 @@ export async function assertContainedPath(opts: {
   }
   if (isInside(target, root)) return;
   throw new McpError('PATH_TRAVERSAL', opts.message);
-}
-
-function isInside(target: string, root: string): boolean {
-  return target === root || target.startsWith(`${root}${sep}`);
 }

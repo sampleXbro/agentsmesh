@@ -106,10 +106,10 @@ export function generateAgents(canonical: CanonicalFiles): RulesOutput[] {
  * Generate .mcp.json at project root from canonical MCP config.
  * Claude Code uses .mcp.json as the alternative location for MCP server definitions.
  * @param canonical - Loaded canonical files
- * @returns Array with single .mcp.json output, or [] if no MCP config or empty mcpServers
+ * @returns A .mcp.json output when canonical MCP config is present
  */
 export function generateMcp(canonical: CanonicalFiles): RulesOutput[] {
-  if (!canonical.mcp || Object.keys(canonical.mcp.mcpServers).length === 0) return [];
+  if (!canonical.mcp) return [];
   const content = JSON.stringify({ mcpServers: canonical.mcp.mcpServers }, null, 2);
   return [{ path: CLAUDE_MCP_JSON, content }];
 }
@@ -158,7 +158,6 @@ export function generatePermissions(canonical: CanonicalFiles): RulesOutput[] {
   if (!canonical.permissions) return [];
   const { allow, deny } = canonical.permissions;
   const ask = canonical.permissions.ask ?? [];
-  if (allow.length === 0 && deny.length === 0 && ask.length === 0) return [];
   const content = JSON.stringify({ permissions: { allow, deny, ask } }, null, 2);
   return [{ path: CLAUDE_SETTINGS, content }];
 }
@@ -170,9 +169,8 @@ export function generatePermissions(canonical: CanonicalFiles): RulesOutput[] {
  * @returns Array with single .claude/settings.json output, or [] if no hooks
  */
 export function generateHooks(canonical: CanonicalFiles): RulesOutput[] {
-  if (!canonical.hooks || Object.keys(canonical.hooks).length === 0) return [];
+  if (!canonical.hooks) return [];
   const claudeHooks = buildClaudeHooksObjectFromCanonical(canonical);
-  if (Object.keys(claudeHooks).length === 0) return [];
   // Both scopes write settings.json: Claude Code's documented hook locations are
   // ~/.claude/settings.json, .claude/settings.json, .claude/settings.local.json,
   // managed policy, and plugin/skill/subagent frontmatter — there is no standalone

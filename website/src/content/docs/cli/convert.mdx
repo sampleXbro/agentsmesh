@@ -59,6 +59,8 @@ agentsmesh convert --from cursor --to claude-code --json
 
 The real `.agentsmesh/` directory is never created, read, or modified. If one already exists, it is left untouched.
 
+Before writing output, `convert` rejects destination directories that resolve outside the project (or home directory with `--global`), including escapes through symlinks. Symlinks to directories inside that boundary remain supported.
+
 ## convert vs import + generate
 
 | | `convert` | `import` + `generate` |

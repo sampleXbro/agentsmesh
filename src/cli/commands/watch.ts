@@ -2,7 +2,8 @@
  * agentsmesh watch — watch canonical files and regenerate on change.
  */
 
-import { join, relative } from 'node:path';
+import { join } from 'node:path';
+import { shouldIgnoreWatchPath } from './watch-path.js';
 import chokidar from 'chokidar';
 import { loadScopedConfig } from '../../config/core/scope.js';
 import { loadCanonicalWithExtends } from '../../canonical/extends/extends.js';
@@ -20,58 +21,14 @@ export interface WatchCycleInfo {
 }
 
 export interface RunWatchOptions {
-  /**
-   * Optional per-cycle callback fired exactly once per completed generate cycle (including
-   * the initial startup cycle). Tests use this as the deterministic synchronization signal
-   * instead of scraping log output, which is timing-sensitive under coverage/full-suite load.
-   */
+  /** Called after each generation cycle, including startup. */
   onCycle?: (info: WatchCycleInfo) => void;
-  /**
-   * Force chokidar to use polling instead of native fs.watch / FSEvents.
-   * Default: true on Windows (ReadDirectoryChangesW misses events on AppData
-   * tmp paths), false on macOS/Linux (native FSEvents/inotify is faster).
-   *
-   * Test harness sets this to `true` regardless of platform because macOS
-   * FSEvents under parallel test load drops events for files in
-   * newly-watched subdirectories, causing intermittent watch-test hangs.
-   */
+  /** Defaults to polling on Windows; tests force polling to avoid dropped events. */
   usePolling?: boolean;
-  /**
-   * Poll interval (ms) when `usePolling` is true. Default: chokidar's 100ms.
-   * Test harness sets 50ms for fast cycle reaction.
-   */
+  /** Poll interval in milliseconds; chokidar defaults to 100ms. */
   pollIntervalMs?: number;
 }
 
-function normalizeWatchPath(path: string): string {
-  return path.replace(/\\/g, '/').replace(/\/+$/, '');
-}
-
-function shouldIgnoreWatchPath(canonicalDir: string, changedPath: string): boolean {
-  const relPath = normalizeWatchPath(relative(canonicalDir, changedPath));
-  // Parent-directory metadata events — chokidar reports a `.agentsmesh/`
-  // event whenever a child file write changes the directory mtime. Real
-  // canonical edits always arrive as child file events on rules/, commands/,
-  // etc. The parent event is pure noise; without this filter the watcher
-  // re-triggers on its own lock-file writes (lessons.md L76).
-  if (relPath === '') return true;
-  // Chokidar can report paths through different resolution layers; use `endsWith`
-  // so we reliably ignore lock-file churn regardless of relative prefixing.
-  return (
-    relPath === '.lock' ||
-    relPath === '.lock.tmp' ||
-    relPath === '.generate.lock' ||
-    relPath.endsWith('/.lock') ||
-    relPath.endsWith('/.lock.tmp') ||
-    relPath.endsWith('/.generate.lock') ||
-    relPath.includes('/.generate.lock/') ||
-    relPath.startsWith('.generate.lock/')
-  );
-}
-
-/**
- * Compute a fingerprint of current features for change detection.
- */
 function featureFingerprint(
   features: string[],
   rulesCount: number,

@@ -1,5 +1,5 @@
-import { resolve, dirname } from 'node:path';
-import { writeFile, rename, mkdir } from 'node:fs/promises';
+import { resolve } from 'node:path';
+import { writeFileAtomic } from '../../utils/filesystem/fs.js';
 import { McpError } from '../errors.js';
 import { MAX_FILE_SIZE_BYTES } from '../limits.js';
 import { assertContainedPath } from './path-containment.js';
@@ -26,9 +26,6 @@ export async function safeWrite(opts: SafeWriteOptions): Promise<string> {
       actual: Buffer.byteLength(opts.content, 'utf8'),
     });
   }
-  await mkdir(dirname(target), { recursive: true });
-  const tmp = `${target}.tmp.${process.pid}.${Date.now()}`;
-  await writeFile(tmp, opts.content, 'utf8');
-  await rename(tmp, target);
+  await writeFileAtomic(target, opts.content);
   return target;
 }
