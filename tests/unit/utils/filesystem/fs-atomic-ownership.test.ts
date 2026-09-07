@@ -10,13 +10,19 @@ import {
   writeFile,
 } from 'node:fs/promises';
 import * as fs from 'node:fs/promises';
+import type { FileHandle } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { writeFileAtomic } from '../../../../src/utils/filesystem/fs.js';
 
 vi.mock('node:fs/promises', async (importOriginal) => {
   const actual = await importOriginal<typeof import('node:fs/promises')>();
-  return { ...actual, rename: vi.fn(actual.rename) };
+  return {
+    ...actual,
+    rename: vi.fn(actual.rename),
+    rm: vi.fn(actual.rm),
+    open: vi.fn(actual.open),
+  };
 });
 
 let dir: string;
@@ -99,4 +105,48 @@ describe('atomic write temporary file ownership', () => {
       expect((await readdir(dir)).sort()).toEqual(['original', 'settings.json']);
     },
   );
+});
+
+describe('cleanup failures never mask the write error', () => {
+  it('surfaces the rename error when removing the temporary file also fails', async () => {
+    const path = join(dir, 'settings.json');
+    await writeFile(path, 'original');
+    vi.mocked(fs.rename).mockRejectedValueOnce(
+      Object.assign(new Error('rename denied'), { code: 'EACCES' }),
+    );
+    vi.mocked(fs.rm).mockRejectedValueOnce(
+      Object.assign(new Error('rm denied'), { code: 'EPERM' }),
+    );
+
+    await expect(writeFileAtomic(path, '{}')).rejects.toThrow('rename denied');
+    expect(await readFile(path, 'utf8')).toBe('original');
+    const entries = (await readdir(dir)).sort();
+    expect(entries).toHaveLength(2);
+    expect(entries[0]).toBe('settings.json');
+    expect(entries[1]).toMatch(/^settings\.json\.tmp-[0-9a-f-]{36}$/);
+  });
+
+  it('surfaces the write error when closing the temporary file also fails', async () => {
+    const path = join(dir, 'settings.json');
+    await writeFile(path, 'original');
+    const actual = await vi.importActual<typeof import('node:fs/promises')>('node:fs/promises');
+    vi.mocked(fs.open).mockImplementationOnce(async (...args: Parameters<typeof actual.open>) => {
+      const real = await actual.open(...args);
+      const broken: Pick<FileHandle, 'writeFile' | 'chmod' | 'close'> = {
+        writeFile: async () => {
+          throw Object.assign(new Error('disk full'), { code: 'ENOSPC' });
+        },
+        chmod: (mode) => real.chmod(mode),
+        close: async () => {
+          await real.close();
+          throw new Error('close failed');
+        },
+      };
+      return broken as unknown as FileHandle;
+    });
+
+    await expect(writeFileAtomic(path, '{}')).rejects.toThrow('disk full');
+    expect(await readFile(path, 'utf8')).toBe('original');
+    expect(await readdir(dir)).toEqual(['settings.json']);
+  });
 });

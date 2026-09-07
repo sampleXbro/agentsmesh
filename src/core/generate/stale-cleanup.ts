@@ -28,6 +28,7 @@ import {
 } from '../../targets/catalog/builtin-targets.js';
 import { getDescriptor } from '../../targets/catalog/registry.js';
 import type { TargetLayoutScope } from '../../targets/catalog/target-descriptor.js';
+import { retainedDirs } from './output-boundaries.js';
 
 async function listFiles(root: string, base = root): Promise<string[]> {
   const entries = await readdir(root, { withFileTypes: true });
@@ -77,18 +78,6 @@ interface StaleGeneratedOutputsArgs {
  */
 interface CleanupStaleGeneratedOutputsArgs extends StaleGeneratedOutputsArgs {
   generatedOutputs: readonly string[];
-}
-
-/** Managed dirs belonging to targets this run skipped; left untouched. */
-function retainedDirs(
-  inactiveTargets: readonly string[],
-  scope: TargetLayoutScope,
-): ReadonlySet<string> {
-  const dirs = new Set<string>();
-  for (const target of inactiveTargets) {
-    for (const dir of getTargetManagedOutputs(target, scope)?.dirs ?? []) dirs.add(dir);
-  }
-  return dirs;
 }
 
 function primaryEmitted(

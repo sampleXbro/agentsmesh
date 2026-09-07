@@ -7,7 +7,7 @@ import { join } from 'node:path';
 import { writeFileAtomic } from '../../utils/filesystem/fs.js';
 import { acquireProcessLock } from '../../utils/filesystem/process-lock.js';
 import { cleanupStaleGeneratedOutputs } from '../../core/generate/stale-cleanup.js';
-import { ensureSafeOutputPath } from './generate-path.js';
+import { assertOutputBoundary, ensureSafeOutputPath } from './generate-path.js';
 import { writeLockFile } from './generate-lock.js';
 import { isFilteredRun } from './generate-empty-run.js';
 import { buildOutputChecksums } from '../../config/core/lock-outputs.js';
@@ -66,6 +66,14 @@ export async function handleGenerateOrDryRun(
     options,
   } = args;
 
+  const inactiveTargets = configuredTargets.filter((t) => !activeTargets.includes(t));
+  await assertOutputBoundary(results, {
+    projectRoot: context.rootBase,
+    targets: activeTargets,
+    scope,
+    inactiveTargets,
+  });
+
   const release = dryRun
     ? null
     : await acquireProcessLock(join(context.canonicalDir, '.generate.lock'), {
@@ -73,11 +81,6 @@ export async function handleGenerateOrDryRun(
       });
   try {
     if (!dryRun) {
-      await Promise.all(
-        results
-          .filter((r) => r.status !== 'skipped')
-          .map((r) => ensureSafeOutputPath(context.rootBase, r.path, r.target)),
-      );
       for (const r of results) {
         if (r.status === 'created' || r.status === 'updated') {
           const fullPath = await ensureSafeOutputPath(context.rootBase, r.path, r.target);
@@ -97,7 +100,7 @@ export async function handleGenerateOrDryRun(
         expectedPaths: results.map((result) => result.path),
         scope,
         generatedOutputs: Object.keys(previousLock?.outputs ?? {}),
-        inactiveTargets: configuredTargets.filter((t) => !activeTargets.includes(t)),
+        inactiveTargets,
       });
       await writeLockFile(
         context,

@@ -1,5 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { mkdtemp, mkdir, readFile, readdir, rm, symlink, writeFile } from 'node:fs/promises';
+import {
+  mkdtemp,
+  mkdir,
+  readFile,
+  readdir,
+  realpath,
+  rm,
+  symlink,
+  writeFile,
+} from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { runGenerate } from '../../src/cli/commands/generate.js';
@@ -57,6 +66,32 @@ describe.skipIf(process.platform === 'win32').each([
     expect(await readFile(join(outside, 'rules/style.md'), 'utf8')).toBe('External rule');
     expect(await readdir(outside)).toEqual(['rules']);
     await expect(readFile(join(project, rootFile))).rejects.toMatchObject({ code: 'ENOENT' });
+  });
+
+  it('rejects an external managed directory that receives no output before writing anything', async () => {
+    await seed(target);
+    await mkdir(join(project, dir));
+    await symlink(outside, join(project, dir, 'agents'), 'junction');
+
+    await expect(runGenerate({}, project, { printMatrix: false })).rejects.toThrow(
+      await realpath(outside),
+    );
+    expect(await readdir(join(project, dir))).toEqual(['agents']);
+    expect(await readdir(outside)).toEqual([]);
+    await expect(readFile(join(project, rootFile))).rejects.toMatchObject({ code: 'ENOENT' });
+    await expect(readFile(join(project, '.agentsmesh/.lock'))).rejects.toMatchObject({
+      code: 'ENOENT',
+    });
+  });
+
+  it('reports the same containment error under --dry-run', async () => {
+    await seed(target);
+    await symlink(outside, join(project, dir), 'junction');
+
+    await expect(runGenerate({ 'dry-run': true }, project, { printMatrix: false })).rejects.toThrow(
+      /Unsafe/,
+    );
+    expect(await readdir(outside)).toEqual([]);
   });
 
   it('rejects stale deletion through an external managed-directory symlink', async () => {

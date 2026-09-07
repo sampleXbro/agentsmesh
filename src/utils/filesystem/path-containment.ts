@@ -17,17 +17,34 @@ export function isPathInside(target: string, root: string): boolean {
   return target === root || target.startsWith(root.endsWith(sep) ? root : `${root}${sep}`);
 }
 
+const display = (path: string): string => path.replaceAll('\\', '/');
+
+/**
+ * The error names where the path resolves to and the boundary it escapes, so a
+ * user can see which symlink is responsible without rerunning under --verbose.
+ */
 export async function assertPathInsideRoot(root: string, target: string): Promise<void> {
   const rootAbs = resolve(root);
   const targetAbs = resolve(target);
-  try {
-    if (
-      isPathInside(targetAbs, rootAbs) &&
-      isPathInside(await canonicalizePath(targetAbs), await canonicalizePath(rootAbs))
-    )
-      return;
-  } catch (cause: unknown) {
-    throw new Error(`Unsafe filesystem path: ${target.replaceAll('\\', '/')}`, { cause });
+  if (!isPathInside(targetAbs, rootAbs)) {
+    throw new Error(`Unsafe filesystem path: ${display(target)} is outside ${display(rootAbs)}`);
   }
-  throw new Error(`Unsafe filesystem path: ${target.replaceAll('\\', '/')}`);
+  let realTarget: string;
+  let realRoot: string;
+  try {
+    [realTarget, realRoot] = await Promise.all([
+      canonicalizePath(targetAbs),
+      canonicalizePath(rootAbs),
+    ]);
+  } catch (cause: unknown) {
+    const detail = cause instanceof Error ? cause.message : String(cause);
+    throw new Error(
+      `Unsafe filesystem path: ${display(target)} could not be resolved (${detail})`,
+      { cause },
+    );
+  }
+  if (isPathInside(realTarget, realRoot)) return;
+  throw new Error(
+    `Unsafe filesystem path: ${display(target)} resolves to ${display(realTarget)} outside ${display(realRoot)}`,
+  );
 }

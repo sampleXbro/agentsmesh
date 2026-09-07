@@ -30,3 +30,12 @@ on either side (compact: beneath), dashed brand-coloured connectors, a
 - [x] Verify fixes: 1,115 test files passed; 12,698 tests passed, one skipped. Build, TypeScript, formatting, website build and links pass; ESLint has no errors and one existing warning.
 - [x] Review the complete diff and capture six reusable lessons. No commits.
 - [x] Restore the generated E2E report timestamp after approval review succeeded on retry.
+
+## Follow-up to fe37add6 (2026-09-07)
+
+- [x] fs.ts: tests for cleanup fallbacks in the write error path (coverage floor)
+- [x] Pre-write boundary check covers active targets' managed dirs (atomic failure, no half-generated project)
+- [x] Boundary check runs under --dry-run (generate + convert)
+- [x] Containment error names the resolved location and the boundary
+- [x] Docs: generate.mdx, convert.mdx, check.mdx, README; changeset
+- [x] Gates green (typecheck, lint, knip, coverage + floor, e2e, build); commit

@@ -39,6 +39,17 @@ describe.skipIf(process.platform === 'win32')('conversion and cleanup symlink co
     expect((await lstat(join(project, '.cursor'))).isSymbolicLink()).toBe(true);
   });
 
+  it('reports the containment error under --dry-run without writing', async () => {
+    await writeFile(join(project, 'CLAUDE.md'), '# Root\n');
+    await symlink(outside, join(project, '.cursor'), 'dir');
+
+    await expect(
+      runConvert({ from: 'claude-code', to: 'cursor', 'dry-run': true }, project),
+    ).rejects.toThrow(/Unsafe filesystem path/);
+    expect(await readdir(outside)).toEqual([]);
+    expect((await readdir(project)).sort()).toEqual(['.cursor', 'CLAUDE.md']);
+  });
+
   it.each(['file', 'dir'] as const)(
     'unlinks a stale %s symlink without changing its external destination',
     async (kind) => {
