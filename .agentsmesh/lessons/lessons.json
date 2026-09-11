@@ -5260,6 +5260,21 @@
         "t-kw-574e42b9"
       ]
     },
+    "lessons-telemetry-when-computing-lessons-held-rate": {
+      "createdAt": "2026-09-11",
+      "evidence": [
+        "3b2a7806"
+      ],
+      "rule": "When computing lessons held-rate from outcome-log.jsonl, never mark a delivered record as broken just because a failure shares its session and contextKey: high-frequency keys (cmd:cd, cmd:mkdir) collect many deliveries per session, so 8 real failures amplified into 34 'broke' attributions and made the held rate look 6.5 points worse. Join on (lessonId, contextKey) within a bounded window after the delivery, and report the distinct failing-action count beside the rate.",
+      "status": "active",
+      "topics": [
+        "lessons-telemetry"
+      ],
+      "triggers": [
+        "t-glob-5c14835c",
+        "t-glob-c88404c0"
+      ]
+    },
     "lessons-telemetry-when-interpreting-lessons-stats-diagnose": {
       "createdAt": "2026-08-27",
       "evidence": [
