@@ -9,6 +9,7 @@ import { muteLogger } from '../utils/output/logger.js';
 import { cmdHandlers } from './command-handlers.js';
 import { flagTakesValue } from './flag-spec.js';
 import { silenceUi } from './ui/ui.js';
+import { makeStdioBlocking } from './stdio-blocking.js';
 
 /** A parsed flag value: a string, a boolean (presence), or — when the flag is repeated — an array of its string values. */
 export type CliFlagValue = string | boolean | string[];
@@ -124,6 +125,9 @@ export function isMainModule(): boolean {
 }
 
 if (isMainModule()) {
+  // Before any output: a piped stdout is async, and every command that emits
+  // its payload then calls `process.exit` would truncate at the pipe buffer.
+  makeStdioBlocking();
   const parsed = parseArgs(process.argv.slice(2));
   main(parsed).catch((err) =>
     handleError(err instanceof Error ? err : new Error(String(err)), {
