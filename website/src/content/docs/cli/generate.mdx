@@ -98,6 +98,10 @@ Forces a re-fetch of all remote `extends` sources. Without this flag, AgentsMesh
 
 ## Output locations
 
+For Claude Code, explicitly empty canonical configuration clears previously generated entries: `allow: []`, `deny: []`, and `ask: []` remove permission rules; `hooks.yaml` containing `{}` removes hooks; and `mcp.json` containing `{"mcpServers": {}}` removes servers. Unrelated settings remain intact. Missing canonical files leave the corresponding user settings alone.
+
+Output directories must resolve inside the project, or inside the home directory with `--global`. Before writing anything, and under `--dry-run` too, generation checks every output path and every managed directory of the active targets, and rejects a directory that escapes the boundary through a symlink. The whole run stops with exit code 1 and nothing is written; the error names the path, where it resolves to, and the boundary it escapes. Stale-file cleanup enforces the same rule. Symlinks to directories within the boundary remain supported.
+
 Each target writes to its own native directory (e.g. `claude-code` → `.claude/`, `cursor` → `.cursor/`, `copilot` → `.github/`). The shared `AGENTS.md` at the project root is emitted by every target that uses it as a root-instruction surface. See the [supported tools matrix](../../reference/supported-tools/) for the exact project-scope and global-scope paths for every target.
 
 ## Global mode path resolution

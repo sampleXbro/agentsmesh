@@ -10,7 +10,7 @@ AgentsMesh ships a built-in MCP server that lets AI agents read and write the ca
 
 ## Quick start
 
-`agentsmesh init` seeds `.agentsmesh/mcp.json` with the server entry automatically. The seeded entry looks like:
+`agentsmesh init` seeds `.agentsmesh/mcp.json` with the server entry automatically, keeping every other key in the file. The seeded entry looks like:
 
 ```json
 {
@@ -156,6 +156,8 @@ The lessons tools mirror the [`agentsmesh lessons` CLI](../../cli/lessons/) — 
 The pack-lifecycle tools always run non-interactively. MCP has no stdin TTY, so the documented `--force` defaults are accepted for every interactive prompt the CLI would surface (bulk select → accept all, broken-link → leave-with-warnings, modified-files → delete-anyway). For finer-grained selection, drive the CLI directly. Input shapes mirror the CLI flags one-for-one (`refresh` accepts `names?: string[]`, `dry_run?`, `global?`); output envelopes match `InstallData` / `UninstallData` / `InstallsListData` / `RefreshData` documented under [`install`](../../cli/install/#json-output), [`uninstall`](../../cli/uninstall/#json-output), [`installs`](../../cli/installs/#json-output), and [`refresh`](../../cli/refresh/#json-output).
 
 The canonical mutation tools and orchestration tools accept an optional `dry_run: true` parameter that returns the planned changes without writing to disk. `install` and `uninstall` also honor `dry_run` (the legacy-manifest migration runs in memory only). The `lessons_add` and `lessons_deprecate` tools are the exception — they mutate the lessons graph directly and do not accept `dry_run`.
+
+MCP server edits preserve untouched server fields and top-level configuration fields. A malformed existing `mcp.json` is rejected instead of overwritten. Skill creation and updates validate all supporting paths and file sizes before writing any files. Change the primary `SKILL.md` through `frontmatter` and `body`; it cannot be overwritten or deleted through `supportingFiles`.
 
 ## Resources reference
 

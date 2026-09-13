@@ -2,7 +2,7 @@
  * Integration test for install pack atomicity.
  *
  * Verifies the plan's "staging-dir + rename" contract:
- *  - Happy path: final pack dir present, no stale `.tmp` dir left behind,
+ *  - Happy path: final pack dir present, no operation staging dir left behind,
  *    `.agentsmesh-install-manifest.json` written with per-file sha256 hashes.
  *  - FS error mid-write: staging dir is cleaned up; no partial pack dir
  *    appears at the final destination.
@@ -154,7 +154,7 @@ describe('install pack atomicity (integration)', () => {
     expect(manifest.files[INSTALL_MANIFEST_FILENAME]).toBeUndefined();
   });
 
-  it('replaces an existing pack via swap and leaves no .old or .tmp siblings', async () => {
+  it('replaces an existing pack via swap and leaves no operation directory', async () => {
     const canonical1 = makeCanonical();
     await materializePack(packsDir, 'atomic-pack', canonical1, BASE_META);
     expect(existsSync(join(packsDir, 'atomic-pack', 'rules', 'security.md'))).toBe(true);
@@ -190,16 +190,23 @@ describe('install pack atomicity (integration)', () => {
     expect(readdirSync(packsDir).sort()).toEqual(['atomic-pack']);
   });
 
-  it('cleans up stale .old directory from a prior crashed swap', async () => {
-    const staleOld = join(packsDir, 'atomic-pack.old');
-    mkdirSync(staleOld, { recursive: true });
-    writeFileSync(join(staleOld, 'crashed.txt'), 'should be cleaned', 'utf-8');
+  it('preserves unowned .old and .tmp siblings while cleaning its own staging', async () => {
+    const preservedNames = ['atomic-pack.old', 'atomic-pack.tmp'];
+    for (const name of preservedNames) {
+      const siblingDir = join(packsDir, name);
+      mkdirSync(siblingDir, { recursive: true });
+      writeFileSync(join(siblingDir, 'user-content.txt'), `${name} contents`, 'utf-8');
+    }
 
     const canonical = makeCanonical();
     await materializePack(packsDir, 'atomic-pack', canonical, BASE_META);
 
-    expect(existsSync(staleOld)).toBe(false);
-    expect(readdirSync(packsDir).sort()).toEqual(['atomic-pack']);
+    expect(readdirSync(packsDir).sort()).toEqual(['atomic-pack', ...preservedNames]);
+    for (const name of preservedNames) {
+      const siblingDir = join(packsDir, name);
+      expect(readdirSync(siblingDir)).toEqual(['user-content.txt']);
+      expect(readFileSync(join(siblingDir, 'user-content.txt'), 'utf-8')).toBe(`${name} contents`);
+    }
   });
 
   it('cleans up staging dir and writes nothing final when materialization fails mid-write', async () => {

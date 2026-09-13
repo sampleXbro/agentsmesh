@@ -1,50 +1,16 @@
-import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
+import { stringify as stringifyYaml } from 'yaml';
 import { resolve } from 'node:path';
-import { readFile, writeFile, rename } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import type { McpContext } from '../context.js';
 import { McpError } from '../errors.js';
-import { MAX_FILE_SIZE_BYTES } from '../limits.js';
 import { safeConfigWrite } from '../writers/safe-config-write.js';
-import { assertContainedPath } from '../writers/path-containment.js';
+import { readYaml, atomicWrite, assertWithinProject } from '../writers/settings-file.js';
+import { mcpSettingsHandlers } from './settings-mcp.js';
 import { normalizeHooksRecord } from '../writers/normalize-hooks.js';
 import { configSchema } from '../../config/core/schema.js';
-import { parseMcp } from '../../canonical/features/mcp.js';
-import type { McpConfig } from '../../core/mcp-types.js';
-
-// Reject any config read/write whose resolved (symlink-followed) path escapes
-// the project root — a symlinked config file OR a symlinked `.agentsmesh` parent
-// dir must not leak or overwrite files outside the project. Anchoring at the
-// project root (not `.agentsmesh`) is deliberate: a boundary of `.agentsmesh`
-// would canonicalize through a symlinked `.agentsmesh` and cancel.
-async function assertWithinProject(projectRoot: string, target: string): Promise<void> {
-  await assertContainedPath({
-    root: projectRoot,
-    target,
-    message: 'config path escapes project directory',
-  });
-}
-
-async function readYaml<T>(projectRoot: string, path: string): Promise<T | null> {
-  await assertWithinProject(projectRoot, path);
-  try {
-    return parseYaml(await readFile(path, 'utf8')) as T;
-  } catch (e: unknown) {
-    if ((e as NodeJS.ErrnoException).code === 'ENOENT') return null;
-    throw new McpError('IO_ERROR', 'failed to read yaml');
-  }
-}
-
-async function atomicWrite(projectRoot: string, path: string, content: string): Promise<void> {
-  await assertWithinProject(projectRoot, path);
-  if (Buffer.byteLength(content, 'utf8') > MAX_FILE_SIZE_BYTES) {
-    throw new McpError('LIMIT_EXCEEDED', 'file exceeds 1 MiB cap');
-  }
-  const tmp = `${path}.tmp.${process.pid}.${Date.now()}`;
-  await writeFile(tmp, content, 'utf8');
-  await rename(tmp, path);
-}
 
 export const settingsHandlers = {
+  ...mcpSettingsHandlers,
   // ─── reads ───
 
   async getConfig(ctx: McpContext): Promise<unknown> {
@@ -54,17 +20,6 @@ export const settingsHandlers = {
     );
     if (cfg === null) throw new McpError('NO_PROJECT', 'agentsmesh.yaml missing');
     return cfg;
-  },
-
-  async listMcpServers(ctx: McpContext): Promise<{ servers: McpConfig['mcpServers'] | null }> {
-    const path = resolve(ctx.projectRoot, '.agentsmesh/mcp.json');
-    await assertWithinProject(ctx.projectRoot, path);
-    try {
-      const cfg = await parseMcp(path);
-      return { servers: cfg?.mcpServers ?? null };
-    } catch {
-      return { servers: null };
-    }
   },
 
   async getPermissions(ctx: McpContext): Promise<unknown> {
@@ -139,57 +94,6 @@ export const settingsHandlers = {
       filename: input.filename,
     });
     return { path, written: true };
-  },
-
-  async addMcpServer(
-    ctx: McpContext,
-    input: { name: string; server: Record<string, unknown>; dry_run?: boolean },
-  ): Promise<{ path: string; written: boolean }> {
-    const path = resolve(ctx.projectRoot, '.agentsmesh/mcp.json');
-    await assertWithinProject(ctx.projectRoot, path);
-    const cfg = (await parseMcp(path).catch(() => null)) ?? { mcpServers: {} };
-    if (cfg.mcpServers[input.name] !== undefined) {
-      throw new McpError('ALREADY_EXISTS', `server "${input.name}" exists`);
-    }
-    cfg.mcpServers[input.name] = input.server as never;
-    if (input.dry_run === true) return { path, written: false };
-    await atomicWrite(ctx.projectRoot, path, JSON.stringify(cfg, null, 2) + '\n');
-    return { path, written: true };
-  },
-
-  async updateMcpServer(
-    ctx: McpContext,
-    input: { name: string; server: Record<string, unknown>; merge?: boolean; dry_run?: boolean },
-  ): Promise<{ path: string; written: boolean }> {
-    const path = resolve(ctx.projectRoot, '.agentsmesh/mcp.json');
-    await assertWithinProject(ctx.projectRoot, path);
-    const cfg = await parseMcp(path).catch(() => null);
-    if (cfg === null || cfg.mcpServers[input.name] === undefined) {
-      throw new McpError('NOT_FOUND', `server "${input.name}" not found`);
-    }
-    cfg.mcpServers[input.name] =
-      input.merge === true
-        ? ({ ...cfg.mcpServers[input.name], ...input.server } as never)
-        : (input.server as never);
-    if (input.dry_run === true) return { path, written: false };
-    await atomicWrite(ctx.projectRoot, path, JSON.stringify(cfg, null, 2) + '\n');
-    return { path, written: true };
-  },
-
-  async removeMcpServer(
-    ctx: McpContext,
-    input: { name: string; dry_run?: boolean },
-  ): Promise<{ path: string; removed: boolean }> {
-    const path = resolve(ctx.projectRoot, '.agentsmesh/mcp.json');
-    await assertWithinProject(ctx.projectRoot, path);
-    const cfg = await parseMcp(path).catch(() => null);
-    if (cfg === null || cfg.mcpServers[input.name] === undefined) {
-      throw new McpError('NOT_FOUND', `server "${input.name}" not found`);
-    }
-    delete cfg.mcpServers[input.name];
-    if (input.dry_run === true) return { path, removed: false };
-    await atomicWrite(ctx.projectRoot, path, JSON.stringify(cfg, null, 2) + '\n');
-    return { path, removed: true };
   },
 
   async updatePermissions(

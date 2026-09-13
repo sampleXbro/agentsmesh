@@ -22,6 +22,7 @@ import { hashFileForManifest } from '../../utils/crypto/hash.js';
 import {
   UTF8_BOM,
   normalizeLineEndings,
+  payloadEncodingFor,
   shouldNormalizeLineEndings,
 } from '../../utils/filesystem/fs-text-encoding.js';
 import type { GenerateResult } from '../../core/result-types.js';
@@ -44,7 +45,10 @@ function hashOutputContent(path: string, content: string): string {
     if (payload.startsWith(UTF8_BOM)) payload = payload.slice(UTF8_BOM.length);
     payload = normalizeLineEndings(payload);
   }
-  return `sha256:${createHash('sha256').update(payload, 'utf8').digest('hex')}`;
+  // Must match the encoding `writeFileAtomic` lands on disk, or a binary output
+  // reports drift the moment it is generated.
+  const encoding = payloadEncodingFor(path);
+  return `sha256:${createHash('sha256').update(payload, encoding).digest('hex')}`;
 }
 
 /** Result of comparing locked output hashes against files on disk. */

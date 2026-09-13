@@ -10,8 +10,8 @@ import {
   LINE_NUMBER_SUFFIX,
   isGlobAdjacent,
   isRootRelativePathToken,
-  protectedRanges,
 } from './link-rebaser-helpers.js';
+import { protectedRanges } from './protected-ranges.js';
 import { formatLinkPathForDestination, isUnderAgentsMesh } from './link-rebaser-output.js';
 import { resolveLinkTarget } from './link-rebaser-resolution.js';
 import { decodeLinkPath, encodeLinkPath } from './link-uri-encoding.js';

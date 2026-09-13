@@ -35,8 +35,8 @@ importers:
         specifier: ^4.0.4
         version: 4.0.4
       smol-toml:
-        specifier: ^1.6.1
-        version: 1.6.1
+        specifier: ^1.8.0
+        version: 1.8.0
       tar:
         specifier: 7.5.22
         version: 7.5.22
@@ -2374,8 +2374,8 @@ packages:
     resolution: {integrity: sha512-stxByr12oeeOyY2BlviTNQlYV5xOj47GirPr4yA1hE9JCtxfQN0+tVbkxwCtYDQWhEKWFHsEK48ORg5jrouCAg==}
     engines: {node: '>=20'}
 
-  smol-toml@1.6.1:
-    resolution: {integrity: sha512-dWUG8F5sIIARXih1DTaQAX4SsiTXhInKf1buxdY9DIg4ZYPZK5nGM1VRIYmEbDbsHt7USo99xSLFu5Q1IqTmsg==}
+  smol-toml@1.8.0:
+    resolution: {integrity: sha512-kCZr2V3ch9i00x8zXRhjUNVcjG9ijES5dDudkXvUVCT5QlJNQWElSJdZqyPemffHoLNUYwOcou0Fy+ojN0uHSQ==}
     engines: {node: '>= 18'}
 
   source-map-js@1.2.1:
@@ -4614,7 +4614,7 @@ snapshots:
       oxc-resolver: 11.19.1(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
       picocolors: 1.1.1
       picomatch: 4.0.4
-      smol-toml: 1.6.1
+      smol-toml: 1.8.0
       strip-json-comments: 5.0.3
       typescript: 5.9.3
       unbash: 2.2.0
@@ -5216,7 +5216,7 @@ snapshots:
       ansi-styles: 6.2.3
       is-fullwidth-code-point: 5.1.0
 
-  smol-toml@1.6.1: {}
+  smol-toml@1.8.0: {}
 
   source-map-js@1.2.1: {}
 

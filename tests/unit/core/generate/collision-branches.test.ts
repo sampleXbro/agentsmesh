@@ -22,23 +22,38 @@ describe('resolveOutputCollisions — extra branches', () => {
     expect(resolveOutputCollisions([a, b])).toEqual([a, b]);
   });
 
-  it('falls through to codex-richer branch when neither side strictly contains the other (codex wins)', () => {
-    // Different content where neither contains the other but codex content is longer.
+  it('falls through to codex-richer branch when codex covers every line of the other', () => {
+    // Substring containment fails (the shared line is reordered), but codex
+    // carries every line the other target does, so it is genuinely richer.
     const codex = makeResult({
       target: 'codex-cli',
       path: 'AGENTS.md',
-      content: 'codex specific A\ncodex specific B\n',
+      content: 'codex specific A\ncursor data\n',
     });
     const cursor = makeResult({
       target: 'cursor',
       path: 'AGENTS.md',
-      content: 'cursor data\n',
+      content: 'cursor data\n\n',
     });
 
     const out = resolveOutputCollisions([cursor, codex]);
-    // codex content is longer; richerCodex should win
     expect(out).toHaveLength(1);
     expect(out[0]?.target).toBe('codex-cli');
+  });
+
+  it('throws instead of dropping a body whose lines codex does not carry', () => {
+    // The old rule picked whichever body was byte-longer, so the other
+    // target's content vanished with no message.
+    expect(() =>
+      resolveOutputCollisions([
+        makeResult({ target: 'cursor', path: 'AGENTS.md', content: 'cursor data\n' }),
+        makeResult({
+          target: 'codex-cli',
+          path: 'AGENTS.md',
+          content: 'codex specific A\ncodex specific B\n',
+        }),
+      ]),
+    ).toThrow(/Conflicting generated outputs/);
   });
 
   it('returns null richerCodex (throws) when neither is codex and no superset', () => {

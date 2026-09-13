@@ -136,3 +136,5 @@ Running import twice on the same source is safe. Existing canonical files are me
 ## Post-import: MCP server entry
 
 After importing from a tool that manages MCP servers (e.g. `claude-code`, `cursor`, `gemini-cli`), the AgentsMesh self-serve MCP server entry is seeded into `.agentsmesh/mcp.json` if it is not already present. This ensures the [MCP Server](../../reference/mcp-server/) entry survives import round-trips and is always available after generation.
+
+Seeding preserves the rest of the file: every other server, every per-server field AgentsMesh does not model (`cwd`, `disabled`, `timeout`), and every top-level key stay exactly as written. A file that cannot be rewritten safely — invalid JSON, or JSON with comments a rewrite would discard — is left untouched, and a warning names the reason so you can add the entry by hand.

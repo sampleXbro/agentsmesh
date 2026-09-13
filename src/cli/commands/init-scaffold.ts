@@ -41,39 +41,66 @@ async function hasAnyImportedSkill(canonicalDir: string): Promise<boolean> {
 }
 
 /**
+ * Write a template only where no file exists yet.
+ *
+ * `init` runs over a directory that may already hold the user's canonical
+ * content: `agentsmesh.yaml` can be missing while `.agentsmesh/` is fully
+ * populated (deleted by hand, lost in a merge, or never committed). Writing
+ * unconditionally replaced those files with templates, so the scaffold is
+ * gap-filling everywhere.
+ */
+async function writeIfAbsent(path: string, content: string, label: string): Promise<void> {
+  if (await exists(path)) return;
+  await writeFileAtomic(path, content);
+  logger.success(`Created ${label}`);
+}
+
+/**
  * Write full example scaffold (fresh init, no prior import).
+ * Never overwrites a canonical file that already exists.
  */
 export async function writeScaffoldFull(canonicalDir: string): Promise<void> {
   const rulesDir = ab(canonicalDir, 'rules');
   await mkdirp(rulesDir);
-  await writeFileAtomic(join(rulesDir, '_root.md'), TEMPLATE_ROOT_RULE);
-  logger.success('Created .agentsmesh/rules/_root.md');
-  await writeFileAtomic(join(rulesDir, '_example.md'), TEMPLATE_EXAMPLE_RULE);
-  logger.success('Created .agentsmesh/rules/_example.md');
+  await writeIfAbsent(join(rulesDir, '_root.md'), TEMPLATE_ROOT_RULE, '.agentsmesh/rules/_root.md');
+  await writeIfAbsent(
+    join(rulesDir, '_example.md'),
+    TEMPLATE_EXAMPLE_RULE,
+    '.agentsmesh/rules/_example.md',
+  );
 
   const commandsDir = ab(canonicalDir, 'commands');
   await mkdirp(commandsDir);
-  await writeFileAtomic(join(commandsDir, '_example.md'), TEMPLATE_EXAMPLE_COMMAND);
-  logger.success('Created .agentsmesh/commands/_example.md');
+  await writeIfAbsent(
+    join(commandsDir, '_example.md'),
+    TEMPLATE_EXAMPLE_COMMAND,
+    '.agentsmesh/commands/_example.md',
+  );
 
   const agentsDir = ab(canonicalDir, 'agents');
   await mkdirp(agentsDir);
-  await writeFileAtomic(join(agentsDir, '_example.md'), TEMPLATE_EXAMPLE_AGENT);
-  logger.success('Created .agentsmesh/agents/_example.md');
+  await writeIfAbsent(
+    join(agentsDir, '_example.md'),
+    TEMPLATE_EXAMPLE_AGENT,
+    '.agentsmesh/agents/_example.md',
+  );
 
   const skillDir = ab(canonicalDir, join('skills', '_example'));
   await mkdirp(skillDir);
-  await writeFileAtomic(join(skillDir, 'SKILL.md'), TEMPLATE_EXAMPLE_SKILL);
-  logger.success('Created .agentsmesh/skills/_example/SKILL.md');
+  await writeIfAbsent(
+    join(skillDir, 'SKILL.md'),
+    TEMPLATE_EXAMPLE_SKILL,
+    '.agentsmesh/skills/_example/SKILL.md',
+  );
 
-  await writeFileAtomic(ab(canonicalDir, 'mcp.json'), TEMPLATE_MCP);
-  logger.success('Created .agentsmesh/mcp.json');
-  await writeFileAtomic(ab(canonicalDir, 'hooks.yaml'), TEMPLATE_HOOKS);
-  logger.success('Created .agentsmesh/hooks.yaml');
-  await writeFileAtomic(ab(canonicalDir, 'permissions.yaml'), TEMPLATE_PERMISSIONS);
-  logger.success('Created .agentsmesh/permissions.yaml');
-  await writeFileAtomic(ab(canonicalDir, 'ignore'), TEMPLATE_IGNORE);
-  logger.success('Created .agentsmesh/ignore');
+  await writeIfAbsent(ab(canonicalDir, 'mcp.json'), TEMPLATE_MCP, '.agentsmesh/mcp.json');
+  await writeIfAbsent(ab(canonicalDir, 'hooks.yaml'), TEMPLATE_HOOKS, '.agentsmesh/hooks.yaml');
+  await writeIfAbsent(
+    ab(canonicalDir, 'permissions.yaml'),
+    TEMPLATE_PERMISSIONS,
+    '.agentsmesh/permissions.yaml',
+  );
+  await writeIfAbsent(ab(canonicalDir, 'ignore'), TEMPLATE_IGNORE, '.agentsmesh/ignore');
 }
 
 /**

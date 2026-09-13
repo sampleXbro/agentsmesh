@@ -1,9 +1,9 @@
 # Auto-generated. DO NOT EDIT MANUALLY.
 # Tracks the state of all config files for team conflict resolution.
 
-generated_at: 2026-09-04T08:58:50.100Z
+generated_at: 2026-09-13T13:53:25.847Z
 generated_by: serhii
-lib_version: 0.31.0
+lib_version: 0.36.0
 checksums:
   agents/code-debugger.md: sha256:33452bf839256a119a602cd10d085bff3cdb8f537ded76e60053bb9d8e5d33bc
   agents/code-documenter.md: sha256:89b4ebd27718bcd50a7283c95ea1ff9cad153b1112cf695f9f1fc22d90ec85ec
@@ -16,7 +16,7 @@ checksums:
   commands/commit.md: sha256:3e6dcc5871ad157c36efe19c162b43cdc0d723a8695fb0d45c1f90cc28fa931c
   commands/review.md: sha256:ba3053410e7cc3271f41ba329056df07c6ccd2f07e2ed3dda601c56e46a77d54
   commands/test.md: sha256:a60932b216ff9eb407c2b38e4459ac4b9606a3aed275f4af84a646eb6c2937e7
-  hooks.yaml: sha256:084f6e97314104d875a11ca592a300b34beba1ed7ac0a2bfa654bc80835f6758
+  hooks.yaml: sha256:38d7e165c57f970ea0676074e138787f89119e02826db0c3314634c873e68f5d
   ignore: sha256:53ad60cb2c945a41619fbb5dd0d43559c8461e4cb35e30f4d98b901c73766e12
   mcp.json: sha256:963782b54cbea4ef4686fd036e87332e1a61042579916222991429e359654921
   permissions.yaml: sha256:c806acb62daf533af836dc113be37e9840a2a9b3e21b984c5909fcfb16eb52f2
@@ -182,15 +182,15 @@ outputs:
   .claude/commands/planning.md: sha256:557bbbde4d66cf8b31588b2188fd633bb071b331d9e54d8c19cfdc80ec2ef7be
   .claude/commands/ship.md: sha256:0c3a139a059f841c25bac4661c16f1c4bafe7f0b703233d50c6b7ea48fe6a12a
   .claude/commands/spec.md: sha256:c7de854f4d60f5703fcaa2d8e19133516da326d74bf1186f79492e0e3a285a01
-  .cursor/commands/commit.md: sha256:e3d927c6d903faa27e01e1fe733926c72b1905eacda0f6a4b9472ee2e6d26485
-  .cursor/commands/review.md: sha256:51944d6b2973136558a21fc6cc49dda9602a5e3893c7600024c711429101a142
-  .cursor/commands/test.md: sha256:3e0b3f3c553cb8d874d77e695ca44602393df0cce2bd10b2e4d1ebbb54379e8d
-  .cursor/commands/build.md: sha256:93e8c5d44055033438e190614b7eb5c2befe4db6059bb83405967978f520c444
-  .cursor/commands/code-simplify.md: sha256:76a3787968d44203b1f8739cce0a148733a1d4eeb14ef9152d53c479f9097522
-  .cursor/commands/plan.md: sha256:41a7b76aec504373a149e03f8f6ed212dbcc8ceb2bf4935d169cbb0e8a13f583
-  .cursor/commands/planning.md: sha256:863a799fac45e86aaed7bb9143555bfcff6561f7706a53d3fd36e909ecdd01d7
-  .cursor/commands/ship.md: sha256:4fad208aa9ff7ba12f1d3afcdb9ee3a78ebdef5a6b12e0358e5aca0a479ae4d6
-  .cursor/commands/spec.md: sha256:fe3a8cd8f233d4ada8ffda79ca20fe35c2644c1fa42c05d786f233f2c2748cd8
+  .cursor/commands/commit.md: sha256:56f9232d37c003abda4ef281c9349f5417091bbad8d0c5911d06ea99bbb1d0b5
+  .cursor/commands/review.md: sha256:b7373e051bccdb75e96205e4fb38529e8a66f7e5db1ee346edd7c5d5f32869d9
+  .cursor/commands/test.md: sha256:17ce1150b023e4b708954b5f05c14cf0dd6da1b5b71d6f3a0cf8d78f030dd3da
+  .cursor/commands/build.md: sha256:c98dcfd0be76769f3da877ed4168a1bab7565d96d6979fa8b84143f9ea2585c8
+  .cursor/commands/code-simplify.md: sha256:adc00996a5ae57b146075b263577067361763229a681ea7702b2c3add9ed752e
+  .cursor/commands/plan.md: sha256:35e0ff0c37d248e3984709ce8effcbd24ab3aa8c08f4ffbded14a56a85d74a26
+  .cursor/commands/planning.md: sha256:557bbbde4d66cf8b31588b2188fd633bb071b331d9e54d8c19cfdc80ec2ef7be
+  .cursor/commands/ship.md: sha256:0c3a139a059f841c25bac4661c16f1c4bafe7f0b703233d50c6b7ea48fe6a12a
+  .cursor/commands/spec.md: sha256:c7de854f4d60f5703fcaa2d8e19133516da326d74bf1186f79492e0e3a285a01
   .github/prompts/commit.prompt.md: sha256:ef5d821a1dd8133c50da325e612f9af22b4c9ad2ebd7e82bbc8f69964fe70fa5
   .github/prompts/review.prompt.md: sha256:ed4e23ee864c7dda56403abb467b9d2c496772e21af778a721775eb2b9768e95
   .github/prompts/test.prompt.md: sha256:3724656be936c8c51cc1edbc456087737b5b8571f3336ab1d3246dda4797fe39
@@ -3862,37 +3862,34 @@ outputs:
   kilo.jsonc: sha256:630c265b1463315e3060b5e25e25c34b6ffc3f2f0d4dc22d2b814275f1049ed1
   .factory/settings.json: sha256:44127052c3853d12af2d34d7cc8bce0807a2f5927e642bdcfc9a91e99faa52a5
   .pi/settings.json: sha256:ded948deafe0744a31515b27ab1ae292e838477bc7281d9dc8724dc163b3e7f1
-  .claude/settings.json: sha256:535e755ef2d06de5445eced2bb99d040914c2d4cd9973138ba8007955f1f7444
-  .cursor/hooks.json: sha256:8959d46a7201c486b68b3f58bc1f9ece148e674ae35e5de388959d6edfd7b331
-  .github/hooks/agentsmesh.json: sha256:8aa44e401effaac2a65811e30809712fded94f3a0952e7f6c3390c9a1fc93082
+  .claude/settings.json: sha256:dd7d3e251384b292e314c391710a4e97f58f069a00451fce774ec3a5b904ff8d
+  .cursor/hooks.json: sha256:182b55021f4b09e7fe0e2aab67c243e7c72f9806ce785450b554aaec40e64148
+  .github/hooks/agentsmesh.json: sha256:136bf232ef3c137aec91931d033ea8f4d7767cbe6c2d5859d0cb560b990952d2
   .github/hooks/scripts/pretooluse-0.sh: sha256:8a6ca51d7b410e798636df4e93186b652333d8ea9241079ef44aeda216475a69
   .github/hooks/scripts/pretooluse-1.sh: sha256:67787886373584d8c96807ed8b6e388298b7b81cc45f32ced7d38c9c22042ce7
   .github/hooks/scripts/posttooluse-0.sh: sha256:f0a2199ef400137aed26718b789566f31e404532cae614273ccd0da7d6e5de93
-  .github/hooks/scripts/posttooluse-1.sh: sha256:67787886373584d8c96807ed8b6e388298b7b81cc45f32ced7d38c9c22042ce7
   .github/hooks/scripts/userpromptsubmit-0.sh: sha256:311ecc2e65ecc09ff3e08000f8237657c0e3456624ddb8b6fd1578c9b538a41f
   .github/hooks/scripts/posttoolusefailure-0.sh: sha256:311ecc2e65ecc09ff3e08000f8237657c0e3456624ddb8b6fd1578c9b538a41f
   .github/hooks/scripts/sessionstart-0.sh: sha256:311ecc2e65ecc09ff3e08000f8237657c0e3456624ddb8b6fd1578c9b538a41f
   .cline/hooks/pretooluse-0.sh: sha256:84a67dd4de7287f0b365197e1418fafb2a55198694e485c1f5198b58300d7f3c
   .cline/hooks/pretooluse-1.sh: sha256:0b8a1c6c1f0de58c47466ad716bb4077fd646b985f1065cb8582e73f737b3909
   .cline/hooks/posttooluse-0.sh: sha256:1289538f8fad54e23bb2b47065f875ed4e6822998a9045308f0b3042b013b668
-  .cline/hooks/posttooluse-1.sh: sha256:e2731a01128f3f45bce2ae621298faa686d0d640efa4888f29eae1bed96e9c71
   .cline/hooks/userpromptsubmit-0.sh: sha256:7b80dfe9c4232393acfdecc31500fdfbc66782f05e3ca5af5fd99782770dabe8
   .cline/hooks/posttoolusefailure-0.sh: sha256:71e4d9e2b8a3c0e18a87c9bb12cbafc84d850870f1001c8193b86ddf557a2faf
   .cline/hooks/sessionstart-0.sh: sha256:7f166713a9d610e8148cc7b49db0c15800bf4a04176ae22b51bc859b74c000ae
-  .codex/hooks.json: sha256:8f3723a1c42fe368e08a180e8cd585c1d24caa3a8e8979f2f000a0af7f47538f
-  .windsurf/hooks.json: sha256:8197b0ad3a43f39db3b0443e91e1f68551fadf408f3b386dfec4c42ca1b10f3b
-  .continue/settings.json: sha256:cf1c0f0b8bc28c97e6d9bc25bccbba3ed398ee319bc8a7af162da099ae8f6bb7
-  .agents/hooks.json: sha256:b01f7c24f7b1be39a41768ce84f124c39831e8f1a4c6436814845923f22d3888
+  .codex/hooks.json: sha256:ba98ef505129308e9fd067fb251d48b3a5d06b2e102d83e82fb045b48806d403
+  .windsurf/hooks.json: sha256:d54313d7c79530f33e1284bc3acb86290e08d2f7d6965d717c96ebe610d5b407
+  .continue/settings.json: sha256:89162c6acee871d4cec4087f918a8ff155b0d82a7d02580f3d2c85167588edf3
+  .agents/hooks.json: sha256:a70487093675f527a55cc8c4e30dc2198dcc9211ee5ddb68cfa359281d0f528a
   .kiro/hooks/pre-tool-use-1.json: sha256:eb7a57379357419113f3496ecf2fb9cb3c535984ccad94ab6bdf5cb786cc4c2f
   .kiro/hooks/pre-tool-use-2.json: sha256:4ec3b4f5d26437726f9f7bfc2e912b06f6d24a4504d368838ddcb375b10dd9ee
   .kiro/hooks/post-tool-use-1.json: sha256:ff4d3d49f423dc43e82e9306cb83e7fb8a5f42f0a96055ba1de5400cfbe41c82
-  .kiro/hooks/post-tool-use-2.json: sha256:fa06d7aa79ad152e68c0219794ca7d75de8fc99d457a33af3e0156e11ec63456
   .kiro/hooks/user-prompt-submit-1.json: sha256:cea32221e54fdf91851a62d8d351d9961be52761a9b7bf1b9c8cce24bea16040
-  .agents/plugins/agentsmesh/hooks/hooks.json: sha256:cf1c0f0b8bc28c97e6d9bc25bccbba3ed398ee319bc8a7af162da099ae8f6bb7
-  crush.json: sha256:3341ae926c3e9945f09e33befff976372c376e670d0ff7d518cf9041d2b5b26a
-  .qwen/settings.json: sha256:d3f8b4414cfc4643482f64a81e7e1e25099b2cb0010651fe65740e20909866e6
-  .trae/hooks.json: sha256:8d895215f3914c9b1db5c123cb403cae20eed7251dc1f8346a36da5ade38a36b
-  .factory/hooks.json: sha256:cf1c0f0b8bc28c97e6d9bc25bccbba3ed398ee319bc8a7af162da099ae8f6bb7
+  .agents/plugins/agentsmesh/hooks/hooks.json: sha256:89162c6acee871d4cec4087f918a8ff155b0d82a7d02580f3d2c85167588edf3
+  crush.json: sha256:02bbb7111ffd5f929b96291de4e5788585da5ad42b34cc255a7a589ed67f4929
+  .qwen/settings.json: sha256:9b0cf597465e69a0777aa96801b079d833a1c876204e4ccfd327011ff3686125
+  .trae/hooks.json: sha256:8e323d8c48f5236e5d9efbe6234a2d9c100ff503ca9624fe22630ad2212f6593
+  .factory/hooks.json: sha256:89162c6acee871d4cec4087f918a8ff155b0d82a7d02580f3d2c85167588edf3
   .claudeignore: sha256:53ad60cb2c945a41619fbb5dd0d43559c8461e4cb35e30f4d98b901c73766e12
   .cursorignore: sha256:53ad60cb2c945a41619fbb5dd0d43559c8461e4cb35e30f4d98b901c73766e12
   .geminiignore: sha256:53ad60cb2c945a41619fbb5dd0d43559c8461e4cb35e30f4d98b901c73766e12
@@ -3911,7 +3908,7 @@ outputs:
   .crushignore: sha256:53ad60cb2c945a41619fbb5dd0d43559c8461e4cb35e30f4d98b901c73766e12
   .qwenignore: sha256:53ad60cb2c945a41619fbb5dd0d43559c8461e4cb35e30f4d98b901c73766e12
   .trae/.ignore: sha256:53ad60cb2c945a41619fbb5dd0d43559c8461e4cb35e30f4d98b901c73766e12
-  .gemini/settings.json: sha256:e080788025b333bd5ac7d75fd1a1da6df7a68623723b3ea145005fcfef90a90c
+  .gemini/settings.json: sha256:11a797afbbfa9efa87d6da43d7b68b0f20f90ab3c43be0616950325b84e77961
   .agents/mcp_config.json: sha256:1aa1ba0782154eca7fedd6aba057291106f7076298eb84393324c4c7698e2546
   .kiro/agents/code-reviewer.md: sha256:26851c88906f4d1a494b4919586df4fb5718867ab85326307585402e9d0dee8b
   .kiro/agents/test-runner.md: sha256:0b45f061fda561fc86609cd9b874723a88391c517d8dc38bd309219791bc3688
@@ -3928,14 +3925,14 @@ outputs:
   .amp/settings.json: sha256:6e4cf0d284153cac726c6018d58bca6195c552d052c6af0f774f22e1e07e8a8a
   .zed/settings.json: sha256:8eb6f12988863348ec57058db461869f6abe8c447facd796c0cf40b8506a99a9
   .aider.conf.yml: sha256:9c0aec04e8821683cba3386a751c97beef53dd49714d72307002edd57dbfd6ef
-  .amazonq/cli-agents/code-reviewer.json: sha256:ae8e4909b389d9116559e343f570ee9c54e7406967fbb5808c5a88d466a8f10d
-  .amazonq/cli-agents/test-runner.json: sha256:8ffd3780c2261c51a9fccd40115bf8b3769b9c827fcf2bbb9229a87ce00d20c3
-  .amazonq/cli-agents/security-auditor.json: sha256:b33bcf4d20484b5ee9ae4f8aaf2efc7a725d3b32d1242a47afcd7349fbfa332a
-  .amazonq/cli-agents/test-engineer.json: sha256:4b21cb88ea38b02788ffcfe14f4bef469be3a259170c866379c377dbf7c2a45d
-  .amazonq/cli-agents/code-debugger.json: sha256:dca10cafb9ba3459adfce39f09e39a7f313a6dd47a114e876dc06ea17a926866
-  .amazonq/cli-agents/code-documenter.json: sha256:b62f17174c17a47701007b5da4f106df0151f6d69763130519f5abbeed9861ea
-  .amazonq/cli-agents/code-refactor.json: sha256:4f04fb749df20594974e2367e6f2d9fc98dea96d60549e4ccb6a193e62d9f014
-  .amazonq/cli-agents/code-security-auditor.json: sha256:f5552ca87de980151dff6ab93afa85ebac9db81319c545b8eb1bc5fbf0afebb9
-  .amazonq/cli-agents/code-standards-enforcer.json: sha256:e5ae9db5b72a6770e8a851e42b07d8136e84cbf3b2c7b6a0970d6905e09b1644
-  .amazonq/cli-agents/typescript-developer.json: sha256:b3170fdca6374894b039ec7ca5c752fbbd0ccdf99b2b7523a1fa1f58f0a846f6
-  .augment/settings.json: sha256:85a773baa7182417d67807050b22339fd3619a61a53e20ad7c9f5a695e7d6d7f
+  .amazonq/cli-agents/code-reviewer.json: sha256:d7603c0d4e3bcdc97b49a9150013b17fd93b32354df788b75b1d2e740a5d9bbb
+  .amazonq/cli-agents/test-runner.json: sha256:33c1dd6e04750a1030b69b19270b9f792d9fb1ff656f7f68993fc8b2dbd4bf0f
+  .amazonq/cli-agents/security-auditor.json: sha256:25daa0f059dccec7452ab326d6d07f5a3242dd6e08cc217631e478b68939ffdb
+  .amazonq/cli-agents/test-engineer.json: sha256:e33a0e0b5700fdd70f1b88d6566cd337fb87885f7bb1bb1ab4180654e3f86ede
+  .amazonq/cli-agents/code-debugger.json: sha256:00653748a077493bc8936aedcbf7d5b9eef76fccaff9f734d80fc08442383a9a
+  .amazonq/cli-agents/code-documenter.json: sha256:6805c4796691618231c4ba8ee9bc22d5b0bf1bc9367e81811d3b1174a0a97bc0
+  .amazonq/cli-agents/code-refactor.json: sha256:ef1dda6134590acebc22c08322999c809cf2d0cb02ae1acb77b30b7dbe93b654
+  .amazonq/cli-agents/code-security-auditor.json: sha256:221183a2b8664012b588bb4663d7a72f8a72573c1b9b3f9cd101b33002dc35a9
+  .amazonq/cli-agents/code-standards-enforcer.json: sha256:1b357c5546cfe71da1f75f61406b76031bc30e61a3b8f7f551b36ba2b96e531a
+  .amazonq/cli-agents/typescript-developer.json: sha256:1351c5962ae7ef75b523668dd5cfa3ef4db37ee10ceddf5369950ffa99a192bb
+  .augment/settings.json: sha256:75e24f9bd2e458a77087aed287ecb013a4719f77e27eeac79b03608f78e96bb3

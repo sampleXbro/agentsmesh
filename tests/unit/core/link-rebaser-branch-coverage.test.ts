@@ -2,13 +2,8 @@ import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import {
-  expandResolvedPaths,
-  isGlobAdjacent,
-  isRootRelativePathToken,
-  protectedRanges,
-  resolveProjectPath,
-} from '../../../src/core/reference/link-rebaser-helpers.js';
+import { expandResolvedPaths, isGlobAdjacent, isRootRelativePathToken, resolveProjectPath } from '../../../src/core/reference/link-rebaser-helpers.js';
+import { protectedRanges } from '../../../src/core/reference/protected-ranges.js';
 import {
   formatLinkPathForDestinationLegacy,
   isUnderAgentsMesh,

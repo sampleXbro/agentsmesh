@@ -3,14 +3,15 @@
  *
  * Used by `agentsmesh uninstall` when the install was originally written via
  * `--extends`. The mirror operation to `writeInstallAsExtend` /
- * `mergeExtendList` — full-document yaml stringify so we preserve unrelated
- * keys (`targets:`, `features:`, etc.). Atomic write via `writeFileAtomic`.
+ * `mergeExtendList` — an in-place document edit so comments and unrelated keys
+ * (`targets:`, `features:`, anything unmodelled) survive. Atomic write via
+ * `writeFileAtomic`.
  *
  * Returns `true` when an entry was found and the file was rewritten, `false`
  * when no entry matched and the file is unchanged.
  */
 
-import { parse as parseYaml, stringify as yamlStringify } from 'yaml';
+import { parseDocument, parse as parseYaml } from 'yaml';
 import { readFileSafe, writeFileAtomic } from '../../utils/filesystem/fs.js';
 import type { ValidatedConfig } from '../../config/core/schema.js';
 
@@ -31,9 +32,11 @@ export async function removeAgentsmeshExtendByName(
     return (entry as { name?: unknown }).name !== name;
   });
   if (next.length === rawExtends.length) return false;
-  raw.extends = next;
 
-  const out = yamlStringify(raw, { indent: 2, lineWidth: 0 });
+  // In-place edit keeps comments and unmodelled keys; see yaml-writer.ts.
+  const doc = parseDocument(content);
+  doc.set('extends', doc.createNode(next));
+  const out = doc.toString({ indent: 2, lineWidth: 0 });
   await writeFileAtomic(configPath, out.endsWith('\n') ? out : `${out}\n`);
   return true;
 }

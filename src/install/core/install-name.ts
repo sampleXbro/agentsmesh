@@ -13,12 +13,30 @@ export function selectInstallEntryName(args: {
   config: ValidatedConfig;
   parsed: Parameters<typeof suggestExtendName>[0];
   entryFeatures: ValidatedConfig['features'];
+  /** Explicit `--name`. */
   nameOverride: string;
+  /** Name an earlier install of this same source already uses; safe to reuse. */
+  reuseExistingName?: string;
 }): string {
-  const { config, parsed, entryFeatures, nameOverride } = args;
+  const { config, parsed, entryFeatures, nameOverride, reuseExistingName } = args;
   const used = new Set(config.extends.map((entry) => entry.name));
+
+  // An explicit `--name` that lands on an existing extends entry would make
+  // this install adopt a row the user wrote by hand: `uninstall` then removes
+  // it by name and their entry is gone. Reusing the name of an earlier install
+  // of the SAME source is the one legitimate case, and arrives separately.
+  if (nameOverride && nameOverride !== reuseExistingName && used.has(nameOverride)) {
+    const existing = config.extends.find((entry) => entry.name === nameOverride);
+    throw new Error(
+      `--name "${nameOverride}" is already used by an extends entry pointing at ` +
+        `"${existing?.source ?? 'another source'}". Choose a different name, or remove that entry ` +
+        'first if you meant to replace it.',
+    );
+  }
+
   return (
     nameOverride ||
+    reuseExistingName ||
     suggestExtendName(
       parsed,
       { featureHint: entryFeatures.length === 1 ? entryFeatures[0] : undefined },

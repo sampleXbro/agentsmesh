@@ -310,7 +310,7 @@ When a recall surfaces a rule that does not belong, you do not need to open `les
   git config merge.agentsmesh-lessons.driver "agentsmesh lessons merge-driver %O %A %B"
   ```
 
-  The driver writes nothing and exits non-zero if a side is unparseable or the merged graph fails validation, so git falls back to ordinary conflict markers rather than persisting a bad merge. `agentsmesh lessons validate` (run in CI via `agentsmesh lint`) is the backstop.
+  The driver writes the union of both branches whenever it can build one, because a failing driver does **not** make git re-merge the file with conflict markers — git leaves your side untouched and marks the path unmerged, which would discard every lesson the other branch captured. An empty ancestor (both branches created the graph) and validation errors that already existed on either side are merged cleanly. If the merge itself introduces a validation error, the union is still written and the driver exits non-zero so you review it before staging; only an unreadable side leaves the file untouched. `agentsmesh lessons validate` (run in CI via `agentsmesh lint`) is the backstop.
 
 - **Worktrees / discarded branches**: the graph lives in the working tree, so a lesson captured in a worktree or branch that is later discarded is lost with it. Commit captures you want to keep.
 

@@ -4,26 +4,20 @@
  * `fs-text-encoding.ts`. Re-exports keep the public API stable.
  */
 
-import {
-  readFile,
-  writeFile,
-  access,
-  chmod,
-  mkdir,
-  rename,
-  rm,
-  unlink,
-  lstat,
-} from 'node:fs/promises';
+import { readFile, open, access, mkdir, rm, lstat, type FileHandle } from 'node:fs/promises';
+import { randomUUID } from 'node:crypto';
 import { dirname } from 'node:path';
 import { constants } from 'node:fs';
 import { FileSystemError } from '../../core/errors.js';
 import {
   UTF8_BOM,
   executableModeFor,
+  isBinaryPayloadPath,
   normalizeLineEndings,
+  payloadEncodingFor,
   shouldNormalizeLineEndings,
 } from './fs-text-encoding.js';
+import { renameWithRetry } from './rename-retry.js';
 
 export {
   copyDir,
@@ -46,7 +40,11 @@ interface ErrnoLike {
  */
 export async function readFileSafe(path: string): Promise<string | null> {
   try {
-    const data = await readFile(path, 'utf-8');
+    // Binary payloads (skill images, fonts, archives) are read as latin1 so
+    // every byte survives; a UTF-8 decode would replace invalid bytes with
+    // U+FFFD and corrupt the file before generation ever runs.
+    const data = await readFile(path, payloadEncodingFor(path));
+    if (isBinaryPayloadPath(path)) return data;
     return data.startsWith(UTF8_BOM) ? data.slice(UTF8_BOM.length) : data;
   } catch (err) {
     const e = err as ErrnoLike;
@@ -63,11 +61,7 @@ export async function readFileSafe(path: string): Promise<string | null> {
  * Write content atomically (write to .tmp, then rename).
  * Creates parent directories.
  *
- * Symlink safety: refuses to follow a pre-existing symlink at `path`. Without
- * this guard, an attacker with write access to the parent directory could swap
- * `path` for a symlink between the lstat check and the rename, redirecting the
- * write to an arbitrary destination (e.g. `~/.ssh/authorized_keys`). On detect,
- * the existing symlink is unlinked so the new file lands at the intended path.
+ * Uses an exclusively created temporary file; rename replaces a destination symlink.
  *
  * @param path - Target file path
  * @param content - Content to write
@@ -91,46 +85,32 @@ export async function writeFileAtomic(
         { errnoCode: 'EISDIR' },
       );
     }
-    if (info.isSymbolicLink()) {
-      // Drop the symlink so the rename below lands at `path` itself, not at the
-      // link target. Closes a TOCTOU window where a symlink could be swapped in
-      // between guard and rename to redirect writes outside the tree.
-      await unlink(path).catch((e: unknown) => {
-        if ((e as ErrnoLike).code !== 'ENOENT') throw e;
-      });
-    }
   } catch (err) {
     if (err instanceof FileSystemError) throw err;
     const e = err as ErrnoLike;
     if (e.code !== 'ENOENT') throw err;
   }
-  const tmpPath = `${path}.tmp`;
+  const tmpPath = `${path}.tmp-${randomUUID()}`;
   const payload = shouldNormalizeLineEndings(path) ? normalizeLineEndings(content) : content;
   const mode = options?.mode ?? executableModeFor(path);
+  let handle: FileHandle | undefined;
+  let ownsTemporaryFile = false;
   try {
-    try {
-      const tmpInfo = await lstat(tmpPath);
-      if (tmpInfo.isSymbolicLink()) {
-        await unlink(tmpPath);
-      }
-    } catch (tmpErr) {
-      if ((tmpErr as ErrnoLike).code !== 'ENOENT') throw tmpErr;
-    }
-    const writeOpts: NonNullable<Parameters<typeof writeFile>[2]> = {
-      encoding: 'utf-8',
-      flag: 'w',
-    };
-    if (mode !== undefined) (writeOpts as { mode?: number }).mode = mode;
-    await writeFile(tmpPath, payload, writeOpts);
-    await rename(tmpPath, path);
-    if (mode !== undefined) {
-      // `writeFile`'s mode only applies on initial create; if tmp already
-      // existed (or umask masked some bits) we'd silently drop the executable
-      // bit. chmod after rename guarantees the final inode carries the mode.
-      await chmod(path, mode);
-    }
+    handle = await open(tmpPath, 'wx', mode);
+    ownsTemporaryFile = true;
+    await handle.writeFile(payload, payloadEncodingFor(path));
+    if (mode !== undefined) await handle.chmod(mode);
+    await handle.close();
+    handle = undefined;
+    // Retrying rename, not a plain one: on Windows, replacing a destination
+    // fails with EPERM while another process is mid-replace of the same path.
+    // Unique temp names (the fix for torn content) removed the accidental
+    // serialization writers used to get from sharing one `<path>.tmp`, so
+    // concurrent writers now genuinely race here. POSIX is a single rename.
+    await renameWithRetry(tmpPath, path);
   } catch (err) {
-    await rm(tmpPath, { force: true }).catch(() => {});
+    await handle?.close().catch(() => {});
+    if (ownsTemporaryFile) await rm(tmpPath, { force: true }).catch(() => {});
     const e = err as ErrnoLike;
     throw new FileSystemError(
       path,

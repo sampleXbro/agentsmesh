@@ -57,6 +57,10 @@ Use functional components with hooks. No class components.
 Prefer Tailwind utility classes over custom CSS.
 ```
 
+<Aside type="caution" title="Scoping and shared root files">
+  Several targets read the same root instruction file (`AGENTS.md`). A rule scoped with `targets:` to one of them still lands in a file every one of them reads, because one file cannot differ per target. AgentsMesh keeps every scoped rule and warns that the scoping was widened, rather than dropping one target's rule. To keep a rule genuinely private to one tool, scope it to a target that writes its own rule files (for example `cursor` → `.cursor/rules/`).
+</Aside>
+
 ### Codex CLI rule with instruction variant
 
 ```markdown

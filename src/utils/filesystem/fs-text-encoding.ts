@@ -65,6 +65,109 @@ export function shouldNormalizeLineEndings(path: string): boolean {
   return TEXT_DOTFILES.has(base);
 }
 
+/**
+ * Extensions whose payload is bytes, not text. A skill may ship an image, a
+ * font or an archive, and decoding those as UTF-8 replaces every invalid byte
+ * with U+FFFD — the file is corrupt before any generator sees it.
+ *
+ * This is a deliberate allowlist rather than "anything not in TEXT_EXTENSIONS":
+ * paths outside both sets (`.py`, `.hbs`, the extensionless `.agentsmesh/ignore`)
+ * keep their UTF-8 handling, so widening byte mode cannot regress text content.
+ */
+const BINARY_EXTENSIONS = new Set<string>([
+  '.png',
+  '.jpg',
+  '.jpeg',
+  '.gif',
+  '.bmp',
+  '.ico',
+  '.webp',
+  '.avif',
+  '.tiff',
+  '.pdf',
+  '.zip',
+  '.gz',
+  '.tgz',
+  '.bz2',
+  '.xz',
+  '.7z',
+  '.rar',
+  '.jar',
+  '.woff',
+  '.woff2',
+  '.ttf',
+  '.otf',
+  '.eot',
+  '.mp3',
+  '.mp4',
+  '.wav',
+  '.ogg',
+  '.webm',
+  '.mov',
+  '.wasm',
+  '.bin',
+  '.dat',
+  '.db',
+  '.sqlite',
+  '.so',
+  '.dylib',
+  '.dll',
+  '.exe',
+  '.class',
+  '.pyc',
+  // Office and design documents are zip or proprietary containers.
+  '.xlsx',
+  '.xls',
+  '.docx',
+  '.doc',
+  '.pptx',
+  '.ppt',
+  '.odt',
+  '.ods',
+  '.psd',
+  '.ai',
+  '.sketch',
+  '.fig',
+  '.heic',
+  '.heif',
+  // Archives, columnar data, models and compressed payloads.
+  '.tar',
+  '.zst',
+  '.br',
+  '.lz4',
+  '.parquet',
+  '.avro',
+  '.orc',
+  '.pkl',
+  '.npy',
+  '.npz',
+  '.onnx',
+  '.pt',
+  '.safetensors',
+  '.gguf',
+  '.sqlite3',
+  '.avi',
+  '.mkv',
+  '.flac',
+  '.aac',
+  '.m4a',
+  '.ttc',
+]);
+
+export function isBinaryPayloadPath(path: string): boolean {
+  return BINARY_EXTENSIONS.has(extname(path).toLowerCase());
+}
+
+/**
+ * The encoding to read, write and hash a path's payload with. `latin1` maps
+ * each byte to exactly one code unit, so bytes survive a round trip through a
+ * JS string unchanged — as long as every side of the pipeline agrees, which is
+ * why reads, writes and checksums all resolve the encoding here.
+ */
+export function payloadEncodingFor(path: string): 'utf-8' | 'latin1' {
+  return isBinaryPayloadPath(path) ? 'latin1' : 'utf-8';
+}
+
 export function normalizeLineEndings(content: string): string {
   return content.replace(/\r\n?/g, '\n');
 }

@@ -5,6 +5,7 @@
 import { fetchRemoteExtend, getCacheDir } from '../../config/remote/remote-fetcher.js';
 import { resolveRemoteRefForInstall } from './git-pin.js';
 import type { ParsedInstallSource } from './url-parser.js';
+import { stripUrlCredentials } from '../../utils/output/redact-url-secrets.js';
 
 export interface FetchInstallResult {
   resolvedPath: string;
@@ -48,10 +49,13 @@ export async function fetchInstallSource(parsed: ParsedInstallSource): Promise<F
   const fragment = sha;
   const base = (parsed.gitPlusBase ?? remote).split('#')[0];
   const src = `git+${base}#${fragment}`;
+  // The fetch above may carry a token; what we hand back is recorded in
+  // `installs.yaml` / `pack.yaml`, which the team commits.
+  const persisted = stripUrlCredentials(src);
   const fetched = await fetchRemoteExtend(src, 'install', {
     cacheDir: getCacheDir(),
     refresh: false,
     allowOfflineFallback: false,
   });
-  return { resolvedPath: fetched.resolvedPath, sourceForYaml: src, version: sha };
+  return { resolvedPath: fetched.resolvedPath, sourceForYaml: persisted, version: sha };
 }

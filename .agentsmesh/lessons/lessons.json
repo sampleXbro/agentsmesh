@@ -125,6 +125,20 @@
         "t-kw-ab6ac577"
       ]
     },
+    "canonical-skills-read-skill-supporting-files-as": {
+      "createdAt": "2026-09-13",
+      "evidence": [
+        "9b4c3cba"
+      ],
+      "rule": "Read skill supporting files as bytes (Buffer), never through readFileSafe as a UTF-8 string: binary assets under skills/*/ (png, woff, zip, templates) are decoded lossily and written broken to every target (a PNG 0x89 byte became EF BF BD). Gate any text normalization on a text-extension allowlist and pass bytes through verbatim otherwise.",
+      "status": "active",
+      "topics": [
+        "canonical-skills"
+      ],
+      "triggers": [
+        "t-glob-1a4aaef3"
+      ]
+    },
     "capability-fix-campaign-global-scope-import-for-a": {
       "createdAt": "2026-07-12",
       "evidence": [
@@ -724,6 +738,38 @@
         "t-glob-dd0538cf"
       ]
     },
+    "cli-presentation-never-call-process-exit-immediately": {
+      "createdAt": "2026-09-13",
+      "evidence": [
+        "9b4c3cba"
+      ],
+      "rule": "Never call process.exit() immediately after process.stdout.write(): pipes are asynchronous on macOS, so any output over 64 KiB (diff --json, lint --json) is truncated and the consumer gets an unparseable JSON fragment. Set process.exitCode and return, or exit inside the write callback.",
+      "status": "active",
+      "topics": [
+        "cli-presentation"
+      ],
+      "triggers": [
+        "t-glob-84949cce",
+        "t-glob-db59ec0a",
+        "t-glob-8173701c"
+      ]
+    },
+    "cli-presentation-node-writes-to-a-pipe": {
+      "createdAt": "2026-09-13",
+      "evidence": [
+        "69e5ab01"
+      ],
+      "rule": "Node writes to a pipe asynchronously while a TTY or file is blocking, and process.exit discards whatever is still queued, so any CLI payload over the pipe buffer (64 KiB on macOS) is truncated only when piped — redirecting to a file hides the bug. Fix it once at the process entry by asking libuv to make stdout/stderr blocking (stream._handle.setBlocking(true), guarded: private API); do NOT try to flush an already-queued async write before exiting, which is impossible synchronously.",
+      "status": "active",
+      "topics": [
+        "cli-presentation"
+      ],
+      "triggers": [
+        "t-glob-1adbf269",
+        "t-glob-a6d44f71",
+        "t-glob-78449aa1"
+      ]
+    },
     "cli-presentation-when-auditing-spinner-vs-prompt": {
       "createdAt": "2026-07-09",
       "evidence": [
@@ -738,6 +784,54 @@
       ],
       "triggers": [
         "t-glob-8173701c"
+      ]
+    },
+    "codex-cli-mcp-any-path-containment-assert-added": {
+      "createdAt": "2026-09-07",
+      "evidence": [
+        "fe37add6"
+      ],
+      "rule": "Any path-containment assert added to the stale sweep (findStaleGeneratedOutputs / findUntrackedManagedDirFiles) must ALSO run in the pre-write check in generate-handlers/convert, covering every active target's managedOutputs.dirs — the sweep runs after all files are written and before writeLockFile, so a managed dir that produced no output this run (feature off) and resolves outside the root aborts with outputs on disk and no lock, leaving check reporting 'Not initialized' on every rerun. Dry-run must run the same check so it cannot say OK for a layout the real run rejects.",
+      "status": "superseded",
+      "supersededBy": "generate-any-path-containment-assert-added",
+      "topics": [
+        "codex-cli-mcp"
+      ],
+      "triggers": [
+        "t-glob-98419953",
+        "t-glob-8964922b",
+        "t-glob-32bb65c6"
+      ]
+    },
+    "codex-cli-mcp-codex-rejects-mcp-server-names": {
+      "createdAt": "2026-09-07",
+      "evidence": [
+        "025018bf"
+      ],
+      "rule": "Codex rejects MCP server names that do not match ^[a-zA-Z0-9_:@/.-]+$ (e.g. 'Framelink MCP for Figma' with spaces) and never starts that server; canonical mcp.json keys flow verbatim into .codex/config.toml [mcp_servers.\"<name>\"] tables, so codex-cli generation or lint must flag or sanitize such names instead of emitting them.",
+      "status": "active",
+      "topics": [
+        "codex-cli-mcp"
+      ],
+      "triggers": [
+        "t-glob-e1afdd1c",
+        "t-glob-b836378c"
+      ]
+    },
+    "codex-cli-mcp-when-restoring-a-user-s": {
+      "createdAt": "2026-09-07",
+      "evidence": [
+        "025018bf"
+      ],
+      "rule": "When restoring a user's tool config (e.g. ~/.codex/config.toml) from a .bak, do not stop at 'parses as TOML': check the restored model_provider/base_url is live and not a preset placeholder such as https://api.example.com/v1 — a backup can capture a broken state (the Mar-31 .bak held the IDE plugin's crs preset), and restoring it silently re-breaks the tool months later.",
+      "status": "active",
+      "topics": [
+        "codex-cli-mcp"
+      ],
+      "triggers": [
+        "t-kw-201020b5",
+        "t-kw-7d0613d0",
+        "t-kw-5bc10508"
       ]
     },
     "codex-cli-rule-paths-when-changing-where-codex-cli": {
@@ -1131,6 +1225,21 @@
       ],
       "triggers": [
         "t-glob-d8e040bc"
+      ]
+    },
+    "fixture-and-assertion-discipline-inspect-fixture-defaults-and-completed": {
+      "createdAt": "2026-09-07",
+      "evidence": [
+        "commit:025018bf44db90aa2fae70d1b17b92f608404cda"
+      ],
+      "rule": "Inspect fixture defaults and completed focused-test results before updating exact artifact assertions or starting a broader suite; a helper named minimalConfig may enable several targets.",
+      "status": "active",
+      "topics": [
+        "fixture-and-assertion-discipline"
+      ],
+      "triggers": [
+        "t-kw-ea86337d",
+        "t-glob-5cc82d35"
       ]
     },
     "fixture-and-assertion-discipline-opencode-declares-additionalrules-mcp-pe": {
@@ -1842,6 +1951,37 @@
         "t-kw-45ee2cca"
       ]
     },
+    "generate-any-path-containment-assert-added": {
+      "createdAt": "2026-09-07",
+      "evidence": [
+        "fe37add6"
+      ],
+      "rule": "Any path-containment assert added to the stale sweep (findStaleGeneratedOutputs / findUntrackedManagedDirFiles) must ALSO run in the pre-write check in generate-handlers/convert, covering every active target's managedOutputs.dirs — the sweep runs after all files are written and before writeLockFile, so a managed dir that produced no output this run (feature off) and resolves outside the root aborts with outputs on disk and no lock, leaving check reporting Not-initialized on every rerun. Dry-run must run the same check so it cannot say OK for a layout the real run rejects.",
+      "status": "active",
+      "topics": [
+        "generate"
+      ],
+      "triggers": [
+        "t-glob-98419953",
+        "t-glob-8964922b",
+        "t-glob-32bb65c6"
+      ]
+    },
+    "generate-emit-empty-owned-settings-when": {
+      "createdAt": "2026-09-07",
+      "evidence": [
+        "commit:025018bf44db90aa2fae70d1b17b92f608404cda"
+      ],
+      "rule": "Emit empty owned settings when canonical configuration is explicitly empty so the last permission, hook, or server is revoked; distinguish empty objects from missing canonical files and preserve unrelated native settings.",
+      "status": "active",
+      "topics": [
+        "generate"
+      ],
+      "triggers": [
+        "t-glob-62ce3dcb",
+        "t-kw-90c0879d"
+      ]
+    },
     "generate-never-insert-an-import-by": {
       "createdAt": "2026-09-03",
       "evidence": [],
@@ -2547,6 +2687,21 @@
         "t-kw-e9ca865e"
       ]
     },
+    "git-commit-hygiene-a-failing-git-merge-driver": {
+      "createdAt": "2026-09-13",
+      "evidence": [
+        "bbe26822"
+      ],
+      "rule": "A failing git merge driver does NOT make git re-merge the file with conflict markers: git leaves the %A (ours) file byte-identical and marks the path unmerged with no markers in it, so resolving via 'git add' silently discards everything the other side had. A union driver must therefore WRITE its best-effort union before exiting non-zero, and treat an empty %O (git passes an empty ancestor when the path is new on both branches) as an empty base rather than a parse failure.",
+      "status": "active",
+      "topics": [
+        "git-commit-hygiene"
+      ],
+      "triggers": [
+        "t-glob-72977c26",
+        "t-glob-96d1a399"
+      ]
+    },
     "git-commit-hygiene-before-creating-a-new-standalone": {
       "createdAt": "2026-06-24",
       "evidence": [
@@ -3019,6 +3174,22 @@
       "triggers": [
         "t-glob-68c54751",
         "t-kw-fa762c9e"
+      ]
+    },
+    "install-import-pickers-allocate-pack-staging-and-backups": {
+      "createdAt": "2026-09-07",
+      "evidence": [
+        "025018bf44db90aa2fae70d1b17b92f608404cda"
+      ],
+      "rationale": "Regression tests proved installing pack deletes separately installed pack.tmp and pack.old with local edits when sibling paths are reused for staging.",
+      "rule": "Allocate pack staging and backups in an exclusively created operation directory; never delete fixed name-derived .tmp or .old siblings, because those are valid independent pack names. Clean only owned paths, and retain a backup when rollback fails.",
+      "status": "active",
+      "topics": [
+        "install-import-pickers"
+      ],
+      "triggers": [
+        "t-glob-dda7e920",
+        "t-kw-468c3ca3"
       ]
     },
     "install-import-pickers-every-per-target-mcp-importer": {
@@ -5150,6 +5321,21 @@
         "t-kw-574e42b9"
       ]
     },
+    "lessons-telemetry-when-computing-lessons-held-rate": {
+      "createdAt": "2026-09-11",
+      "evidence": [
+        "3b2a7806"
+      ],
+      "rule": "When computing lessons held-rate from outcome-log.jsonl, never mark a delivered record as broken just because a failure shares its session and contextKey: high-frequency keys (cmd:cd, cmd:mkdir) collect many deliveries per session, so 8 real failures amplified into 34 'broke' attributions and made the held rate look 6.5 points worse. Join on (lessonId, contextKey) within a bounded window after the delivery, and report the distinct failing-action count beside the rate.",
+      "status": "active",
+      "topics": [
+        "lessons-telemetry"
+      ],
+      "triggers": [
+        "t-glob-5c14835c",
+        "t-glob-c88404c0"
+      ]
+    },
     "lessons-telemetry-when-interpreting-lessons-stats-diagnose": {
       "createdAt": "2026-08-27",
       "evidence": [
@@ -5817,6 +6003,37 @@
         "t-glob-2f2abaf1"
       ]
     },
+    "mcp-path-containment-mutate-raw-mcp-documents-rather": {
+      "createdAt": "2026-09-07",
+      "evidence": [
+        "commit:025018bf44db90aa2fae70d1b17b92f608404cda"
+      ],
+      "rule": "Mutate raw MCP documents rather than lossy normalized projections; reject malformed or unreadable existing documents and preserve every untouched server and top-level field.",
+      "status": "active",
+      "topics": [
+        "mcp-path-containment"
+      ],
+      "triggers": [
+        "t-glob-e9408176",
+        "t-glob-6de83f22",
+        "t-kw-c947b085"
+      ]
+    },
+    "mcp-path-containment-validate-every-skill-mutation-path": {
+      "createdAt": "2026-09-07",
+      "evidence": [
+        "commit:025018bf44db90aa2fae70d1b17b92f608404cda"
+      ],
+      "rule": "Validate every skill mutation path and body size before the first write; reject the primary SKILL.md as a supporting-file mutation, including case variants, so validation failures cannot leave partial changes.",
+      "status": "active",
+      "topics": [
+        "mcp-path-containment"
+      ],
+      "triggers": [
+        "t-glob-c9a321aa",
+        "t-kw-91081d8d"
+      ]
+    },
     "pnpm-lockfile-in-this-repo-run-dev": {
       "createdAt": "2026-06-23",
       "evidence": [],
@@ -5859,6 +6076,21 @@
       "triggers": [
         "t-glob-9499d1a7",
         "t-cmd-b25b679a"
+      ]
+    },
+    "process-locks-fail-on-stale-lock-eviction": {
+      "createdAt": "2026-09-07",
+      "evidence": [
+        "commit:025018bf44db90aa2fae70d1b17b92f608404cda"
+      ],
+      "rule": "Fail on stale-lock eviction errors instead of retrying indefinitely; remove an incomplete lock when holder metadata cannot be written, without masking the original filesystem error.",
+      "status": "active",
+      "topics": [
+        "process-locks"
+      ],
+      "triggers": [
+        "t-glob-a9eb0502",
+        "t-kw-baecf908"
       ]
     },
     "process-locks-when-wiring-any-process-lock": {
@@ -5988,6 +6220,24 @@
         "t-glob-895a6107"
       ]
     },
+    "security-resolve-existing-parent-directories-agai": {
+      "createdAt": "2026-09-07",
+      "evidence": [
+        "commit:025018bf44db90aa2fae70d1b17b92f608404cda"
+      ],
+      "rule": "Resolve existing parent directories against the real project root before generated writes or stale deletion; validate managed directories before traversal. Preserve internal directory symlinks and replace or unlink leaf symlinks without following them.",
+      "status": "active",
+      "topics": [
+        "security"
+      ],
+      "triggers": [
+        "t-glob-ebc9f5cd",
+        "t-glob-1a861122",
+        "t-glob-98419953",
+        "t-glob-bacf18ff",
+        "t-kw-951a5294"
+      ]
+    },
     "security-the-extends-elevated-artifact-gate": {
       "createdAt": "2026-06-27",
       "evidence": [],
@@ -5999,6 +6249,22 @@
       ],
       "triggers": [
         "t-glob-e1dcfcaa"
+      ]
+    },
+    "security-use-exclusive-temporary-files-per": {
+      "createdAt": "2026-09-07",
+      "evidence": [
+        "commit:025018bf44db90aa2fae70d1b17b92f608404cda"
+      ],
+      "rule": "Use exclusive temporary files per atomic write; preserve unrelated siblings and the original destination on failure, set permissions before rename, and ignore new lock-temp names in watchers.",
+      "status": "active",
+      "topics": [
+        "security"
+      ],
+      "triggers": [
+        "t-glob-95700160",
+        "t-glob-92a97f3a",
+        "t-kw-b2d1f670"
       ]
     },
     "security-when-hardening-a-git-spawn": {
@@ -7680,6 +7946,20 @@
         "t-cmd-79806ff2"
       ]
     },
+    "test-execution-stop-an-active-full-test": {
+      "createdAt": "2026-09-07",
+      "evidence": [
+        "commit:025018bf44db90aa2fae70d1b17b92f608404cda"
+      ],
+      "rule": "Stop an active full test run before starting a replacement run; fixed temporary directories shared by test files can race across concurrent suite processes. If sandbox IPC prevents tsx tests, rerun with the needed permission after the first run exits.",
+      "status": "active",
+      "topics": [
+        "test-execution"
+      ],
+      "triggers": [
+        "t-cmd-0905ac21"
+      ]
+    },
     "test-execution-use-tsx-instead-of-plain": {
       "createdAt": "2026-06-17",
       "evidence": [
@@ -8148,6 +8428,21 @@
       "triggers": [
         "t-cmd-d75c3b91",
         "t-cmd-f68bf5e2"
+      ]
+    },
+    "verification-workflow-after-splitting-a-module-repoint": {
+      "createdAt": "2026-09-13",
+      "evidence": [
+        "9f0099cf"
+      ],
+      "rule": "After splitting a module, repoint EVERY importer including test files and re-run the full unit suite, not just the tests you were thinking about: a focused run and a gate started before the split both pass while four test files still import the moved symbol from the old path. Also expect the per-file coverage floor to trip on the new file — a coverage run that began before the split reports the new module at 0%, which is an artifact, but genuinely dead defensive branches (a '?? 0' on matchAll's index, which is always set) should be deleted rather than covered.",
+      "status": "active",
+      "topics": [
+        "verification-workflow"
+      ],
+      "triggers": [
+        "t-glob-7e7af327",
+        "t-glob-ae2ce734"
       ]
     },
     "verification-workflow-changing-the-public-api-surface": {
@@ -9312,6 +9607,9 @@
     "agent-orchestration": {
       "summary": "Subagent/parallel-agent orchestration safety — tool profiles, isolation, destructive-command guards, fan-out discipline."
     },
+    "canonical-skills": {
+      "summary": "Canonical skills loader: supporting-file bytes, names, packs/extends parity"
+    },
     "capability-fix-campaign": {
       "summary": "Multi-target capability-drift fix campaign (2026-07): sequential per-target implementation, coverage-gate handling, orchestration conventions."
     },
@@ -9326,6 +9624,9 @@
     },
     "cli-presentation": {
       "summary": "CLI presentation/clack: spinner line-ownership, TTY-gating, where to render bulk output relative to the spinner."
+    },
+    "codex-cli-mcp": {
+      "summary": "Codex CLI MCP config.toml generation constraints and merge quirks"
     },
     "codex-cli-rule-paths": {
       "summary": "Codex CLI nested/root AGENTS.md rule path derivation and its cross-target consumers"
@@ -9497,6 +9798,10 @@
     "t-cmd-08ecd38a": {
       "kind": "command_pattern",
       "pattern": "git commit,vitest run"
+    },
+    "t-cmd-0905ac21": {
+      "kind": "command_pattern",
+      "pattern": "vitest run"
     },
     "t-cmd-09d400a5": {
       "kind": "command_pattern",
@@ -10014,9 +10319,17 @@
       "kind": "file_glob",
       "pattern": "src/cli/commands/watch.ts"
     },
+    "t-glob-1a4aaef3": {
+      "kind": "file_glob",
+      "pattern": "src/canonical/features/skills.ts"
+    },
     "t-glob-1a5e6966": {
       "kind": "file_glob",
       "pattern": "src/cli/commands/lessons-write-handlers.ts"
+    },
+    "t-glob-1a861122": {
+      "kind": "file_glob",
+      "pattern": "src/cli/commands/convert.ts"
     },
     "t-glob-1adbf269": {
       "kind": "file_glob",
@@ -10101,6 +10414,10 @@
     "t-glob-308a43cc": {
       "kind": "file_glob",
       "pattern": "website/integrations/*.mjs"
+    },
+    "t-glob-32bb65c6": {
+      "kind": "file_glob",
+      "pattern": "src/cli/commands/generate-path.ts"
     },
     "t-glob-341a7fe1": {
       "kind": "file_glob",
@@ -10290,6 +10607,10 @@
       "kind": "file_glob",
       "pattern": "src/lessons/stats-effectiveness.ts"
     },
+    "t-glob-5cc82d35": {
+      "kind": "file_glob",
+      "pattern": "tests/unit/core/engine*.test.ts"
+    },
     "t-glob-5e0d226f": {
       "kind": "file_glob",
       "pattern": "package.json"
@@ -10370,6 +10691,10 @@
       "kind": "file_glob",
       "pattern": "src/lessons/trigger-effectiveness.ts"
     },
+    "t-glob-6de83f22": {
+      "kind": "file_glob",
+      "pattern": "src/mcp/writers/*document*.ts"
+    },
     "t-glob-6e7640eb": {
       "kind": "file_glob",
       "pattern": "src/targets/*/lint.ts"
@@ -10397,6 +10722,10 @@
     "t-glob-72016213": {
       "kind": "file_glob",
       "pattern": "src/targets/continue/importer.ts"
+    },
+    "t-glob-72977c26": {
+      "kind": "file_glob",
+      "pattern": "src/cli/commands/lessons-merge-driver-handler.ts"
     },
     "t-glob-72a39ab6": {
       "kind": "file_glob",
@@ -10430,6 +10759,10 @@
       "kind": "file_glob",
       "pattern": "tests/helpers/posix-path.ts"
     },
+    "t-glob-78449aa1": {
+      "kind": "file_glob",
+      "pattern": "src/cli/json-output.ts"
+    },
     "t-glob-7a175889": {
       "kind": "file_glob",
       "pattern": "src/lessons/keyword-match.ts"
@@ -10445,6 +10778,10 @@
     "t-glob-7e7851c6": {
       "kind": "file_glob",
       "pattern": "src/targets/kilo-code/**/*.ts"
+    },
+    "t-glob-7e7af327": {
+      "kind": "file_glob",
+      "pattern": "src/core/reference/protected-ranges.ts"
     },
     "t-glob-7e95936f": {
       "kind": "file_glob",
@@ -10490,6 +10827,10 @@
       "kind": "file_glob",
       "pattern": "src/targets/**/importer.ts"
     },
+    "t-glob-84949cce": {
+      "kind": "file_glob",
+      "pattern": "src/cli/json-handler.ts"
+    },
     "t-glob-84c63f4c": {
       "kind": "file_glob",
       "pattern": "tests/unit/lessons/ranking.test.ts"
@@ -10526,6 +10867,10 @@
       "kind": "file_glob",
       "pattern": "src/install/importers/target-native-commands.ts"
     },
+    "t-glob-8964922b": {
+      "kind": "file_glob",
+      "pattern": "src/cli/commands/generate-handlers.ts"
+    },
     "t-glob-8ac72756": {
       "kind": "file_glob",
       "pattern": "src/targets/*/rules-import.ts"
@@ -10554,6 +10899,10 @@
       "kind": "file_glob",
       "pattern": "src/targets/gemini-cli/**"
     },
+    "t-glob-92a97f3a": {
+      "kind": "file_glob",
+      "pattern": "src/cli/commands/watch*.ts"
+    },
     "t-glob-948fae05": {
       "kind": "file_glob",
       "pattern": "src/targets/pi-agent/**"
@@ -10562,9 +10911,17 @@
       "kind": "file_glob",
       "pattern": "pnpm-lock.yaml"
     },
+    "t-glob-95700160": {
+      "kind": "file_glob",
+      "pattern": "src/utils/filesystem/fs.ts"
+    },
     "t-glob-960c3805": {
       "kind": "file_glob",
       "pattern": "tests/e2e/helpers/reference-targets.ts"
+    },
+    "t-glob-96d1a399": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/merge-driver-setup.ts"
     },
     "t-glob-98419953": {
       "kind": "file_glob",
@@ -10634,6 +10991,10 @@
       "kind": "file_glob",
       "pattern": "tests/**/*posix*"
     },
+    "t-glob-a6d44f71": {
+      "kind": "file_glob",
+      "pattern": "src/cli/stdio-blocking.ts"
+    },
     "t-glob-a86844dd": {
       "kind": "file_glob",
       "pattern": "src/targets/codex-cli/codex-rule-paths.ts"
@@ -10658,6 +11019,10 @@
       "kind": "file_glob",
       "pattern": "src/targets/*/layout.ts"
     },
+    "t-glob-a9eb0502": {
+      "kind": "file_glob",
+      "pattern": "src/utils/filesystem/*lock*.ts"
+    },
     "t-glob-aa152d85": {
       "kind": "file_glob",
       "pattern": "src/targets/goose/**"
@@ -10677,6 +11042,10 @@
     "t-glob-aceab730": {
       "kind": "file_glob",
       "pattern": "src/targets/**/generator/*.ts"
+    },
+    "t-glob-ae2ce734": {
+      "kind": "file_glob",
+      "pattern": "src/core/generate/collision-agents.ts"
     },
     "t-glob-b13cc3e2": {
       "kind": "file_glob",
@@ -10718,6 +11087,10 @@
       "kind": "file_glob",
       "pattern": "src/targets/crush/**"
     },
+    "t-glob-b836378c": {
+      "kind": "file_glob",
+      "pattern": "src/core/lint/**"
+    },
     "t-glob-b8433f47": {
       "kind": "file_glob",
       "pattern": "src/targets/opencode/*.ts"
@@ -10725,6 +11098,10 @@
     "t-glob-ba03e2e3": {
       "kind": "file_glob",
       "pattern": "tests/e2e/**"
+    },
+    "t-glob-bacf18ff": {
+      "kind": "file_glob",
+      "pattern": "src/utils/filesystem/*containment*.ts"
     },
     "t-glob-baf0a939": {
       "kind": "file_glob",
@@ -10777,6 +11154,10 @@
     "t-glob-c8eff4c3": {
       "kind": "file_glob",
       "pattern": "src/targets/factory-droid/importer.ts"
+    },
+    "t-glob-c9a321aa": {
+      "kind": "file_glob",
+      "pattern": "src/mcp/handlers/skill*.ts"
     },
     "t-glob-c9dfc34a": {
       "kind": "file_glob",
@@ -10858,6 +11239,10 @@
       "kind": "file_glob",
       "pattern": "tests/contract/contracts/*.ts"
     },
+    "t-glob-db59ec0a": {
+      "kind": "file_glob",
+      "pattern": "src/cli/error-handler.ts"
+    },
     "t-glob-db7e480d": {
       "kind": "file_glob",
       "pattern": "src/lessons/paths.ts"
@@ -10873,6 +11258,10 @@
     "t-glob-dd0e31f0": {
       "kind": "file_glob",
       "pattern": "src/targets/copilot/**"
+    },
+    "t-glob-dda7e920": {
+      "kind": "file_glob",
+      "pattern": "src/install/pack/*.ts"
     },
     "t-glob-ddc2ae20": {
       "kind": "file_glob",
@@ -10918,6 +11307,10 @@
       "kind": "file_glob",
       "pattern": "src/config/core/lock*.ts"
     },
+    "t-glob-e9408176": {
+      "kind": "file_glob",
+      "pattern": "src/mcp/handlers/settings*.ts"
+    },
     "t-glob-e9606afe": {
       "kind": "file_glob",
       "pattern": ".agentsmesh/skills/**"
@@ -10933,6 +11326,10 @@
     "t-glob-eb1e5fce": {
       "kind": "file_glob",
       "pattern": "src/lessons/recurrence-gate.ts"
+    },
+    "t-glob-ebc9f5cd": {
+      "kind": "file_glob",
+      "pattern": "src/cli/commands/generate*.ts"
     },
     "t-glob-ed0be781": {
       "kind": "file_glob",
@@ -11114,6 +11511,10 @@
       "kind": "keyword",
       "pattern": "tie-break sort"
     },
+    "t-kw-201020b5": {
+      "kind": "keyword",
+      "pattern": "restore"
+    },
     "t-kw-20503645": {
       "kind": "keyword",
       "pattern": "regex safety"
@@ -11278,6 +11679,10 @@
       "kind": "keyword",
       "pattern": "lock file format outputs checksums"
     },
+    "t-kw-468c3ca3": {
+      "kind": "keyword",
+      "pattern": "pack staging backup data loss"
+    },
     "t-kw-4859e2d1": {
       "kind": "keyword",
       "pattern": "coverage floor"
@@ -11353,6 +11758,10 @@
     "t-kw-5a2a3bf2": {
       "kind": "keyword",
       "pattern": "regex round-trip"
+    },
+    "t-kw-5bc10508": {
+      "kind": "keyword",
+      "pattern": "config.toml"
     },
     "t-kw-5c8c2424": {
       "kind": "keyword",
@@ -11442,6 +11851,10 @@
       "kind": "keyword",
       "pattern": "import merge canonical ignore permissions"
     },
+    "t-kw-7d0613d0": {
+      "kind": "keyword",
+      "pattern": "backup"
+    },
     "t-kw-7dd5abb2": {
       "kind": "keyword",
       "pattern": "scalar array coercion alias"
@@ -11510,6 +11923,14 @@
       "kind": "keyword",
       "pattern": "lessons efficiency"
     },
+    "t-kw-90c0879d": {
+      "kind": "keyword",
+      "pattern": "empty configuration revocation"
+    },
+    "t-kw-91081d8d": {
+      "kind": "keyword",
+      "pattern": "skill mutation validation"
+    },
     "t-kw-925d9b8d": {
       "kind": "keyword",
       "pattern": "checksum"
@@ -11529,6 +11950,10 @@
     "t-kw-945cc933": {
       "kind": "keyword",
       "pattern": "workflow"
+    },
+    "t-kw-951a5294": {
+      "kind": "keyword",
+      "pattern": "generated output symlink containment"
     },
     "t-kw-9520fa61": {
       "kind": "keyword",
@@ -11594,6 +12019,10 @@
       "kind": "keyword",
       "pattern": "comparator coverage"
     },
+    "t-kw-b2d1f670": {
+      "kind": "keyword",
+      "pattern": "atomic file write"
+    },
     "t-kw-b4ecc59d": {
       "kind": "keyword",
       "pattern": "tool count"
@@ -11634,6 +12063,10 @@
       "kind": "keyword",
       "pattern": "invariant test oracle, co-owned, managedOutputs"
     },
+    "t-kw-baecf908": {
+      "kind": "keyword",
+      "pattern": "stale lock failure recovery"
+    },
     "t-kw-bc36f123": {
       "kind": "keyword",
       "pattern": "merger fallback"
@@ -11669,6 +12102,10 @@
     "t-kw-c8f23353": {
       "kind": "keyword",
       "pattern": "captureLesson"
+    },
+    "t-kw-c947b085": {
+      "kind": "keyword",
+      "pattern": "MCP configuration mutation"
     },
     "t-kw-cb4df2d9": {
       "kind": "keyword",
@@ -11797,6 +12234,10 @@
     "t-kw-e9de15ff": {
       "kind": "keyword",
       "pattern": "preserve-caught-error"
+    },
+    "t-kw-ea86337d": {
+      "kind": "keyword",
+      "pattern": "exact generated artifact assertions"
     },
     "t-kw-ec5d186a": {
       "kind": "keyword",

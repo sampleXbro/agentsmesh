@@ -34,11 +34,6 @@ const NON_REWRITABLE_BARE_FILES = new Set([
   '.windsurfrules',
   '.cursorrules',
 ]);
-const FENCED_CODE_BLOCK = /^(?:```|~~~)[^\n]*\n[\s\S]*?^(?:```|~~~)/gm;
-const ROOT_GENERATION_CONTRACT_BLOCK =
-  /<!-- agentsmesh:root-generation-contract:start -->[\s\S]*?<!-- agentsmesh:root-generation-contract:end -->/g;
-const EMBEDDED_RULES_BLOCK =
-  /<!-- agentsmesh:embedded-rules:start -->[\s\S]*?<!-- agentsmesh:embedded-rules:end -->/g;
 
 export const PATH_TOKEN =
   /(?:\.\.[\\/]|\.\/|\.\\|\/[A-Za-z0-9._-]|[A-Za-z]:[\\/][A-Za-z0-9._-]|\.agentsmesh[\\/]|\.claude[\\/]|\.cursor[\\/]|\.github[\\/]|\.continue[\\/]|\.junie[\\/]|\.kiro[\\/]|\.gemini[\\/]|\.clinerules[\\/]|\.cline[\\/]|\.codex[\\/]|\.agents[\\/]|\.windsurf[\\/]|\.roo[\\/]|(?:[A-Za-z0-9._-]+[\\/])+|[A-Za-z0-9._-]+\.[A-Za-z0-9._-]+)[A-Za-z0-9._@%+~:\\/-]*/g;
@@ -139,27 +134,4 @@ export function isGlobAdjacent(content: string, start: number, end: number): boo
   const prev = start > 0 ? content.at(start - 1) : '';
   const next = end < content.length ? content.at(end) : '';
   return prev === '*' || next === '*';
-}
-
-export function protectedRanges(content: string): Array<[number, number]> {
-  const ranges: Array<[number, number]> = [];
-  for (const pattern of getLinkFormatRegistry().protectedSchemes) {
-    // Plugin-supplied schemes may omit the global flag; matchAll requires it.
-    const globalPattern = pattern.flags.includes('g')
-      ? pattern
-      : new RegExp(pattern.source, `${pattern.flags}g`);
-    for (const match of content.matchAll(globalPattern)) {
-      ranges.push([match.index ?? 0, (match.index ?? 0) + match[0].length]);
-    }
-  }
-  for (const match of content.matchAll(FENCED_CODE_BLOCK)) {
-    ranges.push([match.index ?? 0, (match.index ?? 0) + match[0].length]);
-  }
-  for (const match of content.matchAll(ROOT_GENERATION_CONTRACT_BLOCK)) {
-    ranges.push([match.index ?? 0, (match.index ?? 0) + match[0].length]);
-  }
-  for (const match of content.matchAll(EMBEDDED_RULES_BLOCK)) {
-    ranges.push([match.index ?? 0, (match.index ?? 0) + match[0].length]);
-  }
-  return ranges;
 }

@@ -57,7 +57,9 @@ Internal file references are rewritten from canonical paths to target-relative p
 
 This keeps cross-file links valid in each tool's native directory.
 
-Generated-only managed blocks and canonical embedded payloads are protected from rewriting when their contents must stay literal.
+Generated-only managed blocks and canonical embedded payloads are protected from rewriting when their contents must stay literal. So are URLs — including a URL whose path contains parentheses, such as a Next.js route group (`apps/(marketing)/package.json`).
+
+Generated Markdown is then checked for broken local links. Three shapes are deliberately not treated as links, so ordinary prose never fails a run: link syntax quoted inside inline code (`` `[label](path.md)` ``, which is how a rule documents the syntax), GFM footnote definitions (`[^1]: prose`), and anything inside a fenced code block. Note that a path written inside backticks is still *rebased* — only the broken-link check skips it.
 
 ### Step 5: Resolve collisions
 

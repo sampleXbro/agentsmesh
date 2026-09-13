@@ -6,7 +6,7 @@ import { getDescriptor } from '../../targets/catalog/registry.js';
 import { loadCanonicalFiles } from '../../canonical/load/loader.js';
 import { generate as runEngine } from '../../core/generate/engine.js';
 import { writeFileAtomic } from '../../utils/filesystem/fs.js';
-import { ensurePathInsideRoot } from './generate-path.js';
+import { assertOutputBoundary, ensureSafeOutputPath } from './generate-path.js';
 import { loadScopedConfig } from '../../config/core/scope.js';
 import { bootstrapPlugins } from '../../plugins/bootstrap-plugins.js';
 import { configSchema } from '../../config/core/schema.js';
@@ -112,10 +112,11 @@ export async function runConvert(
       targetFilter: [toNorm],
     });
 
+    await assertOutputBoundary(results, { projectRoot: base, targets: [toNorm], scope });
     if (!dryRun) {
       for (const r of results) {
         if (r.status === 'created' || r.status === 'updated') {
-          const fullPath = ensurePathInsideRoot(base, r.path, r.target);
+          const fullPath = await ensureSafeOutputPath(base, r.path, r.target);
           await writeFileAtomic(fullPath, r.content);
         }
       }

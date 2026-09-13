@@ -406,9 +406,11 @@ describe('generateMcp (claude-code)', () => {
     expect(generateMcp(canonical)).toEqual([]);
   });
 
-  it('returns empty when mcpServers is empty', () => {
+  it('emits an empty server map when mcpServers is explicitly empty', () => {
     const canonical = makeCanonical({ mcp: { mcpServers: {} } });
-    expect(generateMcp(canonical)).toEqual([]);
+    expect(generateMcp(canonical)).toEqual([
+      { path: '.mcp.json', content: JSON.stringify({ mcpServers: {} }, null, 2) },
+    ]);
   });
 
   it('generates multiple servers with full config', () => {
@@ -467,10 +469,13 @@ describe('generatePermissions (claude-code)', () => {
     expect(generatePermissions(makeCanonical({ permissions: null }))).toEqual([]);
   });
 
-  it('returns empty when both allow and deny are empty', () => {
-    expect(generatePermissions(makeCanonical({ permissions: { allow: [], deny: [] } }))).toEqual(
-      [],
-    );
+  it('emits empty permissions when all permission lists are empty', () => {
+    expect(generatePermissions(makeCanonical({ permissions: { allow: [], deny: [] } }))).toEqual([
+      {
+        path: '.claude/settings.json',
+        content: JSON.stringify({ permissions: { allow: [], deny: [], ask: [] } }, null, 2),
+      },
+    ]);
   });
 
   it('generates with allow-only', () => {
@@ -528,13 +533,15 @@ describe('generateHooks (claude-code)', () => {
     });
   });
 
-  it('returns empty when all hook entries lack command and prompt', () => {
+  it('emits an empty hook map when no hook entries can be translated', () => {
     const canonical = makeCanonical({
       hooks: {
         PostToolUse: [{ matcher: 'Write', command: '', type: 'command' as const }],
       },
     });
-    expect(generateHooks(canonical)).toEqual([]);
+    expect(generateHooks(canonical)).toEqual([
+      { path: '.claude/settings.json', content: JSON.stringify({ hooks: {} }, null, 2) },
+    ]);
   });
 
   it('skips non-array hook values (non-array entries)', () => {
@@ -555,9 +562,14 @@ describe('generateHooks (claude-code)', () => {
     expect(generateHooks(makeCanonical({ hooks: null }))).toEqual([]);
   });
 
-  it('returns empty when hooks has no entries', () => {
-    expect(generateHooks(makeCanonical({ hooks: {} }))).toEqual([]);
-  });
+  it.each([{}, { PreToolUse: [] }])(
+    'emits an empty hook map for explicitly empty hooks %j',
+    (hooks) => {
+      expect(generateHooks(makeCanonical({ hooks }))).toEqual([
+        { path: '.claude/settings.json', content: JSON.stringify({ hooks: {} }, null, 2) },
+      ]);
+    },
+  );
 
   it('generates multiple event types', () => {
     const canonical = makeCanonical({

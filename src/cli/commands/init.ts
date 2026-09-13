@@ -68,7 +68,11 @@ export async function runInit(
   }
 
   if (alreadyInitialized) {
-    throw new Error(`Already initialized. ${CONFIG_FILENAME} exists. Remove it first to re-init.`);
+    throw new Error(
+      `Already initialized. ${CONFIG_FILENAME} exists. Edit it directly, or use ` +
+        "`agentsmesh import` to pull in another tool's config. Deleting it and re-running " +
+        '`init` is not a reset: your canonical files in `.agentsmesh/` are kept, not rebuilt.',
+    );
   }
 
   const detected = await detectExistingConfigs(context.rootBase, scope);

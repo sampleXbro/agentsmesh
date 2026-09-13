@@ -7,7 +7,8 @@
  * prompt) or rewrite them in place (link rebaser, install apply-decisions).
  *
  * Fenced code blocks (``` / ~~~) are protected: link patterns inside fences
- * are not extracted. Inline code spans and HTML comments are intentionally
+ * are not extracted. GFM footnote definitions (`[^1]: text`) are skipped —
+ * they share the reference-definition shape but carry prose, not a destination. Inline code spans and HTML comments are intentionally
  * not protected — downstream classifiers handle pathological markdown by
  * falling through to a "leave with warning" path rather than crashing.
  *
@@ -116,6 +117,8 @@ export function scanMarkdownLinks(content: string): readonly MarkdownLinkToken[]
     const rawDest = match[2] ?? '';
     const destSpan = match.indices?.[2];
     if (label === '' || rawDest.trim() === '' || destSpan === undefined) continue;
+    // `[^1]: text` is a GFM footnote definition, not a link destination.
+    if (label.startsWith('^')) continue;
     const span = destPathSpan(rawDest);
     out.push({
       kind: 'reference-def',

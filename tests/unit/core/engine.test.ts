@@ -530,7 +530,7 @@ describe('generate', () => {
     expect(permPaths).toHaveLength(0);
   });
 
-  it('skips permissions when allow and deny are both empty', async () => {
+  it('emits empty permissions to revoke previously generated rules', async () => {
     const config = minimalConfig({ features: ['rules', 'permissions'] });
     const canonical: CanonicalFiles = {
       ...canonicalWithRootRule('Rules'),
@@ -541,8 +541,17 @@ describe('generate', () => {
       canonical,
       projectRoot: TEST_DIR,
     });
-    const permPaths = results.filter((r) => r.path.includes('settings.json'));
-    expect(permPaths).toHaveLength(0);
+    expect(results.map((r) => r.path).sort()).toEqual([
+      '.claude/settings.json',
+      '.cursor/AGENTS.md',
+      '.cursor/rules/general.mdc',
+      'AGENTS.md',
+      'CLAUDE.md',
+    ]);
+    const permissions = results.find((r) => r.path === '.claude/settings.json');
+    expect(JSON.parse(permissions?.content ?? '{}')).toEqual({
+      permissions: { allow: [], deny: [], ask: [] },
+    });
   });
 
   it('merges permissions into existing settings.json', async () => {
