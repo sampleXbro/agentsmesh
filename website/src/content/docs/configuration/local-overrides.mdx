@@ -64,7 +64,7 @@ When AgentsMesh loads config it merges local overrides on top of the project con
 | --- | --- |
 | `targets` | **Replaces** the project list when non-empty |
 | `features` | **Replaces** the project list when non-empty |
-| `extends` | **Appended** to the project's `extends` |
+| `extends` | **Appended** to the project's `extends` (local-only entries are never written back into `agentsmesh.yaml` by `agentsmesh install --extends`) |
 | `conversions` | **Deep-merged** over the project's `conversions` |
 | `overrides` | **Deep-merged** over the project's `overrides` |
 | `collaboration` | Ignored (always comes from `agentsmesh.yaml`) |
