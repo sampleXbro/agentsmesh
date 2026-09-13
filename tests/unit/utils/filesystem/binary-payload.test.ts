@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { readFileSafe, writeFileAtomic } from '../../../../src/utils/filesystem/fs.js';
 import { buildOutputChecksums } from '../../../../src/config/core/lock-outputs.js';
 import { hashFileForManifest } from '../../../../src/utils/crypto/hash.js';
+import { isBinaryPayloadPath } from '../../../../src/utils/filesystem/fs-text-encoding.js';
 
 /** A PNG header plus bytes that are invalid UTF-8 on purpose. */
 const PNG_BYTES = Buffer.from([
@@ -74,4 +75,33 @@ describe('binary payloads survive the read/write pipeline', () => {
     await writeFileAtomic(path, '# Ünïcødé ✅\n');
     expect(await readFileSafe(path)).toBe('# Ünïcødé ✅\n');
   });
+});
+
+describe('binary extension coverage', () => {
+  it.each([
+    'report.xlsx',
+    'brief.docx',
+    'deck.pptx',
+    'bundle.tar',
+    'mock.psd',
+    'logo.ai',
+    'board.fig',
+    'photo.heic',
+    'rows.parquet',
+    'model.onnx',
+    'cache.sqlite3',
+    'clip.avi',
+    'take.flac',
+    'blob.zst',
+    'page.br',
+  ])('treats %s as bytes', (name) => {
+    expect(isBinaryPayloadPath(name)).toBe(true);
+  });
+
+  it.each(['rule.md', 'config.json', 'script.sh', 'ignore', 'notes.txt', 'helper.py'])(
+    'still treats %s as text',
+    (name) => {
+      expect(isBinaryPayloadPath(name)).toBe(false);
+    },
+  );
 });
