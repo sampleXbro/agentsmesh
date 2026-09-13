@@ -1,8 +1,10 @@
 import { normalizeTextPayload } from '../../utils/filesystem/fs-text-encoding.js';
 import type { GenerateResult } from '../types.js';
-import { CODEX_CLI_TARGET_ID } from '../../targets/catalog/target-ids.js';
-
-const AGENTS_SUFFIX = 'AGENTS.md';
+import {
+  mergedEmbeddedRulesResult,
+  richerAgentsResult,
+  richerCodexAgentsResult,
+} from './collision-agents.js';
 
 function statusRank(status: GenerateResult['status']): number {
   switch (status) {
@@ -24,80 +26,6 @@ function mergeDuplicateMetadata(preferred: GenerateResult, other: GenerateResult
     status: other.status,
     currentContent: other.currentContent ?? preferred.currentContent,
   };
-}
-
-function trimmedContent(content: string): string {
-  return content.trim();
-}
-
-/**
- * Strip optional decoration blocks that some targets embed in AGENTS.md while
- * others (e.g. cline) omit, then collapse the resulting whitespace. Two
- * AGENTS.md outputs that differ ONLY in these optional blocks are considered
- * semantically equivalent for collision purposes — the one that actually emits
- * the block wins as "richer".
- */
-const OPTIONAL_AGENTS_BLOCKS: readonly RegExp[] = [
-  /<!-- agentsmesh:embedded-rules:start -->[\s\S]*?<!-- agentsmesh:embedded-rules:end -->\n*/g,
-];
-
-function normalizeAgentsContent(content: string): string {
-  let out = content;
-  for (const block of OPTIONAL_AGENTS_BLOCKS) {
-    out = out.replace(block, '');
-  }
-  return out.trim().replace(/\n{2,}/g, '\n\n');
-}
-
-function hasOptionalAgentsBlock(content: string): boolean {
-  return /<!-- agentsmesh:embedded-rules:start -->/.test(content);
-}
-
-function richerAgentsResult(left: GenerateResult, right: GenerateResult): GenerateResult | null {
-  if (!left.path.endsWith(AGENTS_SUFFIX) || left.path !== right.path) return null;
-
-  const leftTrimmed = trimmedContent(left.content);
-  const rightTrimmed = trimmedContent(right.content);
-  if (!leftTrimmed || !rightTrimmed) return null;
-
-  const leftContainsRight = leftTrimmed.includes(rightTrimmed);
-  const rightContainsLeft = rightTrimmed.includes(leftTrimmed);
-
-  if (leftContainsRight !== rightContainsLeft) {
-    return leftContainsRight ? left : right;
-  }
-
-  // R-7: contents that differ only in optional decoration blocks (e.g. amp
-  // embeds non-root rules in AGENTS.md while cline emits them separately) are
-  // semantically equivalent. Prefer the one that emits the optional block.
-  if (normalizeAgentsContent(left.content) === normalizeAgentsContent(right.content)) {
-    const leftHas = hasOptionalAgentsBlock(left.content);
-    const rightHas = hasOptionalAgentsBlock(right.content);
-    if (leftHas !== rightHas) return leftHas ? left : right;
-  }
-
-  return null;
-}
-
-function richerCodexAgentsResult(
-  left: GenerateResult,
-  right: GenerateResult,
-): GenerateResult | null {
-  if (!left.path.endsWith(AGENTS_SUFFIX) || left.path !== right.path) return null;
-
-  const codex =
-    left.target === CODEX_CLI_TARGET_ID
-      ? left
-      : right.target === CODEX_CLI_TARGET_ID
-        ? right
-        : null;
-  const other = codex === left ? right : left;
-  if (!codex) return null;
-
-  const codexLen = trimmedContent(codex.content).length;
-  const otherLen = trimmedContent(other.content).length;
-  if (codexLen === otherLen) return null;
-  return codexLen > otherLen ? codex : other;
 }
 
 /**
@@ -122,6 +50,11 @@ export function resolveOutputCollisions(results: GenerateResult[]): GenerateResu
       const richer = richerAgentsResult(existing, result);
       if (richer) {
         deduped[existingIdx] = richer;
+        continue;
+      }
+      const mergedRules = mergedEmbeddedRulesResult(existing, result);
+      if (mergedRules) {
+        deduped[existingIdx] = refreshResultStatus(mergedRules);
         continue;
       }
       const richerCodex = richerCodexAgentsResult(existing, result);
