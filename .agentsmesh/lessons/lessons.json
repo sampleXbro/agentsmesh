@@ -125,6 +125,20 @@
         "t-kw-ab6ac577"
       ]
     },
+    "canonical-skills-read-skill-supporting-files-as": {
+      "createdAt": "2026-09-13",
+      "evidence": [
+        "9b4c3cba"
+      ],
+      "rule": "Read skill supporting files as bytes (Buffer), never through readFileSafe as a UTF-8 string: binary assets under skills/*/ (png, woff, zip, templates) are decoded lossily and written broken to every target (a PNG 0x89 byte became EF BF BD). Gate any text normalization on a text-extension allowlist and pass bytes through verbatim otherwise.",
+      "status": "active",
+      "topics": [
+        "canonical-skills"
+      ],
+      "triggers": [
+        "t-glob-1a4aaef3"
+      ]
+    },
     "capability-fix-campaign-global-scope-import-for-a": {
       "createdAt": "2026-07-12",
       "evidence": [
@@ -722,6 +736,22 @@
       "triggers": [
         "t-glob-7ba39ec1",
         "t-glob-dd0538cf"
+      ]
+    },
+    "cli-presentation-never-call-process-exit-immediately": {
+      "createdAt": "2026-09-13",
+      "evidence": [
+        "9b4c3cba"
+      ],
+      "rule": "Never call process.exit() immediately after process.stdout.write(): pipes are asynchronous on macOS, so any output over 64 KiB (diff --json, lint --json) is truncated and the consumer gets an unparseable JSON fragment. Set process.exitCode and return, or exit inside the write callback.",
+      "status": "active",
+      "topics": [
+        "cli-presentation"
+      ],
+      "triggers": [
+        "t-glob-84949cce",
+        "t-glob-db59ec0a",
+        "t-glob-8173701c"
       ]
     },
     "cli-presentation-when-auditing-spinner-vs-prompt": {
@@ -9531,6 +9561,9 @@
     "agent-orchestration": {
       "summary": "Subagent/parallel-agent orchestration safety — tool profiles, isolation, destructive-command guards, fan-out discipline."
     },
+    "canonical-skills": {
+      "summary": "Canonical skills loader: supporting-file bytes, names, packs/extends parity"
+    },
     "capability-fix-campaign": {
       "summary": "Multi-target capability-drift fix campaign (2026-07): sequential per-target implementation, coverage-gate handling, orchestration conventions."
     },
@@ -10240,6 +10273,10 @@
       "kind": "file_glob",
       "pattern": "src/cli/commands/watch.ts"
     },
+    "t-glob-1a4aaef3": {
+      "kind": "file_glob",
+      "pattern": "src/canonical/features/skills.ts"
+    },
     "t-glob-1a5e6966": {
       "kind": "file_glob",
       "pattern": "src/cli/commands/lessons-write-handlers.ts"
@@ -10732,6 +10769,10 @@
       "kind": "file_glob",
       "pattern": "src/targets/**/importer.ts"
     },
+    "t-glob-84949cce": {
+      "kind": "file_glob",
+      "pattern": "src/cli/json-handler.ts"
+    },
     "t-glob-84c63f4c": {
       "kind": "file_glob",
       "pattern": "tests/unit/lessons/ranking.test.ts"
@@ -11127,6 +11168,10 @@
     "t-glob-d9afca50": {
       "kind": "file_glob",
       "pattern": "tests/contract/contracts/*.ts"
+    },
+    "t-glob-db59ec0a": {
+      "kind": "file_glob",
+      "pattern": "src/cli/error-handler.ts"
     },
     "t-glob-db7e480d": {
       "kind": "file_glob",
