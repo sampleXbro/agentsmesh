@@ -2671,6 +2671,21 @@
         "t-kw-e9ca865e"
       ]
     },
+    "git-commit-hygiene-a-failing-git-merge-driver": {
+      "createdAt": "2026-09-13",
+      "evidence": [
+        "bbe26822"
+      ],
+      "rule": "A failing git merge driver does NOT make git re-merge the file with conflict markers: git leaves the %A (ours) file byte-identical and marks the path unmerged with no markers in it, so resolving via 'git add' silently discards everything the other side had. A union driver must therefore WRITE its best-effort union before exiting non-zero, and treat an empty %O (git passes an empty ancestor when the path is new on both branches) as an empty base rather than a parse failure.",
+      "status": "active",
+      "topics": [
+        "git-commit-hygiene"
+      ],
+      "triggers": [
+        "t-glob-72977c26",
+        "t-glob-96d1a399"
+      ]
+    },
     "git-commit-hygiene-before-creating-a-new-standalone": {
       "createdAt": "2026-06-24",
       "evidence": [
@@ -10677,6 +10692,10 @@
       "kind": "file_glob",
       "pattern": "src/targets/continue/importer.ts"
     },
+    "t-glob-72977c26": {
+      "kind": "file_glob",
+      "pattern": "src/cli/commands/lessons-merge-driver-handler.ts"
+    },
     "t-glob-72a39ab6": {
       "kind": "file_glob",
       "pattern": "tests/e2e/fixtures/**"
@@ -10860,6 +10879,10 @@
     "t-glob-960c3805": {
       "kind": "file_glob",
       "pattern": "tests/e2e/helpers/reference-targets.ts"
+    },
+    "t-glob-96d1a399": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/merge-driver-setup.ts"
     },
     "t-glob-98419953": {
       "kind": "file_glob",
