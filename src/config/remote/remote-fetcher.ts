@@ -14,6 +14,7 @@ import {
   parseRemoteSource,
 } from './remote-source.js';
 import { sweepStaleCache } from '../../install/pack/cache-cleanup.js';
+import { stripUrlCredentials } from '../../utils/output/redact-url-secrets.js';
 
 export { parseGitSource, parseGitlabSource, parseGithubSource, resolveLatestTag };
 
@@ -41,6 +42,9 @@ const CACHE_KEY_HASH_LENGTH = 12;
  * provider|identifier|ref keeps distinct sources out of one cache directory.
  */
 export function buildCacheKey(provider: string, identifier: string, ref: string): string {
+  // A credentialed remote must not name a directory on disk, and the same
+  // repository reached with or without a token is one cache entry.
+  identifier = stripUrlCredentials(identifier);
   const safe = (value: string): string =>
     value.replace(/[^a-zA-Z0-9_.-]/g, '_').replace(/^\.+/, '_');
   const [org, repo] = provider === 'github' ? identifier.split('/', 2) : [];

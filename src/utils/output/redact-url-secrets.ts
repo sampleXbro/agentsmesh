@@ -21,3 +21,22 @@ export function redactUrlSecrets(message: string): string {
     },
   );
 }
+
+/**
+ * Drop `user:password@` userinfo entirely, rather than masking it.
+ *
+ * Use for any URL that is about to be PERSISTED or used as a cache key:
+ * `installs.yaml`, `pack.yaml`, the install manifest and cache directory
+ * names are all committed or long-lived, so a token in them is a leaked
+ * secret rather than a convenience. Transport keeps the credentialed URL;
+ * authentication for a later refresh comes from git's own credential
+ * mechanism, not from the recorded source.
+ */
+export function stripUrlCredentials(url: string): string {
+  return url.replace(
+    URL_WITH_CREDENTIALS,
+    (_full, scheme: string, _userinfo: string, rest: string) => {
+      return `${scheme}${rest}`;
+    },
+  );
+}
