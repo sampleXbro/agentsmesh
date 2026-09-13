@@ -81,8 +81,10 @@ describe('atomic write temporary file ownership', () => {
     const path = join(dir, 'settings.json');
     await writeFile(path, 'original');
     await writeFile(`${path}.tmp`, 'user draft');
+    // ENOSPC, not a Windows lock code: `renameWithRetry` retries EACCES/EPERM,
+    // so a transient code would never reach the failure path under test.
     vi.mocked(fs.rename).mockRejectedValueOnce(
-      Object.assign(new Error('rename denied'), { code: 'EACCES' }),
+      Object.assign(new Error('rename denied'), { code: 'ENOSPC' }),
     );
     await expect(writeFileAtomic(path, '{}')).rejects.toThrow('rename denied');
     expect(await readFile(path, 'utf8')).toBe('original');
@@ -97,7 +99,7 @@ describe('atomic write temporary file ownership', () => {
       await writeFile(join(dir, 'original'), 'original');
       await symlink(join(dir, 'original'), path);
       vi.mocked(fs.rename).mockRejectedValueOnce(
-        Object.assign(new Error('rename denied'), { code: 'EACCES' }),
+        Object.assign(new Error('rename denied'), { code: 'ENOSPC' }),
       );
       await expect(writeFileAtomic(path, '{}')).rejects.toThrow('rename denied');
       expect(await readlink(path)).toBe(join(dir, 'original'));
@@ -112,7 +114,7 @@ describe('cleanup failures never mask the write error', () => {
     const path = join(dir, 'settings.json');
     await writeFile(path, 'original');
     vi.mocked(fs.rename).mockRejectedValueOnce(
-      Object.assign(new Error('rename denied'), { code: 'EACCES' }),
+      Object.assign(new Error('rename denied'), { code: 'ENOSPC' }),
     );
     vi.mocked(fs.rm).mockRejectedValueOnce(
       Object.assign(new Error('rm denied'), { code: 'EPERM' }),
@@ -148,5 +150,38 @@ describe('cleanup failures never mask the write error', () => {
     await expect(writeFileAtomic(path, '{}')).rejects.toThrow('disk full');
     expect(await readFile(path, 'utf8')).toBe('original');
     expect(await readdir(dir)).toEqual(['settings.json']);
+  });
+});
+
+describe('transient rename failures', () => {
+  it('retries a rename Windows rejects while another writer is mid-replace', async () => {
+    // Windows raises EPERM when two processes replace the same destination at
+    // once. Unique temp names removed the accidental serialization writers used
+    // to get from sharing one `<path>.tmp`, so this path is now genuinely
+    // concurrent and must not surface a transient lock as a failure.
+    const path = join(dir, 'settings.json');
+    await writeFile(path, 'original');
+    const actual = await vi.importActual<typeof import('node:fs/promises')>('node:fs/promises');
+    vi.mocked(fs.rename)
+      .mockRejectedValueOnce(
+        Object.assign(new Error('EPERM: operation not permitted'), { code: 'EPERM' }),
+      )
+      .mockImplementationOnce((from, to) => actual.rename(from, to));
+
+    await expect(writeFileAtomic(path, '{"ok":true}')).resolves.toBeUndefined();
+
+    expect(await readFile(path, 'utf8')).toBe('{"ok":true}');
+    expect(await readdir(dir)).toEqual(['settings.json']);
+  });
+
+  it('still surfaces a rename failure that is not transient', async () => {
+    const path = join(dir, 'settings.json');
+    await writeFile(path, 'original');
+    vi.mocked(fs.rename).mockRejectedValue(
+      Object.assign(new Error('no space left on device'), { code: 'ENOSPC' }),
+    );
+
+    await expect(writeFileAtomic(path, '{}')).rejects.toThrow('no space left on device');
+    expect(await readFile(path, 'utf8')).toBe('original');
   });
 });

@@ -4,16 +4,7 @@
  * `fs-text-encoding.ts`. Re-exports keep the public API stable.
  */
 
-import {
-  readFile,
-  open,
-  access,
-  mkdir,
-  rename,
-  rm,
-  lstat,
-  type FileHandle,
-} from 'node:fs/promises';
+import { readFile, open, access, mkdir, rm, lstat, type FileHandle } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
 import { dirname } from 'node:path';
 import { constants } from 'node:fs';
@@ -26,6 +17,7 @@ import {
   payloadEncodingFor,
   shouldNormalizeLineEndings,
 } from './fs-text-encoding.js';
+import { renameWithRetry } from './rename-retry.js';
 
 export {
   copyDir,
@@ -110,7 +102,12 @@ export async function writeFileAtomic(
     if (mode !== undefined) await handle.chmod(mode);
     await handle.close();
     handle = undefined;
-    await rename(tmpPath, path);
+    // Retrying rename, not a plain one: on Windows, replacing a destination
+    // fails with EPERM while another process is mid-replace of the same path.
+    // Unique temp names (the fix for torn content) removed the accidental
+    // serialization writers used to get from sharing one `<path>.tmp`, so
+    // concurrent writers now genuinely race here. POSIX is a single rename.
+    await renameWithRetry(tmpPath, path);
   } catch (err) {
     await handle?.close().catch(() => {});
     if (ownsTemporaryFile) await rm(tmpPath, { force: true }).catch(() => {});
