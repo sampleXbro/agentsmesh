@@ -754,6 +754,22 @@
         "t-glob-8173701c"
       ]
     },
+    "cli-presentation-node-writes-to-a-pipe": {
+      "createdAt": "2026-09-13",
+      "evidence": [
+        "69e5ab01"
+      ],
+      "rule": "Node writes to a pipe asynchronously while a TTY or file is blocking, and process.exit discards whatever is still queued, so any CLI payload over the pipe buffer (64 KiB on macOS) is truncated only when piped — redirecting to a file hides the bug. Fix it once at the process entry by asking libuv to make stdout/stderr blocking (stream._handle.setBlocking(true), guarded: private API); do NOT try to flush an already-queued async write before exiting, which is impossible synchronously.",
+      "status": "active",
+      "topics": [
+        "cli-presentation"
+      ],
+      "triggers": [
+        "t-glob-1adbf269",
+        "t-glob-a6d44f71",
+        "t-glob-78449aa1"
+      ]
+    },
     "cli-presentation-when-auditing-spinner-vs-prompt": {
       "createdAt": "2026-07-09",
       "evidence": [
@@ -10728,6 +10744,10 @@
       "kind": "file_glob",
       "pattern": "tests/helpers/posix-path.ts"
     },
+    "t-glob-78449aa1": {
+      "kind": "file_glob",
+      "pattern": "src/cli/json-output.ts"
+    },
     "t-glob-7a175889": {
       "kind": "file_glob",
       "pattern": "src/lessons/keyword-match.ts"
@@ -10951,6 +10971,10 @@
     "t-glob-a5fc7764": {
       "kind": "file_glob",
       "pattern": "tests/**/*posix*"
+    },
+    "t-glob-a6d44f71": {
+      "kind": "file_glob",
+      "pattern": "src/cli/stdio-blocking.ts"
     },
     "t-glob-a86844dd": {
       "kind": "file_glob",
