@@ -2,7 +2,7 @@
  * Write agentsmesh.yaml after merging extends (full-document stringify).
  */
 
-import { parse as parseYaml, stringify } from 'yaml';
+import { parseDocument, parse as parseYaml } from 'yaml';
 import { configSchema, type ValidatedConfig } from '../../config/core/schema.js';
 import { readFileSafe, writeFileAtomic } from '../../utils/filesystem/fs.js';
 import { mergeExtendList, type NewExtendEntry } from './merge-extend-entry.js';
@@ -49,8 +49,13 @@ export async function writeAgentsmeshWithNewExtend(
 
   const raw = parseYaml(content) as Record<string, unknown>;
   const mergedExtends = mergeExtendList(projectExtends(raw, currentConfig), entry);
-  raw.extends = mergedExtends as unknown;
 
-  const out = stringify(raw, { indent: 2, lineWidth: 0 });
+  // Edit the parsed document in place rather than re-stringifying a plain
+  // object: `agentsmesh.yaml` is hand-authored and committed, so a round trip
+  // through `parse` + `stringify` silently dropped the user's comments and any
+  // key this version does not model.
+  const doc = parseDocument(content);
+  doc.set('extends', doc.createNode(mergedExtends));
+  const out = doc.toString({ indent: 2, lineWidth: 0 });
   await writeFileAtomic(configPath, out.endsWith('\n') ? out : `${out}\n`);
 }
