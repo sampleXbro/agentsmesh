@@ -4,14 +4,16 @@ import { pathApi, normalizeForProject, stripTrailingPunctuation } from '../path-
 import {
   LINE_NUMBER_SUFFIX,
   expandResolvedPaths,
-  protectedRanges,
   resolveProjectPath,
 } from './link-rebaser-helpers.js';
+import { inlineCodeRanges, protectedRanges } from './protected-ranges.js';
 import { collectPlannedPaths } from './rewriter.js';
 import { logger } from '../../utils/output/logger.js';
 
 const INLINE_MD_LINK = /!?\[[^\]]*\]\(([^)]+)\)/g;
-const REF_LINK_DEF = /^\s*\[[^\]\n]+\]:\s*(?:<([^>\n]*)>|(\S+))/gm;
+// `(?!\^)` keeps GFM footnote definitions (`[^1]: prose`) out: they share the
+// reference-definition shape but their body is prose, not a destination.
+const REF_LINK_DEF = /^\s*\[(?!\^)[^\]\n]+\]:\s*(?:<([^>\n]*)>|(\S+))/gm;
 
 function isMarkdownLikeOutput(relativePath: string): boolean {
   return relativePath.endsWith('.md') || relativePath.endsWith('.mdc');
@@ -230,7 +232,9 @@ export function findBrokenMarkdownLinks(
       projectRoot,
       pathApi(projectRoot).join(projectRoot, result.path),
     );
-    const protectedR = protectedRanges(result.content);
+    // Inline code spans count as protected here but not in the rewriter: a rule
+    // that documents link syntax in backticks is prose, not a broken link.
+    const protectedR = [...protectedRanges(result.content), ...inlineCodeRanges(result.content)];
 
     const visitDestination = (raw: string, matchIndex: number): void => {
       if (isOffsetInRanges(matchIndex, protectedR)) return;
