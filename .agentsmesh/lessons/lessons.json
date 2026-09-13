@@ -8430,6 +8430,21 @@
         "t-cmd-f68bf5e2"
       ]
     },
+    "verification-workflow-after-splitting-a-module-repoint": {
+      "createdAt": "2026-09-13",
+      "evidence": [
+        "9f0099cf"
+      ],
+      "rule": "After splitting a module, repoint EVERY importer including test files and re-run the full unit suite, not just the tests you were thinking about: a focused run and a gate started before the split both pass while four test files still import the moved symbol from the old path. Also expect the per-file coverage floor to trip on the new file — a coverage run that began before the split reports the new module at 0%, which is an artifact, but genuinely dead defensive branches (a '?? 0' on matchAll's index, which is always set) should be deleted rather than covered.",
+      "status": "active",
+      "topics": [
+        "verification-workflow"
+      ],
+      "triggers": [
+        "t-glob-7e7af327",
+        "t-glob-ae2ce734"
+      ]
+    },
     "verification-workflow-changing-the-public-api-surface": {
       "createdAt": "2026-06-12",
       "evidence": [
@@ -10764,6 +10779,10 @@
       "kind": "file_glob",
       "pattern": "src/targets/kilo-code/**/*.ts"
     },
+    "t-glob-7e7af327": {
+      "kind": "file_glob",
+      "pattern": "src/core/reference/protected-ranges.ts"
+    },
     "t-glob-7e95936f": {
       "kind": "file_glob",
       "pattern": "src/targets/*/*merge*.ts"
@@ -11023,6 +11042,10 @@
     "t-glob-aceab730": {
       "kind": "file_glob",
       "pattern": "src/targets/**/generator/*.ts"
+    },
+    "t-glob-ae2ce734": {
+      "kind": "file_glob",
+      "pattern": "src/core/generate/collision-agents.ts"
     },
     "t-glob-b13cc3e2": {
       "kind": "file_glob",
