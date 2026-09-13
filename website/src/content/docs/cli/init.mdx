@@ -44,10 +44,10 @@ The wizard is **skipped** — and the original non-interactive behavior runs —
 
 Once `agentsmesh.yaml` exists, init is protective:
 
-- `agentsmesh init` (or `--global`) → stops with **`Already initialized. agentsmesh.yaml exists. Remove it first to re-init.`** Nothing changes; the wizard never starts.
+- `agentsmesh init` (or `--global`) → stops with an **already-initialized** error naming the config file. Nothing changes; the wizard never starts.
 - `agentsmesh init --lessons` → **adds the lessons subsystem retroactively** without touching your config or scaffold (see [Enable lessons recall](#enable-lessons-recall)). Idempotent — safe to re-run.
 
-To start fresh, delete `agentsmesh.yaml` (and `.agentsmesh/` for a clean slate) and run `init` again.
+Deleting `agentsmesh.yaml` and re-running `init` is not a reset. The scaffold only fills gaps: a canonical file that already exists in `.agentsmesh/` is never replaced by a template, so your rules, MCP servers, hooks, permissions and ignore patterns survive. For a genuinely clean slate, delete `.agentsmesh/` as well.
 
 ## What init creates
 
@@ -167,7 +167,7 @@ agentsmesh generate
 ```
 
 <Aside type="note">
-  If the project is already initialized (`agentsmesh.yaml` exists), `init` stops with an "already initialized" error instead of overwriting anything. Use `agentsmesh init --lessons` to add lessons to an existing project, or remove `agentsmesh.yaml` to re-init. See [Already initialized](#already-initialized).
+  If the project is already initialized (`agentsmesh.yaml` exists), `init` stops with an "already initialized" error instead of overwriting anything. Use `agentsmesh init --lessons` to add lessons to an existing project. Removing `agentsmesh.yaml` and re-running `init` restores the config file but keeps every canonical file already in `.agentsmesh/`. See [Already initialized](#already-initialized).
 </Aside>
 
 ## Generated agentsmesh.yaml
