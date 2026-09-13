@@ -1,15 +1,14 @@
 /**
  * Branch coverage for src/cli/commands/seed-mcp-entry.ts:
- * - Line 47: inner catch when parseMcp throws (falls back to empty cfg).
- * - Line 57-60: outer catch when the rename/write phase fails.
+ * - A file the seeder declines to rewrite (unreadable/commented) is preserved.
+ * - Outer catch when the write phase fails.
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { seedAgentsmeshMcpEntry } from '../../../../src/cli/commands/seed-mcp-entry.js';
-import * as mcpModule from '../../../../src/canonical/features/mcp.js';
 
 let tempDir: string;
 let stderr: string;
@@ -30,12 +29,18 @@ afterEach(() => {
 });
 
 describe('seedAgentsmeshMcpEntry — fallback branches', () => {
-  it('falls back to empty mcpServers when parseMcp throws (inner catch)', async () => {
-    const spy = vi.spyOn(mcpModule, 'parseMcp').mockRejectedValue(new Error('parse-boom'));
+  it('preserves a file it cannot rewrite instead of replacing it', async () => {
+    // Previously this fell back to an empty document and wrote it, so one bad
+    // character cost the user every server they had declared.
+    mkdirSync(join(tempDir, '.agentsmesh'), { recursive: true });
+    const broken = '{ "mcpServers": { "mine": { "command": "node" } },, }';
+    writeFileSync(join(tempDir, '.agentsmesh', 'mcp.json'), broken);
+
     const wrote = await seedAgentsmeshMcpEntry(tempDir);
-    expect(wrote).toBe(true);
-    expect(spy).toHaveBeenCalled();
-    expect(stderrSpy).not.toHaveBeenCalled();
+
+    expect(wrote).toBe(false);
+    expect(readFileSync(join(tempDir, '.agentsmesh', 'mcp.json'), 'utf8')).toBe(broken);
+    expect(stderr).toContain('not valid JSON');
   });
 
   it('logs warning to stderr and returns false when write phase throws (outer catch with Error)', async () => {
@@ -48,9 +53,8 @@ describe('seedAgentsmeshMcpEntry — fallback branches', () => {
     expect(stderr).toContain('warning: could not seed agentsmesh MCP server entry');
   });
 
-  it('logs warning when parseMcp returns null then injection succeeds and write succeeds (default path)', async () => {
-    // Default path: file missing → parseMcp returns null → cfg fallback at line 45.
-    // Validates we don't accidentally hit the catch branch in the happy path.
+  it('creates the document when the file is missing, with no warning', async () => {
+    // Happy path: nothing on disk → a fresh document is written.
     const wrote = await seedAgentsmeshMcpEntry(tempDir);
     expect(wrote).toBe(true);
     expect(stderrSpy).not.toHaveBeenCalled();
