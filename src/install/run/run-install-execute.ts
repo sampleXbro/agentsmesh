@@ -189,7 +189,8 @@ export async function executeRunInstallPoolsAndWrite(
     config,
     parsed,
     entryFeatures,
-    nameOverride: nameOverride || reuseExistingName || '',
+    nameOverride: nameOverride || '',
+    reuseExistingName: reuseExistingName || '',
   });
 
   const installed = buildInstalledList(selected, entryName);
