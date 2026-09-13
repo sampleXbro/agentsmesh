@@ -1,9 +1,0 @@
----
-'agentsmesh': minor
----
-
-**Changed — writes are atomic and stay inside the project.** Every generated file is written through an exclusively created temporary file and renamed into place, so a concurrent run or a crash never leaves a half-written file, and a symlink at the destination is replaced rather than followed. `generate` and `convert` reject an output directory that resolves outside the project (or the home directory with `--global`) through a symlink; symlinks that stay inside the boundary keep working. A stale `.generate.lock` left by a dead process is evicted, and one that cannot be removed fails fast with the error instead of retrying forever.
-
-**Changed — Claude Code.** An explicitly empty canonical file now clears the entries agentsmesh generated: `allow: []`, `deny: []` and `ask: []` remove permission rules, `hooks.yaml` containing `{}` removes hooks, and `mcp.json` containing `{"mcpServers": {}}` removes servers, while every other key in `.claude/settings.json` and `.mcp.json` stays as it was. A missing canonical file still leaves the tool's settings alone.
-
-**Fixed — MCP server and installs.** `add_mcp_server`, `update_mcp_server` and `remove_mcp_server` keep unrelated servers, unknown server fields and top-level keys of `.agentsmesh/mcp.json`, and refuse to overwrite a malformed file. `create_skill` and `update_skill` validate every supporting path and file size before writing anything, and `SKILL.md` can no longer be replaced through `supportingFiles`. Files written by the MCP server get the same line-ending normalization and executable bit as generated files. `install` stages a pack in a private transaction directory, so a sibling `<pack>.tmp` or `<pack>.old` directory is never touched and a failed swap restores the previous pack. `watch` ignores the new temporary files and no longer re-triggers on its own writes.
