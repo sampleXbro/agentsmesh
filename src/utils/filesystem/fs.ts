@@ -21,7 +21,9 @@ import { FileSystemError } from '../../core/errors.js';
 import {
   UTF8_BOM,
   executableModeFor,
+  isBinaryPayloadPath,
   normalizeLineEndings,
+  payloadEncodingFor,
   shouldNormalizeLineEndings,
 } from './fs-text-encoding.js';
 
@@ -46,7 +48,11 @@ interface ErrnoLike {
  */
 export async function readFileSafe(path: string): Promise<string | null> {
   try {
-    const data = await readFile(path, 'utf-8');
+    // Binary payloads (skill images, fonts, archives) are read as latin1 so
+    // every byte survives; a UTF-8 decode would replace invalid bytes with
+    // U+FFFD and corrupt the file before generation ever runs.
+    const data = await readFile(path, payloadEncodingFor(path));
+    if (isBinaryPayloadPath(path)) return data;
     return data.startsWith(UTF8_BOM) ? data.slice(UTF8_BOM.length) : data;
   } catch (err) {
     const e = err as ErrnoLike;
@@ -100,7 +106,7 @@ export async function writeFileAtomic(
   try {
     handle = await open(tmpPath, 'wx', mode);
     ownsTemporaryFile = true;
-    await handle.writeFile(payload, 'utf-8');
+    await handle.writeFile(payload, payloadEncodingFor(path));
     if (mode !== undefined) await handle.chmod(mode);
     await handle.close();
     handle = undefined;

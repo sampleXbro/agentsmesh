@@ -50,6 +50,7 @@ Any file placed alongside `SKILL.md` is a supporting file. Supporting files are:
 - Preserved during `agentsmesh generate` — copied to the target skill directory
 - Preserved during `agentsmesh import` — restored from the tool directory
 - Referenced with relative paths in `SKILL.md`
+- Copied byte-for-byte when they are binary (images, fonts, archives, PDFs, compiled assets), so a diagram or icon a skill ships arrives intact
 
 Internal file references (e.g., `[template.hbs](./template.hbs)`) are rewritten from canonical paths to target-relative paths during generation, and restored on import.
 
