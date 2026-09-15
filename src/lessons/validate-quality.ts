@@ -153,3 +153,44 @@ export function collectFanout(graph: LessonsGraph, findings: ValidationFinding[]
 function normalizeRule(rule: string): string {
   return rule.trim().replace(/\s+/g, ' ').toLowerCase();
 }
+
+/**
+ * Recall delivers a handful of matches per call, so a trigger set shared by more
+ * lessons than that is a tie the ranker cannot break: identical triggers score
+ * identically on specificity, and the choice falls to topic coherence and rule
+ * text. Which lessons an agent actually sees becomes close to arbitrary.
+ *
+ * Derived from the graph alone, so it works without telemetry.
+ */
+const TIED_TRIGGER_SET_THRESHOLD = 5;
+
+export function collectTriggerSetCollisions(
+  graph: LessonsGraph,
+  findings: ValidationFinding[],
+): void {
+  const bySet = new Map<string, string[]>();
+  for (const [id, lesson] of Object.entries(graph.lessons)) {
+    if (lesson.status !== 'active') continue;
+    const key = [...lesson.triggers].sort().join(',');
+    if (key === '') continue;
+    const group = bySet.get(key);
+    if (group === undefined) bySet.set(key, [id]);
+    else group.push(id);
+  }
+
+  const contested = [...bySet.values()].filter((ids) => ids.length > TIED_TRIGGER_SET_THRESHOLD);
+  if (contested.length === 0) return;
+
+  const largest = contested.reduce((a, b) => (b.length > a.length ? b : a));
+  const affected = contested.reduce((n, ids) => n + ids.length, 0);
+  findings.push({
+    level: 'warning',
+    code: 'TIED_TRIGGER_SETS',
+    message:
+      `${contested.length} trigger set(s) are each shared by more than ${TIED_TRIGGER_SET_THRESHOLD} ` +
+      `active lessons (largest ${largest.length}, ${affected} lessons in total). Identical triggers ` +
+      'score identically on specificity, so recall picks among them by weaker signals — split the ' +
+      'triggers so the lesson that matters for a given file can win.',
+    lessonIds: largest.sort(),
+  });
+}

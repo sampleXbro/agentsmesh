@@ -22,6 +22,7 @@ import type { LessonsGraph } from '../../../../src/lessons/graph-schema.js';
 import { appendOutcomeEvent, type OutcomeEvent } from '../../../../src/lessons/outcome-log.js';
 import { clearSeen } from '../../../../src/lessons/seen-cache.js';
 import { readRecallLog } from '../../../../src/lessons/telemetry.js';
+import { DEFAULT_RECALL_MAX_TOKENS } from '../../../../src/lessons/ranking.js';
 
 const TELEMETRY_ON = { AGENTSMESH_LESSONS_TELEMETRY: '1' } as NodeJS.ProcessEnv;
 const failEvent = (contextKey: string): OutcomeEvent => ({
@@ -983,7 +984,7 @@ describe('runLessons query — ranking and caps', () => {
   });
 
   function seedManyLong(): void {
-    const filler = 'word '.repeat(50).trim(); // ~250 chars ≈ ~63 tokens each
+    const filler = 'word '.repeat(Math.ceil((DEFAULT_RECALL_MAX_TOKENS * 2) / 15)).trim(); // scales with the default budget
     const lessons: LessonsGraph['lessons'] = {};
     for (let i = 0; i < 20; i++) {
       lessons[`long-${i}`] = {
@@ -1008,7 +1009,7 @@ describe('runLessons query — ranking and caps', () => {
     const r = await runLessons({ file: 'src/a.ts' }, ['query'], root);
     if (r.subcommand !== 'query') return;
     expect(r.data.totalMatches).toBe(20);
-    expect(r.data.lessons.length).toBeLessThan(10); // 400-token budget, not the limit
+    expect(r.data.lessons.length).toBeLessThan(10); // the default budget, not the limit
   });
 
   it('--all bypasses the default token budget', async () => {

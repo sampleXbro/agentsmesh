@@ -18,6 +18,7 @@ import { recallLessons } from '../../src/lessons/recall.js';
 import { mutateLessonsGraph } from '../../src/lessons/mutate.js';
 import { tryLoadLessonsGraph } from '../../src/lessons/graph-store.js';
 import { lessonsPaths } from '../../src/lessons/paths.js';
+import { DEFAULT_RECALL_MAX_TOKENS } from '../../src/lessons/ranking.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const FIXTURE = resolve(HERE, '../fixtures/lessons/legacy-input');
@@ -97,7 +98,8 @@ describe('recallLessons', () => {
   it('applies the default token budget, and maxTokens:null disables it', async () => {
     // Seed many distinct LONG lessons under one shared keyword trigger so the
     // token budget — not the default limit — is what trims the result.
-    const filler = `${'word '.repeat(50)}`.trim(); // ~250 chars ≈ ~63 tokens each
+    const filler =
+      `${'word '.repeat(Math.ceil((DEFAULT_RECALL_MAX_TOKENS * 2) / 15)).trim()}`.trim(); // scales with the default budget
     for (let i = 0; i < 20; i++) {
       await captureLesson(
         root,
@@ -119,8 +121,8 @@ describe('recallLessons', () => {
     // An explicit small budget keeps only the top result (each rule > 80 tokens).
     expect(tiny.lessons.length).toBe(1);
     expect(def.totalMatches).toBe(20);
-    // Default 400-token budget trims BELOW the default 10-result limit (each
-    // long rule costs ~63 tokens, so ~6 fit) — proving the budget, not the limit.
+    // The default budget trims BELOW the default 10-result limit, proving the
+    // budget is what bound the result, not the limit.
     expect(def.lessons.length).toBeLessThan(10);
     // An explicit null budget (with a high limit) returns the whole match set.
     expect(unlimited.lessons.length).toBe(20);

@@ -116,7 +116,7 @@ Every agent shares that one graph. A rule captured by one tool — Cursor, Aider
 
 ## Keep the memory healthy
 
-Recall stays lean by default: results are relevance-ranked, capped at the top 10, and bounded by a ~400-token budget. Tune per project in `.agentsmesh/lessons/config.json` (written by `init --lessons` with defaults `{ "recallLimit": 10, "recallMaxTokens": 400, "autoPrune": false }`).
+Recall stays lean by default: results are relevance-ranked, capped at the top 10, and bounded by a ~1200-token budget. Tune per project in `.agentsmesh/lessons/config.json` (written by `init --lessons` with defaults `{ "recallLimit": 10, "recallMaxTokens": 1200, "autoPrune": false }`). Hook-driven recall injects at most 5 rules per call regardless of the budget, so on a large graph the budget matters up to that ceiling and trigger precision matters after it.
 
 As the codebase moves, triggers can rot — a renamed directory turns a good lesson unreachable. Three commands keep the graph tidy:
 

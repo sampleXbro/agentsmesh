@@ -12,6 +12,7 @@ import {
   collectDuplicateRules,
   collectDuplicateTriggers,
   collectFanout,
+  collectTriggerSetCollisions,
   collectInvalidTriggerPatterns,
 } from './validate-quality.js';
 import { collectLowSignalKeywords, collectStopwordKeywords } from './validate-keywords.js';
@@ -78,6 +79,7 @@ export function validateLessonsGraph(
   collectDuplicateTriggers(graph, findings);
   collectOrphans(graph, findings);
   collectFanout(graph, findings);
+  collectTriggerSetCollisions(graph, findings);
   collectLowSignalKeywords(graph, findings);
   collectStopwordKeywords(graph, findings);
   collectRunnerAnchoredPatterns(graph, findings);

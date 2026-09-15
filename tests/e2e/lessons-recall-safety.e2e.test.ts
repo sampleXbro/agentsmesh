@@ -12,6 +12,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { runCli, runCliArgs } from './helpers/run-cli.js';
 import { addLessonCli } from './helpers/lessons-cli.js';
+import { DEFAULT_RECALL_MAX_TOKENS } from '../../src/lessons/ranking.js';
 
 let dir: string;
 
@@ -109,8 +110,8 @@ describe('lessons CLI — corrupt graph resilience (P1)', () => {
 });
 
 describe('lessons CLI — default token budget (P2)', () => {
-  // ~250-char rule ≈ ~63 tokens; 8 of them (~500 tokens) exceed the 400 budget.
-  const filler = 'word '.repeat(50).trim();
+  /** A rule costing ~1/6th of the default budget, so the BUDGET trims before the limit does. */
+  const filler = 'word '.repeat(Math.ceil((DEFAULT_RECALL_MAX_TOKENS * 2) / 15)).trim();
 
   async function seedLongLessons(): Promise<void> {
     for (let i = 0; i < 8; i++) {

@@ -188,7 +188,7 @@ describe('scaffoldLessons', async () => {
     // behaviour-neutral, only discoverability changes.
     expect(parsed).toEqual({
       recallLimit: 10,
-      recallMaxTokens: 400,
+      recallMaxTokens: 1200,
       autoPrune: false,
       repairTriggers: false,
       telemetry: false,
