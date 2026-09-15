@@ -68,7 +68,7 @@ export async function emitRecall(
   // Cap recall AT the injection limit so per-session dedup commits EXACTLY the set we
   // inject. Ranking to the default limit and then slicing would mark the extra lessons
   // "seen" though they were never shown — permanently suppressing them next session.
-  const { lessons } = await recallLessons(projectRoot, query, {
+  const { lessons, totalMatches, suppressed } = await recallLessons(projectRoot, query, {
     sessionId: options.sessionId,
     limit: HOOK_INJECT_LIMIT,
   });
@@ -85,6 +85,7 @@ export async function emitRecall(
   const body = injectionText(
     options.lead,
     lessons.map((l) => l.lesson.rule),
+    hiddenByCap(totalMatches, suppressed, lessons.length),
   );
   return contextOutput(
     options.event,
@@ -92,10 +93,26 @@ export async function emitRecall(
   );
 }
 
-/** The injected context body: lead sentence + clamped rule bullets. */
-function injectionText(lead: string, rules: readonly string[]): string {
+/**
+ * Matches the caps hid, excluding the ones session dedup held back.
+ *
+ * Dedup suppression is by design and already silent on purpose; a match lost to
+ * the token/limit cap is a tuning signal, and without it a budget too small for
+ * the graph is invisible from inside a session — an agent sees two of eighteen
+ * and has no way to know sixteen existed.
+ */
+function hiddenByCap(totalMatches: number, suppressed: number, delivered: number): number {
+  return Math.max(0, totalMatches - suppressed - delivered);
+}
+
+/** The injected context body: lead sentence, clamped rule bullets, cap notice. */
+function injectionText(lead: string, rules: readonly string[], hidden = 0): string {
   const bullets = rules.map((r) => `- ${clampRule(r)}`).join('\n');
-  return `${lead} — apply before your next action:\n${bullets}`;
+  const notice =
+    hidden > 0
+      ? `\n(${hidden} more matched but did not fit the recall budget — raise recallMaxTokens in .agentsmesh/lessons/config.json, or narrow these lessons' triggers.)`
+      : '';
+  return `${lead} — apply before your next action:\n${bullets}${notice}`;
 }
 
 /** Assemble recalled rules into the harness's injection shape (clamp + bullets + lead + wrap). */
