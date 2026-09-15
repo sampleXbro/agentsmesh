@@ -79,7 +79,7 @@ agentsmesh lessons query --file src/x.ts --format json
 ```
 
 :::note[Recall precision]
-Triggers may be shared across lessons in a topic, so a match produces a broad **candidate** set. A query therefore **ranks** candidates (BM25 over rule text fused with trigger specificity) and returns the **top 10 by default, bounded by a ~400-token budget** so mandatory recall stays lean — matching is "this lesson is a candidate", not "you must read all of these". A stderr notice reports how many matched; use `--top <n>`/`--max-tokens <n>` to widen, or `--all` to bypass both caps. `validate` emits a `HIGH_FANOUT_TRIGGERS` warning when triggers are over-shared; per-lesson trigger refinement is the remaining precision lever.
+Triggers may be shared across lessons in a topic, so a match produces a broad **candidate** set. A query therefore **ranks** candidates (BM25 over rule text fused with trigger specificity) and returns the **top 10 by default, bounded by a ~1200-token budget** so mandatory recall stays lean — matching is "this lesson is a candidate", not "you must read all of these". A stderr notice reports how many matched; use `--top <n>`/`--max-tokens <n>` to widen, or `--all` to bypass both caps. Hook-driven recall injects at most 5 rules per call whatever the budget allows, and says in the injected context when the caps hid matches, so a budget too small for the graph is visible from inside a session. `validate` emits `HIGH_FANOUT_TRIGGERS` when triggers are over-shared and `TIED_TRIGGER_SETS` when lessons share an identical trigger set, which is the tie ranking cannot break; per-lesson trigger refinement is the remaining precision lever.
 :::
 
 ## Capture ritual
