@@ -22,6 +22,7 @@ import {
 } from '../../../../src/lessons/graph-store.js';
 import type { LessonsGraph } from '../../../../src/lessons/graph-schema.js';
 import { McpError } from '../../../../src/mcp/errors.js';
+import { DEFAULT_RECALL_MAX_TOKENS } from '../../../../src/lessons/ranking.js';
 
 /** Persist a graph WITHOUT canonicalizing, preserving the literal key order. */
 function writeRawGraph(root: string, graph: LessonsGraph): void {
@@ -207,7 +208,7 @@ describe('lessonsHandlers.query', () => {
   });
 
   it('applies a default token budget when max_tokens is omitted', async () => {
-    const filler = 'word '.repeat(50).trim(); // ~250 chars ≈ ~63 tokens each
+    const filler = 'word '.repeat(Math.ceil((DEFAULT_RECALL_MAX_TOKENS * 2) / 15)).trim(); // scales with the default budget
     const lessons: LessonsGraph['lessons'] = {};
     for (let i = 0; i < 20; i++) {
       lessons[`b-${i}`] = {
@@ -227,7 +228,7 @@ describe('lessonsHandlers.query', () => {
     });
     const r = await lessonsHandlers.query(ctx, { file: 'src/x.ts' });
     expect(r.totalMatches).toBe(20);
-    // Default 400-token budget trims below the default 10-result limit.
+    // The default budget trims below the default 10-result limit.
     expect(r.lessons.length).toBeLessThan(10);
   });
 
@@ -265,7 +266,7 @@ describe('lessonsHandlers.query', () => {
   });
 
   it('accepts the `max-tokens` alias for `max_tokens`', async () => {
-    const filler = 'word '.repeat(50).trim();
+    const filler = 'word '.repeat(Math.ceil((DEFAULT_RECALL_MAX_TOKENS * 2) / 15)).trim();
     const lessons: LessonsGraph['lessons'] = {};
     for (let i = 0; i < 20; i++) {
       lessons[`b-${i}`] = {

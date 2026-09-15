@@ -49,7 +49,7 @@ export const DEFAULT_RECALL_LIMIT = 10;
  * lean; without a budget a broad match can return ~450+ rule-tokens. `--all`
  * (CLI) bypasses both caps. The top result is always kept (see RankOptions).
  */
-export const DEFAULT_RECALL_MAX_TOKENS = 400;
+export const DEFAULT_RECALL_MAX_TOKENS = 1200;
 
 const RRF_K = 60;
 
