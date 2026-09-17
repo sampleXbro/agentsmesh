@@ -3962,7 +3962,6 @@
         "lessons-system"
       ],
       "triggers": [
-        "t-glob-71436975",
         "t-glob-09987b10",
         "t-kw-26b43334",
         "t-kw-ace667f6"
@@ -8003,6 +8002,22 @@
         "t-glob-4c29ad88"
       ]
     },
+    "testing-a-delete-zero-production-callers": {
+      "createdAt": "2026-09-17",
+      "evidence": [
+        "ponytail-cleanup-2026-09-17"
+      ],
+      "rule": "A 'delete: zero production callers' finding is not proven by a caller count. Three classes of caller are invisible to grep-for-production-use but load-bearing: (1) test seams — an options param only tests pass (prompt-io PromptIOOptions) is the injection point, not dead flexibility; (2) purity/async contracts — a 'duplicate' parser can exist because one is sync and pure while the twin is async and does I/O (parse-source-url vs parse-install-source); (3) portability comments — resolveNpmSpecifier hand-rolls resolution to work in Bun-compiled binaries. Before deleting, run the symbol's own tests and read its doc comment for a stated reason.",
+      "status": "active",
+      "topics": [
+        "testing"
+      ],
+      "triggers": [
+        "t-kw-7d07996a",
+        "t-kw-ac3adf17",
+        "t-kw-f2699760"
+      ]
+    },
     "testing-a-vitest-coverage-run-wipes": {
       "createdAt": "2026-09-04",
       "evidence": [],
@@ -8014,6 +8029,21 @@
       "triggers": [
         "t-cmd-c18f3a3e",
         "t-kw-7ece8445"
+      ]
+    },
+    "testing-collapsing-duplicated-code-into-a": {
+      "createdAt": "2026-09-17",
+      "evidence": [
+        "qa-report-2026-09-17"
+      ],
+      "rule": "Collapsing duplicated code into a shared factory can FAIL the per-file coverage floor without changing behaviour: removing well-covered branches from a file leaves the same uncovered branches over a smaller denominator (cline/lint.ts went 70.58% -> 54.54% branches, pi-agent/generator.ts 85.71% -> 66.66%, breaking pnpm precommit). After any dedup refactor run 'COVERAGE=1 node_modules/.bin/vitest run --coverage && node_modules/.bin/tsx scripts/coverage-floor.ts', and locate the exact uncovered branches from coverage/coverage-final.json (b/branchMap), not the v8 text table.",
+      "status": "active",
+      "topics": [
+        "testing"
+      ],
+      "triggers": [
+        "t-cmd-e7a326a1",
+        "t-kw-4859e2d1"
       ]
     },
     "testing-never-probe-a-directory-path": {
@@ -8030,6 +8060,20 @@
         "t-kw-6c51ce04"
       ]
     },
+    "testing-never-run-prettier-write-src": {
+      "createdAt": "2026-09-17",
+      "evidence": [
+        "ponytail-cleanup-2026-09-17"
+      ],
+      "rule": "Never run 'prettier --write src/' repo-wide in this repo: 17 files under src/ are already prettier-unformatted at HEAD, so a wholesale write reformats files your change never touched — including src/targets/catalog/capability-ledger.json (1655-line churn that buries real edits and risks its verified provenance). Format only the files you changed: node_modules/.bin/prettier --write $(git diff --name-only HEAD -- 'src/**/*.ts').",
+      "status": "active",
+      "topics": [
+        "testing"
+      ],
+      "triggers": [
+        "t-cmd-742e7c60"
+      ]
+    },
     "testing-the-bash-tool-s-working": {
       "createdAt": "2026-09-04",
       "evidence": [],
@@ -8041,6 +8085,22 @@
       "triggers": [
         "t-cmd-d04a125f",
         "t-kw-8b9ce28d"
+      ]
+    },
+    "testing-to-prove-a-pure-refactor": {
+      "createdAt": "2026-09-17",
+      "evidence": [
+        "qa-report-2026-09-17"
+      ],
+      "rule": "To prove a pure refactor changed no behaviour, use differential testing, not spot checks: build the pre-refactor commit in a throwaway worktree (git worktree add --detach /tmp/x HEAD; ln -s the repo node_modules; node_modules/.bin/tsup), run an identical scenario script against BOTH dist/cli.js builds into separate roots, then diff the transcripts AND the generated file trees with workdir paths and ISO timestamps normalised (sed -E 's#/(private/)?tmp/qa-(old|new)#W#g; s#[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:.]+Z#TS#g'). Without timestamp normalisation ~36 lock/pack/manifest files show false diffs.",
+      "status": "active",
+      "topics": [
+        "testing"
+      ],
+      "triggers": [
+        "t-cmd-04ac8468",
+        "t-kw-18a1de9b",
+        "t-kw-218f2eba"
       ]
     },
     "testing-vitest-coverage-thresholds-cannot-expres": {
@@ -8072,6 +8132,22 @@
         "t-glob-4c29ad88",
         "t-kw-ccc4cf3d",
         "t-kw-e9de15ff"
+      ]
+    },
+    "testing-when-auditing-duplication-do-not": {
+      "createdAt": "2026-09-17",
+      "evidence": [
+        "ponytail-review-2026-09-17"
+      ],
+      "rule": "When auditing duplication, do not trust jscpd's percentage: it misses bodies that differ only by a constant (per-target TARGET/ROOT_FILE names). Re-hash files with the constants normalized (sed -E 's/[A-Z][A-Z_]*_TARGET/T/g' | tr -d ' \\n' | shasum) before concluding a codebase is lean — agentsmesh measured 1.41% via jscpd but ~4.8% once constants were normalized.",
+      "status": "active",
+      "topics": [
+        "testing"
+      ],
+      "triggers": [
+        "t-kw-0d406f2b",
+        "t-kw-34bf7cbb",
+        "t-kw-f2699760"
       ]
     },
     "testing-when-measuring-per-file-coverage": {
@@ -9795,6 +9871,10 @@
     }
   },
   "triggers": {
+    "t-cmd-04ac8468": {
+      "kind": "command_pattern",
+      "pattern": "worktree"
+    },
     "t-cmd-08ecd38a": {
       "kind": "command_pattern",
       "pattern": "git commit,vitest run"
@@ -9934,6 +10014,10 @@
     "t-cmd-73382791": {
       "kind": "command_pattern",
       "pattern": "agentsmesh lessons"
+    },
+    "t-cmd-742e7c60": {
+      "kind": "command_pattern",
+      "pattern": "prettier"
     },
     "t-cmd-78625976": {
       "kind": "command_pattern",
@@ -10130,6 +10214,10 @@
     "t-cmd-e5052e92": {
       "kind": "command_pattern",
       "pattern": "import --global"
+    },
+    "t-cmd-e7a326a1": {
+      "kind": "command_pattern",
+      "pattern": "coverage-floor"
     },
     "t-cmd-e86f6687": {
       "kind": "command_pattern",
@@ -10706,10 +10794,6 @@
     "t-glob-706a24db": {
       "kind": "file_glob",
       "pattern": "src/targets/*/nested-rules.ts"
-    },
-    "t-glob-71436975": {
-      "kind": "file_glob",
-      "pattern": "src/lessons/reachability.ts"
     },
     "t-glob-71b4b110": {
       "kind": "file_glob",
@@ -11443,6 +11527,10 @@
       "kind": "keyword",
       "pattern": "goose hooks"
     },
+    "t-kw-0d406f2b": {
+      "kind": "keyword",
+      "pattern": "duplication"
+    },
     "t-kw-0d87141e": {
       "kind": "keyword",
       "pattern": "parseDocument"
@@ -11495,6 +11583,10 @@
       "kind": "keyword",
       "pattern": "astro dev-only page sitemap"
     },
+    "t-kw-18a1de9b": {
+      "kind": "keyword",
+      "pattern": "refactor"
+    },
     "t-kw-1b4e1dda": {
       "kind": "keyword",
       "pattern": "reference-targets two chains outputPaths expectedRefs command path"
@@ -11526,6 +11618,10 @@
     "t-kw-20cd8977": {
       "kind": "keyword",
       "pattern": "overwrite clobber populated graph"
+    },
+    "t-kw-218f2eba": {
+      "kind": "keyword",
+      "pattern": "regression"
     },
     "t-kw-233ef987": {
       "kind": "keyword",
@@ -11606,6 +11702,10 @@
     "t-kw-34b80ab3": {
       "kind": "keyword",
       "pattern": "subagent"
+    },
+    "t-kw-34bf7cbb": {
+      "kind": "keyword",
+      "pattern": "jscpd"
     },
     "t-kw-364764c2": {
       "kind": "keyword",
@@ -11855,6 +11955,10 @@
       "kind": "keyword",
       "pattern": "backup"
     },
+    "t-kw-7d07996a": {
+      "kind": "keyword",
+      "pattern": "dead code"
+    },
     "t-kw-7dd5abb2": {
       "kind": "keyword",
       "pattern": "scalar array coercion alias"
@@ -11998,6 +12102,10 @@
     "t-kw-abe95c07": {
       "kind": "keyword",
       "pattern": "work budget"
+    },
+    "t-kw-ac3adf17": {
+      "kind": "keyword",
+      "pattern": "yagni"
     },
     "t-kw-ace667f6": {
       "kind": "keyword",
@@ -12270,6 +12378,10 @@
     "t-kw-f169d21b": {
       "kind": "keyword",
       "pattern": "always lesson"
+    },
+    "t-kw-f2699760": {
+      "kind": "keyword",
+      "pattern": "over-engineering"
     },
     "t-kw-f27ad5f1": {
       "kind": "keyword",
