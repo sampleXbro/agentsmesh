@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://unpkg.com/agentsmesh@0.25.0/schemas/installs.json
+# yaml-language-server: $schema=https://unpkg.com/agentsmesh@0.36.0/schemas/installs.json
 version: 1
 installs:
   - name: addyosmani-agent-skills-pack
@@ -42,6 +42,14 @@ installs:
         - quality-gates
     path: skills
     as: skills
+  - name: dietrichgebert-ponytail-pack
+    source: github:DietrichGebert/ponytail@e3ba2aa6f1e6f0bc4d69eb09c9f0d0a93af56156
+    version: e3ba2aa6f1e6f0bc4d69eb09c9f0d0a93af56156
+    source_kind: github
+    features:
+      - skills
+      - commands
+    original_ref: HEAD
   - name: joeking-ly-claude-skills-arsenal-skills
     source: github:joeking-ly/claude-skills-arsenal@0f5b3804660487c5aab1baea0d9981608b959b91
     version: 0f5b3804660487c5aab1baea0d9981608b959b91
@@ -61,8 +69,8 @@ installs:
       - skills
     path: skills/productivity
     as: skills
-    original_ref: HEAD
     refreshed_at: 2026-06-23T16:09:25.890Z
+    original_ref: HEAD
   - name: njengah-claude-code-cheat-sheet-agents
     source: github:Njengah/claude-code-cheat-sheet@94fbfc0040b11e16070d895c7282a6028d35e89c
     version: 94fbfc0040b11e16070d895c7282a6028d35e89c
