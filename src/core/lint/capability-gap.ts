@@ -16,9 +16,8 @@ const CANONICAL_PATH: Record<GapFeature, string> = {
 const HAS_CONTENT: Record<GapFeature, (canonical: CanonicalFiles) => boolean> = {
   commands: (c) => c.commands.length > 0,
   ignore: (c) => c.ignore.length > 0,
-  mcp: (c) => Boolean(c.mcp) && Object.keys(c.mcp?.mcpServers ?? {}).length > 0,
+  mcp: (c) => Object.keys(c.mcp?.mcpServers ?? {}).length > 0,
   hooks: (c) =>
-    Boolean(c.hooks) &&
     Object.values(c.hooks ?? {}).some((entries) => Array.isArray(entries) && entries.length > 0),
   permissions: (c) => {
     if (!c.permissions) return false;
