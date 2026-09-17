@@ -2,6 +2,7 @@
  * Load canonical slice from one resolved extend (repo root + optional path).
  */
 
+import { emptyCanonical } from '../load/empty-canonical.js';
 import { join } from 'node:path';
 import type { CanonicalFiles } from '../../core/types.js';
 import type { ResolvedExtend } from '../../config/resolve/resolver.js';
@@ -16,19 +17,6 @@ import { importNativeToCanonical } from './native-extends-importer.js';
 import { isSkillPackLayout, loadSkillsAtExtendPath } from '../load/skill-pack-load.js';
 import { loadCanonicalSliceAtPath, normalizeSlicePath } from '../load/load-canonical-slice.js';
 import { stageManualInstallScope } from '../../install/manual/manual-install-scope.js';
-
-function emptyCanonical(): CanonicalFiles {
-  return {
-    rules: [],
-    commands: [],
-    agents: [],
-    skills: [],
-    mcp: null,
-    permissions: null,
-    hooks: null,
-    ignore: [],
-  };
-}
 
 /**
  * Load canonical files contributed by one extend entry. Takes only the

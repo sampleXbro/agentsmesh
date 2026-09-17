@@ -14,6 +14,7 @@
  * `~/.agents/AGENTS.md`, `~/.warp/.mcp.json` and `~/.warp/settings.toml`.
  */
 
+import { AB_IGNORE, AB_RULES } from '../../core/canonical-paths.js';
 import type { TargetCapabilities, TargetGenerators } from '../catalog/target.interface.js';
 import type { TargetDescriptor } from '../catalog/target-descriptor.js';
 import {
@@ -42,8 +43,6 @@ import {
   WARP_GLOBAL_ROOT_FILE,
   WARP_GLOBAL_SKILLS_DIR,
   WARP_GLOBAL_MCP_FILE,
-  WARP_CANONICAL_RULES_DIR,
-  WARP_CANONICAL_IGNORE,
 } from './constants.js';
 
 export const target: TargetGenerators = {
@@ -119,7 +118,7 @@ export const descriptor = {
         project: [WARP_LEGACY_ROOT_FILE, WARP_ROOT_FILE],
         global: [WARP_GLOBAL_ROOT_FILE],
       },
-      canonicalDir: WARP_CANONICAL_RULES_DIR,
+      canonicalDir: AB_RULES,
       canonicalRootFilename: '_root.md',
       markAsRoot: true,
     },
@@ -139,7 +138,7 @@ export const descriptor = {
       mode: 'flatFile',
       source: { project: [WARP_IGNORE_FILE] },
       canonicalDir: '.agentsmesh',
-      canonicalFilename: WARP_CANONICAL_IGNORE,
+      canonicalFilename: AB_IGNORE,
     },
   },
   buildImportPaths: buildWarpImportPaths,

@@ -54,19 +54,6 @@ export function pathSupportsNativePick(pathInRepoPosix: string, target: string):
   return hint === target;
 }
 
-export function resolveEffectiveTargetForInstall(args: {
-  explicitTarget?: string;
-  importHappened: boolean;
-  usedTargetFromImport?: string;
-  pathInRepoPosix: string;
-}): string | undefined {
-  if (args.explicitTarget) return args.explicitTarget;
-  const hint = args.pathInRepoPosix ? targetHintFromNativePath(args.pathInRepoPosix) : undefined;
-  if (hint) return hint;
-  if (args.importHappened && args.usedTargetFromImport) return args.usedTargetFromImport;
-  return undefined;
-}
-
 export function validateTargetMatchesPath(
   explicitTarget: string | undefined,
   pathInRepoPosix: string,

@@ -21,6 +21,7 @@
  * surface at all (see `global-hooks.ts` and `global-permissions.ts`).
  */
 
+import { AB_AGENTS, AB_RULES } from '../../core/canonical-paths.js';
 import type { TargetCapabilities, TargetGenerators } from '../catalog/target.interface.js';
 import type { TargetDescriptor } from '../catalog/target-descriptor.js';
 import {
@@ -49,8 +50,6 @@ import {
   DEEPAGENTS_CLI_GLOBAL_ROOT_FILE,
   DEEPAGENTS_CLI_GLOBAL_AGENTS_DIR,
   DEEPAGENTS_CLI_GLOBAL_MCP_FILE,
-  DEEPAGENTS_CLI_CANONICAL_RULES_DIR,
-  DEEPAGENTS_CLI_CANONICAL_AGENTS_DIR,
 } from './constants.js';
 
 export const target: TargetGenerators = {
@@ -142,7 +141,7 @@ export const descriptor = {
         project: [DEEPAGENTS_CLI_ROOT_FILE],
         global: [DEEPAGENTS_CLI_GLOBAL_ROOT_FILE],
       },
-      canonicalDir: DEEPAGENTS_CLI_CANONICAL_RULES_DIR,
+      canonicalDir: AB_RULES,
       canonicalRootFilename: '_root.md',
       markAsRoot: true,
     },
@@ -153,7 +152,7 @@ export const descriptor = {
         project: [DEEPAGENTS_CLI_AGENTS_DIR],
         global: [DEEPAGENTS_CLI_GLOBAL_AGENTS_DIR],
       },
-      canonicalDir: DEEPAGENTS_CLI_CANONICAL_AGENTS_DIR,
+      canonicalDir: AB_AGENTS,
       extensions: ['.md'],
       map: deepagentsCliAgentMapper,
     },

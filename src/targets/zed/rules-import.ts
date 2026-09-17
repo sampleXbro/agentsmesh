@@ -12,6 +12,7 @@
  * the descriptor import runner yet.
  */
 
+import { AB_RULES } from '../../core/canonical-paths.js';
 import { join } from 'node:path';
 import type { ImportResult } from '../../core/types.js';
 import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
@@ -19,16 +20,11 @@ import { mkdirp, readFileSafe, writeFileAtomic } from '../../utils/filesystem/fs
 import { parseFrontmatter } from '../../utils/text/markdown.js';
 import { splitEmbeddedRulesToCanonical } from '../import/embedded-rules.js';
 import { serializeImportedRuleWithFallback } from '../import/import-metadata.js';
-import {
-  ZED_TARGET,
-  ZED_ROOT_FILE,
-  ZED_GLOBAL_ROOT_FILE,
-  ZED_CANONICAL_RULES_DIR,
-} from './constants.js';
+import { ZED_TARGET, ZED_ROOT_FILE, ZED_GLOBAL_ROOT_FILE } from './constants.js';
 
 type Normalize = (content: string, sourceFile: string, destinationFile: string) => string;
 
-const CANONICAL_ROOT_RULE = `${ZED_CANONICAL_RULES_DIR}/_root.md`;
+const CANONICAL_ROOT_RULE = `${AB_RULES}/_root.md`;
 
 export async function importZedRules(
   projectRoot: string,
@@ -44,7 +40,7 @@ export async function importZedRules(
   const split = await splitEmbeddedRulesToCanonical({
     content,
     projectRoot,
-    rulesDir: ZED_CANONICAL_RULES_DIR,
+    rulesDir: AB_RULES,
     sourcePath: srcPath,
     fromTool: ZED_TARGET,
     normalize,
@@ -64,7 +60,7 @@ export async function importZedRules(
     },
     body,
   );
-  await mkdirp(join(projectRoot, ZED_CANONICAL_RULES_DIR));
+  await mkdirp(join(projectRoot, AB_RULES));
   await writeFileAtomic(destPath, output);
   results.push({
     fromTool: ZED_TARGET,

@@ -3,6 +3,7 @@
  * Per-entry mapping lives in `permissions-format.ts`.
  */
 
+import { isRecord } from '../../utils/types/guards.js';
 import type { Permissions } from '../../core/types.js';
 import {
   KIRO_EFFECTS,
@@ -55,10 +56,6 @@ function stringList(value: unknown): string[] {
   if (typeof value === 'string') return [value];
   if (!Array.isArray(value)) return [];
   return value.filter((item): item is string => typeof item === 'string');
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 /**

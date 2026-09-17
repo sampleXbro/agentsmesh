@@ -6,12 +6,12 @@
  * skipped too: it is the global root rule, imported by the `singleFile` spec.
  */
 
+import { AB_RULES } from '../../core/canonical-paths.js';
 import { join } from 'node:path';
 import { parseFrontmatter } from '../../utils/text/markdown.js';
 import { serializeImportedRuleWithFallback } from '../import/import-metadata.js';
 import type { ImportEntryContext, ImportEntryMapping } from '../catalog/import-descriptor.js';
 import { remapOpenhandsRuleFrontmatter } from './rules-format.js';
-import { OPENHANDS_CANONICAL_RULES_DIR } from './constants.js';
 
 export async function mapOpenhandsFlatRule(
   ctx: ImportEntryContext,
@@ -22,7 +22,7 @@ export async function mapOpenhandsFlatRule(
   const { frontmatter, body } = parseFrontmatter(ctx.normalizeTo(destPath));
   return {
     destPath,
-    toPath: `${OPENHANDS_CANONICAL_RULES_DIR}/${ctx.relativePath}`,
+    toPath: `${AB_RULES}/${ctx.relativePath}`,
     content: await serializeImportedRuleWithFallback(
       destPath,
       remapOpenhandsRuleFrontmatter(frontmatter),

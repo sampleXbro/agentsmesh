@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { z } from 'zod';
-import { LessonsGraphSchema } from '../graph-schema.js';
+import { LessonsGraphSchema } from '../../../src/lessons/graph-schema.js';
 import type { NamedRecurrenceSuite, RecurrenceSuite } from './types.js';
 
 const QuerySchema = z

@@ -35,14 +35,6 @@ export const WINDSURF_WORKFLOWS_DIR = '.windsurf/workflows';
 /** Skills directory (.windsurf/skills/{name}/ → canonical skills) */
 export const WINDSURF_SKILLS_DIR = '.windsurf/skills';
 
-export const WINDSURF_CANONICAL_RULES_DIR = '.agentsmesh/rules';
-export const WINDSURF_CANONICAL_COMMANDS_DIR = '.agentsmesh/commands';
-export const WINDSURF_CANONICAL_AGENTS_DIR = '.agentsmesh/agents';
-export const WINDSURF_CANONICAL_SKILLS_DIR = '.agentsmesh/skills';
-export const WINDSURF_CANONICAL_IGNORE = '.agentsmesh/ignore';
-export const WINDSURF_CANONICAL_HOOKS = '.agentsmesh/hooks.yaml';
-export const WINDSURF_CANONICAL_MCP = '.agentsmesh/mcp.json';
-
 /** Global mode paths (user-level ~/.codeium/windsurf/) */
 export const WINDSURF_GLOBAL_RULES = '.codeium/windsurf/memories/global_rules.md';
 export const WINDSURF_GLOBAL_SKILLS_DIR = '.codeium/windsurf/skills';

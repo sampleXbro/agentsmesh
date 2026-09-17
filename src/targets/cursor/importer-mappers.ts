@@ -1,3 +1,4 @@
+import { AB_AGENTS, AB_COMMANDS, AB_RULES } from '../../core/canonical-paths.js';
 import { join } from 'node:path';
 import { parseFrontmatter } from '../../utils/text/markdown.js';
 import {
@@ -7,11 +8,6 @@ import {
 } from '../import/import-metadata.js';
 import type { ImportFileMapping } from '../import/import-orchestrator.js';
 import { toToolsArray } from '../import/shared-import-helpers.js';
-import {
-  CURSOR_CANONICAL_RULES_DIR,
-  CURSOR_CANONICAL_COMMANDS_DIR,
-  CURSOR_CANONICAL_AGENTS_DIR,
-} from './constants.js';
 
 export async function mapCursorRuleFile(
   relativePath: string,
@@ -34,7 +30,7 @@ export async function mapCursorRuleFile(
   }
   return {
     destPath,
-    toPath: `${CURSOR_CANONICAL_RULES_DIR}/${isRoot ? '_root.md' : rawRelativePath}`,
+    toPath: `${AB_RULES}/${isRoot ? '_root.md' : rawRelativePath}`,
     feature: 'rules',
     content: await serializeImportedRuleWithFallback(destPath, canonicalFm, body),
   };
@@ -76,7 +72,7 @@ export async function mapCursorCommandFile(
     fromCamel.length > 0 ? fromCamel : toToolsArray(frontmatter['allowed-tools']);
   return {
     destPath,
-    toPath: `${CURSOR_CANONICAL_COMMANDS_DIR}/${relativePath}`,
+    toPath: `${AB_COMMANDS}/${relativePath}`,
     feature: 'commands',
     content: await serializeImportedCommandWithFallback(
       destPath,
@@ -102,7 +98,7 @@ export async function mapCursorAgentFile(
   const { frontmatter, body } = parseFrontmatter(normalizeTo(destPath));
   return {
     destPath,
-    toPath: `${CURSOR_CANONICAL_AGENTS_DIR}/${relativePath}`,
+    toPath: `${AB_AGENTS}/${relativePath}`,
     feature: 'agents',
     content: await serializeImportedAgentWithFallback(destPath, frontmatter, body),
   };

@@ -1,3 +1,4 @@
+import { AB_RULES } from '../../core/canonical-paths.js';
 import { basename, dirname, join, relative } from 'node:path';
 import type { ImportResult } from '../../core/types.js';
 import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
@@ -21,7 +22,6 @@ import {
   AGENTS_MD,
   CODEX_GLOBAL_AGENTS_MD,
   CODEX_GLOBAL_AGENTS_OVERRIDE_MD,
-  CODEX_CANONICAL_RULES_DIR,
   CODEX_INSTRUCTIONS_DIR,
 } from './constants.js';
 import { importCodexNonRootRuleFiles } from './import-codex-non-root-rules.js';
@@ -54,7 +54,7 @@ export async function importCodexRules(
         : agentsContent !== null
           ? agentsPath
           : codexPath;
-  const destDir = join(projectRoot, CODEX_CANONICAL_RULES_DIR);
+  const destDir = join(projectRoot, AB_RULES);
   const content = globalOverrideContent ?? globalAgentsContent ?? agentsContent ?? codexContent;
   if (content !== null) {
     await mkdirp(destDir);
@@ -68,7 +68,7 @@ export async function importCodexRules(
     const split = await splitEmbeddedRulesToCanonical({
       content: stripped,
       projectRoot,
-      rulesDir: CODEX_CANONICAL_RULES_DIR,
+      rulesDir: AB_RULES,
       sourcePath,
       fromTool: 'codex-cli',
       normalize,
@@ -92,7 +92,7 @@ export async function importCodexRules(
     results.push({
       fromTool: 'codex-cli',
       fromPath: sourcePath,
-      toPath: `${CODEX_CANONICAL_RULES_DIR}/_root.md`,
+      toPath: `${AB_RULES}/_root.md`,
       feature: 'rules',
     });
   }
@@ -123,7 +123,7 @@ export async function importCodexRules(
           const { frontmatter, body } = parseFrontmatter(normalizeTo(destPath));
           return {
             destPath,
-            toPath: `${CODEX_CANONICAL_RULES_DIR}/${ruleName}.md`,
+            toPath: `${AB_RULES}/${ruleName}.md`,
             feature: 'rules',
             content: await serializeImportedRuleWithFallback(
               destPath,
@@ -166,7 +166,7 @@ async function importInstructionMirrors(
       results.push({
         fromTool: CODEX_TARGET,
         fromPath: srcPath,
-        toPath: `${CODEX_CANONICAL_RULES_DIR}/${relativePath}`,
+        toPath: `${AB_RULES}/${relativePath}`,
         feature: 'rules',
       });
     }

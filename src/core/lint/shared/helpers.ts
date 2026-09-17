@@ -17,31 +17,8 @@ export function createWarning(file: string, target: string, message: string): Li
   };
 }
 
-/**
- * Create a warning for unsupported metadata in a command.
- */
-export function createCommandMetadataWarning(
-  commandSource: string,
-  target: string,
-  unsupportedFields: string[],
-): LintDiagnostic {
-  const fields = unsupportedFields.join(' and ');
-  return createWarning(
-    commandSource,
-    target,
-    `${target} command files do not project canonical ${fields} metadata.`,
-  );
-}
-
-/**
- * Format a list for prose: "a", "a and b", or "a, b, and c".
- */
-function formatOxfordComma(items: readonly string[]): string {
-  if (items.length === 0) return '';
-  if (items.length === 1) return items[0]!;
-  if (items.length === 2) return `${items[0]} and ${items[1]}`;
-  return `${items.slice(0, -1).join(', ')}, and ${items[items.length - 1]!}`;
-}
+/** Format a list for prose: "a", "a and b", or "a, b, and c". */
+const PROSE_LIST = new Intl.ListFormat('en', { style: 'long', type: 'conjunction' });
 
 /**
  * Canonical hook event names a target with the given `supportedEvents` whitelist
@@ -73,7 +50,7 @@ export function createUnsupportedHookWarning(
   options?: { unsupportedBy?: string },
 ): LintDiagnostic {
   const by = options?.unsupportedBy ?? target;
-  const supported = formatOxfordComma(supportedEvents);
+  const supported = PROSE_LIST.format(supportedEvents);
   return createWarning(
     '.agentsmesh/hooks.yaml',
     target,

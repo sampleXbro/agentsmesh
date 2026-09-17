@@ -2,6 +2,7 @@
  * Import `.codex/rules/*.md` and agentsmesh-embedded `.codex/rules/*.rules` into canonical rules.
  */
 
+import { AB_RULES } from '../../core/canonical-paths.js';
 import { basename, join, relative } from 'node:path';
 import type { ImportResult } from '../../core/types.js';
 import {
@@ -12,12 +13,7 @@ import {
 } from '../../utils/filesystem/fs.js';
 import { parseFrontmatter } from '../../utils/text/markdown.js';
 import { serializeImportedRuleWithFallback } from '../import/import-metadata.js';
-import {
-  CODEX_TARGET,
-  CODEX_RULES_DIR,
-  CODEX_CANONICAL_RULES_DIR,
-  CODEX_PERMISSIONS_RULES_BASENAME,
-} from './constants.js';
+import { CODEX_TARGET, CODEX_RULES_DIR, CODEX_PERMISSIONS_RULES_BASENAME } from './constants.js';
 import { tryParseEmbeddedCanonicalFromCodexRules } from './codex-rules-embed.js';
 
 export async function importCodexNonRootRuleFiles(
@@ -43,7 +39,7 @@ export async function importCodexNonRootRuleFiles(
       results.push({
         fromTool: CODEX_TARGET,
         fromPath: srcPath,
-        toPath: `${CODEX_CANONICAL_RULES_DIR}/${relativePath}`,
+        toPath: `${AB_RULES}/${relativePath}`,
         feature: 'rules',
       });
     }
@@ -86,7 +82,7 @@ export async function importCodexNonRootRuleFiles(
       results.push({
         fromTool: CODEX_TARGET,
         fromPath: srcPath,
-        toPath: `${CODEX_CANONICAL_RULES_DIR}/${relativePath}`,
+        toPath: `${AB_RULES}/${relativePath}`,
         feature: 'rules',
       });
     }

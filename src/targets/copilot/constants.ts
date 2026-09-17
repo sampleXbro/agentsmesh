@@ -27,12 +27,6 @@ export const COPILOT_SKILLS_DIR = '.github/skills';
 /** Custom agent profiles directory (.agent.md files). [gh:agents] */
 export const COPILOT_AGENTS_DIR = '.github/agents';
 
-export const COPILOT_CANONICAL_RULES_DIR = '.agentsmesh/rules';
-export const COPILOT_CANONICAL_COMMANDS_DIR = '.agentsmesh/commands';
-export const COPILOT_CANONICAL_AGENTS_DIR = '.agentsmesh/agents';
-export const COPILOT_CANONICAL_SKILLS_DIR = '.agentsmesh/skills';
-export const COPILOT_CANONICAL_HOOKS = '.agentsmesh/hooks.yaml';
-export const COPILOT_CANONICAL_MCP = '.agentsmesh/mcp.json';
 export const COPILOT_LEGACY_HOOKS_DIR = '.github/copilot-hooks';
 
 export const COPILOT_GLOBAL_INSTRUCTIONS = '.copilot/copilot-instructions.md';

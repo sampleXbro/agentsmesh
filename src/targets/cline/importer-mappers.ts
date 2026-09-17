@@ -1,3 +1,4 @@
+import { AB_COMMANDS, AB_RULES } from '../../core/canonical-paths.js';
 import { join } from 'node:path';
 import { parseFrontmatter } from '../../utils/text/markdown.js';
 import {
@@ -6,7 +7,6 @@ import {
 } from '../import/import-metadata.js';
 import type { ImportFileMapping } from '../import/import-orchestrator.js';
 import { toGlobsArray } from '../import/shared-import-helpers.js';
-import { CLINE_CANONICAL_RULES_DIR, CLINE_CANONICAL_COMMANDS_DIR } from './constants.js';
 
 export async function mapClineRuleFile(
   relativePath: string,
@@ -28,7 +28,7 @@ export async function mapClineRuleFile(
   });
   return {
     destPath,
-    toPath: `${CLINE_CANONICAL_RULES_DIR}/${relativeMdPath}`,
+    toPath: `${AB_RULES}/${relativeMdPath}`,
     feature: 'rules',
     content: await serializeImportedRuleWithFallback(destPath, canonicalFm, body),
   };
@@ -69,7 +69,7 @@ export async function mapClineWorkflowFile(
 
   return {
     destPath,
-    toPath: `${CLINE_CANONICAL_COMMANDS_DIR}/${relativePath}`,
+    toPath: `${AB_COMMANDS}/${relativePath}`,
     feature: 'commands',
     content: await serializeImportedCommandWithFallback(
       destPath,

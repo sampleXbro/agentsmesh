@@ -6,6 +6,7 @@
  * generated.
  */
 
+import type { FeatureGeneratorOutput } from '../catalog/target.interface.js';
 import { basename } from 'node:path';
 import type { CanonicalFiles } from '../../core/types.js';
 import { generateEmbeddedSkills } from '../import/embedded-skill.js';
@@ -22,10 +23,7 @@ import {
   KILO_CONFIG_FILE,
 } from './constants.js';
 
-export interface KiloCodeOutput {
-  path: string;
-  content: string;
-}
+export type KiloCodeOutput = FeatureGeneratorOutput;
 
 export function generateRules(canonical: CanonicalFiles): KiloCodeOutput[] {
   const outputs: KiloCodeOutput[] = [];

@@ -12,17 +12,14 @@
  * `globalLayout.managedOutputs` — stale cleanup must never delete it.
  */
 
+import { AB_PERMISSIONS } from '../../core/canonical-paths.js';
 import { join, dirname } from 'node:path';
 import { stringify as yamlStringify } from 'yaml';
 import type { CanonicalFiles, GenerateResult, ImportResult } from '../../core/types.js';
 import { mkdirp, readFileSafe, writeFileAtomic } from '../../utils/filesystem/fs.js';
 import { computeStatus } from '../../core/generate/feature-loop.js';
 import { serializeDeepagentsConfig, parseDeepagentsPermissions } from './permissions-format.js';
-import {
-  DEEPAGENTS_CLI_TARGET,
-  DEEPAGENTS_CLI_GLOBAL_CONFIG_FILE,
-  DEEPAGENTS_CLI_CANONICAL_PERMISSIONS,
-} from './constants.js';
+import { DEEPAGENTS_CLI_TARGET, DEEPAGENTS_CLI_GLOBAL_CONFIG_FILE } from './constants.js';
 
 export async function generateDeepagentsCliGlobalPermissions(
   canonical: CanonicalFiles,
@@ -58,13 +55,13 @@ export async function importDeepagentsCliGlobalPermissions(
   const permissions = parseDeepagentsPermissions(content);
   if (!permissions) return;
 
-  const destPath = join(projectRoot, DEEPAGENTS_CLI_CANONICAL_PERMISSIONS);
+  const destPath = join(projectRoot, AB_PERMISSIONS);
   await mkdirp(dirname(destPath));
   await writeFileAtomic(destPath, yamlStringify(permissions).trimEnd() + '\n');
   results.push({
     fromTool: DEEPAGENTS_CLI_TARGET,
     fromPath: srcPath,
-    toPath: DEEPAGENTS_CLI_CANONICAL_PERMISSIONS,
+    toPath: AB_PERMISSIONS,
     feature: 'permissions',
   });
 }

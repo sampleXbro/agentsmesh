@@ -38,13 +38,6 @@ const SINGULAR: Readonly<Record<EntityKind, string>> = {
   rules: 'rule',
 };
 
-const PLURAL: Readonly<Record<EntityKind, string>> = {
-  skills: 'skills',
-  agents: 'agents',
-  commands: 'commands',
-  rules: 'rules',
-};
-
 export interface BulkCandidates {
   readonly skills: readonly string[];
   readonly agents: readonly string[];
@@ -90,7 +83,7 @@ function writeBanner(deps: BulkPromptDeps, packName: string, c: BulkCandidates):
   for (const kind of KIND_ORDER) {
     const items = c[kind];
     if (items.length === 0) continue;
-    const label = items.length === 1 ? SINGULAR[kind] : PLURAL[kind];
+    const label = items.length === 1 ? SINGULAR[kind] : kind;
     lines.push(`  - ${items.length} ${label}`);
   }
   lines.push('');
@@ -104,7 +97,7 @@ async function walkType(
 ): Promise<{ selected: readonly string[]; aborted: boolean }> {
   if (ids.length === 0) return { selected: [], aborted: false };
 
-  const plural = PLURAL[kind];
+  const plural = kind;
   const tier2 = (await deps.ask(`Install all ${ids.length} ${plural}? [y/n/c] `))
     .trim()
     .toLowerCase();

@@ -11,9 +11,11 @@
  * Skills standard (SKILL.md).
  */
 
+import { embeddedRootRule } from '../projection/managed-blocks.js';
+import { NO_OUTPUTS } from '../catalog/no-outputs.js';
+import type { FeatureGeneratorOutput } from '../catalog/target.interface.js';
 import type { CanonicalFiles } from '../../core/types.js';
 import { generateEmbeddedSkills } from '../import/embedded-skill.js';
-import { appendEmbeddedRulesBlock } from '../projection/managed-blocks.js';
 import { serializeFrontmatter } from '../../utils/text/markdown.js';
 import {
   projectedAgentSkillDirName,
@@ -28,24 +30,10 @@ import {
   PI_AGENT_SETTINGS_FILE,
 } from './constants.js';
 
-export interface PiAgentOutput {
-  path: string;
-  content: string;
-}
+export type PiAgentOutput = FeatureGeneratorOutput;
 
-export function generateRules(canonical: CanonicalFiles): PiAgentOutput[] {
-  const root = canonical.rules.find((rule) => rule.root);
-  const nonRootRules = canonical.rules.filter((rule) => {
-    if (rule.root) return false;
-    return rule.targets.length === 0 || rule.targets.includes(PI_AGENT_TARGET);
-  });
-
-  const rootBody = root?.body.trim() ?? '';
-  const content = appendEmbeddedRulesBlock(rootBody, nonRootRules);
-  if (!content) return [];
-
-  return [{ path: PI_AGENT_ROOT_FILE, content }];
-}
+export const generateRules = (canonical: CanonicalFiles): PiAgentOutput[] =>
+  embeddedRootRule(canonical, PI_AGENT_TARGET, PI_AGENT_ROOT_FILE);
 
 export function generateSkills(canonical: CanonicalFiles): PiAgentOutput[] {
   return generateEmbeddedSkills(canonical, PI_AGENT_SKILLS_DIR);
@@ -71,22 +59,9 @@ export function generateAgents(canonical: CanonicalFiles): PiAgentOutput[] {
   }));
 }
 
-/**
- * No-op stub — Pi Agent hooks are supported via extensions at .pi/extensions/
- * but agentsmesh does not generate extension files yet.
- * Lint warnings surface this via lintHooks.
- */
-export function generateHooks(_canonical: CanonicalFiles): PiAgentOutput[] {
-  return [];
-}
+export const generateHooks = NO_OUTPUTS;
 
-/**
- * No-op stub — Pi Agent has no dedicated ignore file and relies on .gitignore.
- * Lint warnings surface this via lintIgnore.
- */
-export function generateIgnore(_canonical: CanonicalFiles): PiAgentOutput[] {
-  return [];
-}
+export const generateIgnore = NO_OUTPUTS;
 
 /**
  * Project `.pi/settings.json` `defaultTools` (the global layout rewrites the

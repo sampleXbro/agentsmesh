@@ -3,16 +3,13 @@
  * inline code, GFM footnote definitions, and URLs containing parentheses.
  */
 
-import { afterEach, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { scanMarkdownLinks } from '../../../../src/core/reference/markdown-link-scan.js';
 import {
   inlineCodeRanges,
   protectedRanges,
 } from '../../../../src/core/reference/protected-ranges.js';
-import {
-  registerLinkFormat,
-  resetLinkFormatOverrides,
-} from '../../../../src/core/reference/link-format-registry.js';
+import {} from '../../../../src/core/reference/link-format-registry.js';
 
 describe('scanMarkdownLinks', () => {
   it('ignores a GFM footnote definition', () => {
@@ -88,10 +85,6 @@ describe('protectedRanges', () => {
 });
 
 describe('protectedRanges — parenthesis edge cases', () => {
-  afterEach(() => {
-    resetLinkFormatOverrides();
-  });
-
   it('stops at an unterminated parenthesis group that runs into prose', () => {
     const content = 'See https://example.com/a/(oops and then more words.';
     const ranges = protectedRanges(content);
@@ -109,13 +102,5 @@ describe('protectedRanges — parenthesis edge cases', () => {
     const content = 'https://example.com/a_(b_(c))/d.md next';
     const ranges = protectedRanges(content);
     expect(content.slice(ranges[0]![0], ranges[0]![1])).toBe('https://example.com/a_(b_(c))/d.md');
-  });
-
-  it('honours a plugin-supplied scheme that omits the global flag', () => {
-    registerLinkFormat({ protectedSchemes: [/custom:[^\s)]+/] });
-    const content = 'ref custom:thing/x.md here';
-    const ranges = protectedRanges(content);
-    const covering = ranges.find(([s]) => s === content.indexOf('custom:'));
-    expect(content.slice(covering![0], covering![1])).toBe('custom:thing/x.md');
   });
 });

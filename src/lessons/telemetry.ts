@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { appendJsonl, capJsonl, logExists, readJsonl } from './jsonl-log.js';
+import { appendJsonl, logExists, readJsonl } from './jsonl-log.js';
 import { lessonsPaths } from './paths.js';
 
 /** Keep at most this many recall records; older ones are dropped on truncation. */
@@ -139,14 +139,6 @@ export function appendRecallRecord(
     maxRecords: MAX_RECALL_LOG_RECORDS,
     trimTriggerBytes: RECALL_LOG_TRIM_TRIGGER_BYTES,
   });
-}
-
-/**
- * Truncate the recall log to its last {@link MAX_RECALL_LOG_RECORDS} records
- * (or `maxRecords` when given). No-op when absent or already within the cap.
- */
-export function capRecallLog(projectRoot: string, maxRecords = MAX_RECALL_LOG_RECORDS): void {
-  capJsonl(recallLogPath(projectRoot), maxRecords);
 }
 
 /** True when a recall log exists — distinguishes "never recorded" from "empty". */

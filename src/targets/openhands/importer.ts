@@ -12,6 +12,7 @@
  *   - `.openhands/hooks.json`                           — lifecycle hooks
  */
 
+import { AB_HOOKS } from '../../core/canonical-paths.js';
 import { dirname, join } from 'node:path';
 import { stringify as stringifyYaml } from 'yaml';
 import type { ImportResult } from '../../core/types.js';
@@ -21,12 +22,7 @@ import { mkdirp, readFileSafe, writeFileAtomic } from '../../utils/filesystem/fs
 import { importEmbeddedSkills } from '../import/embedded-skill.js';
 import { runDescriptorImport } from '../import/descriptor-import-runner.js';
 import { parseOpenhandsHooks } from './hooks-import.js';
-import {
-  OPENHANDS_TARGET,
-  OPENHANDS_SKILLS_DIR,
-  OPENHANDS_HOOKS_FILE,
-  OPENHANDS_CANONICAL_HOOKS,
-} from './constants.js';
+import { OPENHANDS_TARGET, OPENHANDS_SKILLS_DIR, OPENHANDS_HOOKS_FILE } from './constants.js';
 import { descriptor } from './index.js';
 
 export async function importFromOpenhands(
@@ -60,13 +56,13 @@ async function importOpenhandsHooks(projectRoot: string, results: ImportResult[]
   const hooks = parseOpenhandsHooks(content);
   if (hooks === null) return;
 
-  const destPath = join(projectRoot, OPENHANDS_CANONICAL_HOOKS);
+  const destPath = join(projectRoot, AB_HOOKS);
   await mkdirp(dirname(destPath));
   await writeFileAtomic(destPath, stringifyYaml(hooks));
   results.push({
     fromTool: OPENHANDS_TARGET,
     fromPath: srcPath,
-    toPath: OPENHANDS_CANONICAL_HOOKS,
+    toPath: AB_HOOKS,
     feature: 'hooks',
   });
 }

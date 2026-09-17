@@ -15,6 +15,7 @@
  * tool's servers to this target.
  */
 
+import { AB_MCP } from '../../core/canonical-paths.js';
 import { join } from 'node:path';
 import type { ImportResult } from '../../core/types.js';
 import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
@@ -32,7 +33,6 @@ import {
   KIMI_CODE_GLOBAL_SKILLS_DIR,
   KIMI_CODE_MCP_FILE,
   KIMI_CODE_GLOBAL_MCP_FILE,
-  KIMI_CODE_CANONICAL_MCP_FILE,
 } from './constants.js';
 import { descriptor } from './index.js';
 
@@ -50,11 +50,11 @@ async function importMcp(
   const servers = parseKimiMcp(content);
   if (Object.keys(servers).length === 0) return;
 
-  await writeMcpWithMerge(projectRoot, KIMI_CODE_CANONICAL_MCP_FILE, servers);
+  await writeMcpWithMerge(projectRoot, AB_MCP, servers);
   results.push({
     fromTool: KIMI_CODE_TARGET,
     fromPath: srcPath,
-    toPath: KIMI_CODE_CANONICAL_MCP_FILE,
+    toPath: AB_MCP,
     feature: 'mcp',
   });
 }

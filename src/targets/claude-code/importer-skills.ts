@@ -1,3 +1,4 @@
+import { AB_SKILLS } from '../../core/canonical-paths.js';
 import { basename, dirname, join, relative } from 'node:path';
 import type { ImportResult } from '../../core/types.js';
 import {
@@ -8,7 +9,7 @@ import {
 } from '../../utils/filesystem/fs.js';
 import { tryParseFrontmatter } from '../../utils/text/markdown.js';
 import { serializeImportedSkillWithFallback } from '../import/import-metadata.js';
-import { CLAUDE_SKILLS_DIR, CLAUDE_CANONICAL_SKILLS_DIR } from './constants.js';
+import { CLAUDE_SKILLS_DIR } from './constants.js';
 
 export async function importClaudeSkills(
   projectRoot: string,
@@ -16,7 +17,7 @@ export async function importClaudeSkills(
   normalize: (content: string, sourceFile: string, destinationFile: string) => string,
 ): Promise<void> {
   const skillsBaseDir = join(projectRoot, CLAUDE_SKILLS_DIR);
-  const destBase = join(projectRoot, CLAUDE_CANONICAL_SKILLS_DIR);
+  const destBase = join(projectRoot, AB_SKILLS);
 
   const allFiles = await readDirRecursiveNoSymlinks(skillsBaseDir);
   const skillMdFiles = allFiles.filter((f) => f.endsWith('SKILL.md'));
@@ -62,7 +63,7 @@ export async function importClaudeSkills(
             )
           : normalized,
       );
-      const toPath = `${CLAUDE_CANONICAL_SKILLS_DIR}/${skillName}/${relPath}`;
+      const toPath = `${AB_SKILLS}/${skillName}/${relPath}`;
       results.push({
         fromTool: 'claude-code',
         fromPath: filePath,

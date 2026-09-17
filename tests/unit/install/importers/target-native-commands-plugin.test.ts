@@ -1,6 +1,6 @@
 /**
  * Plugin-registered target descriptors with non-`.md` command mappers must
- * be enumerated by `readCommandsDirWithMappers` exactly like builtins.
+ * be enumerated by `readEntityDirWithMappers` exactly like builtins.
  *
  * Regression for the install-paths-delegate-target-mappers refactor: the
  * initial implementation iterated `TARGET_IDS` (builtin-only), so a
@@ -17,11 +17,7 @@ import {
   registerTargetDescriptor,
   resetRegistry,
 } from '../../../../src/targets/catalog/registry.js';
-import {
-  readAgentsDirWithMappers,
-  readCommandsDirWithMappers,
-  readRulesDirWithMappers,
-} from '../../../../src/install/importers/target-native-commands.js';
+import { readEntityDirWithMappers } from '../../../../src/install/importers/target-native-commands.js';
 import type {
   TargetDescriptor,
   TargetLayout,
@@ -135,7 +131,7 @@ afterEach(() => {
   resetRegistry();
 });
 
-describe('plugin descriptor enumeration in read*DirWithMappers', () => {
+describe('plugin descriptor enumeration in readEntityDirWithMappers', () => {
   it('commands: picks up files from a plugin target with .yaml extension', async () => {
     registerTargetDescriptor(makePluginDescriptor());
 
@@ -143,7 +139,7 @@ describe('plugin descriptor enumeration in read*DirWithMappers', () => {
     mkdirSync(dir, { recursive: true });
     writeFileSync(join(dir, 'plugin-cmd.yaml'), 'description: Hello from plugin\n');
 
-    const { commands, cleanup } = await readCommandsDirWithMappers(dir);
+    const { entities: commands, cleanup } = await readEntityDirWithMappers(dir, 'commands');
     try {
       expect(commands).toHaveLength(1);
       expect(commands[0]!.name).toBe('plugin-cmd');
@@ -160,7 +156,7 @@ describe('plugin descriptor enumeration in read*DirWithMappers', () => {
     mkdirSync(dir, { recursive: true });
     writeFileSync(join(dir, 'plugin-rule.yaml'), 'description: A plugin rule\n');
 
-    const { rules, cleanup } = await readRulesDirWithMappers(dir);
+    const { entities: rules, cleanup } = await readEntityDirWithMappers(dir, 'rules');
     try {
       expect(rules).toHaveLength(1);
       expect(rules[0]!.source.endsWith('plugin-rule.md')).toBe(true);
@@ -177,7 +173,7 @@ describe('plugin descriptor enumeration in read*DirWithMappers', () => {
     mkdirSync(dir, { recursive: true });
     writeFileSync(join(dir, 'plugin-agent.yaml'), 'description: A plugin agent\n');
 
-    const { agents, cleanup } = await readAgentsDirWithMappers(dir);
+    const { entities: agents, cleanup } = await readEntityDirWithMappers(dir, 'agents');
     try {
       expect(agents).toHaveLength(1);
       expect(agents[0]!.name).toBe('plugin-agent');
@@ -200,7 +196,7 @@ describe('plugin descriptor enumeration in read*DirWithMappers', () => {
     writeFileSync(join(dir, 'shared.md'), '---\ndescription: From canonical .md\n---\n# shared\n');
     writeFileSync(join(dir, 'shared.yaml'), 'description: From yaml plugin\n');
 
-    const { commands, cleanup } = await readCommandsDirWithMappers(dir);
+    const { entities: commands, cleanup } = await readEntityDirWithMappers(dir, 'commands');
     try {
       expect(commands).toHaveLength(1);
       expect(commands[0]!.name).toBe('shared');
@@ -240,7 +236,7 @@ describe('plugin descriptor enumeration in read*DirWithMappers', () => {
     mkdirSync(dir, { recursive: true });
     writeFileSync(join(dir, 'rejected.yaml'), 'description: mapper returns null\n');
 
-    const { commands, cleanup } = await readCommandsDirWithMappers(dir);
+    const { entities: commands, cleanup } = await readEntityDirWithMappers(dir, 'commands');
     try {
       expect(commands).toEqual([]);
     } finally {
@@ -261,7 +257,7 @@ describe('plugin descriptor enumeration in read*DirWithMappers', () => {
       '---\ndescription: plain canonical command\n---\n# plain\n',
     );
 
-    const { commands, cleanup } = await readCommandsDirWithMappers(dir, {
+    const { entities: commands, cleanup } = await readEntityDirWithMappers(dir, 'commands', {
       restrictToTarget: 'claude-code',
     });
     try {
@@ -298,7 +294,7 @@ describe('plugin descriptor enumeration in read*DirWithMappers', () => {
     mkdirSync(dir, { recursive: true });
     writeFileSync(join(dir, 'kaboom.yaml'), 'description: triggers throw\n');
 
-    await expect(readCommandsDirWithMappers(dir)).rejects.toThrow('boom');
+    await expect(readEntityDirWithMappers(dir, 'commands')).rejects.toThrow('boom');
   });
 
   it('multi-spec rules importer: file only claimed by one spec skips the other (claimsExt continue branch)', async () => {
@@ -349,7 +345,7 @@ describe('plugin descriptor enumeration in read*DirWithMappers', () => {
     writeFileSync(join(dir, 'only-foo.foo'), '');
     writeFileSync(join(dir, 'only-bar.bar'), '');
 
-    const { rules, cleanup } = await readRulesDirWithMappers(dir);
+    const { entities: rules, cleanup } = await readEntityDirWithMappers(dir, 'rules');
     try {
       expect(rules).toHaveLength(2);
       const sources = rules.map((r) => r.source).sort();
@@ -383,7 +379,7 @@ describe('plugin descriptor enumeration in read*DirWithMappers', () => {
     );
 
     // Copilot is a builtin; no plugin registration needed.
-    const { agents, cleanup } = await readAgentsDirWithMappers(dir);
+    const { entities: agents, cleanup } = await readEntityDirWithMappers(dir, 'agents');
     try {
       // Canonical reader sees ONE file → ONE agent.
       expect(agents).toHaveLength(1);

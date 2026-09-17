@@ -28,6 +28,3 @@ export const PI_AGENT_GLOBAL_COMMANDS_DIR = `${PI_AGENT_GLOBAL_DIR}/prompts`;
 export const PI_AGENT_GLOBAL_SETTINGS_FILE = `${PI_AGENT_GLOBAL_DIR}/settings.json`;
 
 // Canonical paths
-export const PI_AGENT_CANONICAL_RULES_DIR = '.agentsmesh/rules';
-export const PI_AGENT_CANONICAL_COMMANDS_DIR = '.agentsmesh/commands';
-export const PI_AGENT_CANONICAL_PERMISSIONS = '.agentsmesh/permissions.yaml';

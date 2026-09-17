@@ -1,5 +1,4 @@
 import type { CompatibilityRow, SupportLevel } from '../types.js';
-import { matrixColumnLabel } from '../../targets/catalog/matrix-column-labels.js';
 import { LEVEL_SYMBOL, coloredSymbol } from './data.js';
 import { colorEnabled } from '../../utils/output/color.js';
 
@@ -51,12 +50,13 @@ function center(text: string, width: number): string {
  */
 export function formatMatrix(rows: CompatibilityRow[], targets: string[]): string {
   const useColor = colorEnabled();
-  const c = (code: string, text: string): string => (useColor ? `${code}${text}${COLORS.reset}` : text);
+  const c = (code: string, text: string): string =>
+    useColor ? `${code}${text}${COLORS.reset}` : text;
 
   const labels = rows.map((r) => featureLabel(r.feature));
   const featW = labels.map((l) => Math.max(3, l.length));
   const labeled = targets
-    .map((t) => ({ t, label: matrixColumnLabel(t) }))
+    .map((t) => ({ t, label: t === 'claude-code' ? 'Claude' : t }))
     .sort((a, b) => a.label.localeCompare(b.label));
   const targetW = Math.max(6, ...labeled.map((x) => x.label.length));
   const widths = [targetW, ...featW];

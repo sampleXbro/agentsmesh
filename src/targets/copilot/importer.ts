@@ -13,10 +13,8 @@
 
 import type { ImportResult } from '../../core/types.js';
 import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
-import { createImportReferenceNormalizer } from '../../core/reference/import-rewriter.js';
-import { runDescriptorImport } from '../import/descriptor-import-runner.js';
+import { beginImport } from '../import/descriptor-import-runner.js';
 import {
-  COPILOT_TARGET,
   COPILOT_GLOBAL_SKILLS_DIR,
   COPILOT_SKILLS_DIR,
   COPILOT_GLOBAL_HOOKS_DIR,
@@ -30,10 +28,7 @@ export async function importFromCopilot(
   projectRoot: string,
   options: { scope?: TargetLayoutScope } = {},
 ): Promise<ImportResult[]> {
-  const scope = options.scope ?? 'project';
-  const results: ImportResult[] = [];
-  const normalize = await createImportReferenceNormalizer(COPILOT_TARGET, projectRoot, scope);
-  results.push(...(await runDescriptorImport(descriptor, projectRoot, scope, { normalize })));
+  const { scope, results, normalize } = await beginImport(descriptor, projectRoot, options);
   await importSkills(
     projectRoot,
     results,

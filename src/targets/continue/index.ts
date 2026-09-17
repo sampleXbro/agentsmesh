@@ -1,3 +1,4 @@
+import { AB_AGENTS, AB_COMMANDS, AB_IGNORE, AB_RULES } from '../../core/canonical-paths.js';
 import type { TargetGenerators } from '../catalog/target.interface.js';
 import type { TargetDescriptor } from '../catalog/target-descriptor.js';
 import {
@@ -20,10 +21,6 @@ import {
   CONTINUE_SKILLS_DIR,
   CONTINUE_IGNORE,
   CONTINUE_GLOBAL_IGNORE,
-  CONTINUE_CANONICAL_AGENTS_DIR,
-  CONTINUE_CANONICAL_RULES_DIR,
-  CONTINUE_CANONICAL_COMMANDS_DIR,
-  CONTINUE_CANONICAL_IGNORE,
 } from './constants.js';
 import { importFromContinue } from './importer.js';
 import {
@@ -89,7 +86,7 @@ export const descriptor = {
       feature: 'rules',
       mode: 'directory',
       source: { project: [CONTINUE_RULES_DIR], global: [CONTINUE_RULES_DIR] },
-      canonicalDir: CONTINUE_CANONICAL_RULES_DIR,
+      canonicalDir: AB_RULES,
       extensions: ['.md'],
       map: continueRuleMapper,
     },
@@ -97,7 +94,7 @@ export const descriptor = {
       feature: 'commands',
       mode: 'directory',
       source: { project: [CONTINUE_PROMPTS_DIR], global: [CONTINUE_PROMPTS_DIR] },
-      canonicalDir: CONTINUE_CANONICAL_COMMANDS_DIR,
+      canonicalDir: AB_COMMANDS,
       extensions: ['.md'],
       map: continueCommandMapper,
     },
@@ -107,7 +104,7 @@ export const descriptor = {
       feature: 'agents',
       mode: 'directory',
       source: { project: [CONTINUE_AGENTS_DIR], global: [CONTINUE_AGENTS_DIR] },
-      canonicalDir: CONTINUE_CANONICAL_AGENTS_DIR,
+      canonicalDir: AB_AGENTS,
       extensions: ['.md'],
       map: continueAgentMapper,
     },
@@ -119,7 +116,7 @@ export const descriptor = {
         global: [CONTINUE_GLOBAL_IGNORE],
       },
       canonicalDir: '.agentsmesh',
-      canonicalFilename: CONTINUE_CANONICAL_IGNORE,
+      canonicalFilename: AB_IGNORE,
     },
   },
   buildImportPaths: buildContinueImportPaths,

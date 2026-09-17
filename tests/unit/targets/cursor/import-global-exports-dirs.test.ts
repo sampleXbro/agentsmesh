@@ -3,6 +3,7 @@
  * the `.some((f) => f.endsWith('.md'))` checks for skills/agents/commands and the
  * commands `mapEntry` arrow. Runs against the real filesystem.
  */
+import { AB_COMMANDS } from '../../../../src/core/canonical-paths.js';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { existsSync, mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import { mkdtemp, rm } from 'node:fs/promises';
@@ -18,7 +19,6 @@ import {
   CURSOR_SKILLS_DIR,
   CURSOR_AGENTS_DIR,
   CURSOR_COMMANDS_DIR,
-  CURSOR_CANONICAL_COMMANDS_DIR,
 } from '../../../../src/targets/cursor/constants.js';
 
 let projectRoot: string;
@@ -76,11 +76,11 @@ describe('importGlobalCommands', () => {
       {
         fromTool: CURSOR_TARGET,
         fromPath: join(projectRoot, CURSOR_COMMANDS_DIR, 'deploy.md'),
-        toPath: `${CURSOR_CANONICAL_COMMANDS_DIR}/deploy.md`,
+        toPath: `${AB_COMMANDS}/deploy.md`,
         feature: 'commands',
       },
     ]);
-    const destPath = join(projectRoot, CURSOR_CANONICAL_COMMANDS_DIR, 'deploy.md');
+    const destPath = join(projectRoot, AB_COMMANDS, 'deploy.md');
     expect(existsSync(destPath)).toBe(true);
     const written = readFileSync(destPath, 'utf-8');
     expect(written).toContain('description: Deploy');

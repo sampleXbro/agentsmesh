@@ -11,14 +11,13 @@
  *   - commands: the `disable-model-invocation` flag on the projected skills.
  */
 
+import { AB_IGNORE, AB_PERMISSIONS } from '../../core/canonical-paths.js';
 import type { CanonicalFiles, LintDiagnostic } from '../../core/types.js';
 import { createWarning } from '../../core/lint/shared/helpers.js';
 import { unmappedPermissionEntries } from './permissions-settings.js';
 import { unrepresentableIgnoreLines } from './ignore-settings.js';
 import {
   ZED_TARGET,
-  ZED_CANONICAL_IGNORE,
-  ZED_CANONICAL_PERMISSIONS,
   ZED_SETTINGS_FILE,
   ZED_GLOBAL_SETTINGS_FILE,
   ZED_SKILLS_DIR,
@@ -42,7 +41,7 @@ export function lintPermissions(canonical: CanonicalFiles, options?: unknown): L
   if (scopeOf(options) === 'project') {
     return [
       createWarning(
-        ZED_CANONICAL_PERMISSIONS,
+        AB_PERMISSIONS,
         ZED_TARGET,
         `Zed reads agent.tool_permissions only from user settings; ${ZED_SETTINGS_FILE} is parsed ` +
           `as ProjectSettingsContent, which has no agent field. All ${total} permission entr(ies) ` +
@@ -56,7 +55,7 @@ export function lintPermissions(canonical: CanonicalFiles, options?: unknown): L
   if (unmapped.length === 0) return [];
   return [
     createWarning(
-      ZED_CANONICAL_PERMISSIONS,
+      AB_PERMISSIONS,
       ZED_TARGET,
       `Zed's tool-permission table has no tool for ${unmapped.join(', ')}, so ` +
         `${unmapped.length} entr(ies) are dropped. Zed matches terminal, edit_file, write_file, ` +
@@ -71,7 +70,7 @@ export function lintIgnore(canonical: CanonicalFiles): LintDiagnostic[] {
   if (negated.length === 0) return [];
   return [
     createWarning(
-      ZED_CANONICAL_IGNORE,
+      AB_IGNORE,
       ZED_TARGET,
       `Zed's file_scan_exclusions and private_files are plain glob lists with no negation, so ` +
         `re-inclusion pattern(s) ${negated.join(', ')} are dropped and the surrounding exclusion ` +

@@ -1,3 +1,5 @@
+import { NO_OUTPUTS } from '../catalog/no-outputs.js';
+import type { FeatureGeneratorOutput } from '../catalog/target.interface.js';
 import { basename } from 'node:path';
 import type { CanonicalFiles, CanonicalRule } from '../../core/types.js';
 import { generateEmbeddedSkills } from '../import/embedded-skill.js';
@@ -16,10 +18,7 @@ import {
   KIRO_IGNORE,
 } from './constants.js';
 
-export interface KiroOutput {
-  path: string;
-  content: string;
-}
+export type KiroOutput = FeatureGeneratorOutput;
 
 function steeringFrontmatter(rule: CanonicalRule): Record<string, unknown> {
   const frontmatter: Record<string, unknown> = {};
@@ -120,14 +119,4 @@ export function generateIgnore(canonical: CanonicalFiles): KiroOutput[] {
   return [{ path: KIRO_IGNORE, content: canonical.ignore.join('\n') }];
 }
 
-/**
- * No-op stub. Kiro's two permission surfaces are both feature-gated and need
- * more than a plain generator: the user-scoped `permissions.yaml` is emitted by
- * `generateKiroGlobalPermissions` (global scope only, reads the file it merges
- * into) and the project-scope rules are folded into the agent profiles by
- * `emitKiroAgentPermissions`. This stub keeps the engine's permissions dispatch
- * from falling through to the lint-only partial path.
- */
-export function generatePermissions(_canonical: CanonicalFiles): KiroOutput[] {
-  return [];
-}
+export const generatePermissions = NO_OUTPUTS;

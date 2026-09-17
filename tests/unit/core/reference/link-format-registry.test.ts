@@ -9,18 +9,12 @@
  * registration.
  */
 
-import { afterEach, describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import {
   getLinkFormatRegistry,
-  registerLinkFormat,
-  resetLinkFormatOverrides,
   DEFAULT_MESH_ROOT_SEGMENTS,
 } from '../../../../src/core/reference/link-format-registry.js';
 import { BUILTIN_TARGETS } from '../../../../src/targets/catalog/builtin-targets.js';
-
-afterEach(() => {
-  resetLinkFormatOverrides();
-});
 
 describe('LinkFormatRegistry defaults', () => {
   it('always includes the canonical .agentsmesh/ prefix', () => {
@@ -67,43 +61,5 @@ describe('LinkFormatRegistry defaults', () => {
         `no protected-scheme pattern matches ${sample}`,
       ).toBe(true);
     }
-  });
-});
-
-describe('registerLinkFormat plugin registration', () => {
-  it('merges new protected schemes additively', () => {
-    const before = getLinkFormatRegistry().protectedSchemes.length;
-    registerLinkFormat({ protectedSchemes: [/notion:\/\/[^\s]+/] });
-    expect(getLinkFormatRegistry().protectedSchemes.length).toBe(before + 1);
-  });
-
-  it('merges new root-relative prefixes additively', () => {
-    expect(getLinkFormatRegistry().rootRelativePrefixes).not.toContain('.myapp/');
-    registerLinkFormat({ rootRelativePrefixes: ['.myapp/'] });
-    expect(getLinkFormatRegistry().rootRelativePrefixes).toContain('.myapp/');
-  });
-
-  it('merges new mesh-root segments additively', () => {
-    expect(getLinkFormatRegistry().meshRootSegments).not.toContain('workflows');
-    registerLinkFormat({ meshRootSegments: ['workflows'] });
-    expect(getLinkFormatRegistry().meshRootSegments).toContain('workflows');
-  });
-
-  it('resetLinkFormatOverrides clears all plugin contributions', () => {
-    registerLinkFormat({
-      rootRelativePrefixes: ['.myapp/'],
-      meshRootSegments: ['workflows'],
-    });
-    resetLinkFormatOverrides();
-    expect(getLinkFormatRegistry().rootRelativePrefixes).not.toContain('.myapp/');
-    expect(getLinkFormatRegistry().meshRootSegments).not.toContain('workflows');
-  });
-
-  it('plugin-registered prefix participates in isRootRelativePathToken behavior', async () => {
-    const { isRootRelativePathToken } =
-      await import('../../../../src/core/reference/link-rebaser-helpers.js');
-    expect(isRootRelativePathToken('.myapp/config.json')).toBe(false);
-    registerLinkFormat({ rootRelativePrefixes: ['.myapp/'] });
-    expect(isRootRelativePathToken('.myapp/config.json')).toBe(true);
   });
 });

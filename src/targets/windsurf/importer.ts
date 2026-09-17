@@ -9,6 +9,7 @@
  * these patterns are expressible through the descriptor runner's modes.
  */
 
+import { AB_IGNORE, AB_RULES } from '../../core/canonical-paths.js';
 import { basename, join, dirname, relative } from 'node:path';
 import type { ImportResult } from '../../core/types.js';
 import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
@@ -28,8 +29,6 @@ import {
   WINDSURF_IGNORE,
   CODEIUM_IGNORE,
   WINDSURF_AGENTS_MD,
-  WINDSURF_CANONICAL_RULES_DIR,
-  WINDSURF_CANONICAL_IGNORE,
 } from './constants.js';
 import { importWorkflows } from './importer-workflows.js';
 import { importSkills } from './skills-adapter.js';
@@ -52,7 +51,7 @@ export async function importFromWindsurf(
   const results: ImportResult[] = [];
   const normalize = await createImportReferenceNormalizer(WINDSURF_TARGET, projectRoot);
   const normalizeCodex = await createImportReferenceNormalizer('codex-cli', projectRoot);
-  const destRulesDir = join(projectRoot, WINDSURF_CANONICAL_RULES_DIR);
+  const destRulesDir = join(projectRoot, AB_RULES);
 
   const rootPath = join(projectRoot, WINDSURF_RULES_ROOT);
   const rootContent = await readFileSafe(rootPath);
@@ -65,7 +64,7 @@ export async function importFromWindsurf(
     results.push({
       fromTool: 'windsurf',
       fromPath: rootPath,
-      toPath: `${WINDSURF_CANONICAL_RULES_DIR}/_root.md`,
+      toPath: `${AB_RULES}/_root.md`,
       feature: 'rules',
     });
   }
@@ -87,7 +86,7 @@ export async function importFromWindsurf(
       results.push({
         fromTool: 'windsurf',
         fromPath: agentsMdPath,
-        toPath: `${WINDSURF_CANONICAL_RULES_DIR}/_root.md`,
+        toPath: `${AB_RULES}/_root.md`,
         feature: 'rules',
       });
     }
@@ -112,7 +111,7 @@ export async function importFromWindsurf(
           const destPath = join(destRulesDir, `${ruleName}.md`);
           return {
             destPath,
-            toPath: `${WINDSURF_CANONICAL_RULES_DIR}/${ruleName}.md`,
+            toPath: `${AB_RULES}/${ruleName}.md`,
             feature: 'rules',
             content: await serializeImportedRuleWithFallback(
               destPath,
@@ -144,7 +143,7 @@ export async function importFromWindsurf(
         }
         return {
           destPath,
-          toPath: `${WINDSURF_CANONICAL_RULES_DIR}/${relativePath}`,
+          toPath: `${AB_RULES}/${relativePath}`,
           feature: 'rules',
           content: await serializeImportedRuleWithFallback(
             destPath,
@@ -171,12 +170,12 @@ export async function importFromWindsurf(
     }
     if (patterns.length > 0) {
       await mkdirp(join(projectRoot, '.agentsmesh'));
-      const destIgnorePath = join(projectRoot, WINDSURF_CANONICAL_IGNORE);
+      const destIgnorePath = join(projectRoot, AB_IGNORE);
       await writeFileAtomic(destIgnorePath, patterns.join('\n'));
       results.push({
         fromTool: 'windsurf',
         fromPath: ignorePath,
-        toPath: WINDSURF_CANONICAL_IGNORE,
+        toPath: AB_IGNORE,
         feature: 'ignore',
       });
     }

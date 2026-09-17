@@ -1,3 +1,4 @@
+import { AB_PERMISSIONS } from '../../core/canonical-paths.js';
 import { parse as parseToml } from 'smol-toml';
 import { stringify as stringifyYaml } from 'yaml';
 import { join } from 'node:path';
@@ -8,7 +9,7 @@ import {
   writeFileAtomic,
   mkdirp,
 } from '../../utils/filesystem/fs.js';
-import { GEMINI_TARGET, GEMINI_POLICIES_DIR, GEMINI_CANONICAL_PERMISSIONS } from './constants.js';
+import { GEMINI_TARGET, GEMINI_POLICIES_DIR } from './constants.js';
 
 function unescapeRegexLiteral(value: string): string {
   // Reverse of escapeRegexLiteral: `\.` -> `.`, `\/` -> `/`, etc.
@@ -124,14 +125,14 @@ export async function importGeminiPolicies(projectRoot: string): Promise<ImportR
   if (allow.length === 0 && deny.length === 0) return results;
 
   await mkdirp(join(projectRoot, '.agentsmesh'));
-  const outPath = join(projectRoot, GEMINI_CANONICAL_PERMISSIONS);
+  const outPath = join(projectRoot, AB_PERMISSIONS);
   const yaml = stringifyYaml({ allow, deny });
   await writeFileAtomic(outPath, yaml.trimEnd() + '\n');
 
   results.push({
     fromTool: GEMINI_TARGET,
     fromPath: join(projectRoot, GEMINI_POLICIES_DIR),
-    toPath: GEMINI_CANONICAL_PERMISSIONS,
+    toPath: AB_PERMISSIONS,
     feature: 'permissions',
   });
 

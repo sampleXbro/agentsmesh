@@ -11,6 +11,7 @@
  *   # agentsmesh-command: <shell command>
  */
 
+import { AB_HOOKS } from '../../core/canonical-paths.js';
 import { join, basename, dirname } from 'node:path';
 import { stringify as yamlStringify } from 'yaml';
 import type { ImportResult } from '../../core/types.js';
@@ -20,7 +21,7 @@ import {
   writeFileAtomic,
   mkdirp,
 } from '../../utils/filesystem/fs.js';
-import { CLINE_TARGET, CLINE_HOOKS_DIR, CLINE_CANONICAL_HOOKS } from './constants.js';
+import { CLINE_TARGET, CLINE_HOOKS_DIR } from './constants.js';
 
 function extractMeta(content: string, key: string): string | null {
   const match = content.match(new RegExp(`^# agentsmesh-${key}:\\s*(.+)$`, 'm'));
@@ -62,13 +63,13 @@ export async function importClineHooks(
 
   if (Object.keys(hooks).length === 0) return;
 
-  const destPath = join(projectRoot, CLINE_CANONICAL_HOOKS);
+  const destPath = join(projectRoot, AB_HOOKS);
   await mkdirp(dirname(destPath));
   await writeFileAtomic(destPath, yamlStringify(hooks));
   results.push({
     fromTool: CLINE_TARGET,
     fromPath: hooksDir,
-    toPath: CLINE_CANONICAL_HOOKS,
+    toPath: AB_HOOKS,
     feature: 'hooks',
   });
 }

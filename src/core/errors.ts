@@ -10,12 +10,10 @@ export type AgentsMeshErrorCode =
   | 'AM_CONFIG_NOT_FOUND'
   | 'AM_CONFIG_INVALID'
   | 'AM_TARGET_NOT_FOUND'
-  | 'AM_TARGET_UNSUPPORTED'
   | 'AM_IMPORT_FAILED'
   | 'AM_GENERATION_FAILED'
   | 'AM_REMOTE_FETCH_FAILED'
   | 'AM_LOCK_ACQUISITION_FAILED'
-  | 'AM_LOCK_CONFLICT'
   | 'AM_FILESYSTEM';
 
 export class AgentsMeshError extends Error {

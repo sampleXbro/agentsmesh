@@ -2,10 +2,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { tmpdir } from 'node:os';
-import {
-  inferImplicitPickFromNativePath,
-  isImplicitPickEmpty,
-} from '../../../../src/install/native/native-path-pick-infer.js';
+import { inferImplicitPickFromNativePath } from '../../../../src/install/native/native-path-pick-infer.js';
 
 const ROOT = join(tmpdir(), 'am-native-path-pick-infer');
 
@@ -157,11 +154,5 @@ describe('inferImplicitPickFromNativePath (descriptor-driven)', () => {
   it('returns {} when the native directory is empty', async () => {
     mkdirSync(join(ROOT, '.windsurf', 'rules'), { recursive: true });
     expect(await inferImplicitPickFromNativePath(ROOT, '.windsurf/rules', 'windsurf')).toEqual({});
-  });
-
-  it('isImplicitPickEmpty reflects emptiness', () => {
-    expect(isImplicitPickEmpty({})).toBe(true);
-    expect(isImplicitPickEmpty({ rules: [] })).toBe(true);
-    expect(isImplicitPickEmpty({ rules: ['a'] })).toBe(false);
   });
 });

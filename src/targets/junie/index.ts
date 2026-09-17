@@ -1,3 +1,4 @@
+import { AB_AGENTS, AB_COMMANDS, AB_IGNORE, AB_MCP, AB_RULES } from '../../core/canonical-paths.js';
 import type { TargetCapabilities, TargetGenerators } from '../catalog/target.interface.js';
 import type { TargetDescriptor, TargetLayout } from '../catalog/target-descriptor.js';
 import {
@@ -28,11 +29,6 @@ import {
   JUNIE_GLOBAL_ALLOWLIST,
   JUNIE_GLOBAL_CONFIG,
   JUNIE_SKILLS_DIR,
-  JUNIE_CANONICAL_RULES_DIR,
-  JUNIE_CANONICAL_COMMANDS_DIR,
-  JUNIE_CANONICAL_AGENTS_DIR,
-  JUNIE_CANONICAL_MCP,
-  JUNIE_CANONICAL_IGNORE,
 } from './constants.js';
 import { mirrorSkillsToAgents } from '../catalog/skill-mirror.js';
 import { importFromJunie } from './importer.js';
@@ -195,7 +191,7 @@ export const descriptor = {
       feature: 'rules',
       mode: 'directory',
       source: { project: ['.junie/rules'] },
-      canonicalDir: JUNIE_CANONICAL_RULES_DIR,
+      canonicalDir: AB_RULES,
       extensions: ['.md'],
       preset: 'rule',
     },
@@ -203,7 +199,7 @@ export const descriptor = {
       feature: 'commands',
       mode: 'directory',
       source: { project: ['.junie/commands'] },
-      canonicalDir: JUNIE_CANONICAL_COMMANDS_DIR,
+      canonicalDir: AB_COMMANDS,
       extensions: ['.md'],
       preset: 'command',
     },
@@ -211,7 +207,7 @@ export const descriptor = {
       feature: 'agents',
       mode: 'directory',
       source: { project: ['.junie/agents'] },
-      canonicalDir: JUNIE_CANONICAL_AGENTS_DIR,
+      canonicalDir: AB_AGENTS,
       extensions: ['.md'],
       preset: 'agent',
     },
@@ -220,14 +216,14 @@ export const descriptor = {
       mode: 'mcpJson',
       source: { project: [JUNIE_MCP_FILE] },
       canonicalDir: '.agentsmesh',
-      canonicalFilename: JUNIE_CANONICAL_MCP,
+      canonicalFilename: AB_MCP,
     },
     ignore: {
       feature: 'ignore',
       mode: 'flatFile',
       source: { project: [JUNIE_IGNORE] },
       canonicalDir: '.agentsmesh',
-      canonicalFilename: JUNIE_CANONICAL_IGNORE,
+      canonicalFilename: AB_IGNORE,
     },
   },
   buildImportPaths: buildJunieImportPaths,

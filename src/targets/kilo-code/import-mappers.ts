@@ -7,6 +7,7 @@
  * file that does NOT import `index.ts`.
  */
 
+import { AB_AGENTS, AB_COMMANDS, AB_RULES } from '../../core/canonical-paths.js';
 import { join } from 'node:path';
 import { parseFrontmatter } from '../../utils/text/markdown.js';
 import {
@@ -15,11 +16,6 @@ import {
   serializeImportedRuleWithFallback,
 } from '../import/import-metadata.js';
 import type { ImportEntryMapper } from '../catalog/import-descriptor.js';
-import {
-  KILO_CODE_CANONICAL_AGENTS_DIR,
-  KILO_CODE_CANONICAL_COMMANDS_DIR,
-  KILO_CODE_CANONICAL_RULES_DIR,
-} from './constants.js';
 
 /**
  * Non-root rule mapper for both `.kilo/rules/` (new) and `.kilocode/rules/`
@@ -35,7 +31,7 @@ export const kiloNonRootRuleMapper: ImportEntryMapper = async ({
   const { frontmatter, body } = parseFrontmatter(normalizeTo(destPath));
   return {
     destPath,
-    toPath: `${KILO_CODE_CANONICAL_RULES_DIR}/${relativePath}`,
+    toPath: `${AB_RULES}/${relativePath}`,
     content: await serializeImportedRuleWithFallback(
       destPath,
       {
@@ -62,7 +58,7 @@ export const kiloCommandMapper: ImportEntryMapper = async ({
   const { frontmatter, body } = parseFrontmatter(normalizeTo(destPath));
   return {
     destPath,
-    toPath: `${KILO_CODE_CANONICAL_COMMANDS_DIR}/${relativePath}`,
+    toPath: `${AB_COMMANDS}/${relativePath}`,
     content: await serializeImportedCommandWithFallback(
       destPath,
       {
@@ -91,7 +87,7 @@ export const kiloAgentMapper: ImportEntryMapper = async ({
   const { frontmatter, body } = parseFrontmatter(normalizeTo(destPath));
   return {
     destPath,
-    toPath: `${KILO_CODE_CANONICAL_AGENTS_DIR}/${relativePath}`,
+    toPath: `${AB_AGENTS}/${relativePath}`,
     content: await serializeImportedAgentWithFallback(destPath, frontmatter, body),
   };
 };

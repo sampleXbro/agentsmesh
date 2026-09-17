@@ -1,10 +1,10 @@
+import { AB_RULES } from '../../core/canonical-paths.js';
 import { join } from 'node:path';
 import type { ImportResult } from '../../core/types.js';
 import { mkdirp, writeFileAtomic } from '../../utils/filesystem/fs.js';
 import { parseFrontmatter } from '../../utils/text/markdown.js';
 import { splitEmbeddedRulesToCanonical } from '../import/embedded-rules.js';
 import { serializeImportedRuleWithFallback } from '../import/import-metadata.js';
-import { CURSOR_CANONICAL_RULES_DIR } from './constants.js';
 
 export async function importCursorRootFile(input: {
   projectRoot: string;
@@ -13,13 +13,13 @@ export async function importCursorRootFile(input: {
   content: string;
   normalize: (content: string, sourceFile: string, destinationFile: string) => string;
 }): Promise<boolean> {
-  const destDir = join(input.projectRoot, CURSOR_CANONICAL_RULES_DIR);
+  const destDir = join(input.projectRoot, AB_RULES);
   await mkdirp(destDir);
   const destPath = join(destDir, '_root.md');
   const split = await splitEmbeddedRulesToCanonical({
     content: input.content,
     projectRoot: input.projectRoot,
-    rulesDir: CURSOR_CANONICAL_RULES_DIR,
+    rulesDir: AB_RULES,
     sourcePath: input.sourcePath,
     fromTool: 'cursor',
     normalize: input.normalize,
@@ -36,7 +36,7 @@ export async function importCursorRootFile(input: {
   input.results.push({
     fromTool: 'cursor',
     fromPath: input.sourcePath,
-    toPath: `${CURSOR_CANONICAL_RULES_DIR}/_root.md`,
+    toPath: `${AB_RULES}/_root.md`,
     feature: 'rules',
   });
   return true;

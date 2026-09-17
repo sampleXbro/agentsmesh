@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { loadSuite, loadSuites } from '../../src/lessons/recurrence/suite.js';
-import { runRecurrenceSuite } from '../../src/lessons/recurrence/evaluate.js';
-import type { HarnessReport, RecurrenceSuite } from '../../src/lessons/recurrence/types.js';
+import { loadSuite, loadSuites } from '../harness/lessons-recurrence/suite.js';
+import { runRecurrenceSuite } from '../harness/lessons-recurrence/evaluate.js';
+import type { HarnessReport, RecurrenceSuite } from '../harness/lessons-recurrence/types.js';
 import type { LessonsGraph } from '../../src/lessons/graph-schema.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));

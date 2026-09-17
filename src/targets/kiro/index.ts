@@ -1,3 +1,4 @@
+import { AB_AGENTS, AB_IGNORE, AB_MCP } from '../../core/canonical-paths.js';
 import type { TargetCapabilities, TargetGenerators } from '../catalog/target.interface.js';
 import type { TargetDescriptor } from '../catalog/target-descriptor.js';
 import {
@@ -33,9 +34,6 @@ import {
   KIRO_GLOBAL_MCP_FILE,
   KIRO_GLOBAL_IGNORE,
   KIRO_GLOBAL_PERMISSIONS_FILE,
-  KIRO_CANONICAL_AGENTS_DIR,
-  KIRO_CANONICAL_MCP,
-  KIRO_CANONICAL_IGNORE,
 } from './constants.js';
 
 export const target: TargetGenerators = {
@@ -115,7 +113,7 @@ export const descriptor = {
       feature: 'agents',
       mode: 'directory',
       source: { project: [KIRO_AGENTS_DIR], global: [KIRO_AGENTS_DIR] },
-      canonicalDir: KIRO_CANONICAL_AGENTS_DIR,
+      canonicalDir: AB_AGENTS,
       extensions: ['.md'],
       preset: 'agent',
     },
@@ -124,14 +122,14 @@ export const descriptor = {
       mode: 'mcpJson',
       source: { project: [KIRO_MCP_FILE], global: [KIRO_GLOBAL_MCP_FILE] },
       canonicalDir: '.agentsmesh',
-      canonicalFilename: KIRO_CANONICAL_MCP,
+      canonicalFilename: AB_MCP,
     },
     ignore: {
       feature: 'ignore',
       mode: 'flatFile',
       source: { project: [KIRO_IGNORE], global: [KIRO_GLOBAL_IGNORE] },
       canonicalDir: '.agentsmesh',
-      canonicalFilename: KIRO_CANONICAL_IGNORE,
+      canonicalFilename: AB_IGNORE,
     },
   },
   buildImportPaths: buildKiroImportPaths,

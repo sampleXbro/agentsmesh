@@ -1,3 +1,4 @@
+import { AB_COMMANDS, AB_IGNORE, AB_MCP, AB_RULES } from '../../core/canonical-paths.js';
 import type { TargetGenerators } from '../catalog/target.interface.js';
 import type { TargetDescriptor } from '../catalog/target-descriptor.js';
 import {
@@ -23,10 +24,6 @@ import {
   ROO_CODE_GLOBAL_MCP_FILE,
   ROO_CODE_GLOBAL_AGENTS_MD,
   ROO_CODE_GLOBAL_MODES_FILE,
-  ROO_CODE_CANONICAL_RULES_DIR,
-  ROO_CODE_CANONICAL_COMMANDS_DIR,
-  ROO_CODE_CANONICAL_MCP,
-  ROO_CODE_CANONICAL_IGNORE,
 } from './constants.js';
 import {
   project,
@@ -96,7 +93,7 @@ export const descriptor = {
           project: [ROO_CODE_ROOT_RULE, ROO_CODE_ROOT_RULE_FALLBACK],
           global: [ROO_CODE_ROOT_RULE, ROO_CODE_ROOT_RULE_FALLBACK, ROO_CODE_GLOBAL_AGENTS_MD],
         },
-        canonicalDir: ROO_CODE_CANONICAL_RULES_DIR,
+        canonicalDir: AB_RULES,
         canonicalRootFilename: '_root.md',
         markAsRoot: true,
         // Drop Roo-specific frontmatter fields; keep only canonical ones.
@@ -110,7 +107,7 @@ export const descriptor = {
         feature: 'rules',
         mode: 'directory',
         source: { project: [ROO_CODE_RULES_DIR], global: [ROO_CODE_GLOBAL_RULES_DIR] },
-        canonicalDir: ROO_CODE_CANONICAL_RULES_DIR,
+        canonicalDir: AB_RULES,
         extensions: ['.md'],
         map: rooNonRootRuleMapper,
       },
@@ -119,7 +116,7 @@ export const descriptor = {
       feature: 'commands',
       mode: 'directory',
       source: { project: [ROO_CODE_COMMANDS_DIR], global: [ROO_CODE_GLOBAL_COMMANDS_DIR] },
-      canonicalDir: ROO_CODE_CANONICAL_COMMANDS_DIR,
+      canonicalDir: AB_COMMANDS,
       extensions: ['.md'],
       map: rooCommandMapper,
     },
@@ -128,7 +125,7 @@ export const descriptor = {
       mode: 'mcpJson',
       source: { project: [ROO_CODE_MCP_FILE], global: [ROO_CODE_GLOBAL_MCP_FILE] },
       canonicalDir: '.agentsmesh',
-      canonicalFilename: ROO_CODE_CANONICAL_MCP,
+      canonicalFilename: AB_MCP,
     },
     ignore: {
       feature: 'ignore',
@@ -137,7 +134,7 @@ export const descriptor = {
       // from the open workspace; there is no global ignore concept.
       source: { project: [ROO_CODE_IGNORE] },
       canonicalDir: '.agentsmesh',
-      canonicalFilename: ROO_CODE_CANONICAL_IGNORE,
+      canonicalFilename: AB_IGNORE,
     },
   },
   mergeGeneratedOutputContent: (existing, pending, newContent, resolvedPath) =>

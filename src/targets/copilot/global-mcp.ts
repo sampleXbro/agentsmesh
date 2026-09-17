@@ -7,11 +7,12 @@
  * reusing either (see `scope-extras.ts`, gated on `scope === 'global'`).
  */
 
+import { AB_MCP } from '../../core/canonical-paths.js';
 import { join } from 'node:path';
 import type { CanonicalFiles, GenerateResult, ImportResult, McpServer } from '../../core/types.js';
 import { readFileSafe } from '../../utils/filesystem/fs.js';
 import { writeMcpWithMerge } from '../import/mcp-merge.js';
-import { COPILOT_TARGET, COPILOT_GLOBAL_MCP, COPILOT_CANONICAL_MCP } from './constants.js';
+import { COPILOT_TARGET, COPILOT_GLOBAL_MCP } from './constants.js';
 
 function computeStatus(existing: string | null, content: string): GenerateResult['status'] {
   if (existing === null) return 'created';
@@ -63,11 +64,11 @@ export async function importCopilotGlobalMcp(
   }
   if (Object.keys(mcpServers).length === 0) return;
 
-  await writeMcpWithMerge(projectRoot, COPILOT_CANONICAL_MCP, mcpServers);
+  await writeMcpWithMerge(projectRoot, AB_MCP, mcpServers);
   results.push({
     fromTool: COPILOT_TARGET,
     fromPath: srcPath,
-    toPath: COPILOT_CANONICAL_MCP,
+    toPath: AB_MCP,
     feature: 'mcp',
   });
 }

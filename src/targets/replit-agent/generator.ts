@@ -14,9 +14,11 @@
  * requires a generateX function when capability level != 'none'.
  */
 
+import { embeddedRootRule } from '../projection/managed-blocks.js';
+import { NO_OUTPUTS } from '../catalog/no-outputs.js';
+import type { FeatureGeneratorOutput } from '../catalog/target.interface.js';
 import type { CanonicalFiles } from '../../core/types.js';
 import { generateEmbeddedSkills } from '../import/embedded-skill.js';
-import { appendEmbeddedRulesBlock } from '../projection/managed-blocks.js';
 import {
   projectedAgentSkillDirName,
   serializeProjectedAgentSkill,
@@ -28,24 +30,10 @@ import {
   REPLIT_AGENT_SKILLS_DIR,
 } from './constants.js';
 
-export interface ReplitAgentOutput {
-  path: string;
-  content: string;
-}
+export type ReplitAgentOutput = FeatureGeneratorOutput;
 
-export function generateRules(canonical: CanonicalFiles): ReplitAgentOutput[] {
-  const root = canonical.rules.find((rule) => rule.root);
-  const nonRootRules = canonical.rules.filter((rule) => {
-    if (rule.root) return false;
-    return rule.targets.length === 0 || rule.targets.includes(REPLIT_AGENT_TARGET);
-  });
-
-  const rootBody = root?.body.trim() ?? '';
-  const content = appendEmbeddedRulesBlock(rootBody, nonRootRules);
-  if (!content) return [];
-
-  return [{ path: REPLIT_AGENT_ROOT_FILE, content }];
-}
+export const generateRules = (canonical: CanonicalFiles): ReplitAgentOutput[] =>
+  embeddedRootRule(canonical, REPLIT_AGENT_TARGET, REPLIT_AGENT_ROOT_FILE);
 
 export function generateSkills(canonical: CanonicalFiles): ReplitAgentOutput[] {
   return generateEmbeddedSkills(canonical, REPLIT_AGENT_SKILLS_DIR);
@@ -65,34 +53,10 @@ export function generateAgents(canonical: CanonicalFiles): ReplitAgentOutput[] {
   }));
 }
 
-/**
- * No-op stub — MCP servers are configured via the Replit Integrations UI,
- * not through any project file. Lint warnings surface this via lintMcp.
- */
-export function generateMcp(_canonical: CanonicalFiles): ReplitAgentOutput[] {
-  return [];
-}
+export const generateMcp = NO_OUTPUTS;
 
-/**
- * No-op stub — Replit Agent has no lifecycle hook file surface.
- * Lint warnings surface this via lintHooks.
- */
-export function generateHooks(_canonical: CanonicalFiles): ReplitAgentOutput[] {
-  return [];
-}
+export const generateHooks = NO_OUTPUTS;
 
-/**
- * No-op stub — Replit Agent has no dedicated ignore file.
- * Lint warnings surface this via lintIgnore.
- */
-export function generateIgnore(_canonical: CanonicalFiles): ReplitAgentOutput[] {
-  return [];
-}
+export const generateIgnore = NO_OUTPUTS;
 
-/**
- * No-op stub — Replit Agent permissions are managed in the cloud UI,
- * not through any writable project file. Lint warnings surface this via lintPermissions.
- */
-export function generatePermissions(_canonical: CanonicalFiles): ReplitAgentOutput[] {
-  return [];
-}
+export const generatePermissions = NO_OUTPUTS;

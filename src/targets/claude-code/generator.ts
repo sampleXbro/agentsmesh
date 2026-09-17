@@ -2,6 +2,7 @@
  * Generate Claude Code config files from canonical sources.
  */
 
+import type { FeatureGeneratorOutput } from '../catalog/target.interface.js';
 import { basename } from 'node:path';
 import type { CanonicalFiles } from '../../core/types.js';
 import { serializeFrontmatter } from '../../utils/text/markdown.js';
@@ -17,10 +18,7 @@ import {
 } from './constants.js';
 import { buildClaudeHooksObjectFromCanonical } from './hooks-format.js';
 
-export interface RulesOutput {
-  path: string;
-  content: string;
-}
+export type RulesOutput = FeatureGeneratorOutput;
 
 /**
  * Generate the root instruction file from the root rule + .claude/rules/*.md from non-root rules.

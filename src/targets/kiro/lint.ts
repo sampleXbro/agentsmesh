@@ -2,6 +2,7 @@
  * Kiro-specific lint hooks.
  */
 
+import { AB_PERMISSIONS } from '../../core/canonical-paths.js';
 import type { CanonicalFiles, LintDiagnostic } from '../../core/types.js';
 import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
 import {
@@ -10,7 +11,7 @@ import {
   unsupportedHookEventNames,
 } from '../../core/lint/shared/helpers.js';
 import { unmappedPermissionEntries } from './permissions-lists.js';
-import { KIRO_TARGET, KIRO_AGENTS_DIR, KIRO_CANONICAL_PERMISSIONS } from './constants.js';
+import { KIRO_TARGET, KIRO_AGENTS_DIR } from './constants.js';
 
 export function lintHooks(canonical: CanonicalFiles): LintDiagnostic[] {
   if (!canonical.hooks || Object.keys(canonical.hooks).length === 0) return [];
@@ -51,17 +52,13 @@ export function lintPermissions(canonical: CanonicalFiles, options?: unknown): L
   const diagnostics: LintDiagnostic[] = [];
   if (scope !== 'global') {
     diagnostics.push(
-      createWarning(
-        KIRO_CANONICAL_PERMISSIONS,
-        KIRO_TARGET,
-        projectScopeMessage(canonical.agents.length > 0),
-      ),
+      createWarning(AB_PERMISSIONS, KIRO_TARGET, projectScopeMessage(canonical.agents.length > 0)),
     );
   }
   if (dropped.length > 0) {
     diagnostics.push(
       createWarning(
-        KIRO_CANONICAL_PERMISSIONS,
+        AB_PERMISSIONS,
         KIRO_TARGET,
         `Kiro has no rule for ${dropped.join(', ')}; those entries are dropped. Kiro scopes patterns to the fs_read, fs_write and shell capabilities only.`,
       ),

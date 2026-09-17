@@ -17,6 +17,7 @@
  * `~/.rovodev/config.yml`.
  */
 
+import { AB_RULES } from '../../core/canonical-paths.js';
 import type { TargetCapabilities, TargetGenerators } from '../catalog/target.interface.js';
 import type { TargetDescriptor } from '../catalog/target-descriptor.js';
 import type { CanonicalFiles } from '../../core/types.js';
@@ -45,7 +46,6 @@ import {
   ROVODEV_GLOBAL_SKILLS_DIR,
   ROVODEV_GLOBAL_MCP_FILE,
   ROVODEV_GLOBAL_CONFIG_FILE,
-  ROVODEV_CANONICAL_RULES_DIR,
 } from './constants.js';
 
 export const target: TargetGenerators = {
@@ -131,7 +131,7 @@ export const descriptor = {
         project: [ROVODEV_ROOT_FILE],
         global: [ROVODEV_GLOBAL_ROOT_FILE],
       },
-      canonicalDir: ROVODEV_CANONICAL_RULES_DIR,
+      canonicalDir: AB_RULES,
       canonicalRootFilename: '_root.md',
       markAsRoot: true,
     },

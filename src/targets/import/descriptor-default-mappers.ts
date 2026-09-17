@@ -4,6 +4,7 @@
  * non-standard frontmatter shapes pass a custom `map` instead.
  */
 
+import { pruneUndefined } from './shared-import-helpers.js';
 import { join } from 'node:path';
 import { parseFrontmatter } from '../../utils/text/markdown.js';
 import {
@@ -22,13 +23,6 @@ import type {
 
 function pickString(value: unknown): string | undefined {
   return typeof value === 'string' ? value : undefined;
-}
-
-function pruneUndefined(record: Record<string, unknown>): Record<string, unknown> {
-  for (const key of Object.keys(record)) {
-    if (record[key] === undefined) delete record[key];
-  }
-  return record;
 }
 
 function applyRemap(

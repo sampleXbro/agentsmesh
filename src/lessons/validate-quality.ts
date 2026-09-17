@@ -1,3 +1,4 @@
+import { normalizeRule } from './add-helpers.js';
 import type { LessonsGraph } from './graph-schema.js';
 import { isSafeRegexPattern } from './regex-safety.js';
 import type { ValidationFinding } from './validate.js';
@@ -148,10 +149,6 @@ export function collectFanout(graph: LessonsGraph, findings: ValidationFinding[]
       message: `${over} trigger(s) each match more than ${HIGH_FANOUT_THRESHOLD} active lessons (max ${max}); recall returns the ranked top by default — consider per-lesson trigger refinement to improve precision.`,
     });
   }
-}
-
-function normalizeRule(rule: string): string {
-  return rule.trim().replace(/\s+/g, ' ').toLowerCase();
 }
 
 /**

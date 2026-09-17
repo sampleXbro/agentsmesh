@@ -10,9 +10,11 @@
  * Commands are projected as skills via `supportsConversion`.
  */
 
+import { embeddedRootRule } from '../projection/managed-blocks.js';
+import { NO_OUTPUTS } from '../catalog/no-outputs.js';
+import type { FeatureGeneratorOutput } from '../catalog/target.interface.js';
 import type { CanonicalFiles } from '../../core/types.js';
 import { generateEmbeddedSkills } from '../import/embedded-skill.js';
-import { appendEmbeddedRulesBlock } from '../projection/managed-blocks.js';
 import { serializeFrontmatter } from '../../utils/text/markdown.js';
 import { buildWrappedCommandHooks } from '../import/wrapped-command-hooks.js';
 import { serializeDroid } from './droid-serializer.js';
@@ -27,24 +29,10 @@ import {
   FACTORY_DROID_SETTINGS_FILE,
 } from './constants.js';
 
-export interface FactoryDroidOutput {
-  path: string;
-  content: string;
-}
+export type FactoryDroidOutput = FeatureGeneratorOutput;
 
-export function generateRules(canonical: CanonicalFiles): FactoryDroidOutput[] {
-  const root = canonical.rules.find((rule) => rule.root);
-  const nonRootRules = canonical.rules.filter((rule) => {
-    if (rule.root) return false;
-    return rule.targets.length === 0 || rule.targets.includes(FACTORY_DROID_TARGET);
-  });
-
-  const rootBody = root?.body.trim() ?? '';
-  const content = appendEmbeddedRulesBlock(rootBody, nonRootRules);
-  if (!content) return [];
-
-  return [{ path: FACTORY_DROID_ROOT_FILE, content }];
-}
+export const generateRules = (canonical: CanonicalFiles): FactoryDroidOutput[] =>
+  embeddedRootRule(canonical, FACTORY_DROID_TARGET, FACTORY_DROID_ROOT_FILE);
 
 export function generateSkills(canonical: CanonicalFiles): FactoryDroidOutput[] {
   return generateEmbeddedSkills(canonical, FACTORY_DROID_SKILLS_DIR);
@@ -97,10 +85,4 @@ export function generateMcp(canonical: CanonicalFiles): FactoryDroidOutput[] {
   ];
 }
 
-/**
- * No-op stub — Factory Droid has no dedicated ignore file and relies on
- * .gitignore. Lint warnings surface this via lintIgnore.
- */
-export function generateIgnore(_canonical: CanonicalFiles): FactoryDroidOutput[] {
-  return [];
-}
+export const generateIgnore = NO_OUTPUTS;

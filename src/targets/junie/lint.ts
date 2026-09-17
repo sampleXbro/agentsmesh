@@ -2,6 +2,7 @@
  * Junie-specific lint hooks.
  */
 
+import { unsupportedFeature } from '../../core/lint/capability-gap.js';
 import type { CanonicalFiles, LintDiagnostic } from '../../core/types.js';
 import { isUrlMcpServer } from '../../core/mcp-servers.js';
 import { createWarning } from '../../core/lint/shared/helpers.js';
@@ -24,20 +25,11 @@ export function lintMcp(canonical: CanonicalFiles): LintDiagnostic[] {
   return diagnostics;
 }
 
-export function lintHooks(canonical: CanonicalFiles): LintDiagnostic[] {
-  if (!canonical.hooks) return [];
-  const hasEntries = Object.values(canonical.hooks).some(
-    (entries) => Array.isArray(entries) && entries.length > 0,
-  );
-  if (!hasEntries) return [];
-  return [
-    createWarning(
-      '.agentsmesh/hooks.yaml',
-      'junie',
-      'Junie project hooks require --config-location to take effect; hooks from the default project config file are ignored by Junie for safety. Use ~/.junie/config.json for personal hooks (global scope).',
-    ),
-  ];
-}
+export const lintHooks = unsupportedFeature(
+  'hooks',
+  'junie',
+  'Junie project hooks require --config-location to take effect; hooks from the default project config file are ignored by Junie for safety. Use ~/.junie/config.json for personal hooks (global scope).',
+);
 
 export function lintPermissions(canonical: CanonicalFiles): LintDiagnostic[] {
   if (!canonical.permissions) return [];

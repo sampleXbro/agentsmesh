@@ -18,6 +18,7 @@
  * (`importFromCursorGlobalExports`) — entirely different on-disk layout.
  */
 
+import { AB_MCP } from '../../core/canonical-paths.js';
 import { join } from 'node:path';
 import type { ImportResult } from '../../core/types.js';
 import type { McpServer } from '../../core/types.js';
@@ -30,7 +31,7 @@ import { importCursorRules } from './importer-rules.js';
 import { importIgnore, importSettings } from './settings-helpers.js';
 import { importSkills } from './skills-adapter.js';
 import { importFromCursorGlobalExports } from './import-global-exports.js';
-import { CURSOR_MCP, CURSOR_CANONICAL_MCP } from './constants.js';
+import { CURSOR_MCP } from './constants.js';
 import { descriptor } from './index.js';
 
 async function importMcp(projectRoot: string, results: ImportResult[]): Promise<void> {
@@ -45,11 +46,11 @@ async function importMcp(projectRoot: string, results: ImportResult[]): Promise<
   }
   if (!parsed || typeof parsed !== 'object' || !('mcpServers' in (parsed as object))) return;
   const servers = (parsed as Record<string, unknown>).mcpServers as Record<string, McpServer>;
-  await writeMcpWithMerge(projectRoot, CURSOR_CANONICAL_MCP, servers);
+  await writeMcpWithMerge(projectRoot, AB_MCP, servers);
   results.push({
     fromTool: 'cursor',
     fromPath: mcpPath,
-    toPath: CURSOR_CANONICAL_MCP,
+    toPath: AB_MCP,
     feature: 'mcp',
   });
 }

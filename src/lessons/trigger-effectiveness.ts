@@ -73,14 +73,6 @@ function ineffectiveReason(kind: TriggerKind, pattern: string): string | null {
   return null; // file_glob and any future kind: not structurally ineffective
 }
 
-/** Count of `triggerIds` that CAN fire on the mandatory --file/--cmd recall path. */
-export function effectiveTriggerCount(
-  graph: LessonsGraph,
-  triggerIds: readonly string[],
-): number {
-  return triggerIds.length - ineffectiveTriggers(graph, triggerIds).length;
-}
-
 /**
  * Dead triggers that should BLOCK capture (used by `addLessonInto`). This is a
  * STRICT SUBSET of {@link ineffectiveTriggers}: a `command_pattern` is excluded

@@ -56,6 +56,3 @@ export const CODEBUFF_GLOBAL_SKILLS_DIR = '.agents/skills';
 export const CODEBUFF_GLOBAL_MCP_FILE = '.agents/mcp.json';
 
 // Canonical paths
-export const CODEBUFF_CANONICAL_RULES_DIR = '.agentsmesh/rules';
-export const CODEBUFF_CANONICAL_MCP = '.agentsmesh/mcp.json';
-export const CODEBUFF_CANONICAL_IGNORE = '.agentsmesh/ignore';

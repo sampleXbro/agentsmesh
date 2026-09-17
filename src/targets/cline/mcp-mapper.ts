@@ -2,6 +2,7 @@
  * Cline MCP server mapping helpers — converts Cline MCP settings to canonical format.
  */
 
+import { AB_MCP } from '../../core/canonical-paths.js';
 import { join } from 'node:path';
 import type { ImportResult } from '../../core/types.js';
 import type { McpServer } from '../../core/types.js';
@@ -11,7 +12,6 @@ import {
   CLINE_MCP_SETTINGS,
   CLINE_MCP_SETTINGS_LEGACY,
   CLINE_MCP_SETTINGS_LEGACY_AGENTSMESH,
-  CLINE_CANONICAL_MCP,
 } from './constants.js';
 
 /** Filter an unknown record down to its string-valued string-keyed entries. */
@@ -104,14 +104,11 @@ export async function importClineMcp(projectRoot: string, results: ImportResult[
     }
     if (Object.keys(mcpServers).length > 0) {
       await mkdirp(join(projectRoot, '.agentsmesh'));
-      await writeFileAtomic(
-        join(projectRoot, CLINE_CANONICAL_MCP),
-        JSON.stringify({ mcpServers }, null, 2),
-      );
+      await writeFileAtomic(join(projectRoot, AB_MCP), JSON.stringify({ mcpServers }, null, 2));
       results.push({
         fromTool: CLINE_TARGET,
         fromPath: sourcePath,
-        toPath: CLINE_CANONICAL_MCP,
+        toPath: AB_MCP,
         feature: 'mcp',
       });
     }

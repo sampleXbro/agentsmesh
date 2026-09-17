@@ -1,3 +1,5 @@
+import { NO_OUTPUTS } from '../catalog/no-outputs.js';
+import type { FeatureGeneratorOutput } from '../catalog/target.interface.js';
 import { basename } from 'node:path';
 import type { CanonicalFiles } from '../../core/types.js';
 import { generateEmbeddedSkills } from '../import/embedded-skill.js';
@@ -15,10 +17,7 @@ import {
   ANTIGRAVITY_SKILLS_DIR,
 } from './constants.js';
 
-export interface AntigravityOutput {
-  path: string;
-  content: string;
-}
+export type AntigravityOutput = FeatureGeneratorOutput;
 
 export function generateRules(canonical: CanonicalFiles): AntigravityOutput[] {
   const root = canonical.rules.find((r) => r.root);
@@ -88,8 +87,6 @@ export function generateHooks(canonical: CanonicalFiles): AntigravityOutput[] {
   return [{ path: ANTIGRAVITY_HOOKS_FILE, content: JSON.stringify(hooks, null, 2) }];
 }
 
-export function generatePermissions(_canonical: CanonicalFiles): AntigravityOutput[] {
-  return [];
-}
+export const generatePermissions = NO_OUTPUTS;
 
 export { ANTIGRAVITY_GLOBAL_ROOT };

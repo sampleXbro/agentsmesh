@@ -69,6 +69,3 @@ export const WARP_GLOBAL_ROOT_FILE = '.agents/AGENTS.md';
 export const WARP_GLOBAL_SETTINGS_FILE = '.warp/settings.toml';
 
 // Canonical paths
-export const WARP_CANONICAL_RULES_DIR = '.agentsmesh/rules';
-export const WARP_CANONICAL_IGNORE = '.agentsmesh/ignore';
-export const WARP_CANONICAL_PERMISSIONS = '.agentsmesh/permissions.yaml';

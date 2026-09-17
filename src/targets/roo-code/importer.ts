@@ -1,13 +1,13 @@
+import { AB_AGENTS, AB_PERMISSIONS, AB_RULES } from '../../core/canonical-paths.js';
 import { readdir } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { parse as parseYaml, stringify as yamlStringify } from 'yaml';
 import type { ImportResult } from '../../core/types.js';
 import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
-import { createImportReferenceNormalizer } from '../../core/reference/import-rewriter.js';
 import { readFileSafe, writeFileAtomic, mkdirp } from '../../utils/filesystem/fs.js';
 import { importEmbeddedSkills } from '../import/embedded-skill.js';
 import { importFileDirectory } from '../import/import-orchestrator.js';
-import { runDescriptorImport } from '../import/descriptor-import-runner.js';
+import { beginImport } from '../import/descriptor-import-runner.js';
 import { serializeImportedAgentWithFallback } from '../import/import-metadata.js';
 import { rooNonRootRuleMapper } from './import-mappers.js';
 import {
@@ -18,9 +18,6 @@ import {
   ROO_CODE_VSCODE_SETTINGS,
   ROO_CODE_ALLOWED_COMMANDS_KEY,
   ROO_CODE_DENIED_COMMANDS_KEY,
-  ROO_CODE_CANONICAL_RULES_DIR,
-  ROO_CODE_CANONICAL_AGENTS_DIR,
-  ROO_CODE_CANONICAL_PERMISSIONS,
 } from './constants.js';
 import { descriptor } from './index.js';
 
@@ -48,7 +45,7 @@ async function importRooModes(
   }
   const modes = (parsed as { customModes?: unknown } | null)?.customModes;
   if (!Array.isArray(modes)) return;
-  const destDir = join(projectRoot, ROO_CODE_CANONICAL_AGENTS_DIR);
+  const destDir = join(projectRoot, AB_AGENTS);
   for (const mode of modes) {
     if (!mode || typeof mode !== 'object') continue;
     const m = mode as Record<string, unknown>;
@@ -73,7 +70,7 @@ async function importRooModes(
     results.push({
       fromTool: ROO_CODE_TARGET,
       fromPath: srcPath,
-      toPath: `${ROO_CODE_CANONICAL_AGENTS_DIR}/${slug}.md`,
+      toPath: `${AB_AGENTS}/${slug}.md`,
       feature: 'agents',
     });
   }
@@ -99,7 +96,7 @@ async function importPerModeRules(
   const modeRuleDirs = entries
     .filter((e) => e.isDirectory() && e.name.startsWith('rules-'))
     .map((e) => e.name);
-  const destDir = join(projectRoot, ROO_CODE_CANONICAL_RULES_DIR);
+  const destDir = join(projectRoot, AB_RULES);
   for (const dirName of modeRuleDirs) {
     results.push(
       ...(await importFileDirectory({
@@ -148,13 +145,13 @@ async function importRooPermissions(projectRoot: string, results: ImportResult[]
   const deny = toStringArray(settings[ROO_CODE_DENIED_COMMANDS_KEY]);
   if (allow.length === 0 && deny.length === 0) return;
 
-  const destPath = join(projectRoot, ROO_CODE_CANONICAL_PERMISSIONS);
+  const destPath = join(projectRoot, AB_PERMISSIONS);
   await mkdirp(dirname(destPath));
   await writeFileAtomic(destPath, yamlStringify({ allow, deny }));
   results.push({
     fromTool: ROO_CODE_TARGET,
     fromPath: srcPath,
-    toPath: ROO_CODE_CANONICAL_PERMISSIONS,
+    toPath: AB_PERMISSIONS,
     feature: 'permissions',
   });
 }
@@ -163,10 +160,7 @@ export async function importFromRooCode(
   projectRoot: string,
   options: { scope?: TargetLayoutScope } = {},
 ): Promise<ImportResult[]> {
-  const scope = options.scope ?? 'project';
-  const results: ImportResult[] = [];
-  const normalize = await createImportReferenceNormalizer(ROO_CODE_TARGET, projectRoot, scope);
-  results.push(...(await runDescriptorImport(descriptor, projectRoot, scope, { normalize })));
+  const { scope, results, normalize } = await beginImport(descriptor, projectRoot, options);
   await importPerModeRules(projectRoot, results, normalize);
   // `.roomodes` and `.vscode/settings.json` permissions are project-only files;
   // global custom modes / VS Code user settings live outside `--global`'s root.

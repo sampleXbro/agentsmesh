@@ -8,19 +8,12 @@
  * which the directory-heuristic detector rejects with its `>= 2` threshold).
  */
 
-import { readFile, stat } from 'node:fs/promises';
+import { dirExists } from './detectors/fs-helpers.js';
+import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { FlatSourceLayout, SubPack } from './layout-types.js';
 
 const MANIFEST_REL_PATH = ['.claude-plugin', 'marketplace.json'];
-
-async function dirExists(path: string): Promise<boolean> {
-  try {
-    return (await stat(path)).isDirectory();
-  } catch {
-    return false;
-  }
-}
 
 /**
  * Normalize a marketplace.json `source` field to a path relative to the

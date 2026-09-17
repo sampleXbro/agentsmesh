@@ -1,3 +1,4 @@
+import type { FeatureGeneratorOutput } from '../catalog/target.interface.js';
 import { basename } from 'node:path';
 import type { CanonicalFiles } from '../../core/types.js';
 import { generateEmbeddedSkills } from '../import/embedded-skill.js';
@@ -15,10 +16,7 @@ import {
   TRAE_HOOKS_FILE,
 } from './constants.js';
 
-export interface TraeOutput {
-  path: string;
-  content: string;
-}
+export type TraeOutput = FeatureGeneratorOutput;
 
 export function generateRules(canonical: CanonicalFiles): TraeOutput[] {
   const outputs: TraeOutput[] = [];

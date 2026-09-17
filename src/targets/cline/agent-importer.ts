@@ -8,18 +8,14 @@
  * layout that some earlier agentsmesh versions generated).
  */
 
+import { AB_AGENTS } from '../../core/canonical-paths.js';
 import { join } from 'node:path';
 import { parse as yamlParse } from 'yaml';
 import type { ImportResult } from '../../core/types.js';
 import { readFileSafe, writeFileAtomic, mkdirp } from '../../utils/filesystem/fs.js';
 import { parseFrontmatter } from '../../utils/text/markdown.js';
 import { serializeImportedAgentWithFallback } from '../import/import-metadata.js';
-import {
-  CLINE_TARGET,
-  CLINE_AGENTS_DIR,
-  CLINE_AGENTS_FILE,
-  CLINE_CANONICAL_AGENTS_DIR,
-} from './constants.js';
+import { CLINE_TARGET, CLINE_AGENTS_DIR, CLINE_AGENTS_FILE } from './constants.js';
 import { importFileDirectory } from '../import/import-orchestrator.js';
 
 type Normalize = (content: string, sourceFile: string, destinationFile: string) => string;
@@ -75,7 +71,7 @@ async function importClineAgentsYaml(
   const list = (parsed as { agents?: unknown } | null)?.agents;
   if (!Array.isArray(list) || list.length === 0) return false;
 
-  const destDir = join(projectRoot, CLINE_CANONICAL_AGENTS_DIR);
+  const destDir = join(projectRoot, AB_AGENTS);
   for (const entry of list) {
     if (!entry || typeof entry !== 'object') continue;
     const record = entry as Record<string, unknown>;
@@ -94,7 +90,7 @@ async function importClineAgentsYaml(
     results.push({
       fromTool: CLINE_TARGET,
       fromPath: srcPath,
-      toPath: `${CLINE_CANONICAL_AGENTS_DIR}/${name}.md`,
+      toPath: `${AB_AGENTS}/${name}.md`,
       feature: 'agents',
     });
   }
@@ -112,7 +108,7 @@ async function importClineAgentsDirectory(
   normalize: Normalize,
 ): Promise<void> {
   const srcDir = join(projectRoot, CLINE_AGENTS_DIR);
-  const destDir = join(projectRoot, CLINE_CANONICAL_AGENTS_DIR);
+  const destDir = join(projectRoot, AB_AGENTS);
   const imported = await importFileDirectory({
     srcDir,
     destDir,
@@ -124,7 +120,7 @@ async function importClineAgentsDirectory(
       const { frontmatter, body } = parseFrontmatter(normalizeTo(destPath));
       return {
         destPath,
-        toPath: `${CLINE_CANONICAL_AGENTS_DIR}/${relativePath}`,
+        toPath: `${AB_AGENTS}/${relativePath}`,
         feature: 'agents',
         content: await serializeImportedAgentWithFallback(destPath, frontmatter, body),
       };

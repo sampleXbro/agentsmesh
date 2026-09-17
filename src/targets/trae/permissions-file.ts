@@ -18,6 +18,7 @@
  *     them keeps lacking them.
  */
 
+import { stringList } from '../import/yaml-import-helpers.js';
 import type { Permissions } from '../../core/types.js';
 import { projectTraePermissions, TRAE_PROFILE_KEY } from './permissions-format.js';
 
@@ -42,11 +43,6 @@ function parseJsonObject(content: string | null): Json {
 function branch(parent: Json, key: string): Json {
   const value = parent[key];
   return isRecord(value) ? { ...value } : {};
-}
-
-function stringList(value: unknown): string[] {
-  if (!Array.isArray(value)) return [];
-  return value.filter((entry): entry is string => typeof entry === 'string');
 }
 
 /** Appends projected paths; paths already authorized in Trae are never dropped. */

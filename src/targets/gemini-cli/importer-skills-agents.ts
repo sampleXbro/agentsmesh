@@ -1,3 +1,4 @@
+import { AB_AGENTS, AB_SKILLS } from '../../core/canonical-paths.js';
 import { basename, dirname, join, relative } from 'node:path';
 import type { ImportResult } from '../../core/types.js';
 import {
@@ -15,12 +16,7 @@ import {
   parseProjectedAgentSkillFrontmatter,
   serializeImportedAgent,
 } from '../projection/projected-agent-skill.js';
-import {
-  GEMINI_SKILLS_DIR,
-  GEMINI_AGENTS_DIR,
-  GEMINI_CANONICAL_AGENTS_DIR,
-  GEMINI_CANONICAL_SKILLS_DIR,
-} from './constants.js';
+import { GEMINI_SKILLS_DIR, GEMINI_AGENTS_DIR } from './constants.js';
 
 export async function importGeminiSkillsAndAgents(
   projectRoot: string,
@@ -37,7 +33,7 @@ export async function importGeminiSkillsAndAgents(
     const rawParsed = parseFrontmatter(content);
     const projectedAgent = parseProjectedAgentSkillFrontmatter(rawParsed.frontmatter, skillName);
     if (projectedAgent) {
-      const agentsDir = join(projectRoot, GEMINI_CANONICAL_AGENTS_DIR);
+      const agentsDir = join(projectRoot, AB_AGENTS);
       await mkdirp(agentsDir);
       const agentPath = join(agentsDir, `${projectedAgent.name}.md`);
       await writeFileAtomic(
@@ -47,14 +43,14 @@ export async function importGeminiSkillsAndAgents(
       results.push({
         fromTool: 'gemini-cli',
         fromPath: srcPath,
-        toPath: `${GEMINI_CANONICAL_AGENTS_DIR}/${projectedAgent.name}.md`,
+        toPath: `${AB_AGENTS}/${projectedAgent.name}.md`,
         feature: 'agents',
       });
       continue;
     }
-    const destPath = join(projectRoot, GEMINI_CANONICAL_SKILLS_DIR, skillName, 'SKILL.md');
+    const destPath = join(projectRoot, AB_SKILLS, skillName, 'SKILL.md');
     const normalized = normalize(content, srcPath, destPath);
-    const skillDir = join(projectRoot, GEMINI_CANONICAL_SKILLS_DIR, skillName);
+    const skillDir = join(projectRoot, AB_SKILLS, skillName);
     await mkdirp(skillDir);
     const { frontmatter, body } = parseFrontmatter(normalized);
     await writeFileAtomic(
@@ -64,7 +60,7 @@ export async function importGeminiSkillsAndAgents(
     results.push({
       fromTool: 'gemini-cli',
       fromPath: srcPath,
-      toPath: `${GEMINI_CANONICAL_SKILLS_DIR}/${skillName}/SKILL.md`,
+      toPath: `${AB_SKILLS}/${skillName}/SKILL.md`,
       feature: 'skills',
     });
     const allSkillFiles = await readDirRecursiveNoSymlinks(dirname(srcPath));
@@ -79,7 +75,7 @@ export async function importGeminiSkillsAndAgents(
       results.push({
         fromTool: 'gemini-cli',
         fromPath: absPath,
-        toPath: `${GEMINI_CANONICAL_SKILLS_DIR}/${skillName}/${relPath}`,
+        toPath: `${AB_SKILLS}/${skillName}/${relPath}`,
         feature: 'skills',
       });
     }
@@ -95,7 +91,7 @@ export async function importGeminiSkillsAndAgents(
       const { frontmatter, body } = parseFrontmatter(content);
       const relPath = relative(geminiAgentsPath, srcPath).replace(/\\/g, '/');
       const relativeMdPath = relPath.replace(/\.md$/i, '.md');
-      const agentsDir = join(projectRoot, GEMINI_CANONICAL_AGENTS_DIR);
+      const agentsDir = join(projectRoot, AB_AGENTS);
       await mkdirp(agentsDir);
       const destPath = join(agentsDir, relativeMdPath);
       const normalizedBody = normalize(body, srcPath, destPath);
@@ -125,7 +121,7 @@ export async function importGeminiSkillsAndAgents(
       results.push({
         fromTool: 'gemini-cli',
         fromPath: srcPath,
-        toPath: `${GEMINI_CANONICAL_AGENTS_DIR}/${relativeMdPath}`,
+        toPath: `${AB_AGENTS}/${relativeMdPath}`,
         feature: 'agents',
       });
     }

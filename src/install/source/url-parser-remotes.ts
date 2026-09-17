@@ -4,109 +4,64 @@
 
 import { URL } from 'node:url';
 
-/** GitHub https://github.com/org/repo/tree/ref/rest */
-export function parseGithubTreeUrl(urlStr: string): {
-  org: string;
-  repo: string;
+interface RefUrl {
   ref: string;
   path: string;
-} | null {
-  try {
-    const u = new URL(urlStr);
-    if (u.hostname !== 'github.com') return null;
-    const parts = u.pathname.split('/').filter(Boolean);
-    const ti = parts.indexOf('tree');
-    if (ti < 2 || ti + 1 >= parts.length) return null;
-    const org = parts[0];
-    const repo = parts[1];
-    const ref = parts[ti + 1];
-    const path = parts.slice(ti + 2).join('/');
-    if (!org || !repo || !ref) return null;
-    return { org, repo, ref, path: path || '' };
-  } catch {
-    return null;
-  }
 }
 
-/** GitHub https://github.com/org/repo/blob/ref/rest */
-export function parseGithubBlobUrl(urlStr: string): {
-  org: string;
-  repo: string;
-  ref: string;
-  path: string;
-} | null {
+/** `https://github.com/org/repo/<marker>/ref/rest` — `marker` is `tree` or `blob`. */
+function parseGithubRefUrl(
+  urlStr: string,
+  marker: 'tree' | 'blob',
+  requirePath: boolean,
+): (RefUrl & { org: string; repo: string }) | null {
   try {
     const u = new URL(urlStr);
     if (u.hostname !== 'github.com') return null;
     const parts = u.pathname.split('/').filter(Boolean);
-    const bi = parts.indexOf('blob');
-    if (bi < 2 || bi + 1 >= parts.length) return null;
-    const org = parts[0];
-    const repo = parts[1];
-    const ref = parts[bi + 1];
-    const path = parts.slice(bi + 2).join('/');
-    if (!org || !repo || !ref || !path) return null;
+    const mi = parts.indexOf(marker);
+    if (mi < 2 || mi + 1 >= parts.length) return null;
+    const [org, repo] = parts;
+    const ref = parts[mi + 1];
+    const path = parts.slice(mi + 2).join('/');
+    if (!org || !repo || !ref || (requirePath && !path)) return null;
     return { org, repo, ref, path };
   } catch {
     return null;
   }
 }
 
-/** GitLab https://gitlab.com/group/project/-/tree/ref/path */
-export function parseGitlabTreeUrl(urlStr: string): {
-  namespace: string;
-  project: string;
-  ref: string;
-  path: string;
-} | null {
+/** `https://gitlab.com/group/project/-/<marker>/ref/path` — `marker` is `tree` or `blob`. */
+function parseGitlabRefUrl(
+  urlStr: string,
+  marker: 'tree' | 'blob',
+  requirePath: boolean,
+): (RefUrl & { namespace: string; project: string }) | null {
   try {
     const u = new URL(urlStr);
     if (u.hostname !== 'gitlab.com') return null;
     const parts = u.pathname.split('/').filter(Boolean);
-    const ti = parts.indexOf('-');
-    if (ti < 0 || parts[ti + 1] !== 'tree') return null;
-    const treeIdx = ti + 1;
-    if (treeIdx + 1 >= parts.length) return null;
-    const ref = parts[treeIdx + 1];
-    const path = parts.slice(treeIdx + 2).join('/');
-    const before = parts.slice(0, ti);
+    const dash = parts.indexOf('-');
+    if (dash < 0 || parts[dash + 1] !== marker) return null;
+    const markerIdx = dash + 1;
+    if (markerIdx + 1 >= parts.length) return null;
+    const ref = parts[markerIdx + 1];
+    const path = parts.slice(markerIdx + 2).join('/');
+    const before = parts.slice(0, dash);
     if (before.length < 2) return null;
     const project = before[before.length - 1];
     const namespace = before.slice(0, -1).join('/');
-    if (!namespace || !project || !ref) return null;
-    return { namespace, project, ref, path: path || '' };
-  } catch {
-    return null;
-  }
-}
-
-/** GitLab https://gitlab.com/group/project/-/blob/ref/path */
-export function parseGitlabBlobUrl(urlStr: string): {
-  namespace: string;
-  project: string;
-  ref: string;
-  path: string;
-} | null {
-  try {
-    const u = new URL(urlStr);
-    if (u.hostname !== 'gitlab.com') return null;
-    const parts = u.pathname.split('/').filter(Boolean);
-    const marker = parts.indexOf('-');
-    if (marker < 0 || parts[marker + 1] !== 'blob') return null;
-    const blobIdx = marker + 1;
-    if (blobIdx + 1 >= parts.length) return null;
-    const ref = parts[blobIdx + 1];
-    const path = parts.slice(blobIdx + 2).join('/');
-    const before = parts.slice(0, marker);
-    if (before.length < 2) return null;
-    const project = before[before.length - 1];
-    const namespace = before.slice(0, -1).join('/');
-    if (!namespace || !project || !ref || !path) return null;
+    if (!namespace || !project || !ref || (requirePath && !path)) return null;
     return { namespace, project, ref, path };
   } catch {
     return null;
   }
 }
+
+export const parseGithubTreeUrl = (urlStr: string) => parseGithubRefUrl(urlStr, 'tree', false);
+export const parseGithubBlobUrl = (urlStr: string) => parseGithubRefUrl(urlStr, 'blob', true);
+export const parseGitlabTreeUrl = (urlStr: string) => parseGitlabRefUrl(urlStr, 'tree', false);
+export const parseGitlabBlobUrl = (urlStr: string) => parseGitlabRefUrl(urlStr, 'blob', true);
 
 /** Known GitHub route segments that indicate a non-repo URL (3+ path segments). */
 const GITHUB_ROUTE_WORDS = new Set([

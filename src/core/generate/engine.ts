@@ -35,6 +35,9 @@ export interface GenerateContext {
 
 export { resolveOutputCollisions };
 
+/** Features the plain per-target generator loop emits, in emission order. */
+type LoopFeature = 'rules' | 'commands' | 'agents' | 'skills' | 'mcp' | 'ignore';
+
 /**
  * Generate target files from canonical sources.
  * @param ctx - Config, canonical files, project root, optional target filter
@@ -51,82 +54,35 @@ export async function generate(ctx: GenerateContext): Promise<GenerateResult[]> 
   ): ReturnType<typeof resolveTargetFeatureGenerator> {
     return resolveTargetFeatureGenerator(target, feature, config, scope);
   }
-  const hasRules = config.features.includes('rules');
-  const hasCommands = config.features.includes('commands');
-  const hasAgents = config.features.includes('agents');
-  const hasSkills = config.features.includes('skills');
-  const hasMcp = config.features.includes('mcp');
-  const hasPermissions = config.features.includes('permissions');
-  const hasHooks = config.features.includes('hooks');
-  const hasIgnore = config.features.includes('ignore');
-
   const results: GenerateResult[] = [];
 
-  await generateFeature(
-    results,
-    targets,
-    canonical,
-    projectRoot,
-    hasRules,
-    scope,
-    'rules',
-    (target) => resolveGen(target, 'rules'),
-  );
+  const runFeature = (feature: LoopFeature): Promise<void> =>
+    generateFeature(
+      results,
+      targets,
+      canonical,
+      projectRoot,
+      config.features.includes(feature),
+      scope,
+      feature,
+      (target) => resolveGen(target, feature),
+    );
 
-  await generateFeature(
-    results,
-    targets,
-    canonical,
-    projectRoot,
-    hasCommands,
-    scope,
-    'commands',
-    (target) => resolveGen(target, 'commands'),
-  );
-
-  await generateFeature(
-    results,
-    targets,
-    canonical,
-    projectRoot,
-    hasAgents,
-    scope,
-    'agents',
-    (target) => resolveGen(target, 'agents'),
-  );
-
-  await generateFeature(
-    results,
-    targets,
-    canonical,
-    projectRoot,
-    hasSkills,
-    scope,
-    'skills',
-    (target) => resolveGen(target, 'skills'),
-  );
-  await generateFeature(results, targets, canonical, projectRoot, hasMcp, scope, 'mcp', (target) =>
-    resolveGen(target, 'mcp'),
-  );
+  for (const feature of ['rules', 'commands', 'agents', 'skills', 'mcp'] as const) {
+    await runFeature(feature);
+  }
 
   // Permissions: same pattern but merges with existing settings.json
-  if (hasPermissions) {
+  if (config.features.includes('permissions')) {
     await generatePermissionsFeature(results, targets, canonical, projectRoot, scope);
   }
 
   // Hooks: merges with any pending permissions result for same path
-  if (hasHooks) await generateHooksFeature(results, targets, canonical, projectRoot, scope, config);
+  if (config.features.includes('hooks')) {
+    await generateHooksFeature(results, targets, canonical, projectRoot, scope, config);
+  }
 
-  await generateFeature(
-    results,
-    targets,
-    canonical,
-    projectRoot,
-    hasIgnore,
-    scope,
-    'ignore',
-    (target) => resolveGen(target, 'ignore'),
-  );
+  await runFeature('ignore');
 
   // Per-target scope extras (e.g. Claude Code output-styles in global mode)
   const enabledFeatures: ReadonlySet<string> = new Set(config.features);
@@ -142,7 +98,10 @@ export async function generate(ctx: GenerateContext): Promise<GenerateResult[]> 
   // Scoped settings: target-specific sidecars (e.g. Gemini settings.json, plugin settings)
   // hasRules is included so targets like opencode that write the instructions glob into their
   // config file (opencode.json) are reached even when rules is the only enabled feature.
-  if (hasRules || hasMcp || hasIgnore || hasHooks || hasAgents || hasPermissions) {
+  const wantsScopedSettings = (
+    ['rules', 'mcp', 'ignore', 'hooks', 'agents', 'permissions'] as const
+  ).some((feature) => config.features.includes(feature));
+  if (wantsScopedSettings) {
     await generateScopedSettingsFeature(
       results,
       targets,

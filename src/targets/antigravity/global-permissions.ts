@@ -14,8 +14,9 @@
  * on every run, so a grant removed from canonical stops applying in Antigravity.
  */
 
+import { AB_PERMISSIONS } from '../../core/canonical-paths.js';
+import { canonicalDocument } from '../import/yaml-import-helpers.js';
 import { dirname, join } from 'node:path';
-import { Document, parseDocument, isMap } from 'yaml';
 import type {
   CanonicalFiles,
   GenerateResult,
@@ -25,11 +26,7 @@ import type {
 import { mkdirp, readFileSafe, writeFileAtomic } from '../../utils/filesystem/fs.js';
 import { computeStatus } from '../../core/generate/feature-loop.js';
 import { toStringArray } from '../import/shared-import-helpers.js';
-import {
-  ANTIGRAVITY_TARGET,
-  ANTIGRAVITY_GLOBAL_SETTINGS_FILE,
-  ANTIGRAVITY_CANONICAL_PERMISSIONS,
-} from './constants.js';
+import { ANTIGRAVITY_TARGET, ANTIGRAVITY_GLOBAL_SETTINGS_FILE } from './constants.js';
 
 const OWNED_KEYS = ['allow', 'deny', 'ask'] as const;
 
@@ -103,15 +100,6 @@ export async function generateAntigravityGlobalPermissions(
   ];
 }
 
-/** The canonical file as an editable document; comments and key order survive. */
-function canonicalDocument(content: string | null): Document {
-  if (content !== null) {
-    const doc = parseDocument(content);
-    if (doc.errors.length === 0 && (doc.contents === null || isMap(doc.contents))) return doc;
-  }
-  return new Document({});
-}
-
 /**
  * Import the global settings file into canonical `permissions.yaml`. Antigravity
  * rules are already `action(target)` strings, so the three lists map one-to-one
@@ -133,7 +121,7 @@ export async function importAntigravityGlobalPermissions(
   const block = parseJsonObject(content).permissions;
   if (!isRecord(block)) return;
 
-  const destPath = join(projectRoot, ANTIGRAVITY_CANONICAL_PERMISSIONS);
+  const destPath = join(projectRoot, AB_PERMISSIONS);
   const doc = canonicalDocument(await readFileSafe(destPath));
   for (const key of OWNED_KEYS) {
     if (key in block) doc.set(key, toStringArray(block[key]));
@@ -145,7 +133,7 @@ export async function importAntigravityGlobalPermissions(
   results.push({
     fromTool: ANTIGRAVITY_TARGET,
     fromPath: srcPath,
-    toPath: ANTIGRAVITY_CANONICAL_PERMISSIONS,
+    toPath: AB_PERMISSIONS,
     feature: 'permissions',
   });
 }

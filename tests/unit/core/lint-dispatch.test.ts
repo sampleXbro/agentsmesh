@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { runLint } from '../../../src/core/lint/linter.js';
 import type { CanonicalFiles, CanonicalCommand } from '../../../src/core/types.js';
 import type { ValidatedConfig } from '../../../src/config/core/schema.js';
-import { TARGET_IDS } from '../../../src/targets/catalog/target-catalog.js';
+import { TARGET_IDS } from '../../../src/targets/catalog/target-ids.js';
 
 const baseConfig: ValidatedConfig = {
   version: 1,

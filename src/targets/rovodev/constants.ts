@@ -37,6 +37,3 @@ export const ROVODEV_GLOBAL_COMMANDS_DIR = `${ROVODEV_GLOBAL_DIR}/${ROVODEV_COMM
 export const ROVODEV_GLOBAL_PROMPTS_FILE = `${ROVODEV_GLOBAL_DIR}/prompts.yml`;
 export const ROVODEV_GLOBAL_MCP_FILE = `${ROVODEV_GLOBAL_DIR}/mcp_config.json`;
 export const ROVODEV_GLOBAL_CONFIG_FILE = '.rovodev/config.yml';
-
-export const ROVODEV_CANONICAL_RULES_DIR = '.agentsmesh/rules';
-export const ROVODEV_CANONICAL_COMMANDS_DIR = '.agentsmesh/commands';

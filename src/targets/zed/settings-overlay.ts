@@ -20,6 +20,7 @@
  *   - `agent` is merged per pattern — see `permissions-merge.ts`.
  */
 
+import { isRecord } from '../../utils/types/guards.js';
 import type { CanonicalFiles } from '../../core/types.js';
 import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
 import {
@@ -56,10 +57,6 @@ export interface ZedOwnedOverlay {
   readonly owned: string[];
   /** Owned keys that carry canonical content. */
   readonly present: Record<string, unknown>;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 function addMcp(canonical: CanonicalFiles, overlay: ZedOwnedOverlay): void {

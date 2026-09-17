@@ -8,65 +8,23 @@
  * for project-level instructions. No skills, MCP, or other files.
  */
 
+import { embeddedRootRule } from '../projection/managed-blocks.js';
+import { NO_OUTPUTS } from '../catalog/no-outputs.js';
+import type { FeatureGeneratorOutput } from '../catalog/target.interface.js';
 import type { CanonicalFiles } from '../../core/types.js';
-import { appendEmbeddedRulesBlock } from '../projection/managed-blocks.js';
 import { JULES_TARGET, JULES_ROOT_FILE } from './constants.js';
 
-export interface JulesOutput {
-  path: string;
-  content: string;
-}
+export type JulesOutput = FeatureGeneratorOutput;
 
-export function generateRules(canonical: CanonicalFiles): JulesOutput[] {
-  const root = canonical.rules.find((rule) => rule.root);
-  const nonRootRules = canonical.rules.filter((rule) => {
-    if (rule.root) return false;
-    return rule.targets.length === 0 || rule.targets.includes(JULES_TARGET);
-  });
+export const generateRules = (canonical: CanonicalFiles): JulesOutput[] =>
+  embeddedRootRule(canonical, JULES_TARGET, JULES_ROOT_FILE);
 
-  const rootBody = root?.body.trim() ?? '';
-  const content = appendEmbeddedRulesBlock(rootBody, nonRootRules);
-  if (!content) return [];
+export const generateCommands = NO_OUTPUTS;
 
-  return [{ path: JULES_ROOT_FILE, content }];
-}
+export const generateMcp = NO_OUTPUTS;
 
-/**
- * No-op stub — Jules has no command system.
- * Lint warnings surface this via lintCommands.
- */
-export function generateCommands(_canonical: CanonicalFiles): JulesOutput[] {
-  return [];
-}
+export const generateHooks = NO_OUTPUTS;
 
-/**
- * No-op stub — Jules is a cloud-based agent with no MCP support.
- * Lint warnings surface this via lintMcp.
- */
-export function generateMcp(_canonical: CanonicalFiles): JulesOutput[] {
-  return [];
-}
+export const generateIgnore = NO_OUTPUTS;
 
-/**
- * No-op stub — Jules has no lifecycle hook system.
- * Lint warnings surface this via lintHooks.
- */
-export function generateHooks(_canonical: CanonicalFiles): JulesOutput[] {
-  return [];
-}
-
-/**
- * No-op stub — Jules is a cloud-based agent with no dedicated ignore file.
- * Lint warnings surface this via lintIgnore.
- */
-export function generateIgnore(_canonical: CanonicalFiles): JulesOutput[] {
-  return [];
-}
-
-/**
- * No-op stub — Jules has no permissions system.
- * Lint warnings surface this via lintPermissions.
- */
-export function generatePermissions(_canonical: CanonicalFiles): JulesOutput[] {
-  return [];
-}
+export const generatePermissions = NO_OUTPUTS;

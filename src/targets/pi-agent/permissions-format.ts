@@ -18,6 +18,7 @@
  * (today only `powershell`), so a user's own entry survives a regenerate.
  */
 
+import { isRecord } from '../../utils/types/guards.js';
 import type { Permissions } from '../../core/types.js';
 
 /** Startup order used for the emitted array; keeps output stable across runs. */
@@ -106,10 +107,6 @@ export function defaultToolsToCanonicalAllow(tools: readonly string[]): string[]
     if (name !== undefined && !out.includes(name)) out.push(name);
   }
   return out;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 function parseObject(content: string): Record<string, unknown> | null {

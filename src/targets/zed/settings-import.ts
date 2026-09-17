@@ -10,15 +10,16 @@
  * MCP import is additive for the same reason (`writeMcpWithMerge`).
  */
 
+import { AB_IGNORE, AB_PERMISSIONS } from '../../core/canonical-paths.js';
+import { canonicalDocument, stringList } from '../import/yaml-import-helpers.js';
 import { join, dirname } from 'node:path';
-import { Document, parseDocument, isMap } from 'yaml';
 import type { ImportResult, Permissions } from '../../core/types.js';
 import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
 import { mkdirp, readFileSafe, writeFileAtomic } from '../../utils/filesystem/fs.js';
 import { parseZedIgnoreGlobs, mergeCanonicalIgnore } from './ignore-settings.js';
 import { parseZedPermissions } from './permissions-settings.js';
 import { parseZedSettings } from './settings-overlay.js';
-import { ZED_TARGET, ZED_CANONICAL_IGNORE, ZED_CANONICAL_PERMISSIONS } from './constants.js';
+import { ZED_TARGET } from './constants.js';
 
 async function importIgnore(
   projectRoot: string,
@@ -29,30 +30,16 @@ async function importIgnore(
   const globs = parseZedIgnoreGlobs(settings);
   if (globs.length === 0) return;
 
-  const destPath = join(projectRoot, ZED_CANONICAL_IGNORE);
+  const destPath = join(projectRoot, AB_IGNORE);
   const content = mergeCanonicalIgnore(await readFileSafe(destPath), globs);
   await mkdirp(dirname(destPath));
   await writeFileAtomic(destPath, content);
   results.push({
     fromTool: ZED_TARGET,
     fromPath: settingsPath,
-    toPath: ZED_CANONICAL_IGNORE,
+    toPath: AB_IGNORE,
     feature: 'ignore',
   });
-}
-
-/** The canonical file as an editable document; comments and key order survive. */
-function canonicalDocument(content: string | null): Document {
-  if (content !== null) {
-    const doc = parseDocument(content);
-    if (doc.errors.length === 0 && (doc.contents === null || isMap(doc.contents))) return doc;
-  }
-  return new Document({});
-}
-
-function stringList(value: unknown): string[] {
-  if (!Array.isArray(value)) return [];
-  return value.filter((entry): entry is string => typeof entry === 'string');
 }
 
 /** Keep every canonical entry, then append the ones Zed adds. */
@@ -70,7 +57,7 @@ async function importPermissions(
   const permissions: Permissions | null = parseZedPermissions(settings);
   if (permissions === null) return;
 
-  const destPath = join(projectRoot, ZED_CANONICAL_PERMISSIONS);
+  const destPath = join(projectRoot, AB_PERMISSIONS);
   const doc = canonicalDocument(await readFileSafe(destPath));
   const existing = (doc.toJS() ?? {}) as Record<string, unknown>;
   doc.set('allow', mergeList(existing.allow, permissions.allow));
@@ -82,7 +69,7 @@ async function importPermissions(
   results.push({
     fromTool: ZED_TARGET,
     fromPath: settingsPath,
-    toPath: ZED_CANONICAL_PERMISSIONS,
+    toPath: AB_PERMISSIONS,
     feature: 'permissions',
   });
 }

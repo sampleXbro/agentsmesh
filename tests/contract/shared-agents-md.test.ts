@@ -5,7 +5,7 @@ import { createCanonicalProject } from '../e2e/helpers/canonical.js';
 import { appendGenerateReferenceMatrix } from '../e2e/helpers/reference-matrix.js';
 import { cleanup } from '../e2e/helpers/setup.js';
 import { runGenerate } from '../../src/cli/commands/generate.js';
-import { getTargetCatalogEntry } from '../../src/targets/catalog/target-catalog.js';
+import { getDescriptor } from '../../src/targets/catalog/registry.js';
 
 let dir = '';
 
@@ -98,7 +98,7 @@ features: [rules, commands, agents, skills]
     expect((await runGenerate({}, dir, { printMatrix: false })).exitCode).toBe(0);
 
     rmSync(join(dir, '.agentsmesh'), { recursive: true, force: true });
-    await getTargetCatalogEntry('amp').importFrom(dir, { scope: 'project' });
+    await getDescriptor('amp')!.generators.importFrom(dir, { scope: 'project' });
 
     const root = readFileSync(join(dir, '.agentsmesh', 'rules', '_root.md'), 'utf-8');
     // After importing the canonical-path AGENTS.md, _root.md should not contain

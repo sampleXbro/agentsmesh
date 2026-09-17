@@ -15,10 +15,7 @@
  */
 
 import { importSkills } from '../../install/importers/entity-importers.js';
-import {
-  readAgentsDirWithMappers,
-  readRulesDirWithMappers,
-} from '../../install/importers/target-native-commands.js';
+import { readEntityDirWithMappers } from '../../install/importers/target-native-commands.js';
 import type { ParseFrontmatterOptions } from '../../canonical/features/rules.js';
 import type { EntityWithBrokenLinks } from '../../install/prompts/broken-link-prompt.js';
 import type {
@@ -28,7 +25,7 @@ import type {
   CanonicalSkill,
 } from '../../core/types.js';
 import { buildIncludedPaths, detectBrokenLinks } from './link-scan.js';
-import { mergeCommands } from './merge-commands.js';
+import { MERGE_FROM_TOOL_DIRS, mergeCommands } from './merge-commands.js';
 
 export interface CommandMergeSpec {
   /** Directory relative to `contentRoot` containing `*.md` command files. */
@@ -37,13 +34,6 @@ export interface CommandMergeSpec {
   readonly target?: string;
   /** Lower precedence wins on a `name` collision; ties resolve by array order. */
   readonly precedence: number;
-}
-
-export interface SourceDescriptor {
-  /** Stable id of the source descriptor (e.g. `anthropic-skill-pack`). */
-  readonly id: string;
-  /** Command directories to merge in addition to canonical `commands/`. */
-  readonly mergeFromToolDirs: readonly CommandMergeSpec[];
 }
 
 export interface CommandDedup {
@@ -74,18 +64,17 @@ export interface AggregateResult {
 
 export async function aggregateAnthropicSkillPack(
   contentRoot: string,
-  descriptor: SourceDescriptor,
   parseOpts: ParseFrontmatterOptions = {},
 ): Promise<AggregateResult> {
   const [skills, agentsRead, rulesRead, merged] = await Promise.all([
     importSkills(`${contentRoot}/skills`, parseOpts),
-    readAgentsDirWithMappers(`${contentRoot}/agents`, { parseOpts }),
-    readRulesDirWithMappers(`${contentRoot}/rules`, { parseOpts }),
-    mergeCommands(contentRoot, descriptor.mergeFromToolDirs, parseOpts),
+    readEntityDirWithMappers(`${contentRoot}/agents`, 'agents', { parseOpts }),
+    readEntityDirWithMappers(`${contentRoot}/rules`, 'rules', { parseOpts }),
+    mergeCommands(contentRoot, MERGE_FROM_TOOL_DIRS, parseOpts),
   ]);
 
-  const agents = [...agentsRead.agents];
-  const rules = [...rulesRead.rules];
+  const agents = [...agentsRead.entities];
+  const rules = [...rulesRead.entities];
   const includedPaths = buildIncludedPaths(contentRoot, skills, agents, merged.commands, rules);
   const brokenLinks = await detectBrokenLinks(
     contentRoot,

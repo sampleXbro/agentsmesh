@@ -24,10 +24,3 @@ export const KIRO_GLOBAL_IGNORE = '.kiro/settings/kiroignore';
 export const KIRO_GLOBAL_AGENTS_SKILLS_DIR = '.agents/skills';
 
 // Canonical paths
-export const KIRO_CANONICAL_ROOT_RULE = '.agentsmesh/rules/_root.md';
-export const KIRO_CANONICAL_RULES_DIR = '.agentsmesh/rules';
-export const KIRO_CANONICAL_AGENTS_DIR = '.agentsmesh/agents';
-export const KIRO_CANONICAL_MCP = '.agentsmesh/mcp.json';
-export const KIRO_CANONICAL_HOOKS = '.agentsmesh/hooks.yaml';
-export const KIRO_CANONICAL_PERMISSIONS = '.agentsmesh/permissions.yaml';
-export const KIRO_CANONICAL_IGNORE = '.agentsmesh/ignore';

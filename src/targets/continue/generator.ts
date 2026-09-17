@@ -1,3 +1,4 @@
+import type { FeatureGeneratorOutput } from '../catalog/target.interface.js';
 import { basename } from 'node:path';
 import type { CanonicalFiles } from '../../core/types.js';
 import type { GenerateFeatureContext } from '../catalog/target.interface.js';
@@ -15,10 +16,7 @@ import {
   CONTINUE_SKILLS_DIR,
 } from './constants.js';
 
-export interface ContinueOutput {
-  path: string;
-  content: string;
-}
+export type ContinueOutput = FeatureGeneratorOutput;
 
 export function generateRules(canonical: CanonicalFiles): ContinueOutput[] {
   const outputs: ContinueOutput[] = [];

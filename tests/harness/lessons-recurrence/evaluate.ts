@@ -1,6 +1,6 @@
-import type { LessonsGraph } from '../graph-schema.js';
-import { queryLessons } from '../query.js';
-import { rankLessons } from '../ranking.js';
+import type { LessonsGraph } from '../../../src/lessons/graph-schema.js';
+import { queryLessons } from '../../../src/lessons/query.js';
+import { rankLessons } from '../../../src/lessons/ranking.js';
 import { aggregateMetrics } from './metrics.js';
 import type {
   CaseOutcome,

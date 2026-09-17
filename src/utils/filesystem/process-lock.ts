@@ -7,6 +7,7 @@
  * process or a recycled PID, never a slow but healthy run.
  */
 
+import { setTimeout as sleep } from 'node:timers/promises';
 import { mkdir, readFile, writeFile, rm, stat } from 'node:fs/promises';
 import { rmSync } from 'node:fs';
 import { hostname } from 'node:os';
@@ -193,8 +194,4 @@ function isLockMetadata(value: unknown): value is LockMetadata {
 
 function getHostname(): string {
   return hostname();
-}
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }

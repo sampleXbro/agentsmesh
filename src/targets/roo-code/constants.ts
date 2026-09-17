@@ -54,10 +54,3 @@ export const ROO_CODE_GLOBAL_AGENTS_SKILLS_DIR = '.agents/skills';
 export const ROO_CODE_VSCODE_SETTINGS = '.vscode/settings.json';
 export const ROO_CODE_ALLOWED_COMMANDS_KEY = 'roo-cline.allowedCommands';
 export const ROO_CODE_DENIED_COMMANDS_KEY = 'roo-cline.deniedCommands';
-
-export const ROO_CODE_CANONICAL_RULES_DIR = '.agentsmesh/rules';
-export const ROO_CODE_CANONICAL_AGENTS_DIR = '.agentsmesh/agents';
-export const ROO_CODE_CANONICAL_COMMANDS_DIR = '.agentsmesh/commands';
-export const ROO_CODE_CANONICAL_MCP = '.agentsmesh/mcp.json';
-export const ROO_CODE_CANONICAL_IGNORE = '.agentsmesh/ignore';
-export const ROO_CODE_CANONICAL_PERMISSIONS = '.agentsmesh/permissions.yaml';

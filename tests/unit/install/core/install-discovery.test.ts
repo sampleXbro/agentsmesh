@@ -14,12 +14,6 @@ vi.mock('../../../../src/sources/anthropic-skill-pack/aggregate.js', () => ({
 vi.mock('../../../../src/canonical/features/skills.js', () => ({
   parseSkillDirectory: mockParseSkillDirectory,
 }));
-vi.mock('../../../../src/sources/anthropic-skill-pack/index.js', () => ({
-  anthropicSkillPackSource: {
-    id: 'anthropic-skill-pack',
-    mergeFromToolDirs: [],
-  },
-}));
 vi.mock('../../../../src/install/run/run-install-discovery.js', () => ({
   resolveDiscoveredForInstall: mockResolveDiscoveredForInstall,
 }));

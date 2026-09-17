@@ -4,7 +4,6 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { randomBytes } from 'node:crypto';
 import { aggregateAnthropicSkillPack } from '../../../../src/sources/anthropic-skill-pack/aggregate.js';
-import { anthropicSkillPackSource } from '../../../../src/sources/anthropic-skill-pack/index.js';
 
 let root = '';
 
@@ -37,7 +36,7 @@ describe('aggregateAnthropicSkillPack — discovery', () => {
     writeFm(join(root, 'rules', 'typescript.md'), 'description: TS rule', '# TS');
     writeFm(join(root, 'commands', 'deploy.md'), 'description: Deploy', '# Deploy');
 
-    const result = await aggregateAnthropicSkillPack(root, anthropicSkillPackSource);
+    const result = await aggregateAnthropicSkillPack(root);
 
     expect(result.skills.map((s) => s.name).sort()).toEqual(['lint', 'release']);
     expect(result.agents.map((a) => a.name).sort()).toEqual(['planner', 'reviewer']);
@@ -55,13 +54,13 @@ describe('aggregateAnthropicSkillPack — discovery', () => {
     writeRaw(join(root, 'agents', 'README.md'), '# Agents directory docs\n');
     writeRaw(join(root, 'agents', 'CONTRIBUTING.md'), '# Contributing\n');
 
-    const result = await aggregateAnthropicSkillPack(root, anthropicSkillPackSource);
+    const result = await aggregateAnthropicSkillPack(root);
 
     expect(result.agents.map((a) => a.name).sort()).toEqual(['a', 'b']);
   });
 
   it('returns empty arrays and no dedups for an empty contentRoot', async () => {
-    const result = await aggregateAnthropicSkillPack(root, anthropicSkillPackSource);
+    const result = await aggregateAnthropicSkillPack(root);
     expect(result.skills).toEqual([]);
     expect(result.agents).toEqual([]);
     expect(result.rules).toEqual([]);
@@ -84,7 +83,7 @@ describe('aggregateAnthropicSkillPack — command merging', () => {
       '# Gemini foo body',
     );
 
-    const result = await aggregateAnthropicSkillPack(root, anthropicSkillPackSource);
+    const result = await aggregateAnthropicSkillPack(root);
 
     expect(result.commands).toHaveLength(1);
     const cmd = result.commands[0]!;
@@ -97,7 +96,7 @@ describe('aggregateAnthropicSkillPack — command merging', () => {
     writeFm(join(root, '.claude', 'commands', 'foo.md'), 'description: Claude foo', '# x');
     writeFm(join(root, '.gemini', 'commands', 'foo.md'), 'description: Gemini foo', '# y');
 
-    const result = await aggregateAnthropicSkillPack(root, anthropicSkillPackSource);
+    const result = await aggregateAnthropicSkillPack(root);
 
     expect(result.dedups).toHaveLength(1);
     const dedup = result.dedups[0]!;
@@ -113,7 +112,7 @@ describe('aggregateAnthropicSkillPack — command merging', () => {
     writeFm(join(root, '.claude', 'commands', 'bar.md'), 'description: Claude bar', '# claude bar');
     writeFm(join(root, '.gemini', 'commands', 'bar.md'), 'description: Gemini bar', '# gemini bar');
 
-    const result = await aggregateAnthropicSkillPack(root, anthropicSkillPackSource);
+    const result = await aggregateAnthropicSkillPack(root);
 
     expect(result.commands).toHaveLength(1);
     const cmd = result.commands[0]!;
@@ -143,7 +142,7 @@ describe('aggregateAnthropicSkillPack — link classification', () => {
     );
     writeRaw(join(root, 'skills', 'lint', 'scripts', 'lint.sh'), '#!/usr/bin/env bash\n');
 
-    const result = await aggregateAnthropicSkillPack(root, anthropicSkillPackSource);
+    const result = await aggregateAnthropicSkillPack(root);
 
     expect(result.brokenLinks).toEqual([]);
   });
@@ -156,7 +155,7 @@ describe('aggregateAnthropicSkillPack — link classification', () => {
     );
     writeRaw(join(root, 'references', 'orchestration.md'), '# Orchestration\n');
 
-    const result = await aggregateAnthropicSkillPack(root, anthropicSkillPackSource);
+    const result = await aggregateAnthropicSkillPack(root);
 
     expect(result.brokenLinks).toHaveLength(1);
     const entry = result.brokenLinks[0]!;
@@ -174,7 +173,7 @@ describe('aggregateAnthropicSkillPack — link classification', () => {
       'See [missing](../nope.md) for nothing.\n',
     );
 
-    const result = await aggregateAnthropicSkillPack(root, anthropicSkillPackSource);
+    const result = await aggregateAnthropicSkillPack(root);
 
     expect(result.brokenLinks).toHaveLength(1);
     const entry = result.brokenLinks[0]!;
@@ -192,7 +191,7 @@ describe('aggregateAnthropicSkillPack — link classification', () => {
     );
     writeRaw(join(root, 'references', 'a.md'), '# A\n');
 
-    const result = await aggregateAnthropicSkillPack(root, anthropicSkillPackSource);
+    const result = await aggregateAnthropicSkillPack(root);
 
     expect(result.brokenLinks).toHaveLength(1);
     const entry = result.brokenLinks[0]!;
@@ -212,7 +211,7 @@ describe('aggregateAnthropicSkillPack — link classification', () => {
       'See [runbook](./runbook.md).\n',
     );
 
-    const result = await aggregateAnthropicSkillPack(root, anthropicSkillPackSource);
+    const result = await aggregateAnthropicSkillPack(root);
 
     const kinds = result.brokenLinks.map((e) => e.entityKind).sort();
     expect(kinds).toEqual(['agent', 'command']);
@@ -225,7 +224,7 @@ describe('aggregateAnthropicSkillPack — link classification', () => {
       'See [strict](./strict-mode.md) for context.\n',
     );
 
-    const result = await aggregateAnthropicSkillPack(root, anthropicSkillPackSource);
+    const result = await aggregateAnthropicSkillPack(root);
 
     expect(result.brokenLinks).toHaveLength(1);
     const entry = result.brokenLinks[0]!;

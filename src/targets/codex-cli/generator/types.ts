@@ -1,4 +1,2 @@
-export interface RulesOutput {
-  path: string;
-  content: string;
-}
+import type { FeatureGeneratorOutput } from '../../catalog/target.interface.js';
+export type RulesOutput = FeatureGeneratorOutput;

@@ -2,6 +2,7 @@
  * agentsmesh generate — produce target files from canonical sources.
  */
 
+import { parseTargetsFlag } from '../flags.js';
 import { loadScopedConfig } from '../../config/core/scope.js';
 import { loadCanonicalWithExtends } from '../../canonical/extends/extends.js';
 import { buildChecksums, detectLockedFeatureViolations, readLock } from '../../config/core/lock.js';
@@ -44,14 +45,7 @@ export async function runGenerate(
   const force = flags.force === true;
   const scope = flags.global === true ? 'global' : 'project';
   const refreshRemoteCache = flags['refresh-cache'] === true || flags['no-cache'] === true;
-  const targetStr = flags.targets;
-  const targetFilter =
-    typeof targetStr === 'string' && targetStr
-      ? targetStr
-          .split(',')
-          .map((s) => s.trim())
-          .filter(Boolean)
-      : undefined;
+  const targetFilter = parseTargetsFlag(flags.targets);
 
   const mode: GenerateData['mode'] = checkOnly ? 'check' : dryRun ? 'dry-run' : 'generate';
 

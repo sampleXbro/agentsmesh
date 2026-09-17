@@ -18,6 +18,7 @@
  * contributes `CONVENTIONS.md` to, so it is unioned and never marked.
  */
 
+import { isRecord } from '../../utils/types/guards.js';
 import { Document, Pair, Scalar, YAMLMap, isMap, isScalar, parseDocument } from 'yaml';
 import { AIDER_HOOK_KEYS } from './hooks-format.js';
 
@@ -26,10 +27,6 @@ export const AIDER_MANAGED_COMMENT = ' agentsmesh: generated from .agentsmesh/ â
 
 /** Switches whose explicit user value is respected instead of overwritten. */
 const SWITCH_KEYS = new Set(['auto-lint', 'auto-test']);
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
 
 /** A document whose contents are always a map, so key lookups need no guard. */
 type ConfDocument = Document<YAMLMap<unknown, unknown>, false>;

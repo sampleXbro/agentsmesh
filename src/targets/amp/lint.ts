@@ -12,19 +12,15 @@
  * warning is emitted when canonical permissions are present.
  */
 
+import { unsupportedFeature } from '../../core/lint/capability-gap.js';
 import type { CanonicalFiles, LintDiagnostic } from '../../core/types.js';
 import { createWarning } from '../../core/lint/shared/helpers.js';
 
-export function lintIgnore(canonical: CanonicalFiles): LintDiagnostic[] {
-  if (canonical.ignore.length === 0) return [];
-  return [
-    createWarning(
-      '.agentsmesh/ignore',
-      'amp',
-      'Amp has no dedicated ignore file and relies on .gitignore; canonical ignore patterns are not projected.',
-    ),
-  ];
-}
+export const lintIgnore = unsupportedFeature(
+  'ignore',
+  'amp',
+  'Amp has no dedicated ignore file and relies on .gitignore; canonical ignore patterns are not projected.',
+);
 
 export function lintPermissions(canonical: CanonicalFiles): LintDiagnostic[] {
   if (!canonical.permissions) return [];
@@ -40,17 +36,8 @@ export function lintPermissions(canonical: CanonicalFiles): LintDiagnostic[] {
   ];
 }
 
-export function lintHooks(canonical: CanonicalFiles): LintDiagnostic[] {
-  if (!canonical.hooks) return [];
-  const hasEntries = Object.values(canonical.hooks).some(
-    (entries) => Array.isArray(entries) && entries.length > 0,
-  );
-  if (!hasEntries) return [];
-  return [
-    createWarning(
-      '.agentsmesh/hooks.yaml',
-      'amp',
-      'Amp hooks are partially supported via the plugin-based amp.on(...) event API; declarative hook config is not generated.',
-    ),
-  ];
-}
+export const lintHooks = unsupportedFeature(
+  'hooks',
+  'amp',
+  'Amp hooks are partially supported via the plugin-based amp.on(...) event API; declarative hook config is not generated.',
+);

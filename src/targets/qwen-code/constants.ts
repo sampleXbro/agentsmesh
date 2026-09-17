@@ -37,6 +37,3 @@ export const QWEN_GLOBAL_AGENTS_DIR = '.qwen/agents';
 export const QWEN_GLOBAL_RULES_DIR = '.qwen/rules';
 
 // Canonical paths
-export const QWEN_CANONICAL_RULES_DIR = '.agentsmesh/rules';
-export const QWEN_CANONICAL_COMMANDS_DIR = '.agentsmesh/commands';
-export const QWEN_CANONICAL_AGENTS_DIR = '.agentsmesh/agents';

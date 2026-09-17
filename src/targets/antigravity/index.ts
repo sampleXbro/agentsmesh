@@ -1,3 +1,4 @@
+import { AB_AGENTS, AB_COMMANDS, AB_RULES } from '../../core/canonical-paths.js';
 import type { TargetGenerators } from '../catalog/target.interface.js';
 import type { TargetDescriptor } from '../catalog/target-descriptor.js';
 import {
@@ -21,10 +22,7 @@ import {
   ANTIGRAVITY_RULES_ROOT,
   ANTIGRAVITY_RULES_DIR,
   ANTIGRAVITY_WORKFLOWS_DIR,
-  ANTIGRAVITY_CANONICAL_AGENTS_DIR,
-  ANTIGRAVITY_CANONICAL_COMMANDS_DIR,
   ANTIGRAVITY_CANONICAL_IGNORE_FILENAME,
-  ANTIGRAVITY_CANONICAL_RULES_DIR,
 } from './constants.js';
 import { projectCapabilities, globalCapabilities } from './capabilities.js';
 import { importFromAntigravity } from './importer.js';
@@ -99,7 +97,7 @@ export const descriptor = {
       feature: 'rules',
       mode: 'directory',
       source: { project: [ANTIGRAVITY_RULES_DIR] },
-      canonicalDir: ANTIGRAVITY_CANONICAL_RULES_DIR,
+      canonicalDir: AB_RULES,
       extensions: ['.md'],
       map: nonRootRuleMapper,
     },
@@ -110,7 +108,7 @@ export const descriptor = {
         project: [ANTIGRAVITY_WORKFLOWS_DIR],
         global: [ANTIGRAVITY_GLOBAL_WORKFLOWS_DIR],
       },
-      canonicalDir: ANTIGRAVITY_CANONICAL_COMMANDS_DIR,
+      canonicalDir: AB_COMMANDS,
       extensions: ['.md'],
       map: workflowMapper,
     },
@@ -123,7 +121,7 @@ export const descriptor = {
         project: [ANTIGRAVITY_AGENTS_DIR],
         global: [ANTIGRAVITY_GLOBAL_AGENTS_DIR],
       },
-      canonicalDir: ANTIGRAVITY_CANONICAL_AGENTS_DIR,
+      canonicalDir: AB_AGENTS,
       extensions: ['.md'],
       map: agentMapper,
     },

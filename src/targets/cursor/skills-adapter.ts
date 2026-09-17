@@ -2,6 +2,7 @@
  * Cursor skills import adapter - handles both directory-structured and flat skills.
  */
 
+import { AB_SKILLS } from '../../core/canonical-paths.js';
 import { join, basename } from 'node:path';
 import type { ImportResult } from '../../core/types.js';
 import { readDirRecursiveNoSymlinks, readFileSafe } from '../../utils/filesystem/fs.js';
@@ -11,7 +12,7 @@ import {
   importFlatSkill,
   type SkillImportOptions,
 } from '../import/shared/skill-import-pipeline.js';
-import { CURSOR_SKILLS_DIR, CURSOR_CANONICAL_SKILLS_DIR } from './constants.js';
+import { CURSOR_SKILLS_DIR } from './constants.js';
 
 export async function importSkills(
   projectRoot: string,
@@ -24,7 +25,7 @@ export async function importSkills(
 
   const options: SkillImportOptions = {
     projectRoot,
-    destCanonicalSkillsDir: CURSOR_CANONICAL_SKILLS_DIR,
+    destCanonicalSkillsDir: AB_SKILLS,
     targetName: 'cursor',
     normalize,
     results,

@@ -2,6 +2,7 @@
  * Import Windsurf `.windsurf/workflows/*.md` into canonical commands.
  */
 
+import { AB_COMMANDS } from '../../core/canonical-paths.js';
 import { join, relative } from 'node:path';
 import type { ImportResult } from '../../core/types.js';
 import {
@@ -12,11 +13,7 @@ import {
 } from '../../utils/filesystem/fs.js';
 import { parseFrontmatter } from '../../utils/text/markdown.js';
 import { serializeImportedCommandWithFallback } from '../import/import-metadata.js';
-import {
-  WINDSURF_TARGET,
-  WINDSURF_WORKFLOWS_DIR,
-  WINDSURF_CANONICAL_COMMANDS_DIR,
-} from './constants.js';
+import { WINDSURF_TARGET, WINDSURF_WORKFLOWS_DIR } from './constants.js';
 
 function toStringArray(value: unknown): string[] {
   if (Array.isArray(value)) {
@@ -42,7 +39,7 @@ export async function importWorkflows(
   const workflowsDir = join(projectRoot, WINDSURF_WORKFLOWS_DIR);
   const workflowFiles = await readDirRecursiveNoSymlinks(workflowsDir);
   const workflowMdFiles = workflowFiles.filter((f) => f.endsWith('.md'));
-  const destCommandsDir = join(projectRoot, WINDSURF_CANONICAL_COMMANDS_DIR);
+  const destCommandsDir = join(projectRoot, AB_COMMANDS);
   for (const srcPath of workflowMdFiles) {
     const content = await readFileSafe(srcPath);
     if (!content) continue;
@@ -70,7 +67,7 @@ export async function importWorkflows(
     results.push({
       fromTool: WINDSURF_TARGET,
       fromPath: srcPath,
-      toPath: `${WINDSURF_CANONICAL_COMMANDS_DIR}/${relativePath}`,
+      toPath: `${AB_COMMANDS}/${relativePath}`,
       feature: 'commands',
     });
   }

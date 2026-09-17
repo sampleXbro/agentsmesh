@@ -3,17 +3,14 @@
  * string `description` / array `globs` are read from the Junie root file and
  * handed to the canonical serializer (which drops globs for root rules).
  */
+import { AB_ROOT_RULE } from '../../../../src/core/canonical-paths.js';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdtemp, mkdir, writeFile, readFile, rm } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { parseFrontmatter } from '../../../../src/utils/text/markdown.js';
 import { importFromJunie } from '../../../../src/targets/junie/importer.js';
-import {
-  JUNIE_TARGET,
-  JUNIE_DOT_AGENTS,
-  JUNIE_CANONICAL_ROOT_RULE,
-} from '../../../../src/targets/junie/constants.js';
+import { JUNIE_TARGET, JUNIE_DOT_AGENTS } from '../../../../src/targets/junie/constants.js';
 
 let projectRoot: string;
 
@@ -36,7 +33,7 @@ async function readCanonicalRoot(): Promise<{
   frontmatter: Record<string, unknown>;
   body: string;
 }> {
-  return parseFrontmatter(await readFile(join(projectRoot, JUNIE_CANONICAL_ROOT_RULE), 'utf-8'));
+  return parseFrontmatter(await readFile(join(projectRoot, AB_ROOT_RULE), 'utf-8'));
 }
 
 describe('importFromJunie — root rule frontmatter', () => {
@@ -51,7 +48,7 @@ describe('importFromJunie — root rule frontmatter', () => {
       {
         fromTool: JUNIE_TARGET,
         fromPath: srcPath,
-        toPath: JUNIE_CANONICAL_ROOT_RULE,
+        toPath: AB_ROOT_RULE,
         feature: 'rules',
       },
     ]);

@@ -1,5 +1,5 @@
-import type { LessonsGraph } from '../graph-schema.js';
-import type { LessonsQuery } from '../query.js';
+import type { LessonsGraph } from '../../../src/lessons/graph-schema.js';
+import type { LessonsQuery } from '../../../src/lessons/query.js';
 
 /**
  * One planted-fault recurrence case: a recall context plus the lessons that MUST

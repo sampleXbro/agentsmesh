@@ -26,4 +26,3 @@ export const AMP_GLOBAL_SKILLS_DIR = `${AMP_GLOBAL_DIR}/skills`;
 export const AMP_GLOBAL_MCP_FILE = `${AMP_GLOBAL_DIR}/settings.json`;
 
 // Canonical paths
-export const AMP_CANONICAL_RULES_DIR = '.agentsmesh/rules';

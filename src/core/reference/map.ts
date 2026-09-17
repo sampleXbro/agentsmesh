@@ -2,7 +2,7 @@ import { basename } from 'node:path';
 import type { CanonicalFiles } from '../types.js';
 import type { ValidatedConfig } from '../../config/core/schema.js';
 import type { TargetLayoutScope } from '../../targets/catalog/target-descriptor.js';
-import { addSkillDirectoryMappings } from './map-directories.js';
+import { addAncestorMappings, addDirectoryMapping } from './import-map-shared.js';
 import { ruleTargetPath, commandTargetPath, agentTargetPath } from './map-targets.js';
 import { AGENTS_MD } from '../../targets/codex-cli/constants.js';
 import { GEMINI_ROOT } from '../../targets/gemini-cli/constants.js';
@@ -19,11 +19,6 @@ export function isMarkdownLikeOutput(path: string): boolean {
     path === WINDSURF_AGENTS_MD ||
     path === WINDSURF_RULES_ROOT
   );
-}
-
-function addDirectoryMapping(refs: Map<string, string>, from: string, to: string): void {
-  refs.set(from, to);
-  refs.set(`${from}/`, `${to}/`);
 }
 
 export function buildReferenceMap(
@@ -77,7 +72,7 @@ export function buildReferenceMap(
       const canonicalPath = `.agentsmesh/skills/${skill.name}/${relativePath}`;
       const targetPath = `${skillDir}/${skill.name}/${relativePath}`;
       refs.set(canonicalPath, targetPath);
-      addSkillDirectoryMappings(refs, canonicalPath, targetPath);
+      addAncestorMappings(refs, canonicalPath, targetPath, '.agentsmesh/skills');
     }
   }
 

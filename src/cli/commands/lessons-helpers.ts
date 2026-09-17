@@ -1,3 +1,4 @@
+import { todayIso } from '../../lessons/add-helpers.js';
 import type { LessonsGraph } from '../../lessons/graph-schema.js';
 import type { LessonsCommandResult, LessonsQueryFormat } from './lessons-types.js';
 
@@ -66,13 +67,7 @@ export function emptyGraph(): LessonsGraph {
   return { version: 1, lessons: {}, topics: {}, triggers: {} };
 }
 
-export function todayIso(): string {
-  const now = new Date();
-  const y = now.getUTCFullYear();
-  const m = String(now.getUTCMonth() + 1).padStart(2, '0');
-  const d = String(now.getUTCDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
-}
+export { todayIso };
 
 export function renderTopicMarkdown(
   id: string,
@@ -112,7 +107,10 @@ export function renderLessonMarkdown(
     const t = triggers[tid];
     lines.push(t ? `- ${tid} [${t.kind}] ${t.pattern}` : `- ${tid} [missing trigger node]`);
   }
-  lines.push('', `**evidence:** ${lesson.evidence.length > 0 ? lesson.evidence.join(', ') : '(none)'}`);
+  lines.push(
+    '',
+    `**evidence:** ${lesson.evidence.length > 0 ? lesson.evidence.join(', ') : '(none)'}`,
+  );
   if (lesson.supersededBy !== undefined) {
     lines.push('', `**superseded by:** ${lesson.supersededBy}`);
   }

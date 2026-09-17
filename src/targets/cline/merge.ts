@@ -14,7 +14,7 @@
  *     deleted.
  */
 
-import type { GeneratedOutputMerger } from '../catalog/target-descriptor.js';
+import { firstMerger, type GeneratedOutputMerger } from '../catalog/target-descriptor.js';
 import { ownedYamlKeysMerger } from '../../core/generate/yaml-owned-keys.js';
 import {
   CANONICAL_MCP_SERVER_KEYS,
@@ -25,11 +25,4 @@ import { CLINE_AGENTS_FILE, CLINE_MCP_SETTINGS } from './constants.js';
 const mergeMcp = mcpServersJsonMerger([CLINE_MCP_SETTINGS], CANONICAL_MCP_SERVER_KEYS);
 const mergeAgents = ownedYamlKeysMerger([CLINE_AGENTS_FILE], ['agents']);
 
-export const mergeClineOutput: GeneratedOutputMerger = (
-  existing,
-  pending,
-  newContent,
-  resolvedPath,
-) =>
-  mergeMcp(existing, pending, newContent, resolvedPath) ??
-  mergeAgents(existing, pending, newContent, resolvedPath);
+export const mergeClineOutput: GeneratedOutputMerger = firstMerger([mergeMcp, mergeAgents]);

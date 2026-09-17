@@ -1,8 +1,8 @@
+import { AB_MCP, AB_PERMISSIONS } from '../../core/canonical-paths.js';
 import { dirname, extname, join } from 'node:path';
 import { stringify as stringifyYaml, parse as parseYaml } from 'yaml';
 import type { ImportResult, McpServer } from '../../core/types.js';
 import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
-import { createImportReferenceNormalizer } from '../../core/reference/import-rewriter.js';
 import {
   mkdirp,
   readDirRecursiveNoSymlinks,
@@ -10,16 +10,14 @@ import {
   writeFileAtomic,
 } from '../../utils/filesystem/fs.js';
 import { importEmbeddedSkills } from '../import/embedded-skill.js';
-import { runDescriptorImport } from '../import/descriptor-import-runner.js';
+import { beginImport } from '../import/descriptor-import-runner.js';
 import { writeMcpWithMerge } from '../import/mcp-merge.js';
 import { toStringArray, toStringRecord } from '../import/shared-import-helpers.js';
 import {
   CONTINUE_TARGET,
   CONTINUE_MCP_DIR,
   CONTINUE_SKILLS_DIR,
-  CONTINUE_CANONICAL_MCP,
   CONTINUE_GLOBAL_PERMISSIONS,
-  CONTINUE_CANONICAL_PERMISSIONS,
 } from './constants.js';
 import { parseContinuePermissions } from './permissions.js';
 import { importContinueHooks } from './hooks.js';
@@ -81,12 +79,12 @@ async function importMcp(projectRoot: string, results: ImportResult[]): Promise<
     importedFrom.push(srcPath);
   }
   if (Object.keys(merged).length === 0) return;
-  await writeMcpWithMerge(projectRoot, CONTINUE_CANONICAL_MCP, merged);
+  await writeMcpWithMerge(projectRoot, AB_MCP, merged);
   for (const fromPath of importedFrom) {
     results.push({
       fromTool: CONTINUE_TARGET,
       fromPath,
-      toPath: CONTINUE_CANONICAL_MCP,
+      toPath: AB_MCP,
       feature: 'mcp',
     });
   }
@@ -102,13 +100,13 @@ async function importPermissions(projectRoot: string, results: ImportResult[]): 
   if (content === null) return;
   const permissions = parseContinuePermissions(content);
   if (!permissions) return;
-  const destPath = join(projectRoot, CONTINUE_CANONICAL_PERMISSIONS);
+  const destPath = join(projectRoot, AB_PERMISSIONS);
   await mkdirp(dirname(destPath));
   await writeFileAtomic(destPath, stringifyYaml(permissions).trimEnd() + '\n');
   results.push({
     fromTool: CONTINUE_TARGET,
     fromPath: srcPath,
-    toPath: CONTINUE_CANONICAL_PERMISSIONS,
+    toPath: AB_PERMISSIONS,
     feature: 'permissions',
   });
 }
@@ -117,10 +115,7 @@ export async function importFromContinue(
   projectRoot: string,
   options: { scope?: TargetLayoutScope } = {},
 ): Promise<ImportResult[]> {
-  const scope = options.scope ?? 'project';
-  const results: ImportResult[] = [];
-  const normalize = await createImportReferenceNormalizer(CONTINUE_TARGET, projectRoot, scope);
-  results.push(...(await runDescriptorImport(descriptor, projectRoot, scope, { normalize })));
+  const { scope, results, normalize } = await beginImport(descriptor, projectRoot, options);
   await importEmbeddedSkills(projectRoot, CONTINUE_SKILLS_DIR, CONTINUE_TARGET, results, normalize);
   await importMcp(projectRoot, results);
   await importContinueHooks(projectRoot, results);

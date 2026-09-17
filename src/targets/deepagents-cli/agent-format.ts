@@ -14,12 +14,12 @@
  * name), then written flat to `.agentsmesh/agents/{name}.md` — not nested.
  */
 
+import { AB_AGENTS } from '../../core/canonical-paths.js';
 import { basename, dirname, join } from 'node:path';
 import type { CanonicalAgent } from '../../core/types.js';
 import { parseFrontmatter, serializeFrontmatter } from '../../utils/text/markdown.js';
 import { serializeImportedAgentWithFallback } from '../import/import-metadata.js';
 import type { ImportEntryMapper, ImportEntryMapping } from '../catalog/import-descriptor.js';
-import { DEEPAGENTS_CLI_CANONICAL_AGENTS_DIR } from './constants.js';
 
 export function serializeDeepagentsAgent(agent: CanonicalAgent): string {
   const frontmatter: Record<string, unknown> = {
@@ -54,7 +54,7 @@ export const deepagentsCliAgentMapper: ImportEntryMapper = async (
   const { frontmatter, body } = parseFrontmatter(ctx.normalizeTo(destPath));
   return {
     destPath,
-    toPath: `${DEEPAGENTS_CLI_CANONICAL_AGENTS_DIR}/${name}.md`,
+    toPath: `${AB_AGENTS}/${name}.md`,
     content: await serializeImportedAgentWithFallback(destPath, frontmatter, body),
   };
 };

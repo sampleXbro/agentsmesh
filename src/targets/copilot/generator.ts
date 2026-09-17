@@ -5,6 +5,7 @@
  * .github/agents/*.agent.md (native agents), .github/hooks/agentsmesh.json (+ scripts) for hooks.
  */
 
+import type { FeatureGeneratorOutput } from '../catalog/target.interface.js';
 import { basename } from 'node:path';
 import type { CanonicalFiles } from '../../core/types.js';
 import { serializeFrontmatter } from '../../utils/text/markdown.js';
@@ -16,10 +17,7 @@ import {
 } from './constants.js';
 import { commandPromptPath, serializeCommandPrompt } from './command-prompt.js';
 
-export interface RulesOutput {
-  path: string;
-  content: string;
-}
+export type RulesOutput = FeatureGeneratorOutput;
 
 function ruleSlug(source: string): string {
   const name = basename(source, '.md');

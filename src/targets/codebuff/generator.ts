@@ -17,6 +17,8 @@
  * Agents, hooks and permissions are `partial` — see the stubs at the bottom.
  */
 
+import { NO_OUTPUTS } from '../catalog/no-outputs.js';
+import type { FeatureGeneratorOutput } from '../catalog/target.interface.js';
 import type { CanonicalFiles } from '../../core/types.js';
 import { generateEmbeddedSkills } from '../import/embedded-skill.js';
 import { appendEmbeddedRulesBlock } from '../projection/managed-blocks.js';
@@ -30,10 +32,7 @@ import {
   CODEBUFF_IGNORE_FILE,
 } from './constants.js';
 
-export interface CodebuffOutput {
-  path: string;
-  content: string;
-}
+export type CodebuffOutput = FeatureGeneratorOutput;
 
 export function generateRules(canonical: CanonicalFiles): CodebuffOutput[] {
   const outputs: CodebuffOutput[] = [];
@@ -93,31 +92,8 @@ export function generateIgnore(canonical: CanonicalFiles): CodebuffOutput[] {
   return [{ path: CODEBUFF_IGNORE_FILE, content: canonical.ignore.join('\n') }];
 }
 
-/**
- * No-op stub — Codebuff agents are executable TypeScript modules
- * (`export default definition satisfies AgentDefinition`) that additionally
- * need `.agents/types/agent-definition.ts` on disk to typecheck. agentsmesh
- * generates config, not code. Lint warnings surface this via lintAgents.
- */
-export function generateAgents(_canonical: CanonicalFiles): CodebuffOutput[] {
-  return [];
-}
+export const generateAgents = NO_OUTPUTS;
 
-/**
- * No-op stub — file-change hooks are supplied by the embedding client at
- * runtime (`run_file_change_hooks` asks the client to run "its configured file
- * change hooks"); there is no config file agentsmesh can write. Lint warnings
- * surface this via lintHooks.
- */
-export function generateHooks(_canonical: CanonicalFiles): CodebuffOutput[] {
-  return [];
-}
+export const generateHooks = NO_OUTPUTS;
 
-/**
- * No-op stub — permissions exist only as `toolNames` / `spawnableAgents` inside
- * an agent TypeScript module, so they inherit the agents limitation. Lint
- * warnings surface this via lintPermissions.
- */
-export function generatePermissions(_canonical: CanonicalFiles): CodebuffOutput[] {
-  return [];
-}
+export const generatePermissions = NO_OUTPUTS;

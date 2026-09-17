@@ -6,7 +6,7 @@ import {
 } from '../../../src/core/matrix/matrix.js';
 import type { CanonicalFiles } from '../../../src/core/types.js';
 import type { ValidatedConfig } from '../../../src/config/core/schema.js';
-import { TARGET_IDS } from '../../../src/targets/catalog/target-catalog.js';
+import { TARGET_IDS } from '../../../src/targets/catalog/target-ids.js';
 import {
   getTargetCapabilities,
   resolveTargetFeatureGenerator,

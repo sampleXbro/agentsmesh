@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import {
-  createCommandMetadataWarning,
   createUnsupportedHookWarning,
   createWarning,
   unsupportedHookEventNames,
@@ -14,18 +13,6 @@ describe('createWarning', () => {
       target: 'cursor',
       message: 'msg',
     });
-  });
-});
-
-describe('createCommandMetadataWarning', () => {
-  it('joins unsupportedFields with "and"', () => {
-    const out = createCommandMetadataWarning('a.md', 'cursor', ['x', 'y']);
-    expect(out.message).toBe('cursor command files do not project canonical x and y metadata.');
-  });
-
-  it('handles single field', () => {
-    const out = createCommandMetadataWarning('a.md', 'cursor', ['x']);
-    expect(out.message).toBe('cursor command files do not project canonical x metadata.');
   });
 });
 

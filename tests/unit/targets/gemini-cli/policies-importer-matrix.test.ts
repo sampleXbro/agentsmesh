@@ -3,6 +3,7 @@
  * every toolName/decision arm, argsPattern unescape, commandPrefix trim,
  * dedupe, unparsable TOML, TOML without a `rule` array, and the empty-result exits.
  */
+import { AB_PERMISSIONS } from '../../../../src/core/canonical-paths.js';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { existsSync } from 'node:fs';
 import { mkdtemp, mkdir, writeFile, readFile, rm } from 'node:fs/promises';
@@ -13,7 +14,6 @@ import { importGeminiPolicies } from '../../../../src/targets/gemini-cli/policie
 import {
   GEMINI_TARGET,
   GEMINI_POLICIES_DIR,
-  GEMINI_CANONICAL_PERMISSIONS,
 } from '../../../../src/targets/gemini-cli/constants.js';
 
 let projectRoot: string;
@@ -33,12 +33,12 @@ async function writePolicy(name: string, content: string): Promise<void> {
 }
 
 async function readPermissions(): Promise<{ allow: string[]; deny: string[] }> {
-  const raw = await readFile(join(projectRoot, GEMINI_CANONICAL_PERMISSIONS), 'utf-8');
+  const raw = await readFile(join(projectRoot, AB_PERMISSIONS), 'utf-8');
   return parseYaml(raw) as { allow: string[]; deny: string[] };
 }
 
 function canonicalDirExists(): boolean {
-  return existsSync(join(projectRoot, dirname(GEMINI_CANONICAL_PERMISSIONS)));
+  return existsSync(join(projectRoot, dirname(AB_PERMISSIONS)));
 }
 
 const RULE_MATRIX_TOML = String.raw`
@@ -144,7 +144,7 @@ describe('importGeminiPolicies — rule matrix', () => {
       {
         fromTool: GEMINI_TARGET,
         fromPath: join(projectRoot, GEMINI_POLICIES_DIR),
-        toPath: GEMINI_CANONICAL_PERMISSIONS,
+        toPath: AB_PERMISSIONS,
         feature: 'permissions',
       },
     ]);

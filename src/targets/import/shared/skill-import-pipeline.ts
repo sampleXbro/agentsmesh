@@ -341,30 +341,3 @@ export function commandSkillRecognizer(config: { canonicalCommandsDir: string })
     },
   };
 }
-
-/**
- * Normalize projected agent skill content by removing projection-specific frontmatter.
- * Used when importing skills that were generated from agents.
- */
-export function normalizeProjectedAgentSkill(content: string): string {
-  const { frontmatter, body } = parseFrontmatter(content);
-
-  // Remove projection-specific fields
-  const {
-    projected_from_agent: _projected,
-    agent_name: _agentName,
-    ...cleanFrontmatter
-  } = frontmatter as Record<string, unknown>;
-
-  // If no frontmatter left, return just body
-  if (Object.keys(cleanFrontmatter).length === 0) {
-    return body;
-  }
-
-  // Reconstruct with cleaned frontmatter
-  const fmLines = Object.entries(cleanFrontmatter)
-    .map(([key, value]) => `${key}: ${JSON.stringify(value)}`)
-    .join('\n');
-
-  return `---\n${fmLines}\n---\n\n${body}`;
-}

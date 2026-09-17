@@ -1,3 +1,4 @@
+import { AB_RULES } from '../../core/canonical-paths.js';
 import { join } from 'node:path';
 import type { ImportResult } from '../../core/types.js';
 import {
@@ -10,7 +11,7 @@ import { parseFrontmatter } from '../../utils/text/markdown.js';
 import { serializeImportedRuleWithFallback } from '../import/import-metadata.js';
 import { importFileDirectory } from '../import/import-orchestrator.js';
 import { mapClineRuleFile } from './importer-mappers.js';
-import { CLINE_RULES_DIR, CLINE_AGENTS_MD, CLINE_CANONICAL_RULES_DIR } from './constants.js';
+import { CLINE_RULES_DIR, CLINE_AGENTS_MD } from './constants.js';
 
 async function writeRootRule(
   destRulesDir: string,
@@ -29,7 +30,7 @@ async function writeRootRule(
   results.push({
     fromTool: 'cline',
     fromPath: sourcePath,
-    toPath: `${CLINE_CANONICAL_RULES_DIR}/_root.md`,
+    toPath: `${AB_RULES}/_root.md`,
     feature: 'rules',
   });
 }
@@ -61,7 +62,7 @@ export async function importClineRules(
 ): Promise<void> {
   const rulesDir = options.rulesDir ?? CLINE_RULES_DIR;
   const allowAgentsMdFallback = options.allowAgentsMdFallback ?? true;
-  const destRulesDir = join(projectRoot, CLINE_CANONICAL_RULES_DIR);
+  const destRulesDir = join(projectRoot, AB_RULES);
   const clineRulesPath = join(projectRoot, rulesDir);
 
   let rootSourcePath: string | null = null;

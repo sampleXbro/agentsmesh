@@ -16,7 +16,7 @@
  *     whole-file replacement.
  */
 
-import type { GeneratedOutputMerger } from '../catalog/target-descriptor.js';
+import { firstMerger, type GeneratedOutputMerger } from '../catalog/target-descriptor.js';
 import { ownedJsonKeysMerger } from '../../core/generate/json-owned-keys.js';
 import {
   CANONICAL_MCP_SERVER_KEYS,
@@ -36,12 +36,8 @@ const mergePermissions = ownedJsonKeysMerger(
   ['permissions'],
 );
 
-export const mergeCursorOutput: GeneratedOutputMerger = (
-  existing,
-  pending,
-  newContent,
-  resolvedPath,
-) =>
-  mergeMcp(existing, pending, newContent, resolvedPath) ??
-  mergeHooks(existing, pending, newContent, resolvedPath) ??
-  mergePermissions(existing, pending, newContent, resolvedPath);
+export const mergeCursorOutput: GeneratedOutputMerger = firstMerger([
+  mergeMcp,
+  mergeHooks,
+  mergePermissions,
+]);

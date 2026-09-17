@@ -9,12 +9,9 @@
  * both) or a file copied from another tool.
  */
 
+import { isRecord } from '../../utils/types/guards.js';
 import type { McpServer } from '../../core/types.js';
 import { toStringArray, toStringRecord } from '../import/shared-import-helpers.js';
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
 
 function transportOf(server: Record<string, unknown>, fallback: string): string {
   if (typeof server.transport === 'string') return server.transport;

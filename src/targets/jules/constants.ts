@@ -19,4 +19,3 @@ export const JULES_TARGET = 'jules';
 export const JULES_ROOT_FILE = 'AGENTS.md';
 
 // Canonical paths
-export const JULES_CANONICAL_RULES_DIR = '.agentsmesh/rules';

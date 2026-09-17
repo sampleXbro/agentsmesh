@@ -3,6 +3,7 @@
  * Sibling-file pattern avoids the `index.ts ↔ importer.ts` TDZ trap.
  */
 
+import { AB_AGENTS, AB_COMMANDS } from '../../core/canonical-paths.js';
 import { join } from 'node:path';
 import { parseFrontmatter } from '../../utils/text/markdown.js';
 import {
@@ -11,7 +12,6 @@ import {
 } from '../import/import-metadata.js';
 import { toToolsArray } from '../import/shared-import-helpers.js';
 import type { ImportEntryMapper } from '../catalog/import-descriptor.js';
-import { CURSOR_CANONICAL_AGENTS_DIR, CURSOR_CANONICAL_COMMANDS_DIR } from './constants.js';
 
 /** Cursor commands accept either `allowedTools` (camel) or `allowed-tools` (kebab). */
 export const cursorCommandMapper: ImportEntryMapper = async ({
@@ -26,7 +26,7 @@ export const cursorCommandMapper: ImportEntryMapper = async ({
     fromCamel.length > 0 ? fromCamel : toToolsArray(frontmatter['allowed-tools']);
   return {
     destPath,
-    toPath: `${CURSOR_CANONICAL_COMMANDS_DIR}/${relativePath}`,
+    toPath: `${AB_COMMANDS}/${relativePath}`,
     content: await serializeImportedCommandWithFallback(
       destPath,
       {
@@ -52,7 +52,7 @@ export const cursorAgentMapper: ImportEntryMapper = async ({
   const { frontmatter, body } = parseFrontmatter(normalizeTo(destPath));
   return {
     destPath,
-    toPath: `${CURSOR_CANONICAL_AGENTS_DIR}/${relativePath}`,
+    toPath: `${AB_AGENTS}/${relativePath}`,
     content: await serializeImportedAgentWithFallback(destPath, frontmatter, body),
   };
 };

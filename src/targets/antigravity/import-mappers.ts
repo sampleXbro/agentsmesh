@@ -7,6 +7,7 @@
  * during the descriptor literal's evaluation).
  */
 
+import { AB_AGENTS, AB_COMMANDS, AB_RULES } from '../../core/canonical-paths.js';
 import { basename, join } from 'node:path';
 import { parseFrontmatter } from '../../utils/text/markdown.js';
 import {
@@ -16,11 +17,6 @@ import {
 } from '../import/import-metadata.js';
 import type { ImportEntryMapper } from '../catalog/import-descriptor.js';
 import { canonicalAgentFileName } from './agents-format.js';
-import {
-  ANTIGRAVITY_CANONICAL_AGENTS_DIR,
-  ANTIGRAVITY_CANONICAL_COMMANDS_DIR,
-  ANTIGRAVITY_CANONICAL_RULES_DIR,
-} from './constants.js';
 
 /** Skips `general.md` (root) and the legacy `_root.md` file before serialization. */
 export const nonRootRuleMapper: ImportEntryMapper = async ({
@@ -33,7 +29,7 @@ export const nonRootRuleMapper: ImportEntryMapper = async ({
   const { frontmatter, body } = parseFrontmatter(normalizeTo(destPath));
   return {
     destPath,
-    toPath: `${ANTIGRAVITY_CANONICAL_RULES_DIR}/${relativePath}`,
+    toPath: `${AB_RULES}/${relativePath}`,
     content: await serializeImportedRuleWithFallback(
       destPath,
       {
@@ -60,7 +56,7 @@ export const agentMapper: ImportEntryMapper = async ({ relativePath, normalizeTo
   const { frontmatter, body } = parseFrontmatter(normalizeTo(destPath));
   return {
     destPath,
-    toPath: `${ANTIGRAVITY_CANONICAL_AGENTS_DIR}/${fileName}`,
+    toPath: `${AB_AGENTS}/${fileName}`,
     content: await serializeImportedAgentWithFallback(destPath, frontmatter, body),
   };
 };
@@ -71,7 +67,7 @@ export const workflowMapper: ImportEntryMapper = async ({ relativePath, normaliz
   const { frontmatter, body } = parseFrontmatter(normalizeTo(destPath));
   return {
     destPath,
-    toPath: `${ANTIGRAVITY_CANONICAL_COMMANDS_DIR}/${relativePath}`,
+    toPath: `${AB_COMMANDS}/${relativePath}`,
     content: await serializeImportedCommandWithFallback(
       destPath,
       {

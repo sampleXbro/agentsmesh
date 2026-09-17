@@ -14,15 +14,16 @@
  * every time so a revoked canonical entry stops applying in Warp.
  */
 
+import { AB_PERMISSIONS } from '../../core/canonical-paths.js';
+import { canonicalDocument, stringList } from '../import/yaml-import-helpers.js';
 import { join, dirname } from 'node:path';
-import { Document, parseDocument, isMap } from 'yaml';
 import type { CanonicalFiles, GenerateResult, ImportResult } from '../../core/types.js';
 import { mkdirp, readFileSafe, writeFileAtomic } from '../../utils/filesystem/fs.js';
 import { computeStatus } from '../../core/generate/feature-loop.js';
 import { serializeWarpSettings, parseWarpPermissions } from './permissions-toml.js';
 import { mapsToWarpKey } from './permissions-format.js';
 import type { WarpCommandList } from './permissions-regex.js';
-import { WARP_TARGET, WARP_GLOBAL_SETTINGS_FILE, WARP_CANONICAL_PERMISSIONS } from './constants.js';
+import { WARP_TARGET, WARP_GLOBAL_SETTINGS_FILE } from './constants.js';
 
 export async function generateWarpGlobalPermissions(
   canonical: CanonicalFiles,
@@ -44,20 +45,6 @@ export async function generateWarpGlobalPermissions(
       status: computeStatus(existing, content),
     },
   ];
-}
-
-/** The canonical file as an editable document; comments and key order survive. */
-function canonicalDocument(content: string | null): Document {
-  if (content !== null) {
-    const doc = parseDocument(content);
-    if (doc.errors.length === 0 && (doc.contents === null || isMap(doc.contents))) return doc;
-  }
-  return new Document({});
-}
-
-function stringList(value: unknown): string[] {
-  if (!Array.isArray(value)) return [];
-  return value.filter((entry): entry is string => typeof entry === 'string');
 }
 
 /** Replace what Warp expresses; keep canonical entries it cannot represent. */
@@ -83,7 +70,7 @@ export async function importWarpGlobalPermissions(
   const permissions = parseWarpPermissions(content);
   if (!permissions) return;
 
-  const destPath = join(projectRoot, WARP_CANONICAL_PERMISSIONS);
+  const destPath = join(projectRoot, AB_PERMISSIONS);
   const doc = canonicalDocument(await readFileSafe(destPath));
   const existing = (doc.toJS() ?? {}) as Record<string, unknown>;
   doc.set('allow', mergeList(existing.allow, permissions.allow, 'allow'));
@@ -94,7 +81,7 @@ export async function importWarpGlobalPermissions(
   results.push({
     fromTool: WARP_TARGET,
     fromPath: srcPath,
-    toPath: WARP_CANONICAL_PERMISSIONS,
+    toPath: AB_PERMISSIONS,
     feature: 'permissions',
   });
 }

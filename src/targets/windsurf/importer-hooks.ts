@@ -1,9 +1,10 @@
+import { AB_HOOKS } from '../../core/canonical-paths.js';
 import { dirname, join } from 'node:path';
 import { stringify as yamlStringify } from 'yaml';
 import { parseHooks } from '../../canonical/features/hooks.js';
 import type { HookEntry, Hooks, ImportResult } from '../../core/types.js';
 import { readFileSafe, writeFileAtomic, mkdirp } from '../../utils/filesystem/fs.js';
-import { WINDSURF_TARGET, WINDSURF_HOOKS_FILE, WINDSURF_CANONICAL_HOOKS } from './constants.js';
+import { WINDSURF_TARGET, WINDSURF_HOOKS_FILE } from './constants.js';
 import { canonicalHookEventName } from './hook-events.js';
 
 /** Canonical wildcard: Windsurf hooks have no matcher, so a fresh import scopes to every tool. */
@@ -19,7 +20,7 @@ export async function importWindsurfHooks(
   try {
     const parsed = JSON.parse(hooksContent) as Record<string, unknown>;
     if (!parsed.hooks || typeof parsed.hooks !== 'object' || Array.isArray(parsed.hooks)) return;
-    const destPath = join(projectRoot, WINDSURF_CANONICAL_HOOKS);
+    const destPath = join(projectRoot, AB_HOOKS);
     const existing = (await parseHooks(destPath)) ?? {};
     const canonical = windsurfHooksToCanonical(parsed.hooks as Record<string, unknown>, existing);
     if (Object.keys(canonical).length === 0) return;
@@ -28,7 +29,7 @@ export async function importWindsurfHooks(
     results.push({
       fromTool: WINDSURF_TARGET,
       fromPath: hooksPath,
-      toPath: WINDSURF_CANONICAL_HOOKS,
+      toPath: AB_HOOKS,
       feature: 'hooks',
     });
   } catch {

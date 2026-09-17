@@ -16,6 +16,8 @@
  * is what keeps a user's `HookType.AGENT` handlers alive across a rewrite.
  */
 
+import { NO_OUTPUTS } from '../catalog/no-outputs.js';
+import type { FeatureGeneratorOutput } from '../catalog/target.interface.js';
 import type { CanonicalFiles } from '../../core/types.js';
 import { serializeFrontmatter } from '../../utils/text/markdown.js';
 import { generateEmbeddedSkills } from '../import/embedded-skill.js';
@@ -31,10 +33,7 @@ import {
   OPENHANDS_HOOKS_FILE,
 } from './constants.js';
 
-export interface OpenhandsOutput {
-  path: string;
-  content: string;
-}
+export type OpenhandsOutput = FeatureGeneratorOutput;
 
 export function generateRules(canonical: CanonicalFiles): OpenhandsOutput[] {
   const outputs: OpenhandsOutput[] = [];
@@ -95,12 +94,4 @@ export function generateHooks(canonical: CanonicalFiles): OpenhandsOutput[] {
   return [{ path: OPENHANDS_HOOKS_FILE, content: JSON.stringify(document, null, 2) }];
 }
 
-/**
- * No-op stub. OpenHands has no permissions file; the per-agent `tools:` grant is
- * the whole surface and already comes from each agent's own canonical field.
- * See capabilities.ts for why nothing extra is folded into the shared agent
- * files, and `lintPermissions` for the warning that names what is dropped.
- */
-export function generatePermissions(_canonical: CanonicalFiles): OpenhandsOutput[] {
-  return [];
-}
+export const generatePermissions = NO_OUTPUTS;

@@ -123,6 +123,29 @@ export type ScopeExtrasFn = (
   enabledFeatures: ReadonlySet<string>,
 ) => Promise<GenerateResult[]>;
 
+/** Emitter for one global-only surface, run only when scope is `global`. */
+export type GlobalEmitter = (
+  canonical: CanonicalFiles,
+  projectRoot: string,
+  enabledFeatures: ReadonlySet<string>,
+) => Promise<GenerateResult[]>;
+
+/**
+ * Build a `scopeExtras` that runs `emitters` only in global scope. Targets whose
+ * extra surfaces have no project-tier equivalent gate the scope here, once, so
+ * no emitter can leak into project scope.
+ */
+export function globalOnly(...emitters: readonly GlobalEmitter[]): ScopeExtrasFn {
+  return async (canonical, projectRoot, scope, enabledFeatures) => {
+    if (scope !== 'global') return [];
+    const results: GenerateResult[] = [];
+    for (const emit of emitters) {
+      results.push(...(await emit(canonical, projectRoot, enabledFeatures)));
+    }
+    return results;
+  };
+}
+
 /** Single block for global-mode support (replaces scattered global* fields). */
 export interface GlobalTargetSupport {
   readonly capabilities: TargetCapabilities;
@@ -155,6 +178,21 @@ export type GeneratedOutputMerger = (
   newContent: string,
   resolvedPath: string,
 ) => string | null;
+
+/**
+ * Chain key-scoped mergers: the first that claims `resolvedPath` wins, else the
+ * output falls through to the default whole-file policy. Every multi-file target
+ * composes its mergers this way.
+ */
+export function firstMerger(mergers: readonly GeneratedOutputMerger[]): GeneratedOutputMerger {
+  return (existing, pending, newContent, resolvedPath) => {
+    for (const merge of mergers) {
+      const merged = merge(existing, pending, newContent, resolvedPath);
+      if (merged !== null && merged !== undefined) return merged;
+    }
+    return null;
+  };
+}
 
 /** Optional per-feature lint hooks for target-specific validation. */
 export interface TargetLintHooks {

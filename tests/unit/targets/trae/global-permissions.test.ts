@@ -1,3 +1,4 @@
+import { AB_PERMISSIONS } from '../../../../src/core/canonical-paths.js';
 import { describe, it, expect, afterEach } from 'vitest';
 import { join } from 'node:path';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
@@ -9,10 +10,7 @@ import {
   importTraeGlobalPermissions,
   serializeTraePermissions,
 } from '../../../../src/targets/trae/global-permissions.js';
-import {
-  TRAE_GLOBAL_PERMISSIONS_FILE,
-  TRAE_CANONICAL_PERMISSIONS,
-} from '../../../../src/targets/trae/constants.js';
+import { TRAE_GLOBAL_PERMISSIONS_FILE } from '../../../../src/targets/trae/constants.js';
 
 const FEATURES = new Set(['permissions']);
 let root = '';
@@ -228,11 +226,11 @@ describe('importTraeGlobalPermissions', () => {
       {
         fromTool: 'trae',
         fromPath: join(projectRoot, TRAE_GLOBAL_PERMISSIONS_FILE),
-        toPath: TRAE_CANONICAL_PERMISSIONS,
+        toPath: AB_PERMISSIONS,
         feature: 'permissions',
       },
     ]);
-    const canonicalFile = readFileSync(join(projectRoot, TRAE_CANONICAL_PERMISSIONS), 'utf-8');
+    const canonicalFile = readFileSync(join(projectRoot, AB_PERMISSIONS), 'utf-8');
     expect(parseYaml(canonicalFile)).toEqual({
       allow: ['Bash(npm test:*)', 'Read(./docs)'],
       deny: [],
@@ -248,13 +246,13 @@ describe('importTraeGlobalPermissions', () => {
           },
         },
       }),
-      [TRAE_CANONICAL_PERMISSIONS]:
+      [AB_PERMISSIONS]:
         '# my rules\nallow:\n  - Grep\n  - Bash(old:*)\ndeny:\n  - Read(./.env)\nask:\n  - WebFetch\n',
     });
 
     await importTraeGlobalPermissions(projectRoot, []);
 
-    const raw = readFileSync(join(projectRoot, TRAE_CANONICAL_PERMISSIONS), 'utf-8');
+    const raw = readFileSync(join(projectRoot, AB_PERMISSIONS), 'utf-8');
     expect(raw).toContain('# my rules');
     expect(parseYaml(raw)).toEqual({
       allow: ['Bash(ls:*)', 'Grep'],
@@ -283,14 +281,15 @@ describe('importTraeGlobalPermissions', () => {
       [TRAE_GLOBAL_PERMISSIONS_FILE]: JSON.stringify({
         resourceAuthorization: { filesystem: { readWrite: ['./src', './tmp'] } },
       }),
-      [TRAE_CANONICAL_PERMISSIONS]: 'allow:\n  - Write(./src)\ndeny: []\n',
+      [AB_PERMISSIONS]: 'allow:\n  - Write(./src)\ndeny: []\n',
     });
 
     await importTraeGlobalPermissions(projectRoot, []);
 
-    expect(parseYaml(readFileSync(join(projectRoot, TRAE_CANONICAL_PERMISSIONS), 'utf-8'))).toEqual(
-      { allow: ['Write(./src)', 'Edit(./tmp)'], deny: [] },
-    );
+    expect(parseYaml(readFileSync(join(projectRoot, AB_PERMISSIONS), 'utf-8'))).toEqual({
+      allow: ['Write(./src)', 'Edit(./tmp)'],
+      deny: [],
+    });
   });
 
   it('starts from a fresh canonical file when the existing one is not a YAML map', async () => {
@@ -302,14 +301,15 @@ describe('importTraeGlobalPermissions', () => {
           },
         },
       }),
-      [TRAE_CANONICAL_PERMISSIONS]: 'allow: [broken\n',
+      [AB_PERMISSIONS]: 'allow: [broken\n',
     });
 
     await importTraeGlobalPermissions(projectRoot, []);
 
-    expect(parseYaml(readFileSync(join(projectRoot, TRAE_CANONICAL_PERMISSIONS), 'utf-8'))).toEqual(
-      { allow: ['Bash(ls)'], deny: [] },
-    );
+    expect(parseYaml(readFileSync(join(projectRoot, AB_PERMISSIONS), 'utf-8'))).toEqual({
+      allow: ['Bash(ls)'],
+      deny: [],
+    });
   });
 
   it('round-trips generate -> write -> import -> generate', async () => {
@@ -323,7 +323,7 @@ describe('importTraeGlobalPermissions', () => {
 
     await importTraeGlobalPermissions(projectRoot, []);
     const reimported = parseYaml(
-      readFileSync(join(projectRoot, TRAE_CANONICAL_PERMISSIONS), 'utf-8'),
+      readFileSync(join(projectRoot, AB_PERMISSIONS), 'utf-8'),
     ) as Permissions;
 
     expect(serializeTraePermissions(reimported, first)).toBe(first);

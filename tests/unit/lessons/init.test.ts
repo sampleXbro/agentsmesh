@@ -190,7 +190,6 @@ describe('scaffoldLessons', async () => {
       recallLimit: 10,
       recallMaxTokens: 1200,
       autoPrune: false,
-      repairTriggers: false,
       telemetry: false,
     });
   });

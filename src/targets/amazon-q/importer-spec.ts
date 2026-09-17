@@ -3,6 +3,7 @@
  * shared `runDescriptorImport` orchestrator.
  */
 
+import { AB_AGENTS, AB_COMMANDS, AB_MCP, AB_RULES } from '../../core/canonical-paths.js';
 import { basename, join } from 'node:path';
 import type { TargetImporterDescriptor } from '../catalog/import-descriptor.js';
 import type { ImportEntryContext, ImportEntryMapping } from '../catalog/import-descriptor.js';
@@ -16,10 +17,6 @@ import {
   AMAZON_Q_GLOBAL_MCP_FILE,
   AMAZON_Q_GLOBAL_AGENTS_DIR,
   AMAZON_Q_GLOBAL_PROMPTS_DIR,
-  AMAZON_Q_CANONICAL_RULES_DIR,
-  AMAZON_Q_CANONICAL_COMMANDS_DIR,
-  AMAZON_Q_CANONICAL_MCP,
-  AMAZON_Q_CANONICAL_AGENTS_DIR,
 } from './constants.js';
 
 /**
@@ -73,7 +70,7 @@ async function amazonQAgentMapper(ctx: ImportEntryContext): Promise<ImportEntryM
 
   return {
     destPath,
-    toPath: `${AMAZON_Q_CANONICAL_AGENTS_DIR}/${destRelPath}`,
+    toPath: `${AB_AGENTS}/${destRelPath}`,
     content,
   };
 }
@@ -86,7 +83,7 @@ export const amazonQImporterSpec: TargetImporterDescriptor = {
       project: [AMAZON_Q_RULES_DIR],
       global: [AMAZON_Q_GLOBAL_RULES_DIR],
     },
-    canonicalDir: AMAZON_Q_CANONICAL_RULES_DIR,
+    canonicalDir: AB_RULES,
     extensions: ['.md'],
     preset: 'rule',
   },
@@ -97,7 +94,7 @@ export const amazonQImporterSpec: TargetImporterDescriptor = {
       project: [AMAZON_Q_PROMPTS_DIR],
       global: [AMAZON_Q_GLOBAL_PROMPTS_DIR],
     },
-    canonicalDir: AMAZON_Q_CANONICAL_COMMANDS_DIR,
+    canonicalDir: AB_COMMANDS,
     extensions: ['.md'],
     preset: 'command',
   },
@@ -108,7 +105,7 @@ export const amazonQImporterSpec: TargetImporterDescriptor = {
       project: [AMAZON_Q_AGENTS_DIR],
       global: [AMAZON_Q_GLOBAL_AGENTS_DIR],
     },
-    canonicalDir: AMAZON_Q_CANONICAL_AGENTS_DIR,
+    canonicalDir: AB_AGENTS,
     extensions: ['.json'],
     map: amazonQAgentMapper,
   },
@@ -120,6 +117,6 @@ export const amazonQImporterSpec: TargetImporterDescriptor = {
       global: [AMAZON_Q_GLOBAL_MCP_FILE],
     },
     canonicalDir: '.agentsmesh',
-    canonicalFilename: AMAZON_Q_CANONICAL_MCP,
+    canonicalFilename: AB_MCP,
   },
 };

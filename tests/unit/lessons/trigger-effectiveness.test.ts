@@ -1,9 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { LessonsGraph, Trigger } from '../../../src/lessons/graph-schema.js';
-import {
-  effectiveTriggerCount,
-  ineffectiveTriggers,
-} from '../../../src/lessons/trigger-effectiveness.js';
+import { ineffectiveTriggers } from '../../../src/lessons/trigger-effectiveness.js';
 
 function graphWith(triggers: Record<string, Trigger>): LessonsGraph {
   return { version: 1, lessons: {}, topics: {}, triggers };
@@ -66,24 +63,5 @@ describe('ineffectiveTriggers', () => {
       k: { kind: 'keyword', pattern: 'state of the art' },
     });
     expect(ineffectiveTriggers(g, ['f', 'k']).map((t) => t.id)).toEqual(['k']);
-  });
-});
-
-describe('effectiveTriggerCount', () => {
-  it('counts the triggers that can fire on the mandatory --file/--cmd path', () => {
-    const g = graphWith({
-      f: { kind: 'file_glob', pattern: 'src/auth.ts' },
-      k: { kind: 'keyword', pattern: 'state of the art' },
-      c: { kind: 'command_pattern', pattern: 'pnpm test' },
-    });
-    expect(effectiveTriggerCount(g, ['f', 'k', 'c'])).toBe(2);
-  });
-
-  it('is zero when every trigger is dead', () => {
-    const g = graphWith({
-      k: { kind: 'keyword', pattern: 'of the' },
-      c: { kind: 'command_pattern', pattern: '(' },
-    });
-    expect(effectiveTriggerCount(g, ['k', 'c'])).toBe(0);
   });
 });

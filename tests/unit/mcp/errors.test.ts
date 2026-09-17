@@ -1,23 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { McpError, ERROR_CODES, redactAbsolutePaths } from '../../../src/mcp/errors.js';
+import { McpError, redactAbsolutePaths } from '../../../src/mcp/errors.js';
 
 describe('errors', () => {
-  it('exposes stable codes', () => {
-    expect(ERROR_CODES).toEqual({
-      NOT_FOUND: 'NOT_FOUND',
-      ALREADY_EXISTS: 'ALREADY_EXISTS',
-      VALIDATION_FAILED: 'VALIDATION_FAILED',
-      INVALID_NAME: 'INVALID_NAME',
-      PATH_TRAVERSAL: 'PATH_TRAVERSAL',
-      PROTECTED_FILE: 'PROTECTED_FILE',
-      LOCK_HELD: 'LOCK_HELD',
-      NO_PROJECT: 'NO_PROJECT',
-      IO_ERROR: 'IO_ERROR',
-      LIMIT_EXCEEDED: 'LIMIT_EXCEEDED',
-      REFRESH_RESOLVE_FAILED: 'REFRESH_RESOLVE_FAILED',
-      REFRESH_APPLY_FAILED: 'REFRESH_APPLY_FAILED',
-    });
-  });
   it('serializes to envelope with code/message/details', () => {
     const e = new McpError('NOT_FOUND', 'rule "auth" not found', { name: 'auth' });
     expect(e.toEnvelope()).toEqual({

@@ -11,6 +11,7 @@
  * to the canonical `AGENTS.md` path.
  */
 
+import { AB_RULES } from '../../core/canonical-paths.js';
 import type { TargetCapabilities, TargetGenerators } from '../catalog/target.interface.js';
 import type { TargetDescriptor, TargetLayout } from '../catalog/target-descriptor.js';
 import { commandSkillDirName } from '../codex-cli/command-skill.js';
@@ -35,7 +36,6 @@ import {
   AMP_GLOBAL_ROOT_FILE,
   AMP_GLOBAL_SKILLS_DIR,
   AMP_GLOBAL_MCP_FILE,
-  AMP_CANONICAL_RULES_DIR,
 } from './constants.js';
 
 export const target: TargetGenerators = {
@@ -173,7 +173,7 @@ export const descriptor = {
         project: [AMP_ROOT_FILE],
         global: [AMP_GLOBAL_ROOT_FILE],
       },
-      canonicalDir: AMP_CANONICAL_RULES_DIR,
+      canonicalDir: AB_RULES,
       canonicalRootFilename: '_root.md',
       markAsRoot: true,
     },

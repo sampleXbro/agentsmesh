@@ -1,3 +1,4 @@
+import { AB_MCP } from '../../core/canonical-paths.js';
 import { dirname, join } from 'node:path';
 import type { ImportResult } from '../../core/types.js';
 import { readFileSafe, writeFileAtomic, mkdirp } from '../../utils/filesystem/fs.js';
@@ -5,7 +6,6 @@ import {
   WINDSURF_TARGET,
   WINDSURF_MCP_EXAMPLE_FILE,
   WINDSURF_MCP_CONFIG_FILE,
-  WINDSURF_CANONICAL_MCP,
 } from './constants.js';
 
 export async function importWindsurfMcp(
@@ -20,13 +20,13 @@ export async function importWindsurfMcp(
     try {
       const parsed = JSON.parse(content) as Record<string, unknown>;
       if (!parsed.mcpServers || typeof parsed.mcpServers !== 'object') continue;
-      const destPath = join(projectRoot, WINDSURF_CANONICAL_MCP);
+      const destPath = join(projectRoot, AB_MCP);
       await mkdirp(dirname(destPath));
       await writeFileAtomic(destPath, JSON.stringify({ mcpServers: parsed.mcpServers }, null, 2));
       results.push({
         fromTool: WINDSURF_TARGET,
         fromPath: srcPath,
-        toPath: WINDSURF_CANONICAL_MCP,
+        toPath: AB_MCP,
         feature: 'mcp',
       });
       return;

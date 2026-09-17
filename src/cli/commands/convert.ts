@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync, readdirSync, rmSync, symlinkSync } from 'node:fs';
 import { join } from 'node:path';
 import { homedir, tmpdir } from 'node:os';
-import { TARGET_IDS, isBuiltinTargetId } from '../../targets/catalog/target-catalog.js';
+import { TARGET_IDS, isBuiltinTargetId } from '../../targets/catalog/target-ids.js';
 import { getDescriptor } from '../../targets/catalog/registry.js';
 import { loadCanonicalFiles } from '../../canonical/load/loader.js';
 import { generate as runEngine } from '../../core/generate/engine.js';

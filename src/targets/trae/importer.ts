@@ -1,3 +1,4 @@
+import { AB_HOOKS, AB_RULES } from '../../core/canonical-paths.js';
 import { basename, dirname, join } from 'node:path';
 import { stringify as stringifyYaml } from 'yaml';
 import type { ImportResult } from '../../core/types.js';
@@ -18,16 +19,14 @@ import {
   TRAE_GLOBAL_RULES_DIR,
   TRAE_GLOBAL_ROOT_RULE,
   TRAE_GLOBAL_SKILLS_DIR,
-  TRAE_CANONICAL_RULES_DIR,
   TRAE_HOOKS_FILE,
   TRAE_GLOBAL_HOOKS_FILE,
-  TRAE_CANONICAL_HOOKS,
 } from './constants.js';
 import { descriptor } from './index.js';
 
 type Normalize = (content: string, sourceFile: string, destinationFile: string) => string;
 
-const CANONICAL_ROOT_RULE = `${TRAE_CANONICAL_RULES_DIR}/_root.md`;
+const CANONICAL_ROOT_RULE = `${AB_RULES}/_root.md`;
 
 /** Import the root instruction file (project_rules.md or global user_rules/rules.md). */
 async function importRoot(
@@ -47,7 +46,7 @@ async function importRoot(
     if (content === null) continue;
     const destPath = join(projectRoot, CANONICAL_ROOT_RULE);
     const { frontmatter, body } = parseFrontmatter(normalize(content, srcPath, destPath));
-    await mkdirp(join(projectRoot, TRAE_CANONICAL_RULES_DIR));
+    await mkdirp(join(projectRoot, AB_RULES));
     await writeFileAtomic(
       destPath,
       await serializeImportedRuleWithFallback(destPath, { ...frontmatter, root: true }, body),
@@ -70,7 +69,7 @@ async function importNonRootRules(
   scope: TargetLayoutScope,
 ): Promise<void> {
   const srcDir = join(projectRoot, scope === 'global' ? TRAE_GLOBAL_RULES_DIR : TRAE_RULES_DIR);
-  const destDir = join(projectRoot, TRAE_CANONICAL_RULES_DIR);
+  const destDir = join(projectRoot, AB_RULES);
 
   results.push(
     ...(await importFileDirectory({
@@ -87,7 +86,7 @@ async function importNonRootRules(
         const { frontmatter, body } = parseFrontmatter(normalizeTo(destPath));
         return {
           destPath,
-          toPath: `${TRAE_CANONICAL_RULES_DIR}/${relativePath}`,
+          toPath: `${AB_RULES}/${relativePath}`,
           feature: 'rules',
           content: await serializeImportedRuleWithFallback(
             destPath,
@@ -150,13 +149,13 @@ async function importHooks(
 
   if (Object.keys(hooks).length === 0) return;
 
-  const destPath = join(projectRoot, TRAE_CANONICAL_HOOKS);
+  const destPath = join(projectRoot, AB_HOOKS);
   await mkdirp(dirname(destPath));
   await writeFileAtomic(destPath, stringifyYaml(hooks));
   results.push({
     fromTool: TRAE_TARGET,
     fromPath: srcPath,
-    toPath: TRAE_CANONICAL_HOOKS,
+    toPath: AB_HOOKS,
     feature: 'hooks',
   });
 }

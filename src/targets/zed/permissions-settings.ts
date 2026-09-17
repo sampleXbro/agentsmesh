@@ -14,6 +14,7 @@
  * `~`, `$HOME`, `.`, `..`) that no setting can override; canonical cannot loosen them.
  */
 
+import { isRecord } from '../../utils/types/guards.js';
 import type { Permissions } from '../../core/types.js';
 import { ZED_OWNED_TOOL_KEYS, toZedRule, fromZedRule } from './permissions-map.js';
 
@@ -38,10 +39,6 @@ const DECISIONS: readonly { list: keyof Permissions; key: ListKey; decision: Zed
   { list: 'deny', key: 'always_deny', decision: 'deny' },
   { list: 'ask', key: 'always_confirm', decision: 'confirm' },
 ];
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
 
 function entriesOf(permissions: Permissions | null, list: keyof Permissions): readonly string[] {
   return (permissions?.[list] as string[] | undefined) ?? [];

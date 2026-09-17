@@ -18,16 +18,13 @@
  * one agentsmesh wrote is fail-safe.
  */
 
+import { isRecord } from '../../utils/types/guards.js';
 import type { ZedToolEntry } from './permissions-settings.js';
 import { ZED_OWNED_TOOL_KEYS, fromZedRule } from './permissions-map.js';
 
 const LIST_KEYS = ['always_allow', 'always_deny', 'always_confirm'] as const;
 
 type ListKey = (typeof LIST_KEYS)[number];
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
 
 /** Entries agentsmesh could not have produced, in the order the user wrote them. */
 function foreignPatterns(tool: string, existing: unknown): unknown[] {

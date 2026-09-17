@@ -3,8 +3,6 @@ import type { ValidatedConfig } from '../../../src/config/core/schema.js';
 import {
   shouldConvertAgentsToSkills,
   shouldConvertCommandsToSkills,
-  usesAgentSkillProjection,
-  usesCommandSkillProjection,
 } from '../../../src/config/core/conversions.js';
 
 function makeConfig(overrides: Partial<ValidatedConfig> = {}): ValidatedConfig {
@@ -20,13 +18,6 @@ function makeConfig(overrides: Partial<ValidatedConfig> = {}): ValidatedConfig {
 }
 
 describe('conversion helpers', () => {
-  it('reports which targets use command and agent skill projection', () => {
-    expect(usesCommandSkillProjection('codex-cli')).toBe(true);
-    expect(usesCommandSkillProjection('claude-code')).toBe(false);
-    expect(usesAgentSkillProjection('cline')).toBe(true);
-    expect(usesAgentSkillProjection('claude-code')).toBe(false);
-  });
-
   it('uses default conversion settings when no overrides are configured', () => {
     const config = makeConfig();
 

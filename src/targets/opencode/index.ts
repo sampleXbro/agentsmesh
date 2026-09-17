@@ -16,6 +16,7 @@
  * the canonical `AGENTS.md` path only.
  */
 
+import { AB_AGENTS, AB_COMMANDS, AB_RULES } from '../../core/canonical-paths.js';
 import type { TargetGenerators } from '../catalog/target.interface.js';
 import type { TargetDescriptor } from '../catalog/target-descriptor.js';
 import { generateRules, generateCommands, generateAgents, generateSkills } from './generator.js';
@@ -33,9 +34,6 @@ import {
   OPENCODE_GLOBAL_AGENTS_DIR,
   OPENCODE_GLOBAL_SKILLS_DIR,
   OPENCODE_GLOBAL_CONFIG_FILE,
-  OPENCODE_CANONICAL_RULES_DIR,
-  OPENCODE_CANONICAL_COMMANDS_DIR,
-  OPENCODE_CANONICAL_AGENTS_DIR,
 } from './constants.js';
 import { importFromOpenCode } from './importer.js';
 import {
@@ -100,7 +98,7 @@ export const descriptor = {
           project: [OPENCODE_ROOT_RULE],
           global: [OPENCODE_GLOBAL_AGENTS_MD],
         },
-        canonicalDir: OPENCODE_CANONICAL_RULES_DIR,
+        canonicalDir: AB_RULES,
         canonicalRootFilename: '_root.md',
         markAsRoot: true,
       },
@@ -111,7 +109,7 @@ export const descriptor = {
           project: [OPENCODE_RULES_DIR],
           global: [OPENCODE_GLOBAL_RULES_DIR],
         },
-        canonicalDir: OPENCODE_CANONICAL_RULES_DIR,
+        canonicalDir: AB_RULES,
         extensions: ['.md'],
         map: opencodeNonRootRuleMapper,
       },
@@ -123,7 +121,7 @@ export const descriptor = {
         project: [OPENCODE_COMMANDS_DIR],
         global: [OPENCODE_GLOBAL_COMMANDS_DIR],
       },
-      canonicalDir: OPENCODE_CANONICAL_COMMANDS_DIR,
+      canonicalDir: AB_COMMANDS,
       extensions: ['.md'],
       map: opencodeCommandMapper,
     },
@@ -134,7 +132,7 @@ export const descriptor = {
         project: [OPENCODE_AGENTS_DIR],
         global: [OPENCODE_GLOBAL_AGENTS_DIR],
       },
-      canonicalDir: OPENCODE_CANONICAL_AGENTS_DIR,
+      canonicalDir: AB_AGENTS,
       extensions: ['.md'],
       map: opencodeAgentMapper,
     },

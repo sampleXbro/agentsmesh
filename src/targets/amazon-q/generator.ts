@@ -16,6 +16,7 @@
  * rules directory at all.
  */
 
+import { NO_OUTPUTS } from '../catalog/no-outputs.js';
 import { basename } from 'node:path';
 import type { CanonicalFiles } from '../../core/types.js';
 import type {
@@ -78,30 +79,11 @@ export function generateAgents(
   return buildBaseAgentOutputs(canonical, ctx?.scope ?? 'project');
 }
 
-/**
- * No-op: ignore patterns are embedded inside each agent JSON by generateAgents as
- * `toolsSettings.<tool>.deniedPaths`. Q CLI has no ignore file to write.
- */
-export function generateIgnore(_canonical: CanonicalFiles): FeatureGeneratorOutput[] {
-  return [];
-}
+export const generateIgnore = NO_OUTPUTS;
 
-/**
- * No-op: hooks are embedded inside each agent JSON by generateAgents.
- * This stub exists so the engine's generateHooksFeature dispatch finds a
- * registered generator and skips calling the lint-only partial path.
- */
-export function generateHooks(_canonical: CanonicalFiles): FeatureGeneratorOutput[] {
-  return [];
-}
+export const generateHooks = NO_OUTPUTS;
 
-/**
- * No-op: permissions.allow is embedded inside each agent JSON by generateAgents.
- * deny/ask have no Amazon Q equivalent; lintPermissions warns about those.
- */
-export function generatePermissions(_canonical: CanonicalFiles): FeatureGeneratorOutput[] {
-  return [];
-}
+export const generatePermissions = NO_OUTPUTS;
 
 export function generateMcp(canonical: CanonicalFiles): FeatureGeneratorOutput[] {
   if (!canonical.mcp || Object.keys(canonical.mcp.mcpServers).length === 0) return [];

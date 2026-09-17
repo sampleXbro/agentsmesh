@@ -81,8 +81,3 @@ export const KILO_CODE_GLOBAL_SKILLS_DIR = '.kilo/skills';
 export const KILO_CODE_GLOBAL_AGENTS_SKILLS_DIR = '.agents/skills';
 
 // Canonical paths
-export const KILO_CODE_CANONICAL_RULES_DIR = '.agentsmesh/rules';
-export const KILO_CODE_CANONICAL_COMMANDS_DIR = '.agentsmesh/commands';
-export const KILO_CODE_CANONICAL_AGENTS_DIR = '.agentsmesh/agents';
-export const KILO_CODE_CANONICAL_MCP = '.agentsmesh/mcp.json';
-export const KILO_CODE_CANONICAL_IGNORE = '.agentsmesh/ignore';

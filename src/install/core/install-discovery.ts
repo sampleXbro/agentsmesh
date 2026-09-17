@@ -16,7 +16,6 @@ import { resolveDiscoveredForInstall } from '../run/run-install-discovery.js';
 import { detectLayout } from '../classify/layout-detect.js';
 import { inferMdcTarget } from '../manual/mdc-target-infer.js';
 import { aggregateAnthropicSkillPack } from '../../sources/anthropic-skill-pack/aggregate.js';
-import { anthropicSkillPackSource } from '../../sources/anthropic-skill-pack/index.js';
 import { parseSkillDirectory } from '../../canonical/features/skills.js';
 import { featuresFromCanonical } from './discover-resources.js';
 import type { CanonicalRule } from '../../core/canonical-types.js';
@@ -54,10 +53,6 @@ function aggregateToCanonical(aggregate: AggregateResult): CanonicalFiles {
     hooks: null,
     ignore: [],
   };
-}
-
-function emptyPrep(): InstallDiscoveryPrep {
-  return {};
 }
 
 async function enrichMdcTargets(
@@ -170,11 +165,7 @@ export async function resolveInstallDiscovery(args: {
   const layout: SourceLayout = { ...rawLayout, flatCollections: enrichedCollections };
 
   if (layout.skillPack && !layout.canonical) {
-    const aggregate = await aggregateAnthropicSkillPack(
-      args.contentRoot,
-      anthropicSkillPackSource,
-      parseOpts,
-    );
+    const aggregate = await aggregateAnthropicSkillPack(args.contentRoot, parseOpts);
     const narrowed = aggregateToCanonical(aggregate);
     return {
       prep: { cleanup: aggregate.cleanup },
@@ -189,7 +180,7 @@ export async function resolveInstallDiscovery(args: {
   if (layout.rootSkill && !layout.canonical && !layout.skillPack) {
     const narrowed = await rootSkillToCanonical(args.contentRoot, parseOpts);
     return {
-      prep: emptyPrep(),
+      prep: {},
       implicitPick: undefined,
       narrowed,
       discoveredFeatures: featuresFromCanonical(narrowed),
@@ -206,7 +197,7 @@ export async function resolveInstallDiscovery(args: {
   ) {
     const narrowed = await rootRuleToCanonical(args.contentRoot, layout.rootRule.path);
     return {
-      prep: emptyPrep(),
+      prep: {},
       implicitPick: undefined,
       narrowed,
       discoveredFeatures: featuresFromCanonical(narrowed),
@@ -216,7 +207,7 @@ export async function resolveInstallDiscovery(args: {
 
   if (layout.subPacks.length > 0) {
     return {
-      prep: emptyPrep(),
+      prep: {},
       implicitPick: undefined,
       narrowed: {
         rules: [],
@@ -239,7 +230,7 @@ export async function resolveInstallDiscovery(args: {
   // the native fallback throw "No installable resources" before the picker runs.
   if (layout.flatCollections.length > 0) {
     return {
-      prep: emptyPrep(),
+      prep: {},
       implicitPick: undefined,
       narrowed: {
         rules: [],

@@ -13,13 +13,13 @@
  * and a different server format (array `command`, `environment` key).
  */
 
+import { AB_IGNORE, AB_MCP, AB_PERMISSIONS } from '../../core/canonical-paths.js';
 import { join } from 'node:path';
 import type { ImportResult } from '../../core/types.js';
 import type { McpServer } from '../../core/mcp-types.js';
 import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
-import { createImportReferenceNormalizer } from '../../core/reference/import-rewriter.js';
 import { importEmbeddedSkills } from '../import/embedded-skill.js';
-import { runDescriptorImport } from '../import/descriptor-import-runner.js';
+import { beginImport } from '../import/descriptor-import-runner.js';
 import { writeMcpWithMerge } from '../import/mcp-merge.js';
 import { readFileSafe } from '../../utils/filesystem/fs.js';
 import { mkdirp, writeFileAtomic } from '../../utils/filesystem/fs.js';
@@ -29,9 +29,6 @@ import {
   OPENCODE_SKILLS_DIR,
   OPENCODE_CONFIG_FILE,
   OPENCODE_GLOBAL_CONFIG_FILE,
-  OPENCODE_CANONICAL_MCP,
-  OPENCODE_CANONICAL_PERMISSIONS,
-  OPENCODE_CANONICAL_IGNORE,
 } from './constants.js';
 import { mapOpenCodePermissionToIgnore } from './ignore-map.js';
 import { descriptor } from './index.js';
@@ -97,12 +94,12 @@ async function importMcp(
   if (content === null) return;
   const imported = parseOpenCodeMcp(content);
   if (Object.keys(imported).length === 0) return;
-  await writeMcpWithMerge(projectRoot, OPENCODE_CANONICAL_MCP, imported);
+  await writeMcpWithMerge(projectRoot, AB_MCP, imported);
   results.push({
     feature: 'mcp',
     fromTool: OPENCODE_TARGET,
     fromPath: srcPath,
-    toPath: OPENCODE_CANONICAL_MCP,
+    toPath: AB_MCP,
   });
 }
 
@@ -139,14 +136,14 @@ async function importPermissions(
     if (level === 'deny') canonical.deny.push(name);
   }
   if (canonical.allow.length + canonical.ask.length + canonical.deny.length === 0) return;
-  const destPath = join(projectRoot, OPENCODE_CANONICAL_PERMISSIONS);
+  const destPath = join(projectRoot, AB_PERMISSIONS);
   await mkdirp(join(projectRoot, '.agentsmesh'));
   await writeFileAtomic(destPath, stringifyYaml(canonical));
   results.push({
     feature: 'permissions',
     fromTool: OPENCODE_TARGET,
     fromPath: srcPath,
-    toPath: OPENCODE_CANONICAL_PERMISSIONS,
+    toPath: AB_PERMISSIONS,
   });
 }
 
@@ -169,12 +166,12 @@ async function importIgnore(
   const patterns = mapOpenCodePermissionToIgnore((parsed as Record<string, unknown>).permission);
   if (patterns.length === 0) return;
   await mkdirp(join(projectRoot, '.agentsmesh'));
-  await writeFileAtomic(join(projectRoot, OPENCODE_CANONICAL_IGNORE), `${patterns.join('\n')}\n`);
+  await writeFileAtomic(join(projectRoot, AB_IGNORE), `${patterns.join('\n')}\n`);
   results.push({
     feature: 'ignore',
     fromTool: OPENCODE_TARGET,
     fromPath: srcPath,
-    toPath: OPENCODE_CANONICAL_IGNORE,
+    toPath: AB_IGNORE,
   });
 }
 
@@ -182,11 +179,7 @@ export async function importFromOpenCode(
   projectRoot: string,
   options: { scope?: TargetLayoutScope } = {},
 ): Promise<ImportResult[]> {
-  const scope = options.scope ?? 'project';
-  const results: ImportResult[] = [];
-  const normalize = await createImportReferenceNormalizer(OPENCODE_TARGET, projectRoot, scope);
-
-  results.push(...(await runDescriptorImport(descriptor, projectRoot, scope, { normalize })));
+  const { scope, results, normalize } = await beginImport(descriptor, projectRoot, options);
 
   await importEmbeddedSkills(projectRoot, OPENCODE_SKILLS_DIR, OPENCODE_TARGET, results, normalize);
 

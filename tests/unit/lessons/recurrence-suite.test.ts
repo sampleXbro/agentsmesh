@@ -7,7 +7,7 @@ import {
   loadSuite,
   parseSuites,
   loadSuites,
-} from '../../../src/lessons/recurrence/suite.js';
+} from '../../harness/lessons-recurrence/suite.js';
 
 function validGraph(): unknown {
   return {

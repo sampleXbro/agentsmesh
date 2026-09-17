@@ -2,13 +2,14 @@
  * Codex CLI MCP helpers — TOML server mapping and MCP config import.
  */
 
+import { AB_MCP } from '../../core/canonical-paths.js';
 import { join } from 'node:path';
 import { parse as parseToml } from 'smol-toml';
 import type { ImportResult } from '../../core/types.js';
 import type { McpServer } from '../../core/types.js';
 import { readFileSafe } from '../../utils/filesystem/fs.js';
 import { writeMcpWithMerge } from '../import/mcp-merge.js';
-import { CODEX_TARGET, CODEX_CONFIG_TOML, CODEX_CANONICAL_MCP } from './constants.js';
+import { CODEX_TARGET, CODEX_CONFIG_TOML } from './constants.js';
 
 function stringRecord(raw: unknown): Record<string, string> {
   return raw !== null && typeof raw === 'object' && !Array.isArray(raw)
@@ -101,11 +102,11 @@ export async function importMcp(projectRoot: string, results: ImportResult[]): P
 
   if (Object.keys(mcpServers).length === 0) return;
 
-  await writeMcpWithMerge(projectRoot, CODEX_CANONICAL_MCP, mcpServers);
+  await writeMcpWithMerge(projectRoot, AB_MCP, mcpServers);
   results.push({
     fromTool: CODEX_TARGET,
     fromPath: configPath,
-    toPath: CODEX_CANONICAL_MCP,
+    toPath: AB_MCP,
     feature: 'mcp',
   });
 }

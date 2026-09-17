@@ -7,6 +7,7 @@
  * importer uses.
  */
 
+import { AB_IGNORE, AB_MCP } from '../../canonical-paths.js';
 import {
   addScopedAgentsMappings,
   addSkillLikeMapping,
@@ -18,8 +19,6 @@ import {
   CODEBUFF_SKILLS_DIR,
   CODEBUFF_MCP_FILE,
   CODEBUFF_IGNORE_FILE,
-  CODEBUFF_CANONICAL_MCP,
-  CODEBUFF_CANONICAL_IGNORE,
   CODEBUFF_GLOBAL_ROOT_FILE,
   CODEBUFF_GLOBAL_SKILLS_DIR,
   CODEBUFF_GLOBAL_MCP_FILE,
@@ -48,7 +47,7 @@ export async function buildCodebuffImportPaths(
     for (const absPath of await listFiles(projectRoot, CODEBUFF_GLOBAL_SKILLS_DIR)) {
       addSkillLikeMapping(refs, rel(projectRoot, absPath), CODEBUFF_GLOBAL_SKILLS_DIR);
     }
-    refs.set(CODEBUFF_GLOBAL_MCP_FILE, CODEBUFF_CANONICAL_MCP);
+    refs.set(CODEBUFF_GLOBAL_MCP_FILE, AB_MCP);
     return;
   }
 
@@ -59,7 +58,7 @@ export async function buildCodebuffImportPaths(
   for (const absPath of await listFiles(projectRoot, CODEBUFF_SKILLS_DIR)) {
     addSkillLikeMapping(refs, rel(projectRoot, absPath), CODEBUFF_SKILLS_DIR);
   }
-  refs.set(CODEBUFF_MCP_FILE, CODEBUFF_CANONICAL_MCP);
+  refs.set(CODEBUFF_MCP_FILE, AB_MCP);
   // Project only: `PROJECT_IGNORE_FILES` are resolved per project directory.
-  refs.set(CODEBUFF_IGNORE_FILE, CODEBUFF_CANONICAL_IGNORE);
+  refs.set(CODEBUFF_IGNORE_FILE, AB_IGNORE);
 }

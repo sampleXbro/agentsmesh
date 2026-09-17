@@ -8,6 +8,7 @@
  * projected as skills via supportsConversion.
  */
 
+import { unsupportedFeature } from '../../core/lint/capability-gap.js';
 import type { CanonicalFiles, LintDiagnostic } from '../../core/types.js';
 import { createWarning } from '../../core/lint/shared/helpers.js';
 import { projectAiderHooks, type AiderHookEntry } from './hooks-format.js';
@@ -49,27 +50,14 @@ export function lintHooks(canonical: CanonicalFiles): LintDiagnostic[] {
   return diagnostics;
 }
 
-export function lintPermissions(canonical: CanonicalFiles): LintDiagnostic[] {
-  if (!canonical.permissions) return [];
-  const { allow, deny } = canonical.permissions;
-  const ask = canonical.permissions.ask ?? [];
-  if (allow.length === 0 && deny.length === 0 && ask.length === 0) return [];
-  return [
-    createWarning(
-      '.agentsmesh/permissions.yaml',
-      'aider',
-      'Aider has no permissions config; canonical permissions are not projected.',
-    ),
-  ];
-}
+export const lintPermissions = unsupportedFeature(
+  'permissions',
+  'aider',
+  'Aider has no permissions config; canonical permissions are not projected.',
+);
 
-export function lintMcp(canonical: CanonicalFiles): LintDiagnostic[] {
-  if (!canonical.mcp || Object.keys(canonical.mcp.mcpServers).length === 0) return [];
-  return [
-    createWarning(
-      '.agentsmesh/mcp.json',
-      'aider',
-      'Aider has no MCP config file; canonical MCP servers are not projected.',
-    ),
-  ];
-}
+export const lintMcp = unsupportedFeature(
+  'mcp',
+  'aider',
+  'Aider has no MCP config file; canonical MCP servers are not projected.',
+);

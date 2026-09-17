@@ -19,6 +19,7 @@
  * imported as canonical content.
  */
 
+import { AB_IGNORE, AB_RULES } from '../../core/canonical-paths.js';
 import type { TargetCapabilities, TargetGenerators } from '../catalog/target.interface.js';
 import type { TargetDescriptor, TargetLayout } from '../catalog/target-descriptor.js';
 import { commandSkillDirName } from '../codex-cli/command-skill.js';
@@ -47,8 +48,6 @@ import {
   AIDER_GLOBAL_CONVENTIONS,
   AIDER_GLOBAL_SKILLS_DIR,
   AIDER_GLOBAL_IGNORE,
-  AIDER_CANONICAL_RULES_DIR,
-  AIDER_CANONICAL_IGNORE,
 } from './constants.js';
 
 export const target: TargetGenerators = {
@@ -169,7 +168,7 @@ export const descriptor = {
         project: [AIDER_CONVENTIONS],
         global: [AIDER_GLOBAL_CONVENTIONS],
       },
-      canonicalDir: AIDER_CANONICAL_RULES_DIR,
+      canonicalDir: AB_RULES,
       canonicalRootFilename: '_root.md',
       markAsRoot: true,
     },
@@ -181,7 +180,7 @@ export const descriptor = {
         global: [AIDER_GLOBAL_IGNORE],
       },
       canonicalDir: '.agentsmesh',
-      canonicalFilename: AIDER_CANONICAL_IGNORE,
+      canonicalFilename: AB_IGNORE,
     },
   },
   // `.aider.conf.yml` carries the `read:` wiring and the hook keys of a file the

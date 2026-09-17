@@ -14,10 +14,7 @@ import {
   extendPickHasArrays,
   targetHintFromNativePath,
 } from '../native/native-path-pick.js';
-import {
-  inferImplicitPickFromNativePath,
-  isImplicitPickEmpty,
-} from '../native/native-path-pick-infer.js';
+import { inferImplicitPickFromNativePath } from '../native/native-path-pick-infer.js';
 import {
   stageImportedNativeRepo,
   stageNativeInstallScope,
@@ -125,7 +122,7 @@ export async function prepareInstallDiscovery(
     pathSupportsNativePick(posixPath, effectiveTarget)
   ) {
     implicitPick = await inferImplicitPickFromNativePath(repoRoot, posixPath, effectiveTarget);
-    if (isImplicitPickEmpty(implicitPick)) {
+    if (!extendPickHasArrays(implicitPick)) {
       throw new Error(
         `No installable native resources found under "${posixPath}" for target "${effectiveTarget}". ` +
           `Try --path "${posixPath}" without --target so agentsmesh can auto-detect the layout, ` +

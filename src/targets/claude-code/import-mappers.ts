@@ -3,6 +3,7 @@
  * Sibling-file pattern avoids the `index.ts ↔ importer.ts` TDZ trap.
  */
 
+import { AB_AGENTS, AB_COMMANDS, AB_RULES } from '../../core/canonical-paths.js';
 import { join } from 'node:path';
 import { parseFrontmatter } from '../../utils/text/markdown.js';
 import {
@@ -12,11 +13,6 @@ import {
 } from '../import/import-metadata.js';
 import { toToolsArray } from '../import/shared-import-helpers.js';
 import type { ImportEntryMapper } from '../catalog/import-descriptor.js';
-import {
-  CLAUDE_CANONICAL_AGENTS_DIR,
-  CLAUDE_CANONICAL_COMMANDS_DIR,
-  CLAUDE_CANONICAL_RULES_DIR,
-} from './constants.js';
 
 /** Non-root Claude rules pass frontmatter through and force `root: false`. */
 export const claudeRuleMapper: ImportEntryMapper = async ({
@@ -28,7 +24,7 @@ export const claudeRuleMapper: ImportEntryMapper = async ({
   const { frontmatter, body } = parseFrontmatter(normalizeTo(destPath));
   return {
     destPath,
-    toPath: `${CLAUDE_CANONICAL_RULES_DIR}/${relativePath}`,
+    toPath: `${AB_RULES}/${relativePath}`,
     content: await serializeImportedRuleWithFallback(
       destPath,
       { ...frontmatter, root: false },
@@ -50,7 +46,7 @@ export const claudeCommandMapper: ImportEntryMapper = async ({
     fromCamel.length > 0 ? fromCamel : toToolsArray(frontmatter['allowed-tools']);
   return {
     destPath,
-    toPath: `${CLAUDE_CANONICAL_COMMANDS_DIR}/${relativePath}`,
+    toPath: `${AB_COMMANDS}/${relativePath}`,
     content: await serializeImportedCommandWithFallback(
       destPath,
       {
@@ -77,7 +73,7 @@ export const claudeAgentMapper: ImportEntryMapper = async ({
   const { frontmatter, body } = parseFrontmatter(normalizeTo(destPath));
   return {
     destPath,
-    toPath: `${CLAUDE_CANONICAL_AGENTS_DIR}/${relativePath}`,
+    toPath: `${AB_AGENTS}/${relativePath}`,
     content: await serializeImportedAgentWithFallback(destPath, frontmatter, body),
   };
 };

@@ -8,20 +8,16 @@
  * `~/.rovodev/mcp_config.json` (global).
  */
 
+import { unsupportedFeature } from '../../core/lint/capability-gap.js';
 import type { CanonicalFiles, LintDiagnostic } from '../../core/types.js';
 import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
 import { createWarning } from '../../core/lint/shared/helpers.js';
 
-export function lintIgnore(canonical: CanonicalFiles): LintDiagnostic[] {
-  if (canonical.ignore.length === 0) return [];
-  return [
-    createWarning(
-      '.agentsmesh/ignore',
-      'rovodev',
-      'Rovo Dev has no dedicated ignore file and relies on .gitignore; canonical ignore patterns are not projected.',
-    ),
-  ];
-}
+export const lintIgnore = unsupportedFeature(
+  'ignore',
+  'rovodev',
+  'Rovo Dev has no dedicated ignore file and relies on .gitignore; canonical ignore patterns are not projected.',
+);
 
 export function lintMcp(canonical: CanonicalFiles, options?: unknown): LintDiagnostic[] {
   const scope = (options as { scope?: TargetLayoutScope } | undefined)?.scope;

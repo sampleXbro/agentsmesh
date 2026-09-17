@@ -18,7 +18,7 @@
  * result so callers can preserve them when rewriting a link.
  */
 
-import { stat } from 'node:fs/promises';
+import { exists as pathExists } from '../../utils/filesystem/fs.js';
 import { isAbsolute, join, normalize, relative, resolve, sep } from 'node:path';
 import type { ScannedLink } from './scan-relative-links.js';
 
@@ -69,15 +69,6 @@ function splitAnchor(p: string): { path: string; anchor: string } {
 
 function toForwardSlash(p: string): string {
   return p.split(sep).join('/');
-}
-
-async function pathExists(absolutePath: string): Promise<boolean> {
-  try {
-    await stat(absolutePath);
-    return true;
-  } catch {
-    return false;
-  }
 }
 
 export async function resolveLink(input: ResolveLinkInput): Promise<ResolvedLink> {

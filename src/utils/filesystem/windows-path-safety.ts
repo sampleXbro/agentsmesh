@@ -73,7 +73,3 @@ export function findWindowsPathIssues(path: string): WindowsPathIssue[] {
   }
   return issues;
 }
-
-export function isWindowsSafePath(path: string): boolean {
-  return findWindowsPathIssues(path).length === 0;
-}

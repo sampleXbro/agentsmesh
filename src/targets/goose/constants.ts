@@ -50,7 +50,3 @@ export const GOOSE_HOOKS_FILE = '.agents/plugins/agentsmesh/hooks/hooks.json';
 export const GOOSE_PROJECT_MCP_FILE = '.agents/plugins/agentsmesh/.mcp.json';
 
 // Canonical paths
-export const GOOSE_CANONICAL_RULES_DIR = '.agentsmesh/rules';
-export const GOOSE_CANONICAL_IGNORE = '.agentsmesh/ignore';
-export const GOOSE_CANONICAL_HOOKS = '.agentsmesh/hooks.yaml';
-export const GOOSE_CANONICAL_PERMISSIONS = '.agentsmesh/permissions.yaml';

@@ -9,6 +9,7 @@
  * `global-permissions.ts`).
  */
 
+import { unsupportedFeature } from '../../core/lint/capability-gap.js';
 import type { CanonicalFiles, LintDiagnostic } from '../../core/types.js';
 import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
 import { createWarning } from '../../core/lint/shared/helpers.js';
@@ -52,16 +53,11 @@ export function lintPermissions(canonical: CanonicalFiles, options?: unknown): L
   ];
 }
 
-export function lintIgnore(canonical: CanonicalFiles): LintDiagnostic[] {
-  if (canonical.ignore.length === 0) return [];
-  return [
-    createWarning(
-      '.agentsmesh/ignore',
-      'deepagents-cli',
-      'Deep Agents CLI has no dedicated ignore file and relies on .gitignore; canonical ignore patterns are not projected.',
-    ),
-  ];
-}
+export const lintIgnore = unsupportedFeature(
+  'ignore',
+  'deepagents-cli',
+  'Deep Agents CLI has no dedicated ignore file and relies on .gitignore; canonical ignore patterns are not projected.',
+);
 
 /**
  * Deep Agents CLI has no project-level hooks surface at all, so project scope

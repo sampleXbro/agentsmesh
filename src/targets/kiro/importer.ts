@@ -1,3 +1,4 @@
+import { AB_HOOKS, AB_ROOT_RULE, AB_RULES } from '../../core/canonical-paths.js';
 import { basename, join } from 'node:path';
 import type { Hooks, ImportResult } from '../../core/types.js';
 import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
@@ -23,9 +24,6 @@ import {
   KIRO_HOOKS_DIR,
   KIRO_STEERING_DIR,
   KIRO_SKILLS_DIR,
-  KIRO_CANONICAL_HOOKS,
-  KIRO_CANONICAL_ROOT_RULE,
-  KIRO_CANONICAL_RULES_DIR,
 } from './constants.js';
 import { descriptor } from './index.js';
 
@@ -59,7 +57,7 @@ async function importRoot(
     const srcPath = join(projectRoot, rel);
     const content = await readFileSafe(srcPath);
     if (content === null) continue;
-    const destPath = join(projectRoot, KIRO_CANONICAL_ROOT_RULE);
+    const destPath = join(projectRoot, AB_ROOT_RULE);
     const { frontmatter, body } = parseFrontmatter(normalize(content, srcPath, destPath));
     await writeFileAtomic(
       destPath,
@@ -68,7 +66,7 @@ async function importRoot(
     results.push({
       fromTool: KIRO_TARGET,
       fromPath: srcPath,
-      toPath: KIRO_CANONICAL_ROOT_RULE,
+      toPath: AB_ROOT_RULE,
       feature: 'rules',
     });
     return;
@@ -81,7 +79,7 @@ async function importNonRootRules(
   results: ImportResult[],
   normalize: Normalize,
 ): Promise<void> {
-  const destDir = join(projectRoot, KIRO_CANONICAL_RULES_DIR);
+  const destDir = join(projectRoot, AB_RULES);
   results.push(
     ...(await importFileDirectory({
       srcDir: join(projectRoot, KIRO_STEERING_DIR),
@@ -95,7 +93,7 @@ async function importNonRootRules(
         const { frontmatter, body } = parseFrontmatter(normalizeTo(destPath));
         return {
           destPath,
-          toPath: `${KIRO_CANONICAL_RULES_DIR}/${relativePath}`,
+          toPath: `${AB_RULES}/${relativePath}`,
           feature: 'rules',
           content: await serializeImportedRuleWithFallback(
             destPath,
@@ -119,13 +117,13 @@ async function importHooks(projectRoot: string, results: ImportResult[]): Promis
     hooks[parsed.event]!.push(parsed.entry);
   }
   if (Object.keys(hooks).length === 0) return;
-  const destPath = join(projectRoot, KIRO_CANONICAL_HOOKS);
+  const destPath = join(projectRoot, AB_HOOKS);
   await mkdirp(join(projectRoot, '.agentsmesh'));
   await writeFileAtomic(destPath, serializeCanonicalHooks(hooks));
   results.push({
     fromTool: KIRO_TARGET,
     fromPath: join(projectRoot, KIRO_HOOKS_DIR),
-    toPath: KIRO_CANONICAL_HOOKS,
+    toPath: AB_HOOKS,
     feature: 'hooks',
   });
 }

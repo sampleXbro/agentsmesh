@@ -13,6 +13,8 @@
  * below keep the engine's project-scope dispatch from inventing a file.
  */
 
+import { NO_OUTPUTS } from '../catalog/no-outputs.js';
+import type { FeatureGeneratorOutput } from '../catalog/target.interface.js';
 import type { CanonicalAgent, CanonicalFiles } from '../../core/types.js';
 import type { GenerateFeatureContext } from '../catalog/target.interface.js';
 import { generateEmbeddedSkills } from '../import/embedded-skill.js';
@@ -28,10 +30,7 @@ import {
   KIMI_CODE_MCP_FILE,
 } from './constants.js';
 
-export interface KimiCodeOutput {
-  path: string;
-  content: string;
-}
+export type KimiCodeOutput = FeatureGeneratorOutput;
 
 /**
  * One instruction file per scope, with non-root rules in a managed block.
@@ -99,12 +98,6 @@ export function generateMcp(
   return [{ path: KIMI_CODE_MCP_FILE, content: JSON.stringify({ mcpServers }, null, 2) }];
 }
 
-/** No-op: `[[hooks]]` exists only in the user-level config.toml (scope-extras.ts). */
-export function generateHooks(_canonical: CanonicalFiles): KimiCodeOutput[] {
-  return [];
-}
+export const generateHooks = NO_OUTPUTS;
 
-/** No-op: `[[permission.rules]]` exists only in the user-level config.toml. */
-export function generatePermissions(_canonical: CanonicalFiles): KimiCodeOutput[] {
-  return [];
-}
+export const generatePermissions = NO_OUTPUTS;

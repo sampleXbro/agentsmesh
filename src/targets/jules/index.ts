@@ -12,6 +12,7 @@
  * configuration is through `AGENTS.md` at project root.
  */
 
+import { AB_RULES } from '../../core/canonical-paths.js';
 import type { TargetCapabilities, TargetGenerators } from '../catalog/target.interface.js';
 import type { TargetDescriptor, TargetLayout } from '../catalog/target-descriptor.js';
 import {
@@ -26,7 +27,7 @@ import { importFromJules } from './importer.js';
 import { lintRules } from './linter.js';
 import { lintHooks, lintPermissions, lintIgnore, lintMcp, lintCommands } from './lint.js';
 import { buildJulesImportPaths } from '../../core/reference/import-map-builders.js';
-import { JULES_TARGET, JULES_ROOT_FILE, JULES_CANONICAL_RULES_DIR } from './constants.js';
+import { JULES_TARGET, JULES_ROOT_FILE } from './constants.js';
 
 export const target: TargetGenerators = {
   name: JULES_TARGET,
@@ -98,7 +99,7 @@ export const descriptor = {
       source: {
         project: [JULES_ROOT_FILE],
       },
-      canonicalDir: JULES_CANONICAL_RULES_DIR,
+      canonicalDir: AB_RULES,
       canonicalRootFilename: '_root.md',
       markAsRoot: true,
     },

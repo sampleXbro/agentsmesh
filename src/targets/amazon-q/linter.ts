@@ -7,11 +7,12 @@
  * `resources` glob written into a generated agent JSON.
  */
 
+import { AB_RULES } from '../../core/canonical-paths.js';
 import type { CanonicalFiles, LintDiagnostic } from '../../core/types.js';
 import { validateRules } from '../../core/lint/validate-rules.js';
 import { createWarning } from '../../core/lint/shared/helpers.js';
 import { isAmazonQRule } from './agent-json.js';
-import { AMAZON_Q_TARGET, AMAZON_Q_CANONICAL_RULES_DIR } from './constants.js';
+import { AMAZON_Q_TARGET } from './constants.js';
 
 export function lintRules(
   canonical: CanonicalFiles,
@@ -51,5 +52,5 @@ function unreachableGlobalRulesWarning(canonical: CanonicalFiles): LintDiagnosti
         `only while one of the generated agents (${names.join(', ')}) is selected ` +
         `(q chat --agent <name>, or q settings chat.defaultAgent). The built-in default ` +
         `agent never reads them.`;
-  return createWarning(AMAZON_Q_CANONICAL_RULES_DIR, AMAZON_Q_TARGET, message);
+  return createWarning(AB_RULES, AMAZON_Q_TARGET, message);
 }
