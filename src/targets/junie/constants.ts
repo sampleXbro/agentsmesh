@@ -31,10 +31,3 @@ export const JUNIE_GLOBAL_ALLOWLIST = `.junie/allowlist.json`;
 
 // Global config file — multi-feature JSON (model, provider, brave, mcp-locations, hooks, etc.)
 export const JUNIE_GLOBAL_CONFIG = `.junie/config.json`;
-
-export const JUNIE_CANONICAL_ROOT_RULE = '.agentsmesh/rules/_root.md';
-export const JUNIE_CANONICAL_RULES_DIR = '.agentsmesh/rules';
-export const JUNIE_CANONICAL_COMMANDS_DIR = '.agentsmesh/commands';
-export const JUNIE_CANONICAL_AGENTS_DIR = '.agentsmesh/agents';
-export const JUNIE_CANONICAL_MCP = '.agentsmesh/mcp.json';
-export const JUNIE_CANONICAL_IGNORE = '.agentsmesh/ignore';

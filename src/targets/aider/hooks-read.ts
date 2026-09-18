@@ -9,6 +9,7 @@
  * the import merge in `hooks-import.ts` key-scoped.
  */
 
+import { isRecord } from '../../utils/types/guards.js';
 import type { HookEntry } from '../../core/hook-types.js';
 import { AIDER_HOOK_KEYS, AIDER_LINT_MATCHER, type AiderCommandKey } from './hooks-format.js';
 
@@ -17,10 +18,6 @@ export interface AiderImportedHook {
   readonly key: AiderCommandKey;
   readonly event: 'PostToolUse' | 'Notification';
   readonly entry: HookEntry;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 /** Non-empty command strings from a scalar-or-list aider config value. */

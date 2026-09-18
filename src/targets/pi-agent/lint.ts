@@ -9,6 +9,8 @@
  * supportsConversion.
  */
 
+import { AB_PERMISSIONS } from '../../core/canonical-paths.js';
+import { unsupportedFeature } from '../../core/lint/capability-gap.js';
 import type { CanonicalFiles, LintDiagnostic } from '../../core/types.js';
 import { createWarning } from '../../core/lint/shared/helpers.js';
 import {
@@ -17,22 +19,13 @@ import {
   unmappedPermissionEntries,
   PI_BUILTIN_TOOLS,
 } from './permissions-format.js';
-import { PI_AGENT_TARGET, PI_AGENT_CANONICAL_PERMISSIONS } from './constants.js';
+import { PI_AGENT_TARGET } from './constants.js';
 
-export function lintHooks(canonical: CanonicalFiles): LintDiagnostic[] {
-  if (!canonical.hooks) return [];
-  const hasEntries = Object.values(canonical.hooks).some(
-    (entries) => Array.isArray(entries) && entries.length > 0,
-  );
-  if (!hasEntries) return [];
-  return [
-    createWarning(
-      '.agentsmesh/hooks.yaml',
-      'pi-agent',
-      'Pi Agent hooks are supported via extensions at .pi/extensions/; agentsmesh does not generate extension files yet. Configure hooks manually.',
-    ),
-  ];
-}
+export const lintHooks = unsupportedFeature(
+  'hooks',
+  'pi-agent',
+  'Pi Agent hooks are supported via extensions at .pi/extensions/; agentsmesh does not generate extension files yet. Configure hooks manually.',
+);
 
 /**
  * `defaultTools` is an allow-list over eight built-in tool names, so four
@@ -46,7 +39,7 @@ export function lintPermissions(canonical: CanonicalFiles): LintDiagnostic[] {
   const unmapped = unmappedPermissionEntries(canonical.permissions);
   const diagnostics: LintDiagnostic[] = [];
   const warn = (message: string): number =>
-    diagnostics.push(createWarning(PI_AGENT_CANONICAL_PERMISSIONS, PI_AGENT_TARGET, message));
+    diagnostics.push(createWarning(AB_PERMISSIONS, PI_AGENT_TARGET, message));
 
   if (unmapped.allow.length > 0) {
     warn(
@@ -73,13 +66,8 @@ export function lintPermissions(canonical: CanonicalFiles): LintDiagnostic[] {
   return diagnostics;
 }
 
-export function lintIgnore(canonical: CanonicalFiles): LintDiagnostic[] {
-  if (canonical.ignore.length === 0) return [];
-  return [
-    createWarning(
-      '.agentsmesh/ignore',
-      'pi-agent',
-      'Pi Coding Agent has no dedicated ignore file and relies on .gitignore; canonical ignore patterns are not projected.',
-    ),
-  ];
-}
+export const lintIgnore = unsupportedFeature(
+  'ignore',
+  'pi-agent',
+  'Pi Coding Agent has no dedicated ignore file and relies on .gitignore; canonical ignore patterns are not projected.',
+);

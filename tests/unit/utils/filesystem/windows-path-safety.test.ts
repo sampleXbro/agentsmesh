@@ -1,8 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import {
-  findWindowsPathIssues,
-  isWindowsSafePath,
-} from '../../../../src/utils/filesystem/windows-path-safety.js';
+import { findWindowsPathIssues } from '../../../../src/utils/filesystem/windows-path-safety.js';
+
+const isWindowsSafePath = (path: string): boolean => findWindowsPathIssues(path).length === 0;
 
 describe('isWindowsSafePath', () => {
   it('accepts ordinary POSIX-style relative paths emitted by generators', () => {

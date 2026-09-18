@@ -4,6 +4,7 @@
  * module only reads and rewrites the TOML around it.
  */
 
+import { isRecord } from '../../utils/types/guards.js';
 import { parse as parseToml, stringify as stringifyToml } from 'smol-toml';
 import type { Permissions } from '../../core/types.js';
 import {
@@ -12,10 +13,6 @@ import {
   profileToPermissions,
   type WarpAgentProfile,
 } from './permissions-format.js';
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
 
 function parseTomlObject(content: string | null): Record<string, unknown> {
   if (content === null) return {};

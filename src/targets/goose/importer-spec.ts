@@ -8,6 +8,7 @@
  *   - ignore → `.gooseignore` (project) / global `.gooseignore`
  */
 
+import { AB_IGNORE, AB_RULES } from '../../core/canonical-paths.js';
 import type { TargetImporterDescriptor } from '../catalog/import-descriptor.js';
 import { gooseMcpMap } from './mcp-import.js';
 import {
@@ -17,8 +18,6 @@ import {
   GOOSE_GLOBAL_ROOT_FILE,
   GOOSE_GLOBAL_IGNORE,
   GOOSE_GLOBAL_CONFIG,
-  GOOSE_CANONICAL_RULES_DIR,
-  GOOSE_CANONICAL_IGNORE,
 } from './constants.js';
 
 export const gooseImporter: TargetImporterDescriptor = {
@@ -29,7 +28,7 @@ export const gooseImporter: TargetImporterDescriptor = {
       project: [GOOSE_ROOT_FILE],
       global: [GOOSE_GLOBAL_ROOT_FILE],
     },
-    canonicalDir: GOOSE_CANONICAL_RULES_DIR,
+    canonicalDir: AB_RULES,
     canonicalRootFilename: '_root.md',
     markAsRoot: true,
   },
@@ -51,6 +50,6 @@ export const gooseImporter: TargetImporterDescriptor = {
       global: [GOOSE_GLOBAL_IGNORE],
     },
     canonicalDir: '.agentsmesh',
-    canonicalFilename: GOOSE_CANONICAL_IGNORE,
+    canonicalFilename: AB_IGNORE,
   },
 };

@@ -3,6 +3,7 @@
  *   - src/targets/gemini-cli/policies-generator.ts
  *   - src/targets/gemini-cli/format-helpers-settings.ts
  */
+import { AB_HOOKS, AB_IGNORE, AB_MCP } from '../../../../src/core/canonical-paths.js';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdirSync, writeFileSync, rmSync, readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
@@ -12,9 +13,6 @@ import { importGeminiSettings } from '../../../../src/targets/gemini-cli/format-
 import {
   GEMINI_DEFAULT_POLICIES_FILE,
   GEMINI_SETTINGS,
-  GEMINI_CANONICAL_MCP,
-  GEMINI_CANONICAL_HOOKS,
-  GEMINI_CANONICAL_IGNORE,
 } from '../../../../src/targets/gemini-cli/constants.js';
 import type { CanonicalFiles, ImportResult } from '../../../../src/core/types.js';
 
@@ -144,8 +142,8 @@ describe('importGeminiSettings — branches', () => {
     const results: ImportResult[] = [];
     await importGeminiSettings(TEST_DIR, results);
     expect(results).toHaveLength(1);
-    expect(results[0]!.toPath).toBe(GEMINI_CANONICAL_MCP);
-    expect(readFileSync(join(TEST_DIR, GEMINI_CANONICAL_MCP), 'utf-8')).toContain('docs');
+    expect(results[0]!.toPath).toBe(AB_MCP);
+    expect(readFileSync(join(TEST_DIR, AB_MCP), 'utf-8')).toContain('docs');
   });
 
   it('imports ignorePatterns array when all entries are strings', async () => {
@@ -156,11 +154,9 @@ describe('importGeminiSettings — branches', () => {
     );
     const results: ImportResult[] = [];
     await importGeminiSettings(TEST_DIR, results);
-    expect(results.find((r) => r.toPath === GEMINI_CANONICAL_IGNORE)).toBeDefined();
-    expect(readFileSync(join(TEST_DIR, GEMINI_CANONICAL_IGNORE), 'utf-8')).toContain('dist');
-    expect(readFileSync(join(TEST_DIR, GEMINI_CANONICAL_IGNORE), 'utf-8')).toContain(
-      'node_modules',
-    );
+    expect(results.find((r) => r.toPath === AB_IGNORE)).toBeDefined();
+    expect(readFileSync(join(TEST_DIR, AB_IGNORE), 'utf-8')).toContain('dist');
+    expect(readFileSync(join(TEST_DIR, AB_IGNORE), 'utf-8')).toContain('node_modules');
   });
 
   it('skips ignorePatterns when any entry is not a string', async () => {
@@ -171,7 +167,7 @@ describe('importGeminiSettings — branches', () => {
     );
     const results: ImportResult[] = [];
     await importGeminiSettings(TEST_DIR, results);
-    expect(results.find((r) => r.toPath === GEMINI_CANONICAL_IGNORE)).toBeUndefined();
+    expect(results.find((r) => r.toPath === AB_IGNORE)).toBeUndefined();
   });
 
   it('skips hooks block when typeof hooks is not "object"', async () => {
@@ -179,7 +175,7 @@ describe('importGeminiSettings — branches', () => {
     writeFileSync(join(TEST_DIR, GEMINI_SETTINGS), JSON.stringify({ hooks: 'not-an-object' }));
     const results: ImportResult[] = [];
     await importGeminiSettings(TEST_DIR, results);
-    expect(results.find((r) => r.toPath === GEMINI_CANONICAL_HOOKS)).toBeUndefined();
+    expect(results.find((r) => r.toPath === AB_HOOKS)).toBeUndefined();
   });
 
   it('imports nested-shape Gemini hooks (matcher + hooks[]) into canonical hooks.yaml', async () => {
@@ -199,9 +195,9 @@ describe('importGeminiSettings — branches', () => {
     );
     const results: ImportResult[] = [];
     await importGeminiSettings(TEST_DIR, results);
-    const hooksResult = results.find((r) => r.toPath === GEMINI_CANONICAL_HOOKS);
+    const hooksResult = results.find((r) => r.toPath === AB_HOOKS);
     expect(hooksResult).toBeDefined();
-    const hooksYaml = readFileSync(join(TEST_DIR, GEMINI_CANONICAL_HOOKS), 'utf-8');
+    const hooksYaml = readFileSync(join(TEST_DIR, AB_HOOKS), 'utf-8');
     expect(hooksYaml).toContain('PreToolUse');
     expect(hooksYaml).toContain('pnpm lint');
     expect(hooksYaml).toContain('timeout: 30');
@@ -219,9 +215,9 @@ describe('importGeminiSettings — branches', () => {
     );
     const results: ImportResult[] = [];
     await importGeminiSettings(TEST_DIR, results);
-    const hooksResult = results.find((r) => r.toPath === GEMINI_CANONICAL_HOOKS);
+    const hooksResult = results.find((r) => r.toPath === AB_HOOKS);
     expect(hooksResult).toBeDefined();
-    const hooksYaml = readFileSync(join(TEST_DIR, GEMINI_CANONICAL_HOOKS), 'utf-8');
+    const hooksYaml = readFileSync(join(TEST_DIR, AB_HOOKS), 'utf-8');
     expect(hooksYaml).toContain('PostToolUse');
     expect(hooksYaml).toContain('pnpm test');
   });
@@ -238,7 +234,7 @@ describe('importGeminiSettings — branches', () => {
     );
     const results: ImportResult[] = [];
     await importGeminiSettings(TEST_DIR, results);
-    expect(results.find((r) => r.toPath === GEMINI_CANONICAL_HOOKS)).toBeUndefined();
+    expect(results.find((r) => r.toPath === AB_HOOKS)).toBeUndefined();
   });
 
   it('skips events whose value is not an array', async () => {
@@ -251,6 +247,6 @@ describe('importGeminiSettings — branches', () => {
     );
     const results: ImportResult[] = [];
     await importGeminiSettings(TEST_DIR, results);
-    expect(results.find((r) => r.toPath === GEMINI_CANONICAL_HOOKS)).toBeUndefined();
+    expect(results.find((r) => r.toPath === AB_HOOKS)).toBeUndefined();
   });
 });

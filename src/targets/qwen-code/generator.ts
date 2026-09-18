@@ -11,6 +11,7 @@
  *   - `.qwenignore`            — ignore patterns
  */
 
+import type { FeatureGeneratorOutput } from '../catalog/target.interface.js';
 import { basename } from 'node:path';
 import type { CanonicalFiles } from '../../core/types.js';
 import { serializeFrontmatter } from '../../utils/text/markdown.js';
@@ -26,10 +27,7 @@ import {
   QWEN_IGNORE,
 } from './constants.js';
 
-export interface QwenCodeOutput {
-  path: string;
-  content: string;
-}
+export type QwenCodeOutput = FeatureGeneratorOutput;
 
 /**
  * Generate QWEN.md from root rule and .qwen/rules/<slug>.md for non-root rules.

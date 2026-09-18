@@ -1,3 +1,4 @@
+import { activeTriggerIds } from './validate-liveness.js';
 import type { LessonsGraph } from './graph-schema.js';
 import {
   isLowSignalKeyword,
@@ -22,14 +23,10 @@ import type { ValidationFinding } from './validate.js';
  * graph built before the guardrail existed still surfaces its dead keywords.
  */
 export function collectLowSignalKeywords(graph: LessonsGraph, findings: ValidationFinding[]): void {
-  const activeTriggerIds = new Set<string>();
-  for (const lesson of Object.values(graph.lessons)) {
-    if (lesson.status !== 'active') continue;
-    for (const t of lesson.triggers) activeTriggerIds.add(t);
-  }
+  const active = activeTriggerIds(graph);
   for (const [triggerId, trigger] of Object.entries(graph.triggers)) {
     if (trigger.kind !== 'keyword') continue;
-    if (!activeTriggerIds.has(triggerId)) continue;
+    if (!active.has(triggerId)) continue;
     if (!isLowSignalKeyword(trigger.pattern)) continue;
     findings.push({
       level: 'warning',
@@ -51,14 +48,10 @@ export function collectLowSignalKeywords(graph: LessonsGraph, findings: Validati
  * such a keyword can still fire via an explicit `--keyword` substring.
  */
 export function collectStopwordKeywords(graph: LessonsGraph, findings: ValidationFinding[]): void {
-  const activeTriggerIds = new Set<string>();
-  for (const lesson of Object.values(graph.lessons)) {
-    if (lesson.status !== 'active') continue;
-    for (const t of lesson.triggers) activeTriggerIds.add(t);
-  }
+  const active = activeTriggerIds(graph);
   for (const [triggerId, trigger] of Object.entries(graph.triggers)) {
     if (trigger.kind !== 'keyword') continue;
-    if (!activeTriggerIds.has(triggerId)) continue;
+    if (!active.has(triggerId)) continue;
     if (tokenize(trigger.pattern).length !== 0 && !keywordNeedleLosesTokens(trigger.pattern)) {
       continue;
     }

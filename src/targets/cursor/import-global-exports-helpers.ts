@@ -1,3 +1,4 @@
+import { AB_AGENTS, AB_COMMANDS, AB_MCP, AB_RULES } from '../../core/canonical-paths.js';
 import { join, dirname } from 'node:path';
 import type { ImportResult } from '../../core/types.js';
 import {
@@ -15,10 +16,6 @@ import {
   CURSOR_SKILLS_DIR,
   CURSOR_AGENTS_DIR,
   CURSOR_COMMANDS_DIR,
-  CURSOR_CANONICAL_RULES_DIR,
-  CURSOR_CANONICAL_MCP,
-  CURSOR_CANONICAL_AGENTS_DIR,
-  CURSOR_CANONICAL_COMMANDS_DIR,
   CURSOR_RULES_DIR,
   CURSOR_DOT_CURSOR_AGENTS,
   CURSOR_HOOKS,
@@ -57,7 +54,7 @@ export async function importGlobalCursorRulesFromDir(
   results: ImportResult[],
   normalize: (content: string, sourceFile: string, destinationFile: string) => string,
 ): Promise<boolean> {
-  const destDir = join(projectRoot, CURSOR_CANONICAL_RULES_DIR);
+  const destDir = join(projectRoot, AB_RULES);
   let rootWritten = false;
   const rulesDir = join(projectRoot, CURSOR_RULES_DIR);
   const batch = await importFileDirectory({
@@ -128,13 +125,13 @@ export async function importGlobalMcp(projectRoot: string, results: ImportResult
     return;
   }
   if (!parsed || typeof parsed !== 'object' || !('mcpServers' in (parsed as object))) return;
-  const destPath = join(projectRoot, CURSOR_CANONICAL_MCP);
+  const destPath = join(projectRoot, AB_MCP);
   await mkdirp(dirname(destPath));
   await writeFileAtomic(destPath, content);
   results.push({
     fromTool: CURSOR_TARGET,
     fromPath: mcpPath,
-    toPath: CURSOR_CANONICAL_MCP,
+    toPath: AB_MCP,
     feature: 'mcp',
   });
 }
@@ -145,7 +142,7 @@ export async function importGlobalAgents(
   normalize: (content: string, sourceFile: string, destinationFile: string) => string,
 ): Promise<void> {
   const agentsDir = join(projectRoot, CURSOR_AGENTS_DIR);
-  const destDir = join(projectRoot, CURSOR_CANONICAL_AGENTS_DIR);
+  const destDir = join(projectRoot, AB_AGENTS);
   results.push(
     ...(await importFileDirectory({
       srcDir: agentsDir,
@@ -165,7 +162,7 @@ export async function importGlobalCommands(
   normalize: (content: string, sourceFile: string, destinationFile: string) => string,
 ): Promise<void> {
   const commandsDir = join(projectRoot, CURSOR_COMMANDS_DIR);
-  const destDir = join(projectRoot, CURSOR_CANONICAL_COMMANDS_DIR);
+  const destDir = join(projectRoot, AB_COMMANDS);
   results.push(
     ...(await importFileDirectory({
       srcDir: commandsDir,

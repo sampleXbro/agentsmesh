@@ -5,11 +5,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { resolveScopeContext, loadScopedConfig } from '../../config/core/scope.js';
-import {
-  TARGET_IDS,
-  getTargetCatalogEntry,
-  isBuiltinTargetId,
-} from '../../targets/catalog/target-catalog.js';
+import { isBuiltinTargetId, TARGET_IDS } from '../../targets/catalog/target-ids.js';
 import { getDescriptor } from '../../targets/catalog/registry.js';
 import { bootstrapPlugins } from '../../plugins/bootstrap-plugins.js';
 import { seedAgentsmeshMcpEntry } from './seed-mcp-entry.js';
@@ -73,8 +69,8 @@ export async function runImport(
 
   if (isBuiltinTargetId(normalized)) {
     const context = resolveScopeContext(root, scope);
-    const target = getTargetCatalogEntry(normalized);
-    const results = await target.importFrom(context.rootBase, { scope });
+    const target = getDescriptor(normalized)!;
+    const results = await target.generators.importFrom(context.rootBase, { scope });
     if (results.length > 0) {
       await seedAgentsmeshMcpEntry(context.rootBase);
       await ensureImportedLessonsSubsystem(context.rootBase, scope);

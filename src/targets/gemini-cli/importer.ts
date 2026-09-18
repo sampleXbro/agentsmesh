@@ -3,6 +3,7 @@
  * .gemini/settings.json → canonical .agentsmesh/.
  */
 
+import { AB_RULES } from '../../core/canonical-paths.js';
 import { join } from 'node:path';
 import type { ImportResult } from '../../core/types.js';
 import { createImportReferenceNormalizer } from '../../core/reference/import-rewriter.js';
@@ -17,7 +18,6 @@ import {
   GEMINI_COMPAT_AGENTS,
   GEMINI_COMPAT_INNER_ROOT,
   GEMINI_SYSTEM,
-  GEMINI_CANONICAL_RULES_DIR,
 } from './constants.js';
 import { descriptor } from './index.js';
 import { importGeminiSettings, importGeminiIgnore } from './format-helpers.js';
@@ -45,7 +45,7 @@ async function importRootRule(
   normalize: (content: string, sourceFile: string, destinationFile: string) => string,
 ): Promise<void> {
   const normalizeCodex = await createImportReferenceNormalizer('codex-cli', projectRoot);
-  const rulesDir = join(projectRoot, GEMINI_CANONICAL_RULES_DIR);
+  const rulesDir = join(projectRoot, AB_RULES);
   const compatAgentsRootPath = join(projectRoot, GEMINI_COMPAT_AGENTS);
   const compatInnerRootPath = join(projectRoot, GEMINI_COMPAT_INNER_ROOT);
   const candidates = [
@@ -75,7 +75,7 @@ async function importRootRule(
   const split = await splitEmbeddedRulesToCanonical({
     content: compatContent,
     projectRoot,
-    rulesDir: GEMINI_CANONICAL_RULES_DIR,
+    rulesDir: AB_RULES,
     sourcePath: rootSourcePath,
     fromTool: GEMINI_TARGET,
     normalize,
@@ -99,7 +99,7 @@ async function importRootRule(
   results.push({
     fromTool: GEMINI_TARGET,
     fromPath: rootSourcePath,
-    toPath: `${GEMINI_CANONICAL_RULES_DIR}/_root.md`,
+    toPath: `${AB_RULES}/_root.md`,
     feature: 'rules',
   });
 }

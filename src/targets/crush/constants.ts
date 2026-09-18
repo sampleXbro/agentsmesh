@@ -33,6 +33,3 @@ export const CRUSH_GLOBAL_ROOT_FILE = `${CRUSH_GLOBAL_CONFIG_DIR}/CRUSH.md`;
 export const CRUSH_GLOBAL_IGNORE = `${CRUSH_GLOBAL_CONFIG_DIR}/ignore`;
 
 // Canonical paths for import mapping
-export const CRUSH_CANONICAL_RULES_DIR = '.agentsmesh/rules';
-export const CRUSH_CANONICAL_IGNORE = '.agentsmesh/ignore';
-export const CRUSH_CANONICAL_MCP = '.agentsmesh/mcp.json';

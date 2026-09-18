@@ -34,3 +34,11 @@ export function toStringRecord(value: unknown): Record<string, string> {
     ),
   );
 }
+
+/** Delete `undefined`-valued keys in place; returns the same record. */
+export function pruneUndefined(record: Record<string, unknown>): Record<string, unknown> {
+  for (const key of Object.keys(record)) {
+    if (record[key] === undefined) delete record[key];
+  }
+  return record;
+}

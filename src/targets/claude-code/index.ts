@@ -1,3 +1,4 @@
+import { AB_AGENTS, AB_COMMANDS, AB_IGNORE, AB_MCP, AB_RULES } from '../../core/canonical-paths.js';
 import type { TargetCapabilities, TargetGenerators } from '../catalog/target.interface.js';
 import type { TargetDescriptor, TargetLayout } from '../catalog/target-descriptor.js';
 import {
@@ -12,11 +13,6 @@ import {
 } from './generator.js';
 import {
   CLAUDE_AGENTS_DIR,
-  CLAUDE_CANONICAL_AGENTS_DIR,
-  CLAUDE_CANONICAL_COMMANDS_DIR,
-  CLAUDE_CANONICAL_IGNORE,
-  CLAUDE_CANONICAL_MCP,
-  CLAUDE_CANONICAL_RULES_DIR,
   CLAUDE_COMMANDS_DIR,
   CLAUDE_GLOBAL_MCP_JSON,
   CLAUDE_HOOKS_JSON,
@@ -171,7 +167,7 @@ export const descriptor = {
         feature: 'rules',
         mode: 'singleFile',
         source: { project: [CLAUDE_ROOT, CLAUDE_NESTED_ROOT], global: [CLAUDE_NESTED_ROOT] },
-        canonicalDir: CLAUDE_CANONICAL_RULES_DIR,
+        canonicalDir: AB_RULES,
         canonicalRootFilename: '_root.md',
         markAsRoot: true,
       },
@@ -179,7 +175,7 @@ export const descriptor = {
         feature: 'rules',
         mode: 'directory',
         source: { project: [CLAUDE_RULES_DIR], global: [CLAUDE_RULES_DIR] },
-        canonicalDir: CLAUDE_CANONICAL_RULES_DIR,
+        canonicalDir: AB_RULES,
         extensions: ['.md'],
         map: claudeRuleMapper,
       },
@@ -188,7 +184,7 @@ export const descriptor = {
       feature: 'commands',
       mode: 'directory',
       source: { project: [CLAUDE_COMMANDS_DIR], global: [CLAUDE_COMMANDS_DIR] },
-      canonicalDir: CLAUDE_CANONICAL_COMMANDS_DIR,
+      canonicalDir: AB_COMMANDS,
       extensions: ['.md'],
       map: claudeCommandMapper,
     },
@@ -196,7 +192,7 @@ export const descriptor = {
       feature: 'agents',
       mode: 'directory',
       source: { project: [CLAUDE_AGENTS_DIR], global: [CLAUDE_AGENTS_DIR] },
-      canonicalDir: CLAUDE_CANONICAL_AGENTS_DIR,
+      canonicalDir: AB_AGENTS,
       extensions: ['.md'],
       map: claudeAgentMapper,
     },
@@ -205,14 +201,14 @@ export const descriptor = {
       mode: 'mcpJson',
       source: { project: [CLAUDE_MCP_JSON], global: [CLAUDE_GLOBAL_MCP_JSON] },
       canonicalDir: '.agentsmesh',
-      canonicalFilename: CLAUDE_CANONICAL_MCP,
+      canonicalFilename: AB_MCP,
     },
     ignore: {
       feature: 'ignore',
       mode: 'flatFile',
       source: { project: [CLAUDE_IGNORE], global: [CLAUDE_IGNORE] },
       canonicalDir: '.agentsmesh',
-      canonicalFilename: CLAUDE_CANONICAL_IGNORE,
+      canonicalFilename: AB_IGNORE,
     },
   },
   buildImportPaths: buildClaudeCodeImportPaths,

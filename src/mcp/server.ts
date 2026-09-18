@@ -1,3 +1,4 @@
+import { getVersion } from '../cli/version.js';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
@@ -11,33 +12,10 @@ import { resolveContext } from './context.js';
 import { readResource, toMcpError } from './resources.js';
 import { McpError } from './errors.js';
 import { enrichValidationIssues } from './validation-errors.js';
-import { readFile } from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
-import { dirname, resolve } from 'node:path';
-
-async function pkgVersion(): Promise<string> {
-  const here = dirname(fileURLToPath(import.meta.url));
-  for (const candidate of [
-    resolve(here, '../../package.json'),
-    resolve(here, '../package.json'),
-    resolve(here, '../../../package.json'),
-  ]) {
-    try {
-      const pkg = JSON.parse(await readFile(candidate, 'utf8')) as {
-        version: string;
-        name: string;
-      };
-      if (pkg.name === 'agentsmesh') return pkg.version;
-    } catch {
-      /* try next */
-    }
-  }
-  return '0.0.0';
-}
 
 export async function startServer(): Promise<void> {
   const server = new Server(
-    { name: 'agentsmesh-mcp', version: await pkgVersion() },
+    { name: 'agentsmesh-mcp', version: getVersion() },
     { capabilities: { tools: {}, resources: {} } },
   );
 

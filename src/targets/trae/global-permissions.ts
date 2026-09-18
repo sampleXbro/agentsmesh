@@ -13,6 +13,8 @@
  * cleanup deletes every managed file a run does not emit.
  */
 
+import { AB_PERMISSIONS } from '../../core/canonical-paths.js';
+import { stringList } from '../import/yaml-import-helpers.js';
 import { dirname, join } from 'node:path';
 import { Document, isMap, parseDocument } from 'yaml';
 import type { CanonicalFiles, GenerateResult, ImportResult } from '../../core/types.js';
@@ -20,11 +22,7 @@ import { mkdirp, readFileSafe, writeFileAtomic } from '../../utils/filesystem/fs
 import { computeStatus } from '../../core/generate/feature-loop.js';
 import { serializeTraePermissions } from './permissions-file.js';
 import { mapsToTraeKey, traeToPermissions, type TraeList } from './permissions-format.js';
-import {
-  TRAE_TARGET,
-  TRAE_GLOBAL_PERMISSIONS_FILE,
-  TRAE_CANONICAL_PERMISSIONS,
-} from './constants.js';
+import { TRAE_TARGET, TRAE_GLOBAL_PERMISSIONS_FILE } from './constants.js';
 
 export { serializeTraePermissions };
 
@@ -59,11 +57,6 @@ function canonicalDocument(content: string | null): Document {
     if (doc.errors.length === 0 && isMap(doc.contents)) return doc;
   }
   return new Document({});
-}
-
-function stringList(value: unknown): string[] {
-  if (!Array.isArray(value)) return [];
-  return value.filter((entry): entry is string => typeof entry === 'string');
 }
 
 /**
@@ -118,7 +111,7 @@ export async function importTraeGlobalPermissions(
   const permissions = traeToPermissions(parsed);
   if (permissions === null) return;
 
-  const destPath = join(projectRoot, TRAE_CANONICAL_PERMISSIONS);
+  const destPath = join(projectRoot, AB_PERMISSIONS);
   const doc = canonicalDocument(await readFileSafe(destPath));
   const existing = doc.toJS() as Record<string, unknown>;
   for (const list of LISTS) {
@@ -134,7 +127,7 @@ export async function importTraeGlobalPermissions(
   results.push({
     fromTool: TRAE_TARGET,
     fromPath: srcPath,
-    toPath: TRAE_CANONICAL_PERMISSIONS,
+    toPath: AB_PERMISSIONS,
     feature: 'permissions',
   });
 }

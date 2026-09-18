@@ -8,7 +8,6 @@ import { maybeAutoMigrateLessons } from './auto-migrate.js';
 import { maybeAutoPrune } from './auto-prune.js';
 import { recordCapture } from './capture-telemetry.js';
 import { listProjectFiles } from './project-files.js';
-import { isTriggerRepairEnabled, repairTriggers } from './trigger-repair.js';
 
 /**
  * Capture primitive for applications: migrate if needed, then add the lesson
@@ -38,23 +37,14 @@ export async function captureLesson(
   // DEAD_GLOB check is skipped, never a false positive. Caller-provided
   // knownPaths (e.g. legacy merge) still wins.
   const knownPaths = options.knownPaths ?? listProjectFiles(projectRoot) ?? undefined;
-  // Opt-in capture-time trigger repair: narrow broad/wide globs toward the
-  // evidence file's class and add matchable keyword variants BEFORE the write,
-  // so degraded triggers stop entering the graph (config `repairTriggers`).
-  const repair = isTriggerRepairEnabled(projectRoot) ? repairTriggers(input, knownPaths) : null;
-  const effective = repair === null ? input : repair.input;
   try {
-    const result = await addLesson(projectRoot, effective, { ...options, knownPaths });
-    const repaired =
-      repair === null || repair.repairs.length === 0
-        ? result
-        : { ...result, warnings: [...result.warnings, ...repair.repairs] };
-    recordCapture(projectRoot, triggerKinds, repaired);
+    const result = await addLesson(projectRoot, input, { ...options, knownPaths });
+    recordCapture(projectRoot, triggerKinds, result);
     // Opt-in auto-prune: GC structural cruft right after the graph changed,
     // reusing the working-tree walk we already did. No-op unless config enables
     // it; never throws, so it can't break a successful capture.
     const autoPruned = await maybeAutoPrune(projectRoot, knownPaths);
-    return autoPruned === null ? repaired : { ...repaired, autoPruned };
+    return autoPruned === null ? result : { ...result, autoPruned };
   } catch (err) {
     recordCapture(projectRoot, triggerKinds, null);
     throw err;

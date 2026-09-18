@@ -64,8 +64,3 @@ export const AMAZON_Q_DEFAULT_AGENT_RESOURCES = [
 ] as const;
 
 // Canonical paths
-export const AMAZON_Q_CANONICAL_RULES_DIR = '.agentsmesh/rules';
-export const AMAZON_Q_CANONICAL_IGNORE = '.agentsmesh/ignore';
-export const AMAZON_Q_CANONICAL_MCP = '.agentsmesh/mcp.json';
-export const AMAZON_Q_CANONICAL_AGENTS_DIR = '.agentsmesh/agents';
-export const AMAZON_Q_CANONICAL_COMMANDS_DIR = '.agentsmesh/commands';

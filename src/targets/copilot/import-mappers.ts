@@ -3,6 +3,8 @@
  * Sibling-file pattern avoids the `index.ts ↔ importer.ts` TDZ trap.
  */
 
+import { AB_AGENTS, AB_COMMANDS, AB_RULES } from '../../core/canonical-paths.js';
+import { pruneUndefined } from '../import/shared-import-helpers.js';
 import { basename, join } from 'node:path';
 import { parseFrontmatter } from '../../utils/text/markdown.js';
 import {
@@ -13,18 +15,6 @@ import {
 import { toGlobsArray } from '../import/shared-import-helpers.js';
 import type { ImportEntryMapper } from '../catalog/import-descriptor.js';
 import { parseCommandPromptFrontmatter } from './command-prompt.js';
-import {
-  COPILOT_CANONICAL_AGENTS_DIR,
-  COPILOT_CANONICAL_COMMANDS_DIR,
-  COPILOT_CANONICAL_RULES_DIR,
-} from './constants.js';
-
-function pruneUndefined(record: Record<string, unknown>): Record<string, unknown> {
-  for (const key of Object.keys(record)) {
-    if (record[key] === undefined) delete record[key];
-  }
-  return record;
-}
 
 /** Legacy `.github/copilot/*.instructions.md` rules: `globs` field, strip `.instructions` suffix. */
 export const copilotLegacyRuleMapper: ImportEntryMapper = async ({
@@ -43,7 +33,7 @@ export const copilotLegacyRuleMapper: ImportEntryMapper = async ({
   });
   return {
     destPath,
-    toPath: `${COPILOT_CANONICAL_RULES_DIR}/${destFileName}`,
+    toPath: `${AB_RULES}/${destFileName}`,
     content: await serializeImportedRuleWithFallback(destPath, canonicalFm, body),
   };
 };
@@ -72,7 +62,7 @@ export const copilotNewRuleMapper: ImportEntryMapper = async ({
   });
   return {
     destPath,
-    toPath: `${COPILOT_CANONICAL_RULES_DIR}/${destFileName}`,
+    toPath: `${AB_RULES}/${destFileName}`,
     content: await serializeImportedRuleWithFallback(destPath, canonicalFm, body),
   };
 };
@@ -96,7 +86,7 @@ export const copilotCommandMapper: ImportEntryMapper = async ({
   const destPath = join(destDir, relativeCommandPath);
   return {
     destPath,
-    toPath: `${COPILOT_CANONICAL_COMMANDS_DIR}/${relativeCommandPath}`,
+    toPath: `${AB_COMMANDS}/${relativeCommandPath}`,
     content: await serializeImportedCommandWithFallback(
       destPath,
       {
@@ -125,7 +115,7 @@ export const copilotAgentMapper: ImportEntryMapper = async ({
   const { frontmatter, body } = parseFrontmatter(normalizeTo(destPath));
   return {
     destPath,
-    toPath: `${COPILOT_CANONICAL_AGENTS_DIR}/${relativeMdPath}`,
+    toPath: `${AB_AGENTS}/${relativeMdPath}`,
     content: await serializeImportedAgentWithFallback(
       destPath,
       { ...frontmatter, name: typeof frontmatter.name === 'string' ? frontmatter.name : base },

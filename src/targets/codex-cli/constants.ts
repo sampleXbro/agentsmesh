@@ -33,13 +33,6 @@ export const CODEX_RULES_DIR = '.codex/rules';
 /** Project custom agents (native TOML format) */
 export const CODEX_AGENTS_DIR = '.codex/agents';
 
-export const CODEX_CANONICAL_RULES_DIR = '.agentsmesh/rules';
-export const CODEX_CANONICAL_COMMANDS_DIR = '.agentsmesh/commands';
-export const CODEX_CANONICAL_AGENTS_DIR = '.agentsmesh/agents';
-export const CODEX_CANONICAL_SKILLS_DIR = '.agentsmesh/skills';
-export const CODEX_CANONICAL_MCP = '.agentsmesh/mcp.json';
-export const CODEX_CANONICAL_HOOKS = '.agentsmesh/hooks.yaml';
-
 export const CODEX_RULE_EMBED_MARKER = 'am-codex-rule:v1';
 export const CODEX_RULE_EMBED_JSON_PREFIX = '# am-json: ';
 export const CODEX_RULE_EMBED_B64_BEGIN = '# am-body-b64-begin';
@@ -71,4 +64,3 @@ export const CODEX_SUPPORTED_HOOK_EVENTS = [
  * execution-emit files, and from Codex's own `default.rules` TUI-write destination, so
  * agentsmesh never double-writes or collides with either). */
 export const CODEX_PERMISSIONS_RULES_BASENAME = 'agentsmesh-permissions.rules';
-export const CODEX_CANONICAL_PERMISSIONS = '.agentsmesh/permissions.yaml';

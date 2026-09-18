@@ -30,13 +30,11 @@ export async function detectSkillPack(root: string): Promise<SkillPackRoot | nul
   const entries = await listDirEntries(skillsDir);
   for (const ent of entries) {
     if (!ent.isDir || ent.name.startsWith('_') || !KEBAB_DIR.test(ent.name)) continue;
-    if (await dirExists(join(skillsDir, ent.name))) {
-      try {
-        const skillMd = await stat(join(skillsDir, ent.name, 'SKILL.md'));
-        if (skillMd.isFile()) return { path: 'skills' };
-      } catch {
-        continue;
-      }
+    try {
+      const skillMd = await stat(join(skillsDir, ent.name, 'SKILL.md'));
+      if (skillMd.isFile()) return { path: 'skills' };
+    } catch {
+      continue;
     }
   }
   return null;

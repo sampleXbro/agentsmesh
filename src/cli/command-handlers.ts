@@ -1,5 +1,4 @@
 import type { CliFlags } from './index.js';
-import type { CommandHandler } from './router.js';
 import { handleResult } from './json-handler.js';
 import { emitJson } from './json-output.js';
 import { runGenerate } from './commands/generate.js';
@@ -68,6 +67,8 @@ function mayPrompt(nf: Record<string, string | boolean>): boolean {
     nf['dry-run'] !== true
   );
 }
+
+export type CommandHandler = (flags: CliFlags, args: string[]) => Promise<void>;
 
 export const cmdHandlers: Record<string, CommandHandler> = {
   generate: async (flags, _args) => {

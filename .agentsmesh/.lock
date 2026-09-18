@@ -1,7 +1,7 @@
 # Auto-generated. DO NOT EDIT MANUALLY.
 # Tracks the state of all config files for team conflict resolution.
 
-generated_at: 2026-09-13T13:53:25.847Z
+generated_at: 2026-09-17T12:17:24.195Z
 generated_by: serhii
 lib_version: 0.36.0
 checksums:
@@ -132,6 +132,7 @@ packs:
   alirezarezvani-claude-skills-skills: sha256:343398a678251a447d73e7b45d577e620e727e10e45c34f01208f3b42ed2c8db
   composiohq-awesome-claude-skills-skills: sha256:6b63e9d8e01c904ed85fcff5dd9e368ab37e68b904b2170454c3104feb82cd3d
   devsforge-orchestrator-skills: sha256:9228afa4fd2aedaca2403e7c2afbce0c18e4204793ede6e649a777eed9eb3231
+  dietrichgebert-ponytail-pack: sha256:2ca38ba7bbb583cd258a97ff5ef55e70151547881f07f5ff3b121281268ae5f4
   joeking-ly-claude-skills-arsenal-skills: sha256:63b24277c3d09607506971957d40f95139385193eaf8b02a92d68ca6f8af15ec
   mattpocock-skills-skills: sha256:b2848e2f170d699f7b3de5c9d686af4f3cf9903c5b74724916bb7ae476df3e7d
   njengah-claude-code-cheat-sheet-agents: sha256:6b0a573bc4a725d0a5d38d323d19382f7a24bd948885d3555b94cbca47a05cbf
@@ -182,6 +183,12 @@ outputs:
   .claude/commands/planning.md: sha256:557bbbde4d66cf8b31588b2188fd633bb071b331d9e54d8c19cfdc80ec2ef7be
   .claude/commands/ship.md: sha256:0c3a139a059f841c25bac4661c16f1c4bafe7f0b703233d50c6b7ea48fe6a12a
   .claude/commands/spec.md: sha256:c7de854f4d60f5703fcaa2d8e19133516da326d74bf1186f79492e0e3a285a01
+  .claude/commands/ponytail-audit.md: sha256:76335dd560a78746b42cbd85d03c03e6696a11759fde7833f64d4ece3908d3a8
+  .claude/commands/ponytail-debt.md: sha256:ae86c9bd30f971398734cb4098c87e30b58b1e5be66b5f5b4b01b331ea18a256
+  .claude/commands/ponytail-gain.md: sha256:b4bc394189c10dbd38ba7742d1d5122440eca495fa0406b9f363e2b2be97592f
+  .claude/commands/ponytail-help.md: sha256:4e688b23d746d8fd98cd31c70817d8cd2b60a48fbccf5beee5ead24c0e2a1851
+  .claude/commands/ponytail-review.md: sha256:d5e3303665fb60aef1b7cb65d030f1ff09936377150b93bda03f4d71051d6f24
+  .claude/commands/ponytail.md: sha256:2b729fb5b8078a2e005b61bfa83f28b32dfc7b004c9ea86649395f6682fd636f
   .cursor/commands/commit.md: sha256:56f9232d37c003abda4ef281c9349f5417091bbad8d0c5911d06ea99bbb1d0b5
   .cursor/commands/review.md: sha256:b7373e051bccdb75e96205e4fb38529e8a66f7e5db1ee346edd7c5d5f32869d9
   .cursor/commands/test.md: sha256:17ce1150b023e4b708954b5f05c14cf0dd6da1b5b71d6f3a0cf8d78f030dd3da
@@ -191,6 +198,12 @@ outputs:
   .cursor/commands/planning.md: sha256:557bbbde4d66cf8b31588b2188fd633bb071b331d9e54d8c19cfdc80ec2ef7be
   .cursor/commands/ship.md: sha256:0c3a139a059f841c25bac4661c16f1c4bafe7f0b703233d50c6b7ea48fe6a12a
   .cursor/commands/spec.md: sha256:c7de854f4d60f5703fcaa2d8e19133516da326d74bf1186f79492e0e3a285a01
+  .cursor/commands/ponytail-audit.md: sha256:76335dd560a78746b42cbd85d03c03e6696a11759fde7833f64d4ece3908d3a8
+  .cursor/commands/ponytail-debt.md: sha256:ae86c9bd30f971398734cb4098c87e30b58b1e5be66b5f5b4b01b331ea18a256
+  .cursor/commands/ponytail-gain.md: sha256:b4bc394189c10dbd38ba7742d1d5122440eca495fa0406b9f363e2b2be97592f
+  .cursor/commands/ponytail-help.md: sha256:4e688b23d746d8fd98cd31c70817d8cd2b60a48fbccf5beee5ead24c0e2a1851
+  .cursor/commands/ponytail-review.md: sha256:d5e3303665fb60aef1b7cb65d030f1ff09936377150b93bda03f4d71051d6f24
+  .cursor/commands/ponytail.md: sha256:2b729fb5b8078a2e005b61bfa83f28b32dfc7b004c9ea86649395f6682fd636f
   .github/prompts/commit.prompt.md: sha256:ef5d821a1dd8133c50da325e612f9af22b4c9ad2ebd7e82bbc8f69964fe70fa5
   .github/prompts/review.prompt.md: sha256:ed4e23ee864c7dda56403abb467b9d2c496772e21af778a721775eb2b9768e95
   .github/prompts/test.prompt.md: sha256:3724656be936c8c51cc1edbc456087737b5b8571f3336ab1d3246dda4797fe39
@@ -200,6 +213,12 @@ outputs:
   .github/prompts/planning.prompt.md: sha256:c8e34c20739b5000d27a65de45f5e7d5ed699574e87c81e1592237325364770c
   .github/prompts/ship.prompt.md: sha256:46ff492c8ecd941d9c8115fa6d49ac3067e57a012bca206f8012551e5a7285ed
   .github/prompts/spec.prompt.md: sha256:347a4c5a204a783264935ecf91ec8b5cd49aab0e44ab3ec144560b7de3ff2564
+  .github/prompts/ponytail-audit.prompt.md: sha256:e52e74e9d29b8f2b7a704367c0c77138d1e2c2a14fa69bbc447fcd21c9c32068
+  .github/prompts/ponytail-debt.prompt.md: sha256:7176b426130dbf6d74b90b8be6ddae138262deb42bd9dbf23305b2db8aaf0a85
+  .github/prompts/ponytail-gain.prompt.md: sha256:427ccc65ca84ab742f168f8b25da9e4acfe0143490b2fe0a470cbb9362980977
+  .github/prompts/ponytail-help.prompt.md: sha256:d863ad160bb00fec96572b9069ae01d3deeb3236764011f770062d03e10208cd
+  .github/prompts/ponytail-review.prompt.md: sha256:2e943d248e30297b4e0daa0ad6dadce5e47ae443a2e5fc04074bac3c3c3b9486
+  .github/prompts/ponytail.prompt.md: sha256:ce0518da0eae5d21a0210d5d35823c3453e296f006da922806ab387191e306be
   .gemini/commands/commit.toml: sha256:4279eb2274584b32edaa192779b32e440ee7b6eba3e32212320ed287116d918c
   .gemini/commands/review.toml: sha256:898d061c7daee659fcb9e3a770b184e868400f92d1b03e7012a9d63cb94bbe2e
   .gemini/commands/test.toml: sha256:af38e81ac4c5425d2789d5a4e6e030390a70fde5a8fdeb0688e0267a6b267205
@@ -209,6 +228,12 @@ outputs:
   .gemini/commands/planning.toml: sha256:01647f9357ce14552e0c8a3fd3f36076295f5fcc3ee8fa50bbb876394a9a6b9c
   .gemini/commands/ship.toml: sha256:42f0a6f460b817ae88dbeb3267ceb0630c06f9fdc3842a2a8255ea2e9a966b60
   .gemini/commands/spec.toml: sha256:b3b5f256f4a399b57499cded0f04acc232ce7ff6a34b5f7aa891050e2cad3f93
+  .gemini/commands/ponytail-audit.toml: sha256:65f636a397ee2ba1c908c4f329872221d6b24a433d5d16fbf0bd1a65aac0239e
+  .gemini/commands/ponytail-debt.toml: sha256:652bcdd37290c8f8496b9c58f1498930a48cab97e4674dc58cae33c3e7b2f0dd
+  .gemini/commands/ponytail-gain.toml: sha256:940429d53f142c99502653ece845d180765f7638574ededbe926b1256aca5fc8
+  .gemini/commands/ponytail-help.toml: sha256:316430b3a0746868fb1516cce4b27d79ef5c9af422355b4c302dcff6cee41148
+  .gemini/commands/ponytail-review.toml: sha256:bddc1f032ee49f617a6986d5ad81962987bd053e945ea2634ecd0196dafb1f06
+  .gemini/commands/ponytail.toml: sha256:c152f22adf6d6f895aeb710156e648f036d059ccd81e459ccad017abcc3ee85b
   .clinerules/workflows/commit.md: sha256:9e10ae74a635a67a1b9035864315ad17ee77fa94bf039e4e63deaf2d0674f3cb
   .clinerules/workflows/review.md: sha256:e402ba3da57ee0c8377a89ebd927716acfef46044bdc0245df38ba58a77c22e7
   .clinerules/workflows/test.md: sha256:465220a3bcf57b13c1651d0cc8d6d40dbedb7ede5923050538c2e4b965df83a5
@@ -218,6 +243,12 @@ outputs:
   .clinerules/workflows/planning.md: sha256:d09bc55dbe8c7124e2f855c5a2e8c80b8410601c8d12d68bd5c3095909c1d36d
   .clinerules/workflows/ship.md: sha256:963dd3c412e166a47dd35704476f7eff0ef5dbaef0264be1749998170625534a
   .clinerules/workflows/spec.md: sha256:4931fa71203f9896f6a79b8b10fe3e173565bd206b71e05c2193d1b03f83dfbc
+  .clinerules/workflows/ponytail-audit.md: sha256:0a5414b1a3d723f4e1acdd7cc81ed38f5f91932227a106bf39bce03d44df25f5
+  .clinerules/workflows/ponytail-debt.md: sha256:217c3f6ee6ba0cd5135c3fd9df078a94e0c30f67abd5006efa118d9382409235
+  .clinerules/workflows/ponytail-gain.md: sha256:8f6888c54edcb14360c8f7a94d90b550b53b725df84930f9d19568edc7d59f0b
+  .clinerules/workflows/ponytail-help.md: sha256:7a2a5082719a03e7b649aa78c007f84321a067aa9c9d990ff6785f3c5b1bb503
+  .clinerules/workflows/ponytail-review.md: sha256:68088a43762b8af0787a20c2c79acbd6c2a70a37497426a15d9f5dfe33aa7734
+  .clinerules/workflows/ponytail.md: sha256:800f2a412bf16897d3e4d2e5e4a42bcfb17e1a09bddd98a62aed06bbd2d41aa2
   .agents/skills/am-command-commit/SKILL.md: sha256:3e681b33bba344215417baae41458ed24b47c3b2081108b081bd92af287a09d0
   .agents/skills/am-command-review/SKILL.md: sha256:342f424da4f146c24fbdc2a49e8dbb7bb464828280e07fb24f0ee60ade0c97f6
   .agents/skills/am-command-test/SKILL.md: sha256:3fc1ce8795bfaffd85f29c356a7395290d2b13434d257ec62d2660885fa4c04d
@@ -227,6 +258,12 @@ outputs:
   .agents/skills/am-command-planning/SKILL.md: sha256:24a0004d27c3a4eb4318295d52cee61d0087f7f2913d969d35ed7e9b99c1d451
   .agents/skills/am-command-ship/SKILL.md: sha256:b50ab1dfe28e0c815a5bbff8115630f9efcad80b5f416372e65dc63c05307327
   .agents/skills/am-command-spec/SKILL.md: sha256:b1d75db24651b48206cffa37c62ac7800123ac94703e99cd040124b9ee73da95
+  .agents/skills/am-command-ponytail-audit/SKILL.md: sha256:15e561dc659bef0ff272506bdbf82ce3f6362d73f0423a9c7860babe3830b66c
+  .agents/skills/am-command-ponytail-debt/SKILL.md: sha256:59a58d40822410f0ae6f24a5168dbb8fceab5497c7a7f0a2b3971a031154194b
+  .agents/skills/am-command-ponytail-gain/SKILL.md: sha256:42aa99e819a0a93a04df24a10366e8f29cff35b122e68db8907e676d210e2f4e
+  .agents/skills/am-command-ponytail-help/SKILL.md: sha256:2a8e161caa29c33a1e720d13aa3cf809a2c92b4c9fbfd2605395a998721dc76b
+  .agents/skills/am-command-ponytail-review/SKILL.md: sha256:4376401a4745d5a92fd49f78386afb3d3ff2a31335f91fd62cfaa384575d56b2
+  .agents/skills/am-command-ponytail/SKILL.md: sha256:6faf832a253c50734f3e18b1f3c00a600a6dc7c724225a07eea398b94601ba67
   .windsurf/workflows/commit.md: sha256:b5976b81ec8fcb8c4a9a243c1dfe2afba4276b2472243e7891c9c8d9dda47d95
   .windsurf/workflows/review.md: sha256:40aa5c7772c8351cc2f1f85439ae0d32d17374f2afff098f1c169c0cad934b6d
   .windsurf/workflows/test.md: sha256:27e0e179974a23f7073fc48e3c26dd9a736b7a8b9c48a5323242b07021fe6084
@@ -236,6 +273,12 @@ outputs:
   .windsurf/workflows/planning.md: sha256:557bbbde4d66cf8b31588b2188fd633bb071b331d9e54d8c19cfdc80ec2ef7be
   .windsurf/workflows/ship.md: sha256:0c3a139a059f841c25bac4661c16f1c4bafe7f0b703233d50c6b7ea48fe6a12a
   .windsurf/workflows/spec.md: sha256:c7de854f4d60f5703fcaa2d8e19133516da326d74bf1186f79492e0e3a285a01
+  .windsurf/workflows/ponytail-audit.md: sha256:76335dd560a78746b42cbd85d03c03e6696a11759fde7833f64d4ece3908d3a8
+  .windsurf/workflows/ponytail-debt.md: sha256:ae86c9bd30f971398734cb4098c87e30b58b1e5be66b5f5b4b01b331ea18a256
+  .windsurf/workflows/ponytail-gain.md: sha256:b4bc394189c10dbd38ba7742d1d5122440eca495fa0406b9f363e2b2be97592f
+  .windsurf/workflows/ponytail-help.md: sha256:4e688b23d746d8fd98cd31c70817d8cd2b60a48fbccf5beee5ead24c0e2a1851
+  .windsurf/workflows/ponytail-review.md: sha256:d5e3303665fb60aef1b7cb65d030f1ff09936377150b93bda03f4d71051d6f24
+  .windsurf/workflows/ponytail.md: sha256:2b729fb5b8078a2e005b61bfa83f28b32dfc7b004c9ea86649395f6682fd636f
   .continue/prompts/commit.md: sha256:5127c2e6f9480679fee8e86957bd7a5e7c790c01581294f880ab85013d8f005d
   .continue/prompts/review.md: sha256:d00bfa6b6aaed8ede648d46968b7932780284674c1f52e0f8bd22474c148d4a3
   .continue/prompts/test.md: sha256:7f9ae3d4aa6a82f15fd3bc00f34fe1e321a3eceaeb388c6caaa1d1f2ce3c1b4f
@@ -245,6 +288,12 @@ outputs:
   .continue/prompts/planning.md: sha256:f9efe74fc49059d30ad6ec7b374e27eb54a799c2cec7bead379efb5a3a12f5b7
   .continue/prompts/ship.md: sha256:5151ea179d038bdc515c0e287e873fd8b97d66be8969d159b3e1b4224c06b970
   .continue/prompts/spec.md: sha256:44fb3c64a25c7decf57e58d01adebf8f288830dc8e63233da774d033eb2be837
+  .continue/prompts/ponytail-audit.md: sha256:0c387bf486d3d8965404b0ab4d4fe376c1504342686ed87a5c7a0c7ac727cb46
+  .continue/prompts/ponytail-debt.md: sha256:e597335a17e6183e09e92eaaa1cf8b22715a6e18770ed4498fff1643f0f2cb1b
+  .continue/prompts/ponytail-gain.md: sha256:cae64a51ab1a7dac1c4a6ec41088682738cdf3407c4eae6082d1cd2a9b35ec19
+  .continue/prompts/ponytail-help.md: sha256:589065297d108bc6ad3b99e9aa3334ec54715c9a8736fa80f820d3f992306d24
+  .continue/prompts/ponytail-review.md: sha256:b73eeb1db18fa2b84aeb7d5b13c38d9c2278e363c7e592a3dc01700a1da14bde
+  .continue/prompts/ponytail.md: sha256:4cf71f4a337b50efc73633cc290d99502f742ae422e77c3687491b0be9211723
   .junie/commands/commit.md: sha256:56f9232d37c003abda4ef281c9349f5417091bbad8d0c5911d06ea99bbb1d0b5
   .junie/commands/review.md: sha256:b7373e051bccdb75e96205e4fb38529e8a66f7e5db1ee346edd7c5d5f32869d9
   .junie/commands/test.md: sha256:17ce1150b023e4b708954b5f05c14cf0dd6da1b5b71d6f3a0cf8d78f030dd3da
@@ -254,6 +303,12 @@ outputs:
   .junie/commands/planning.md: sha256:557bbbde4d66cf8b31588b2188fd633bb071b331d9e54d8c19cfdc80ec2ef7be
   .junie/commands/ship.md: sha256:0c3a139a059f841c25bac4661c16f1c4bafe7f0b703233d50c6b7ea48fe6a12a
   .junie/commands/spec.md: sha256:c7de854f4d60f5703fcaa2d8e19133516da326d74bf1186f79492e0e3a285a01
+  .junie/commands/ponytail-audit.md: sha256:76335dd560a78746b42cbd85d03c03e6696a11759fde7833f64d4ece3908d3a8
+  .junie/commands/ponytail-debt.md: sha256:ae86c9bd30f971398734cb4098c87e30b58b1e5be66b5f5b4b01b331ea18a256
+  .junie/commands/ponytail-gain.md: sha256:b4bc394189c10dbd38ba7742d1d5122440eca495fa0406b9f363e2b2be97592f
+  .junie/commands/ponytail-help.md: sha256:4e688b23d746d8fd98cd31c70817d8cd2b60a48fbccf5beee5ead24c0e2a1851
+  .junie/commands/ponytail-review.md: sha256:d5e3303665fb60aef1b7cb65d030f1ff09936377150b93bda03f4d71051d6f24
+  .junie/commands/ponytail.md: sha256:2b729fb5b8078a2e005b61bfa83f28b32dfc7b004c9ea86649395f6682fd636f
   .agents/workflows/commit.md: sha256:9e10ae74a635a67a1b9035864315ad17ee77fa94bf039e4e63deaf2d0674f3cb
   .agents/workflows/review.md: sha256:e402ba3da57ee0c8377a89ebd927716acfef46044bdc0245df38ba58a77c22e7
   .agents/workflows/test.md: sha256:465220a3bcf57b13c1651d0cc8d6d40dbedb7ede5923050538c2e4b965df83a5
@@ -263,6 +318,12 @@ outputs:
   .agents/workflows/planning.md: sha256:d09bc55dbe8c7124e2f855c5a2e8c80b8410601c8d12d68bd5c3095909c1d36d
   .agents/workflows/ship.md: sha256:963dd3c412e166a47dd35704476f7eff0ef5dbaef0264be1749998170625534a
   .agents/workflows/spec.md: sha256:4931fa71203f9896f6a79b8b10fe3e173565bd206b71e05c2193d1b03f83dfbc
+  .agents/workflows/ponytail-audit.md: sha256:0a5414b1a3d723f4e1acdd7cc81ed38f5f91932227a106bf39bce03d44df25f5
+  .agents/workflows/ponytail-debt.md: sha256:217c3f6ee6ba0cd5135c3fd9df078a94e0c30f67abd5006efa118d9382409235
+  .agents/workflows/ponytail-gain.md: sha256:8f6888c54edcb14360c8f7a94d90b550b53b725df84930f9d19568edc7d59f0b
+  .agents/workflows/ponytail-help.md: sha256:7a2a5082719a03e7b649aa78c007f84321a067aa9c9d990ff6785f3c5b1bb503
+  .agents/workflows/ponytail-review.md: sha256:68088a43762b8af0787a20c2c79acbd6c2a70a37497426a15d9f5dfe33aa7734
+  .agents/workflows/ponytail.md: sha256:800f2a412bf16897d3e4d2e5e4a42bcfb17e1a09bddd98a62aed06bbd2d41aa2
   .roo/commands/commit.md: sha256:56f9232d37c003abda4ef281c9349f5417091bbad8d0c5911d06ea99bbb1d0b5
   .roo/commands/review.md: sha256:b7373e051bccdb75e96205e4fb38529e8a66f7e5db1ee346edd7c5d5f32869d9
   .roo/commands/test.md: sha256:17ce1150b023e4b708954b5f05c14cf0dd6da1b5b71d6f3a0cf8d78f030dd3da
@@ -272,6 +333,12 @@ outputs:
   .roo/commands/planning.md: sha256:557bbbde4d66cf8b31588b2188fd633bb071b331d9e54d8c19cfdc80ec2ef7be
   .roo/commands/ship.md: sha256:0c3a139a059f841c25bac4661c16f1c4bafe7f0b703233d50c6b7ea48fe6a12a
   .roo/commands/spec.md: sha256:c7de854f4d60f5703fcaa2d8e19133516da326d74bf1186f79492e0e3a285a01
+  .roo/commands/ponytail-audit.md: sha256:76335dd560a78746b42cbd85d03c03e6696a11759fde7833f64d4ece3908d3a8
+  .roo/commands/ponytail-debt.md: sha256:ae86c9bd30f971398734cb4098c87e30b58b1e5be66b5f5b4b01b331ea18a256
+  .roo/commands/ponytail-gain.md: sha256:b4bc394189c10dbd38ba7742d1d5122440eca495fa0406b9f363e2b2be97592f
+  .roo/commands/ponytail-help.md: sha256:4e688b23d746d8fd98cd31c70817d8cd2b60a48fbccf5beee5ead24c0e2a1851
+  .roo/commands/ponytail-review.md: sha256:d5e3303665fb60aef1b7cb65d030f1ff09936377150b93bda03f4d71051d6f24
+  .roo/commands/ponytail.md: sha256:2b729fb5b8078a2e005b61bfa83f28b32dfc7b004c9ea86649395f6682fd636f
   .kiro/skills/am-command-commit/SKILL.md: sha256:3e681b33bba344215417baae41458ed24b47c3b2081108b081bd92af287a09d0
   .kiro/skills/am-command-review/SKILL.md: sha256:342f424da4f146c24fbdc2a49e8dbb7bb464828280e07fb24f0ee60ade0c97f6
   .kiro/skills/am-command-test/SKILL.md: sha256:3fc1ce8795bfaffd85f29c356a7395290d2b13434d257ec62d2660885fa4c04d
@@ -281,6 +348,12 @@ outputs:
   .kiro/skills/am-command-planning/SKILL.md: sha256:24a0004d27c3a4eb4318295d52cee61d0087f7f2913d969d35ed7e9b99c1d451
   .kiro/skills/am-command-ship/SKILL.md: sha256:b50ab1dfe28e0c815a5bbff8115630f9efcad80b5f416372e65dc63c05307327
   .kiro/skills/am-command-spec/SKILL.md: sha256:b1d75db24651b48206cffa37c62ac7800123ac94703e99cd040124b9ee73da95
+  .kiro/skills/am-command-ponytail-audit/SKILL.md: sha256:15e561dc659bef0ff272506bdbf82ce3f6362d73f0423a9c7860babe3830b66c
+  .kiro/skills/am-command-ponytail-debt/SKILL.md: sha256:59a58d40822410f0ae6f24a5168dbb8fceab5497c7a7f0a2b3971a031154194b
+  .kiro/skills/am-command-ponytail-gain/SKILL.md: sha256:42aa99e819a0a93a04df24a10366e8f29cff35b122e68db8907e676d210e2f4e
+  .kiro/skills/am-command-ponytail-help/SKILL.md: sha256:2a8e161caa29c33a1e720d13aa3cf809a2c92b4c9fbfd2605395a998721dc76b
+  .kiro/skills/am-command-ponytail-review/SKILL.md: sha256:4376401a4745d5a92fd49f78386afb3d3ff2a31335f91fd62cfaa384575d56b2
+  .kiro/skills/am-command-ponytail/SKILL.md: sha256:6faf832a253c50734f3e18b1f3c00a600a6dc7c724225a07eea398b94601ba67
   .kilo/commands/commit.md: sha256:56f9232d37c003abda4ef281c9349f5417091bbad8d0c5911d06ea99bbb1d0b5
   .kilo/commands/review.md: sha256:b7373e051bccdb75e96205e4fb38529e8a66f7e5db1ee346edd7c5d5f32869d9
   .kilo/commands/test.md: sha256:17ce1150b023e4b708954b5f05c14cf0dd6da1b5b71d6f3a0cf8d78f030dd3da
@@ -290,6 +363,12 @@ outputs:
   .kilo/commands/planning.md: sha256:557bbbde4d66cf8b31588b2188fd633bb071b331d9e54d8c19cfdc80ec2ef7be
   .kilo/commands/ship.md: sha256:0c3a139a059f841c25bac4661c16f1c4bafe7f0b703233d50c6b7ea48fe6a12a
   .kilo/commands/spec.md: sha256:c7de854f4d60f5703fcaa2d8e19133516da326d74bf1186f79492e0e3a285a01
+  .kilo/commands/ponytail-audit.md: sha256:76335dd560a78746b42cbd85d03c03e6696a11759fde7833f64d4ece3908d3a8
+  .kilo/commands/ponytail-debt.md: sha256:ae86c9bd30f971398734cb4098c87e30b58b1e5be66b5f5b4b01b331ea18a256
+  .kilo/commands/ponytail-gain.md: sha256:b4bc394189c10dbd38ba7742d1d5122440eca495fa0406b9f363e2b2be97592f
+  .kilo/commands/ponytail-help.md: sha256:4e688b23d746d8fd98cd31c70817d8cd2b60a48fbccf5beee5ead24c0e2a1851
+  .kilo/commands/ponytail-review.md: sha256:d5e3303665fb60aef1b7cb65d030f1ff09936377150b93bda03f4d71051d6f24
+  .kilo/commands/ponytail.md: sha256:2b729fb5b8078a2e005b61bfa83f28b32dfc7b004c9ea86649395f6682fd636f
   .opencode/commands/commit.md: sha256:56f9232d37c003abda4ef281c9349f5417091bbad8d0c5911d06ea99bbb1d0b5
   .opencode/commands/review.md: sha256:b7373e051bccdb75e96205e4fb38529e8a66f7e5db1ee346edd7c5d5f32869d9
   .opencode/commands/test.md: sha256:17ce1150b023e4b708954b5f05c14cf0dd6da1b5b71d6f3a0cf8d78f030dd3da
@@ -299,6 +378,12 @@ outputs:
   .opencode/commands/planning.md: sha256:557bbbde4d66cf8b31588b2188fd633bb071b331d9e54d8c19cfdc80ec2ef7be
   .opencode/commands/ship.md: sha256:0c3a139a059f841c25bac4661c16f1c4bafe7f0b703233d50c6b7ea48fe6a12a
   .opencode/commands/spec.md: sha256:c7de854f4d60f5703fcaa2d8e19133516da326d74bf1186f79492e0e3a285a01
+  .opencode/commands/ponytail-audit.md: sha256:76335dd560a78746b42cbd85d03c03e6696a11759fde7833f64d4ece3908d3a8
+  .opencode/commands/ponytail-debt.md: sha256:ae86c9bd30f971398734cb4098c87e30b58b1e5be66b5f5b4b01b331ea18a256
+  .opencode/commands/ponytail-gain.md: sha256:b4bc394189c10dbd38ba7742d1d5122440eca495fa0406b9f363e2b2be97592f
+  .opencode/commands/ponytail-help.md: sha256:4e688b23d746d8fd98cd31c70817d8cd2b60a48fbccf5beee5ead24c0e2a1851
+  .opencode/commands/ponytail-review.md: sha256:d5e3303665fb60aef1b7cb65d030f1ff09936377150b93bda03f4d71051d6f24
+  .opencode/commands/ponytail.md: sha256:2b729fb5b8078a2e005b61bfa83f28b32dfc7b004c9ea86649395f6682fd636f
   .warp/skills/am-command-commit/SKILL.md: sha256:3e681b33bba344215417baae41458ed24b47c3b2081108b081bd92af287a09d0
   .warp/skills/am-command-review/SKILL.md: sha256:342f424da4f146c24fbdc2a49e8dbb7bb464828280e07fb24f0ee60ade0c97f6
   .warp/skills/am-command-test/SKILL.md: sha256:3fc1ce8795bfaffd85f29c356a7395290d2b13434d257ec62d2660885fa4c04d
@@ -308,6 +393,12 @@ outputs:
   .warp/skills/am-command-planning/SKILL.md: sha256:24a0004d27c3a4eb4318295d52cee61d0087f7f2913d969d35ed7e9b99c1d451
   .warp/skills/am-command-ship/SKILL.md: sha256:b50ab1dfe28e0c815a5bbff8115630f9efcad80b5f416372e65dc63c05307327
   .warp/skills/am-command-spec/SKILL.md: sha256:b1d75db24651b48206cffa37c62ac7800123ac94703e99cd040124b9ee73da95
+  .warp/skills/am-command-ponytail-audit/SKILL.md: sha256:15e561dc659bef0ff272506bdbf82ce3f6362d73f0423a9c7860babe3830b66c
+  .warp/skills/am-command-ponytail-debt/SKILL.md: sha256:59a58d40822410f0ae6f24a5168dbb8fceab5497c7a7f0a2b3971a031154194b
+  .warp/skills/am-command-ponytail-gain/SKILL.md: sha256:42aa99e819a0a93a04df24a10366e8f29cff35b122e68db8907e676d210e2f4e
+  .warp/skills/am-command-ponytail-help/SKILL.md: sha256:2a8e161caa29c33a1e720d13aa3cf809a2c92b4c9fbfd2605395a998721dc76b
+  .warp/skills/am-command-ponytail-review/SKILL.md: sha256:4376401a4745d5a92fd49f78386afb3d3ff2a31335f91fd62cfaa384575d56b2
+  .warp/skills/am-command-ponytail/SKILL.md: sha256:6faf832a253c50734f3e18b1f3c00a600a6dc7c724225a07eea398b94601ba67
   .aider/skills/am-command-commit/SKILL.md: sha256:3e681b33bba344215417baae41458ed24b47c3b2081108b081bd92af287a09d0
   .aider/skills/am-command-review/SKILL.md: sha256:342f424da4f146c24fbdc2a49e8dbb7bb464828280e07fb24f0ee60ade0c97f6
   .aider/skills/am-command-test/SKILL.md: sha256:3fc1ce8795bfaffd85f29c356a7395290d2b13434d257ec62d2660885fa4c04d
@@ -317,6 +408,12 @@ outputs:
   .aider/skills/am-command-planning/SKILL.md: sha256:24a0004d27c3a4eb4318295d52cee61d0087f7f2913d969d35ed7e9b99c1d451
   .aider/skills/am-command-ship/SKILL.md: sha256:b50ab1dfe28e0c815a5bbff8115630f9efcad80b5f416372e65dc63c05307327
   .aider/skills/am-command-spec/SKILL.md: sha256:b1d75db24651b48206cffa37c62ac7800123ac94703e99cd040124b9ee73da95
+  .aider/skills/am-command-ponytail-audit/SKILL.md: sha256:15e561dc659bef0ff272506bdbf82ce3f6362d73f0423a9c7860babe3830b66c
+  .aider/skills/am-command-ponytail-debt/SKILL.md: sha256:59a58d40822410f0ae6f24a5168dbb8fceab5497c7a7f0a2b3971a031154194b
+  .aider/skills/am-command-ponytail-gain/SKILL.md: sha256:42aa99e819a0a93a04df24a10366e8f29cff35b122e68db8907e676d210e2f4e
+  .aider/skills/am-command-ponytail-help/SKILL.md: sha256:2a8e161caa29c33a1e720d13aa3cf809a2c92b4c9fbfd2605395a998721dc76b
+  .aider/skills/am-command-ponytail-review/SKILL.md: sha256:4376401a4745d5a92fd49f78386afb3d3ff2a31335f91fd62cfaa384575d56b2
+  .aider/skills/am-command-ponytail/SKILL.md: sha256:6faf832a253c50734f3e18b1f3c00a600a6dc7c724225a07eea398b94601ba67
   .amazonq/prompts/commit.md: sha256:e3d927c6d903faa27e01e1fe733926c72b1905eacda0f6a4b9472ee2e6d26485
   .amazonq/prompts/review.md: sha256:51944d6b2973136558a21fc6cc49dda9602a5e3893c7600024c711429101a142
   .amazonq/prompts/test.md: sha256:3e0b3f3c553cb8d874d77e695ca44602393df0cce2bd10b2e4d1ebbb54379e8d
@@ -326,6 +423,12 @@ outputs:
   .amazonq/prompts/planning.md: sha256:863a799fac45e86aaed7bb9143555bfcff6561f7706a53d3fd36e909ecdd01d7
   .amazonq/prompts/ship.md: sha256:4fad208aa9ff7ba12f1d3afcdb9ee3a78ebdef5a6b12e0358e5aca0a479ae4d6
   .amazonq/prompts/spec.md: sha256:fe3a8cd8f233d4ada8ffda79ca20fe35c2644c1fa42c05d786f233f2c2748cd8
+  .amazonq/prompts/ponytail-audit.md: sha256:96011156a687271a7507082d741e75a86ee765f2869c08986fbbad6149de2274
+  .amazonq/prompts/ponytail-debt.md: sha256:d3a1b1bfed394842525c380be1b0ce900ca89e620d0309c2103851d9ab19ee99
+  .amazonq/prompts/ponytail-gain.md: sha256:f7ec2a38490a6c954b6897bdd7bfae58ac03c721b8cd33fbd6062bf2c129e1fe
+  .amazonq/prompts/ponytail-help.md: sha256:583f8daa04231b5ca61c69d41accd36582029f0f680408d948e112393993be99
+  .amazonq/prompts/ponytail-review.md: sha256:6e4cb308bae21698a345b855adba5b0bb0d2f003f6275d325c2f24a9f4315200
+  .amazonq/prompts/ponytail.md: sha256:54bb597c6756dcd5c3883419752927d938774516cf8e55fff019ecb6c69809b2
   .augment/commands/commit.md: sha256:56f9232d37c003abda4ef281c9349f5417091bbad8d0c5911d06ea99bbb1d0b5
   .augment/commands/review.md: sha256:b7373e051bccdb75e96205e4fb38529e8a66f7e5db1ee346edd7c5d5f32869d9
   .augment/commands/test.md: sha256:17ce1150b023e4b708954b5f05c14cf0dd6da1b5b71d6f3a0cf8d78f030dd3da
@@ -335,6 +438,12 @@ outputs:
   .augment/commands/planning.md: sha256:557bbbde4d66cf8b31588b2188fd633bb071b331d9e54d8c19cfdc80ec2ef7be
   .augment/commands/ship.md: sha256:0c3a139a059f841c25bac4661c16f1c4bafe7f0b703233d50c6b7ea48fe6a12a
   .augment/commands/spec.md: sha256:c7de854f4d60f5703fcaa2d8e19133516da326d74bf1186f79492e0e3a285a01
+  .augment/commands/ponytail-audit.md: sha256:76335dd560a78746b42cbd85d03c03e6696a11759fde7833f64d4ece3908d3a8
+  .augment/commands/ponytail-debt.md: sha256:ae86c9bd30f971398734cb4098c87e30b58b1e5be66b5f5b4b01b331ea18a256
+  .augment/commands/ponytail-gain.md: sha256:b4bc394189c10dbd38ba7742d1d5122440eca495fa0406b9f363e2b2be97592f
+  .augment/commands/ponytail-help.md: sha256:4e688b23d746d8fd98cd31c70817d8cd2b60a48fbccf5beee5ead24c0e2a1851
+  .augment/commands/ponytail-review.md: sha256:d5e3303665fb60aef1b7cb65d030f1ff09936377150b93bda03f4d71051d6f24
+  .augment/commands/ponytail.md: sha256:2b729fb5b8078a2e005b61bfa83f28b32dfc7b004c9ea86649395f6682fd636f
   .crush/skills/am-command-commit/SKILL.md: sha256:3e681b33bba344215417baae41458ed24b47c3b2081108b081bd92af287a09d0
   .crush/skills/am-command-review/SKILL.md: sha256:342f424da4f146c24fbdc2a49e8dbb7bb464828280e07fb24f0ee60ade0c97f6
   .crush/skills/am-command-test/SKILL.md: sha256:3fc1ce8795bfaffd85f29c356a7395290d2b13434d257ec62d2660885fa4c04d
@@ -344,6 +453,12 @@ outputs:
   .crush/skills/am-command-planning/SKILL.md: sha256:24a0004d27c3a4eb4318295d52cee61d0087f7f2913d969d35ed7e9b99c1d451
   .crush/skills/am-command-ship/SKILL.md: sha256:b50ab1dfe28e0c815a5bbff8115630f9efcad80b5f416372e65dc63c05307327
   .crush/skills/am-command-spec/SKILL.md: sha256:b1d75db24651b48206cffa37c62ac7800123ac94703e99cd040124b9ee73da95
+  .crush/skills/am-command-ponytail-audit/SKILL.md: sha256:15e561dc659bef0ff272506bdbf82ce3f6362d73f0423a9c7860babe3830b66c
+  .crush/skills/am-command-ponytail-debt/SKILL.md: sha256:59a58d40822410f0ae6f24a5168dbb8fceab5497c7a7f0a2b3971a031154194b
+  .crush/skills/am-command-ponytail-gain/SKILL.md: sha256:42aa99e819a0a93a04df24a10366e8f29cff35b122e68db8907e676d210e2f4e
+  .crush/skills/am-command-ponytail-help/SKILL.md: sha256:2a8e161caa29c33a1e720d13aa3cf809a2c92b4c9fbfd2605395a998721dc76b
+  .crush/skills/am-command-ponytail-review/SKILL.md: sha256:4376401a4745d5a92fd49f78386afb3d3ff2a31335f91fd62cfaa384575d56b2
+  .crush/skills/am-command-ponytail/SKILL.md: sha256:6faf832a253c50734f3e18b1f3c00a600a6dc7c724225a07eea398b94601ba67
   .qwen/commands/commit.md: sha256:56f9232d37c003abda4ef281c9349f5417091bbad8d0c5911d06ea99bbb1d0b5
   .qwen/commands/review.md: sha256:b7373e051bccdb75e96205e4fb38529e8a66f7e5db1ee346edd7c5d5f32869d9
   .qwen/commands/test.md: sha256:17ce1150b023e4b708954b5f05c14cf0dd6da1b5b71d6f3a0cf8d78f030dd3da
@@ -353,6 +468,12 @@ outputs:
   .qwen/commands/planning.md: sha256:557bbbde4d66cf8b31588b2188fd633bb071b331d9e54d8c19cfdc80ec2ef7be
   .qwen/commands/ship.md: sha256:0c3a139a059f841c25bac4661c16f1c4bafe7f0b703233d50c6b7ea48fe6a12a
   .qwen/commands/spec.md: sha256:c7de854f4d60f5703fcaa2d8e19133516da326d74bf1186f79492e0e3a285a01
+  .qwen/commands/ponytail-audit.md: sha256:76335dd560a78746b42cbd85d03c03e6696a11759fde7833f64d4ece3908d3a8
+  .qwen/commands/ponytail-debt.md: sha256:ae86c9bd30f971398734cb4098c87e30b58b1e5be66b5f5b4b01b331ea18a256
+  .qwen/commands/ponytail-gain.md: sha256:b4bc394189c10dbd38ba7742d1d5122440eca495fa0406b9f363e2b2be97592f
+  .qwen/commands/ponytail-help.md: sha256:4e688b23d746d8fd98cd31c70817d8cd2b60a48fbccf5beee5ead24c0e2a1851
+  .qwen/commands/ponytail-review.md: sha256:d5e3303665fb60aef1b7cb65d030f1ff09936377150b93bda03f4d71051d6f24
+  .qwen/commands/ponytail.md: sha256:2b729fb5b8078a2e005b61bfa83f28b32dfc7b004c9ea86649395f6682fd636f
   .trae/commands/commit.md: sha256:56f9232d37c003abda4ef281c9349f5417091bbad8d0c5911d06ea99bbb1d0b5
   .trae/commands/review.md: sha256:b7373e051bccdb75e96205e4fb38529e8a66f7e5db1ee346edd7c5d5f32869d9
   .trae/commands/test.md: sha256:17ce1150b023e4b708954b5f05c14cf0dd6da1b5b71d6f3a0cf8d78f030dd3da
@@ -362,6 +483,12 @@ outputs:
   .trae/commands/planning.md: sha256:557bbbde4d66cf8b31588b2188fd633bb071b331d9e54d8c19cfdc80ec2ef7be
   .trae/commands/ship.md: sha256:0c3a139a059f841c25bac4661c16f1c4bafe7f0b703233d50c6b7ea48fe6a12a
   .trae/commands/spec.md: sha256:c7de854f4d60f5703fcaa2d8e19133516da326d74bf1186f79492e0e3a285a01
+  .trae/commands/ponytail-audit.md: sha256:76335dd560a78746b42cbd85d03c03e6696a11759fde7833f64d4ece3908d3a8
+  .trae/commands/ponytail-debt.md: sha256:ae86c9bd30f971398734cb4098c87e30b58b1e5be66b5f5b4b01b331ea18a256
+  .trae/commands/ponytail-gain.md: sha256:b4bc394189c10dbd38ba7742d1d5122440eca495fa0406b9f363e2b2be97592f
+  .trae/commands/ponytail-help.md: sha256:4e688b23d746d8fd98cd31c70817d8cd2b60a48fbccf5beee5ead24c0e2a1851
+  .trae/commands/ponytail-review.md: sha256:d5e3303665fb60aef1b7cb65d030f1ff09936377150b93bda03f4d71051d6f24
+  .trae/commands/ponytail.md: sha256:2b729fb5b8078a2e005b61bfa83f28b32dfc7b004c9ea86649395f6682fd636f
   .deepagents/skills/am-command-commit/SKILL.md: sha256:3e681b33bba344215417baae41458ed24b47c3b2081108b081bd92af287a09d0
   .deepagents/skills/am-command-review/SKILL.md: sha256:342f424da4f146c24fbdc2a49e8dbb7bb464828280e07fb24f0ee60ade0c97f6
   .deepagents/skills/am-command-test/SKILL.md: sha256:3fc1ce8795bfaffd85f29c356a7395290d2b13434d257ec62d2660885fa4c04d
@@ -371,6 +498,12 @@ outputs:
   .deepagents/skills/am-command-planning/SKILL.md: sha256:24a0004d27c3a4eb4318295d52cee61d0087f7f2913d969d35ed7e9b99c1d451
   .deepagents/skills/am-command-ship/SKILL.md: sha256:b50ab1dfe28e0c815a5bbff8115630f9efcad80b5f416372e65dc63c05307327
   .deepagents/skills/am-command-spec/SKILL.md: sha256:b1d75db24651b48206cffa37c62ac7800123ac94703e99cd040124b9ee73da95
+  .deepagents/skills/am-command-ponytail-audit/SKILL.md: sha256:15e561dc659bef0ff272506bdbf82ce3f6362d73f0423a9c7860babe3830b66c
+  .deepagents/skills/am-command-ponytail-debt/SKILL.md: sha256:59a58d40822410f0ae6f24a5168dbb8fceab5497c7a7f0a2b3971a031154194b
+  .deepagents/skills/am-command-ponytail-gain/SKILL.md: sha256:42aa99e819a0a93a04df24a10366e8f29cff35b122e68db8907e676d210e2f4e
+  .deepagents/skills/am-command-ponytail-help/SKILL.md: sha256:2a8e161caa29c33a1e720d13aa3cf809a2c92b4c9fbfd2605395a998721dc76b
+  .deepagents/skills/am-command-ponytail-review/SKILL.md: sha256:4376401a4745d5a92fd49f78386afb3d3ff2a31335f91fd62cfaa384575d56b2
+  .deepagents/skills/am-command-ponytail/SKILL.md: sha256:6faf832a253c50734f3e18b1f3c00a600a6dc7c724225a07eea398b94601ba67
   .factory/commands/commit.md: sha256:3e6dcc5871ad157c36efe19c162b43cdc0d723a8695fb0d45c1f90cc28fa931c
   .factory/commands/review.md: sha256:ba3053410e7cc3271f41ba329056df07c6ccd2f07e2ed3dda601c56e46a77d54
   .factory/commands/test.md: sha256:a60932b216ff9eb407c2b38e4459ac4b9606a3aed275f4af84a646eb6c2937e7
@@ -380,6 +513,12 @@ outputs:
   .factory/commands/planning.md: sha256:557bbbde4d66cf8b31588b2188fd633bb071b331d9e54d8c19cfdc80ec2ef7be
   .factory/commands/ship.md: sha256:0c3a139a059f841c25bac4661c16f1c4bafe7f0b703233d50c6b7ea48fe6a12a
   .factory/commands/spec.md: sha256:c7de854f4d60f5703fcaa2d8e19133516da326d74bf1186f79492e0e3a285a01
+  .factory/commands/ponytail-audit.md: sha256:76335dd560a78746b42cbd85d03c03e6696a11759fde7833f64d4ece3908d3a8
+  .factory/commands/ponytail-debt.md: sha256:ae86c9bd30f971398734cb4098c87e30b58b1e5be66b5f5b4b01b331ea18a256
+  .factory/commands/ponytail-gain.md: sha256:b4bc394189c10dbd38ba7742d1d5122440eca495fa0406b9f363e2b2be97592f
+  .factory/commands/ponytail-help.md: sha256:4e688b23d746d8fd98cd31c70817d8cd2b60a48fbccf5beee5ead24c0e2a1851
+  .factory/commands/ponytail-review.md: sha256:d5e3303665fb60aef1b7cb65d030f1ff09936377150b93bda03f4d71051d6f24
+  .factory/commands/ponytail.md: sha256:2b729fb5b8078a2e005b61bfa83f28b32dfc7b004c9ea86649395f6682fd636f
   .pi/prompts/commit.md: sha256:56f9232d37c003abda4ef281c9349f5417091bbad8d0c5911d06ea99bbb1d0b5
   .pi/prompts/review.md: sha256:b7373e051bccdb75e96205e4fb38529e8a66f7e5db1ee346edd7c5d5f32869d9
   .pi/prompts/test.md: sha256:17ce1150b023e4b708954b5f05c14cf0dd6da1b5b71d6f3a0cf8d78f030dd3da
@@ -389,7 +528,13 @@ outputs:
   .pi/prompts/planning.md: sha256:557bbbde4d66cf8b31588b2188fd633bb071b331d9e54d8c19cfdc80ec2ef7be
   .pi/prompts/ship.md: sha256:0c3a139a059f841c25bac4661c16f1c4bafe7f0b703233d50c6b7ea48fe6a12a
   .pi/prompts/spec.md: sha256:c7de854f4d60f5703fcaa2d8e19133516da326d74bf1186f79492e0e3a285a01
-  .rovodev/prompts.yml: sha256:4ee521dd5e726f43c8b62b5ad7f1e8a8e1ffe3b7a7b9b5d1d1f6e27241352900
+  .pi/prompts/ponytail-audit.md: sha256:76335dd560a78746b42cbd85d03c03e6696a11759fde7833f64d4ece3908d3a8
+  .pi/prompts/ponytail-debt.md: sha256:ae86c9bd30f971398734cb4098c87e30b58b1e5be66b5f5b4b01b331ea18a256
+  .pi/prompts/ponytail-gain.md: sha256:b4bc394189c10dbd38ba7742d1d5122440eca495fa0406b9f363e2b2be97592f
+  .pi/prompts/ponytail-help.md: sha256:4e688b23d746d8fd98cd31c70817d8cd2b60a48fbccf5beee5ead24c0e2a1851
+  .pi/prompts/ponytail-review.md: sha256:d5e3303665fb60aef1b7cb65d030f1ff09936377150b93bda03f4d71051d6f24
+  .pi/prompts/ponytail.md: sha256:2b729fb5b8078a2e005b61bfa83f28b32dfc7b004c9ea86649395f6682fd636f
+  .rovodev/prompts.yml: sha256:81fd13e139067f3990e9c42bf9864da9f1fad46bc6ec772fb8b2b12425b250bc
   .rovodev/commands/commit.md: sha256:fd5b099f000e11d3590d0126c36ae8dc54182fdddf01f28bda955d80a796c3eb
   .rovodev/commands/review.md: sha256:d599b9f8997d2c03790fb1ad9ba9ba9390fa31161117d79b95b135f4b3689bed
   .rovodev/commands/test.md: sha256:e3c75bf5d6dd1c641a40b4b824c8ca07657126df31d2b405bc4032dc2c484391
@@ -399,6 +544,12 @@ outputs:
   .rovodev/commands/planning.md: sha256:a3813ba621856e0f5cd9fc59ac6386261e93324eb37b4909b08f07f555d0e3aa
   .rovodev/commands/ship.md: sha256:279e6c1cbbbd11aa8613d5996d4010a386552c135cfbcbe4214a53b368d0a7e8
   .rovodev/commands/spec.md: sha256:9affa07a560e45ba9da96ed4a4116f25c8c6d9ae7f881941696e27c1045d44d9
+  .rovodev/commands/ponytail-audit.md: sha256:d63c2c22df6b669f62471a208d99a9b681b5b1bce9006e2795e24ee547cd1e81
+  .rovodev/commands/ponytail-debt.md: sha256:e089f8324c7e517966463c4c57d5d528634194ea8038aa628c1bfdea194f2252
+  .rovodev/commands/ponytail-gain.md: sha256:8402570e45aee41f3747a23958f0b5d62144855b8d77a0fa9cc0e01e74621796
+  .rovodev/commands/ponytail-help.md: sha256:623d911cc458dd90c0cf673646a2bdcd7e22e180d7f7ef3a092208b8d83cea95
+  .rovodev/commands/ponytail-review.md: sha256:7b1f3405e8c1676367af3b3456946da06a336b96043d2c60f8202cc9d2b548ff
+  .rovodev/commands/ponytail.md: sha256:f7866275198c1cc37e98728079dbc8919dc6edcc033bb92059ccf0f49225ed58
   .claude/agents/code-reviewer.md: sha256:9eed4a46d4016dc0bfeb3c84ca2ba5fc5dd1cdadfdc457c8bd528e51906dd001
   .claude/agents/test-runner.md: sha256:9c2a85af8932c41c76246de3221cd9c3c0a9d1a2e99912346cc1e0bc2fa83758
   .claude/agents/security-auditor.md: sha256:8b874500a817e09c11cb7e998cc40c13213ff69852ebd6c116206151e8a3462a
@@ -702,6 +853,12 @@ outputs:
   .claude/skills/code-reviewer/scripts/review_report_generator.py: sha256:9507bf76ab19c18feac70746554e104a96f03cf51bf82c6c18cf7a53bedc7719
   .claude/skills/changelog-generator/SKILL.md: sha256:0973622bc8b1e48f4de7eef712dfad42740fe8252f1632ef14a5a7f44d34a4d3
   .claude/skills/quality-gates/SKILL.md: sha256:0b7225be0afd7a9528904e4aae9816aaecc8915f0eecba987676f936ac6c06f3
+  .claude/skills/ponytail/SKILL.md: sha256:1b69318ac171f34383737e86be77ac8e06f43f26bf7b3da88dc0444ec63ef709
+  .claude/skills/ponytail-audit/SKILL.md: sha256:dffa42947cea11d29d9e3b41d1af9e921c00f93c58ae06cb03b7dff763fb460d
+  .claude/skills/ponytail-debt/SKILL.md: sha256:4632dd875ab400da6810ceb90a6e9550dbdddfb8a9106bf529005fac8c68e848
+  .claude/skills/ponytail-gain/SKILL.md: sha256:4c4e11b7e9e2c29064818be83eb6dea859ee45d46340cdac841c297f262d4061
+  .claude/skills/ponytail-help/SKILL.md: sha256:e4c26c5643af98ef217f28289e677494355255c412d8ce6dbc218364c0e62128
+  .claude/skills/ponytail-review/SKILL.md: sha256:0e8dd85229e94fd4151ba3da08adae817767a828ca360a82a71e8f713c702fb2
   .claude/skills/release-manager/SKILL.md: sha256:bef37ef3b482776f344fc3bc841bda06a588e6d0adc167fbc8f434c5449266e5
   .claude/skills/release-manager/assets/sample_commits.json: sha256:83a0b9c9bcb198e18bc6943a98610c8b1f4cd827d7b82806b8e1b4b531dc6f9b
   .claude/skills/release-manager/assets/sample_git_log_full.txt: sha256:e003097525fb381aa6717d090d2a24f51e6b3ed26493d62f95e80d0631256197
@@ -842,6 +999,12 @@ outputs:
   .cursor/skills/code-reviewer/scripts/review_report_generator.py: sha256:9507bf76ab19c18feac70746554e104a96f03cf51bf82c6c18cf7a53bedc7719
   .cursor/skills/changelog-generator/SKILL.md: sha256:0973622bc8b1e48f4de7eef712dfad42740fe8252f1632ef14a5a7f44d34a4d3
   .cursor/skills/quality-gates/SKILL.md: sha256:0b7225be0afd7a9528904e4aae9816aaecc8915f0eecba987676f936ac6c06f3
+  .cursor/skills/ponytail/SKILL.md: sha256:4cbc1e68a329dffb2b580110deb133fdd4bef078ab59071d043be8e96e25dfca
+  .cursor/skills/ponytail-audit/SKILL.md: sha256:9e5dc0b550d23ed8522f7cd70d7821f0f90db5dc3b41cad0e2dfbc945f5bdee9
+  .cursor/skills/ponytail-debt/SKILL.md: sha256:89f6dc5e591e3726c7bf13fcf70cefb9d42e72845ee9c459ce09d29a4d2f2a24
+  .cursor/skills/ponytail-gain/SKILL.md: sha256:18bd60426d7e457221337484f929d56742784358167c52ad6377e36dba83545e
+  .cursor/skills/ponytail-help/SKILL.md: sha256:c9623c5f80276d32e010b9d88eae2033716e9c286d950e226457801dff9d45e8
+  .cursor/skills/ponytail-review/SKILL.md: sha256:e0c5c133f7d21219622ebbd76517234b465efbe07523234a820a76ced379170e
   .cursor/skills/release-manager/SKILL.md: sha256:bef37ef3b482776f344fc3bc841bda06a588e6d0adc167fbc8f434c5449266e5
   .cursor/skills/release-manager/assets/sample_commits.json: sha256:83a0b9c9bcb198e18bc6943a98610c8b1f4cd827d7b82806b8e1b4b531dc6f9b
   .cursor/skills/release-manager/assets/sample_git_log_full.txt: sha256:e003097525fb381aa6717d090d2a24f51e6b3ed26493d62f95e80d0631256197
@@ -982,6 +1145,12 @@ outputs:
   .github/skills/code-reviewer/scripts/review_report_generator.py: sha256:9507bf76ab19c18feac70746554e104a96f03cf51bf82c6c18cf7a53bedc7719
   .github/skills/changelog-generator/SKILL.md: sha256:0973622bc8b1e48f4de7eef712dfad42740fe8252f1632ef14a5a7f44d34a4d3
   .github/skills/quality-gates/SKILL.md: sha256:0b7225be0afd7a9528904e4aae9816aaecc8915f0eecba987676f936ac6c06f3
+  .github/skills/ponytail/SKILL.md: sha256:4cbc1e68a329dffb2b580110deb133fdd4bef078ab59071d043be8e96e25dfca
+  .github/skills/ponytail-audit/SKILL.md: sha256:9e5dc0b550d23ed8522f7cd70d7821f0f90db5dc3b41cad0e2dfbc945f5bdee9
+  .github/skills/ponytail-debt/SKILL.md: sha256:89f6dc5e591e3726c7bf13fcf70cefb9d42e72845ee9c459ce09d29a4d2f2a24
+  .github/skills/ponytail-gain/SKILL.md: sha256:18bd60426d7e457221337484f929d56742784358167c52ad6377e36dba83545e
+  .github/skills/ponytail-help/SKILL.md: sha256:c9623c5f80276d32e010b9d88eae2033716e9c286d950e226457801dff9d45e8
+  .github/skills/ponytail-review/SKILL.md: sha256:e0c5c133f7d21219622ebbd76517234b465efbe07523234a820a76ced379170e
   .github/skills/release-manager/SKILL.md: sha256:bef37ef3b482776f344fc3bc841bda06a588e6d0adc167fbc8f434c5449266e5
   .github/skills/release-manager/assets/sample_commits.json: sha256:83a0b9c9bcb198e18bc6943a98610c8b1f4cd827d7b82806b8e1b4b531dc6f9b
   .github/skills/release-manager/assets/sample_git_log_full.txt: sha256:e003097525fb381aa6717d090d2a24f51e6b3ed26493d62f95e80d0631256197
@@ -1122,6 +1291,12 @@ outputs:
   .gemini/skills/code-reviewer/scripts/review_report_generator.py: sha256:9507bf76ab19c18feac70746554e104a96f03cf51bf82c6c18cf7a53bedc7719
   .gemini/skills/changelog-generator/SKILL.md: sha256:0973622bc8b1e48f4de7eef712dfad42740fe8252f1632ef14a5a7f44d34a4d3
   .gemini/skills/quality-gates/SKILL.md: sha256:0b7225be0afd7a9528904e4aae9816aaecc8915f0eecba987676f936ac6c06f3
+  .gemini/skills/ponytail/SKILL.md: sha256:4cbc1e68a329dffb2b580110deb133fdd4bef078ab59071d043be8e96e25dfca
+  .gemini/skills/ponytail-audit/SKILL.md: sha256:9e5dc0b550d23ed8522f7cd70d7821f0f90db5dc3b41cad0e2dfbc945f5bdee9
+  .gemini/skills/ponytail-debt/SKILL.md: sha256:89f6dc5e591e3726c7bf13fcf70cefb9d42e72845ee9c459ce09d29a4d2f2a24
+  .gemini/skills/ponytail-gain/SKILL.md: sha256:18bd60426d7e457221337484f929d56742784358167c52ad6377e36dba83545e
+  .gemini/skills/ponytail-help/SKILL.md: sha256:c9623c5f80276d32e010b9d88eae2033716e9c286d950e226457801dff9d45e8
+  .gemini/skills/ponytail-review/SKILL.md: sha256:e0c5c133f7d21219622ebbd76517234b465efbe07523234a820a76ced379170e
   .gemini/skills/release-manager/SKILL.md: sha256:bef37ef3b482776f344fc3bc841bda06a588e6d0adc167fbc8f434c5449266e5
   .gemini/skills/release-manager/assets/sample_commits.json: sha256:83a0b9c9bcb198e18bc6943a98610c8b1f4cd827d7b82806b8e1b4b531dc6f9b
   .gemini/skills/release-manager/assets/sample_git_log_full.txt: sha256:e003097525fb381aa6717d090d2a24f51e6b3ed26493d62f95e80d0631256197
@@ -1262,6 +1437,12 @@ outputs:
   .cline/skills/code-reviewer/scripts/review_report_generator.py: sha256:9507bf76ab19c18feac70746554e104a96f03cf51bf82c6c18cf7a53bedc7719
   .cline/skills/changelog-generator/SKILL.md: sha256:0973622bc8b1e48f4de7eef712dfad42740fe8252f1632ef14a5a7f44d34a4d3
   .cline/skills/quality-gates/SKILL.md: sha256:0b7225be0afd7a9528904e4aae9816aaecc8915f0eecba987676f936ac6c06f3
+  .cline/skills/ponytail/SKILL.md: sha256:4cbc1e68a329dffb2b580110deb133fdd4bef078ab59071d043be8e96e25dfca
+  .cline/skills/ponytail-audit/SKILL.md: sha256:9e5dc0b550d23ed8522f7cd70d7821f0f90db5dc3b41cad0e2dfbc945f5bdee9
+  .cline/skills/ponytail-debt/SKILL.md: sha256:89f6dc5e591e3726c7bf13fcf70cefb9d42e72845ee9c459ce09d29a4d2f2a24
+  .cline/skills/ponytail-gain/SKILL.md: sha256:18bd60426d7e457221337484f929d56742784358167c52ad6377e36dba83545e
+  .cline/skills/ponytail-help/SKILL.md: sha256:c9623c5f80276d32e010b9d88eae2033716e9c286d950e226457801dff9d45e8
+  .cline/skills/ponytail-review/SKILL.md: sha256:e0c5c133f7d21219622ebbd76517234b465efbe07523234a820a76ced379170e
   .cline/skills/release-manager/SKILL.md: sha256:bef37ef3b482776f344fc3bc841bda06a588e6d0adc167fbc8f434c5449266e5
   .cline/skills/release-manager/assets/sample_commits.json: sha256:83a0b9c9bcb198e18bc6943a98610c8b1f4cd827d7b82806b8e1b4b531dc6f9b
   .cline/skills/release-manager/assets/sample_git_log_full.txt: sha256:e003097525fb381aa6717d090d2a24f51e6b3ed26493d62f95e80d0631256197
@@ -1402,6 +1583,12 @@ outputs:
   .agents/skills/code-reviewer/scripts/review_report_generator.py: sha256:9507bf76ab19c18feac70746554e104a96f03cf51bf82c6c18cf7a53bedc7719
   .agents/skills/changelog-generator/SKILL.md: sha256:0973622bc8b1e48f4de7eef712dfad42740fe8252f1632ef14a5a7f44d34a4d3
   .agents/skills/quality-gates/SKILL.md: sha256:0b7225be0afd7a9528904e4aae9816aaecc8915f0eecba987676f936ac6c06f3
+  .agents/skills/ponytail/SKILL.md: sha256:4cbc1e68a329dffb2b580110deb133fdd4bef078ab59071d043be8e96e25dfca
+  .agents/skills/ponytail-audit/SKILL.md: sha256:9e5dc0b550d23ed8522f7cd70d7821f0f90db5dc3b41cad0e2dfbc945f5bdee9
+  .agents/skills/ponytail-debt/SKILL.md: sha256:89f6dc5e591e3726c7bf13fcf70cefb9d42e72845ee9c459ce09d29a4d2f2a24
+  .agents/skills/ponytail-gain/SKILL.md: sha256:18bd60426d7e457221337484f929d56742784358167c52ad6377e36dba83545e
+  .agents/skills/ponytail-help/SKILL.md: sha256:c9623c5f80276d32e010b9d88eae2033716e9c286d950e226457801dff9d45e8
+  .agents/skills/ponytail-review/SKILL.md: sha256:e0c5c133f7d21219622ebbd76517234b465efbe07523234a820a76ced379170e
   .agents/skills/release-manager/SKILL.md: sha256:bef37ef3b482776f344fc3bc841bda06a588e6d0adc167fbc8f434c5449266e5
   .agents/skills/release-manager/assets/sample_commits.json: sha256:83a0b9c9bcb198e18bc6943a98610c8b1f4cd827d7b82806b8e1b4b531dc6f9b
   .agents/skills/release-manager/assets/sample_git_log_full.txt: sha256:e003097525fb381aa6717d090d2a24f51e6b3ed26493d62f95e80d0631256197
@@ -1542,6 +1729,12 @@ outputs:
   .windsurf/skills/code-reviewer/scripts/review_report_generator.py: sha256:9507bf76ab19c18feac70746554e104a96f03cf51bf82c6c18cf7a53bedc7719
   .windsurf/skills/changelog-generator/SKILL.md: sha256:0973622bc8b1e48f4de7eef712dfad42740fe8252f1632ef14a5a7f44d34a4d3
   .windsurf/skills/quality-gates/SKILL.md: sha256:0b7225be0afd7a9528904e4aae9816aaecc8915f0eecba987676f936ac6c06f3
+  .windsurf/skills/ponytail/SKILL.md: sha256:4cbc1e68a329dffb2b580110deb133fdd4bef078ab59071d043be8e96e25dfca
+  .windsurf/skills/ponytail-audit/SKILL.md: sha256:9e5dc0b550d23ed8522f7cd70d7821f0f90db5dc3b41cad0e2dfbc945f5bdee9
+  .windsurf/skills/ponytail-debt/SKILL.md: sha256:89f6dc5e591e3726c7bf13fcf70cefb9d42e72845ee9c459ce09d29a4d2f2a24
+  .windsurf/skills/ponytail-gain/SKILL.md: sha256:18bd60426d7e457221337484f929d56742784358167c52ad6377e36dba83545e
+  .windsurf/skills/ponytail-help/SKILL.md: sha256:c9623c5f80276d32e010b9d88eae2033716e9c286d950e226457801dff9d45e8
+  .windsurf/skills/ponytail-review/SKILL.md: sha256:e0c5c133f7d21219622ebbd76517234b465efbe07523234a820a76ced379170e
   .windsurf/skills/release-manager/SKILL.md: sha256:bef37ef3b482776f344fc3bc841bda06a588e6d0adc167fbc8f434c5449266e5
   .windsurf/skills/release-manager/assets/sample_commits.json: sha256:83a0b9c9bcb198e18bc6943a98610c8b1f4cd827d7b82806b8e1b4b531dc6f9b
   .windsurf/skills/release-manager/assets/sample_git_log_full.txt: sha256:e003097525fb381aa6717d090d2a24f51e6b3ed26493d62f95e80d0631256197
@@ -1682,6 +1875,12 @@ outputs:
   .continue/skills/code-reviewer/scripts/review_report_generator.py: sha256:9507bf76ab19c18feac70746554e104a96f03cf51bf82c6c18cf7a53bedc7719
   .continue/skills/changelog-generator/SKILL.md: sha256:0973622bc8b1e48f4de7eef712dfad42740fe8252f1632ef14a5a7f44d34a4d3
   .continue/skills/quality-gates/SKILL.md: sha256:0b7225be0afd7a9528904e4aae9816aaecc8915f0eecba987676f936ac6c06f3
+  .continue/skills/ponytail/SKILL.md: sha256:4cbc1e68a329dffb2b580110deb133fdd4bef078ab59071d043be8e96e25dfca
+  .continue/skills/ponytail-audit/SKILL.md: sha256:9e5dc0b550d23ed8522f7cd70d7821f0f90db5dc3b41cad0e2dfbc945f5bdee9
+  .continue/skills/ponytail-debt/SKILL.md: sha256:89f6dc5e591e3726c7bf13fcf70cefb9d42e72845ee9c459ce09d29a4d2f2a24
+  .continue/skills/ponytail-gain/SKILL.md: sha256:18bd60426d7e457221337484f929d56742784358167c52ad6377e36dba83545e
+  .continue/skills/ponytail-help/SKILL.md: sha256:c9623c5f80276d32e010b9d88eae2033716e9c286d950e226457801dff9d45e8
+  .continue/skills/ponytail-review/SKILL.md: sha256:e0c5c133f7d21219622ebbd76517234b465efbe07523234a820a76ced379170e
   .continue/skills/release-manager/SKILL.md: sha256:bef37ef3b482776f344fc3bc841bda06a588e6d0adc167fbc8f434c5449266e5
   .continue/skills/release-manager/assets/sample_commits.json: sha256:83a0b9c9bcb198e18bc6943a98610c8b1f4cd827d7b82806b8e1b4b531dc6f9b
   .continue/skills/release-manager/assets/sample_git_log_full.txt: sha256:e003097525fb381aa6717d090d2a24f51e6b3ed26493d62f95e80d0631256197
@@ -1822,6 +2021,12 @@ outputs:
   .junie/skills/code-reviewer/scripts/review_report_generator.py: sha256:9507bf76ab19c18feac70746554e104a96f03cf51bf82c6c18cf7a53bedc7719
   .junie/skills/changelog-generator/SKILL.md: sha256:0973622bc8b1e48f4de7eef712dfad42740fe8252f1632ef14a5a7f44d34a4d3
   .junie/skills/quality-gates/SKILL.md: sha256:0b7225be0afd7a9528904e4aae9816aaecc8915f0eecba987676f936ac6c06f3
+  .junie/skills/ponytail/SKILL.md: sha256:4cbc1e68a329dffb2b580110deb133fdd4bef078ab59071d043be8e96e25dfca
+  .junie/skills/ponytail-audit/SKILL.md: sha256:9e5dc0b550d23ed8522f7cd70d7821f0f90db5dc3b41cad0e2dfbc945f5bdee9
+  .junie/skills/ponytail-debt/SKILL.md: sha256:89f6dc5e591e3726c7bf13fcf70cefb9d42e72845ee9c459ce09d29a4d2f2a24
+  .junie/skills/ponytail-gain/SKILL.md: sha256:18bd60426d7e457221337484f929d56742784358167c52ad6377e36dba83545e
+  .junie/skills/ponytail-help/SKILL.md: sha256:c9623c5f80276d32e010b9d88eae2033716e9c286d950e226457801dff9d45e8
+  .junie/skills/ponytail-review/SKILL.md: sha256:e0c5c133f7d21219622ebbd76517234b465efbe07523234a820a76ced379170e
   .junie/skills/release-manager/SKILL.md: sha256:bef37ef3b482776f344fc3bc841bda06a588e6d0adc167fbc8f434c5449266e5
   .junie/skills/release-manager/assets/sample_commits.json: sha256:83a0b9c9bcb198e18bc6943a98610c8b1f4cd827d7b82806b8e1b4b531dc6f9b
   .junie/skills/release-manager/assets/sample_git_log_full.txt: sha256:e003097525fb381aa6717d090d2a24f51e6b3ed26493d62f95e80d0631256197
@@ -1962,6 +2167,12 @@ outputs:
   .roo/skills/code-reviewer/scripts/review_report_generator.py: sha256:9507bf76ab19c18feac70746554e104a96f03cf51bf82c6c18cf7a53bedc7719
   .roo/skills/changelog-generator/SKILL.md: sha256:0973622bc8b1e48f4de7eef712dfad42740fe8252f1632ef14a5a7f44d34a4d3
   .roo/skills/quality-gates/SKILL.md: sha256:0b7225be0afd7a9528904e4aae9816aaecc8915f0eecba987676f936ac6c06f3
+  .roo/skills/ponytail/SKILL.md: sha256:4cbc1e68a329dffb2b580110deb133fdd4bef078ab59071d043be8e96e25dfca
+  .roo/skills/ponytail-audit/SKILL.md: sha256:9e5dc0b550d23ed8522f7cd70d7821f0f90db5dc3b41cad0e2dfbc945f5bdee9
+  .roo/skills/ponytail-debt/SKILL.md: sha256:89f6dc5e591e3726c7bf13fcf70cefb9d42e72845ee9c459ce09d29a4d2f2a24
+  .roo/skills/ponytail-gain/SKILL.md: sha256:18bd60426d7e457221337484f929d56742784358167c52ad6377e36dba83545e
+  .roo/skills/ponytail-help/SKILL.md: sha256:c9623c5f80276d32e010b9d88eae2033716e9c286d950e226457801dff9d45e8
+  .roo/skills/ponytail-review/SKILL.md: sha256:e0c5c133f7d21219622ebbd76517234b465efbe07523234a820a76ced379170e
   .roo/skills/release-manager/SKILL.md: sha256:bef37ef3b482776f344fc3bc841bda06a588e6d0adc167fbc8f434c5449266e5
   .roo/skills/release-manager/assets/sample_commits.json: sha256:83a0b9c9bcb198e18bc6943a98610c8b1f4cd827d7b82806b8e1b4b531dc6f9b
   .roo/skills/release-manager/assets/sample_git_log_full.txt: sha256:e003097525fb381aa6717d090d2a24f51e6b3ed26493d62f95e80d0631256197
@@ -2102,6 +2313,12 @@ outputs:
   .kiro/skills/code-reviewer/scripts/review_report_generator.py: sha256:9507bf76ab19c18feac70746554e104a96f03cf51bf82c6c18cf7a53bedc7719
   .kiro/skills/changelog-generator/SKILL.md: sha256:0973622bc8b1e48f4de7eef712dfad42740fe8252f1632ef14a5a7f44d34a4d3
   .kiro/skills/quality-gates/SKILL.md: sha256:0b7225be0afd7a9528904e4aae9816aaecc8915f0eecba987676f936ac6c06f3
+  .kiro/skills/ponytail/SKILL.md: sha256:4cbc1e68a329dffb2b580110deb133fdd4bef078ab59071d043be8e96e25dfca
+  .kiro/skills/ponytail-audit/SKILL.md: sha256:9e5dc0b550d23ed8522f7cd70d7821f0f90db5dc3b41cad0e2dfbc945f5bdee9
+  .kiro/skills/ponytail-debt/SKILL.md: sha256:89f6dc5e591e3726c7bf13fcf70cefb9d42e72845ee9c459ce09d29a4d2f2a24
+  .kiro/skills/ponytail-gain/SKILL.md: sha256:18bd60426d7e457221337484f929d56742784358167c52ad6377e36dba83545e
+  .kiro/skills/ponytail-help/SKILL.md: sha256:c9623c5f80276d32e010b9d88eae2033716e9c286d950e226457801dff9d45e8
+  .kiro/skills/ponytail-review/SKILL.md: sha256:e0c5c133f7d21219622ebbd76517234b465efbe07523234a820a76ced379170e
   .kiro/skills/release-manager/SKILL.md: sha256:bef37ef3b482776f344fc3bc841bda06a588e6d0adc167fbc8f434c5449266e5
   .kiro/skills/release-manager/assets/sample_commits.json: sha256:83a0b9c9bcb198e18bc6943a98610c8b1f4cd827d7b82806b8e1b4b531dc6f9b
   .kiro/skills/release-manager/assets/sample_git_log_full.txt: sha256:e003097525fb381aa6717d090d2a24f51e6b3ed26493d62f95e80d0631256197
@@ -2242,6 +2459,12 @@ outputs:
   .kilo/skills/code-reviewer/scripts/review_report_generator.py: sha256:9507bf76ab19c18feac70746554e104a96f03cf51bf82c6c18cf7a53bedc7719
   .kilo/skills/changelog-generator/SKILL.md: sha256:0973622bc8b1e48f4de7eef712dfad42740fe8252f1632ef14a5a7f44d34a4d3
   .kilo/skills/quality-gates/SKILL.md: sha256:0b7225be0afd7a9528904e4aae9816aaecc8915f0eecba987676f936ac6c06f3
+  .kilo/skills/ponytail/SKILL.md: sha256:4cbc1e68a329dffb2b580110deb133fdd4bef078ab59071d043be8e96e25dfca
+  .kilo/skills/ponytail-audit/SKILL.md: sha256:9e5dc0b550d23ed8522f7cd70d7821f0f90db5dc3b41cad0e2dfbc945f5bdee9
+  .kilo/skills/ponytail-debt/SKILL.md: sha256:89f6dc5e591e3726c7bf13fcf70cefb9d42e72845ee9c459ce09d29a4d2f2a24
+  .kilo/skills/ponytail-gain/SKILL.md: sha256:18bd60426d7e457221337484f929d56742784358167c52ad6377e36dba83545e
+  .kilo/skills/ponytail-help/SKILL.md: sha256:c9623c5f80276d32e010b9d88eae2033716e9c286d950e226457801dff9d45e8
+  .kilo/skills/ponytail-review/SKILL.md: sha256:e0c5c133f7d21219622ebbd76517234b465efbe07523234a820a76ced379170e
   .kilo/skills/release-manager/SKILL.md: sha256:bef37ef3b482776f344fc3bc841bda06a588e6d0adc167fbc8f434c5449266e5
   .kilo/skills/release-manager/assets/sample_commits.json: sha256:83a0b9c9bcb198e18bc6943a98610c8b1f4cd827d7b82806b8e1b4b531dc6f9b
   .kilo/skills/release-manager/assets/sample_git_log_full.txt: sha256:e003097525fb381aa6717d090d2a24f51e6b3ed26493d62f95e80d0631256197
@@ -2382,6 +2605,12 @@ outputs:
   .opencode/skills/code-reviewer/scripts/review_report_generator.py: sha256:9507bf76ab19c18feac70746554e104a96f03cf51bf82c6c18cf7a53bedc7719
   .opencode/skills/changelog-generator/SKILL.md: sha256:0973622bc8b1e48f4de7eef712dfad42740fe8252f1632ef14a5a7f44d34a4d3
   .opencode/skills/quality-gates/SKILL.md: sha256:0b7225be0afd7a9528904e4aae9816aaecc8915f0eecba987676f936ac6c06f3
+  .opencode/skills/ponytail/SKILL.md: sha256:4cbc1e68a329dffb2b580110deb133fdd4bef078ab59071d043be8e96e25dfca
+  .opencode/skills/ponytail-audit/SKILL.md: sha256:9e5dc0b550d23ed8522f7cd70d7821f0f90db5dc3b41cad0e2dfbc945f5bdee9
+  .opencode/skills/ponytail-debt/SKILL.md: sha256:89f6dc5e591e3726c7bf13fcf70cefb9d42e72845ee9c459ce09d29a4d2f2a24
+  .opencode/skills/ponytail-gain/SKILL.md: sha256:18bd60426d7e457221337484f929d56742784358167c52ad6377e36dba83545e
+  .opencode/skills/ponytail-help/SKILL.md: sha256:c9623c5f80276d32e010b9d88eae2033716e9c286d950e226457801dff9d45e8
+  .opencode/skills/ponytail-review/SKILL.md: sha256:e0c5c133f7d21219622ebbd76517234b465efbe07523234a820a76ced379170e
   .opencode/skills/release-manager/SKILL.md: sha256:bef37ef3b482776f344fc3bc841bda06a588e6d0adc167fbc8f434c5449266e5
   .opencode/skills/release-manager/assets/sample_commits.json: sha256:83a0b9c9bcb198e18bc6943a98610c8b1f4cd827d7b82806b8e1b4b531dc6f9b
   .opencode/skills/release-manager/assets/sample_git_log_full.txt: sha256:e003097525fb381aa6717d090d2a24f51e6b3ed26493d62f95e80d0631256197
@@ -2522,6 +2751,12 @@ outputs:
   .warp/skills/code-reviewer/scripts/review_report_generator.py: sha256:9507bf76ab19c18feac70746554e104a96f03cf51bf82c6c18cf7a53bedc7719
   .warp/skills/changelog-generator/SKILL.md: sha256:0973622bc8b1e48f4de7eef712dfad42740fe8252f1632ef14a5a7f44d34a4d3
   .warp/skills/quality-gates/SKILL.md: sha256:0b7225be0afd7a9528904e4aae9816aaecc8915f0eecba987676f936ac6c06f3
+  .warp/skills/ponytail/SKILL.md: sha256:4cbc1e68a329dffb2b580110deb133fdd4bef078ab59071d043be8e96e25dfca
+  .warp/skills/ponytail-audit/SKILL.md: sha256:9e5dc0b550d23ed8522f7cd70d7821f0f90db5dc3b41cad0e2dfbc945f5bdee9
+  .warp/skills/ponytail-debt/SKILL.md: sha256:89f6dc5e591e3726c7bf13fcf70cefb9d42e72845ee9c459ce09d29a4d2f2a24
+  .warp/skills/ponytail-gain/SKILL.md: sha256:18bd60426d7e457221337484f929d56742784358167c52ad6377e36dba83545e
+  .warp/skills/ponytail-help/SKILL.md: sha256:c9623c5f80276d32e010b9d88eae2033716e9c286d950e226457801dff9d45e8
+  .warp/skills/ponytail-review/SKILL.md: sha256:e0c5c133f7d21219622ebbd76517234b465efbe07523234a820a76ced379170e
   .warp/skills/release-manager/SKILL.md: sha256:bef37ef3b482776f344fc3bc841bda06a588e6d0adc167fbc8f434c5449266e5
   .warp/skills/release-manager/assets/sample_commits.json: sha256:83a0b9c9bcb198e18bc6943a98610c8b1f4cd827d7b82806b8e1b4b531dc6f9b
   .warp/skills/release-manager/assets/sample_git_log_full.txt: sha256:e003097525fb381aa6717d090d2a24f51e6b3ed26493d62f95e80d0631256197
@@ -2662,6 +2897,12 @@ outputs:
   .aider/skills/code-reviewer/scripts/review_report_generator.py: sha256:9507bf76ab19c18feac70746554e104a96f03cf51bf82c6c18cf7a53bedc7719
   .aider/skills/changelog-generator/SKILL.md: sha256:0973622bc8b1e48f4de7eef712dfad42740fe8252f1632ef14a5a7f44d34a4d3
   .aider/skills/quality-gates/SKILL.md: sha256:0b7225be0afd7a9528904e4aae9816aaecc8915f0eecba987676f936ac6c06f3
+  .aider/skills/ponytail/SKILL.md: sha256:4cbc1e68a329dffb2b580110deb133fdd4bef078ab59071d043be8e96e25dfca
+  .aider/skills/ponytail-audit/SKILL.md: sha256:9e5dc0b550d23ed8522f7cd70d7821f0f90db5dc3b41cad0e2dfbc945f5bdee9
+  .aider/skills/ponytail-debt/SKILL.md: sha256:89f6dc5e591e3726c7bf13fcf70cefb9d42e72845ee9c459ce09d29a4d2f2a24
+  .aider/skills/ponytail-gain/SKILL.md: sha256:18bd60426d7e457221337484f929d56742784358167c52ad6377e36dba83545e
+  .aider/skills/ponytail-help/SKILL.md: sha256:c9623c5f80276d32e010b9d88eae2033716e9c286d950e226457801dff9d45e8
+  .aider/skills/ponytail-review/SKILL.md: sha256:e0c5c133f7d21219622ebbd76517234b465efbe07523234a820a76ced379170e
   .aider/skills/release-manager/SKILL.md: sha256:bef37ef3b482776f344fc3bc841bda06a588e6d0adc167fbc8f434c5449266e5
   .aider/skills/release-manager/assets/sample_commits.json: sha256:83a0b9c9bcb198e18bc6943a98610c8b1f4cd827d7b82806b8e1b4b531dc6f9b
   .aider/skills/release-manager/assets/sample_git_log_full.txt: sha256:e003097525fb381aa6717d090d2a24f51e6b3ed26493d62f95e80d0631256197
@@ -2802,6 +3043,12 @@ outputs:
   .augment/skills/code-reviewer/scripts/review_report_generator.py: sha256:9507bf76ab19c18feac70746554e104a96f03cf51bf82c6c18cf7a53bedc7719
   .augment/skills/changelog-generator/SKILL.md: sha256:0973622bc8b1e48f4de7eef712dfad42740fe8252f1632ef14a5a7f44d34a4d3
   .augment/skills/quality-gates/SKILL.md: sha256:0b7225be0afd7a9528904e4aae9816aaecc8915f0eecba987676f936ac6c06f3
+  .augment/skills/ponytail/SKILL.md: sha256:4cbc1e68a329dffb2b580110deb133fdd4bef078ab59071d043be8e96e25dfca
+  .augment/skills/ponytail-audit/SKILL.md: sha256:9e5dc0b550d23ed8522f7cd70d7821f0f90db5dc3b41cad0e2dfbc945f5bdee9
+  .augment/skills/ponytail-debt/SKILL.md: sha256:89f6dc5e591e3726c7bf13fcf70cefb9d42e72845ee9c459ce09d29a4d2f2a24
+  .augment/skills/ponytail-gain/SKILL.md: sha256:18bd60426d7e457221337484f929d56742784358167c52ad6377e36dba83545e
+  .augment/skills/ponytail-help/SKILL.md: sha256:c9623c5f80276d32e010b9d88eae2033716e9c286d950e226457801dff9d45e8
+  .augment/skills/ponytail-review/SKILL.md: sha256:e0c5c133f7d21219622ebbd76517234b465efbe07523234a820a76ced379170e
   .augment/skills/release-manager/SKILL.md: sha256:bef37ef3b482776f344fc3bc841bda06a588e6d0adc167fbc8f434c5449266e5
   .augment/skills/release-manager/assets/sample_commits.json: sha256:83a0b9c9bcb198e18bc6943a98610c8b1f4cd827d7b82806b8e1b4b531dc6f9b
   .augment/skills/release-manager/assets/sample_git_log_full.txt: sha256:e003097525fb381aa6717d090d2a24f51e6b3ed26493d62f95e80d0631256197
@@ -2942,6 +3189,12 @@ outputs:
   .crush/skills/code-reviewer/scripts/review_report_generator.py: sha256:9507bf76ab19c18feac70746554e104a96f03cf51bf82c6c18cf7a53bedc7719
   .crush/skills/changelog-generator/SKILL.md: sha256:0973622bc8b1e48f4de7eef712dfad42740fe8252f1632ef14a5a7f44d34a4d3
   .crush/skills/quality-gates/SKILL.md: sha256:0b7225be0afd7a9528904e4aae9816aaecc8915f0eecba987676f936ac6c06f3
+  .crush/skills/ponytail/SKILL.md: sha256:4cbc1e68a329dffb2b580110deb133fdd4bef078ab59071d043be8e96e25dfca
+  .crush/skills/ponytail-audit/SKILL.md: sha256:9e5dc0b550d23ed8522f7cd70d7821f0f90db5dc3b41cad0e2dfbc945f5bdee9
+  .crush/skills/ponytail-debt/SKILL.md: sha256:89f6dc5e591e3726c7bf13fcf70cefb9d42e72845ee9c459ce09d29a4d2f2a24
+  .crush/skills/ponytail-gain/SKILL.md: sha256:18bd60426d7e457221337484f929d56742784358167c52ad6377e36dba83545e
+  .crush/skills/ponytail-help/SKILL.md: sha256:c9623c5f80276d32e010b9d88eae2033716e9c286d950e226457801dff9d45e8
+  .crush/skills/ponytail-review/SKILL.md: sha256:e0c5c133f7d21219622ebbd76517234b465efbe07523234a820a76ced379170e
   .crush/skills/release-manager/SKILL.md: sha256:bef37ef3b482776f344fc3bc841bda06a588e6d0adc167fbc8f434c5449266e5
   .crush/skills/release-manager/assets/sample_commits.json: sha256:83a0b9c9bcb198e18bc6943a98610c8b1f4cd827d7b82806b8e1b4b531dc6f9b
   .crush/skills/release-manager/assets/sample_git_log_full.txt: sha256:e003097525fb381aa6717d090d2a24f51e6b3ed26493d62f95e80d0631256197
@@ -3082,6 +3335,12 @@ outputs:
   .qwen/skills/code-reviewer/scripts/review_report_generator.py: sha256:9507bf76ab19c18feac70746554e104a96f03cf51bf82c6c18cf7a53bedc7719
   .qwen/skills/changelog-generator/SKILL.md: sha256:0973622bc8b1e48f4de7eef712dfad42740fe8252f1632ef14a5a7f44d34a4d3
   .qwen/skills/quality-gates/SKILL.md: sha256:0b7225be0afd7a9528904e4aae9816aaecc8915f0eecba987676f936ac6c06f3
+  .qwen/skills/ponytail/SKILL.md: sha256:4cbc1e68a329dffb2b580110deb133fdd4bef078ab59071d043be8e96e25dfca
+  .qwen/skills/ponytail-audit/SKILL.md: sha256:9e5dc0b550d23ed8522f7cd70d7821f0f90db5dc3b41cad0e2dfbc945f5bdee9
+  .qwen/skills/ponytail-debt/SKILL.md: sha256:89f6dc5e591e3726c7bf13fcf70cefb9d42e72845ee9c459ce09d29a4d2f2a24
+  .qwen/skills/ponytail-gain/SKILL.md: sha256:18bd60426d7e457221337484f929d56742784358167c52ad6377e36dba83545e
+  .qwen/skills/ponytail-help/SKILL.md: sha256:c9623c5f80276d32e010b9d88eae2033716e9c286d950e226457801dff9d45e8
+  .qwen/skills/ponytail-review/SKILL.md: sha256:e0c5c133f7d21219622ebbd76517234b465efbe07523234a820a76ced379170e
   .qwen/skills/release-manager/SKILL.md: sha256:bef37ef3b482776f344fc3bc841bda06a588e6d0adc167fbc8f434c5449266e5
   .qwen/skills/release-manager/assets/sample_commits.json: sha256:83a0b9c9bcb198e18bc6943a98610c8b1f4cd827d7b82806b8e1b4b531dc6f9b
   .qwen/skills/release-manager/assets/sample_git_log_full.txt: sha256:e003097525fb381aa6717d090d2a24f51e6b3ed26493d62f95e80d0631256197
@@ -3222,6 +3481,12 @@ outputs:
   .trae/skills/code-reviewer/scripts/review_report_generator.py: sha256:9507bf76ab19c18feac70746554e104a96f03cf51bf82c6c18cf7a53bedc7719
   .trae/skills/changelog-generator/SKILL.md: sha256:0973622bc8b1e48f4de7eef712dfad42740fe8252f1632ef14a5a7f44d34a4d3
   .trae/skills/quality-gates/SKILL.md: sha256:0b7225be0afd7a9528904e4aae9816aaecc8915f0eecba987676f936ac6c06f3
+  .trae/skills/ponytail/SKILL.md: sha256:4cbc1e68a329dffb2b580110deb133fdd4bef078ab59071d043be8e96e25dfca
+  .trae/skills/ponytail-audit/SKILL.md: sha256:9e5dc0b550d23ed8522f7cd70d7821f0f90db5dc3b41cad0e2dfbc945f5bdee9
+  .trae/skills/ponytail-debt/SKILL.md: sha256:89f6dc5e591e3726c7bf13fcf70cefb9d42e72845ee9c459ce09d29a4d2f2a24
+  .trae/skills/ponytail-gain/SKILL.md: sha256:18bd60426d7e457221337484f929d56742784358167c52ad6377e36dba83545e
+  .trae/skills/ponytail-help/SKILL.md: sha256:c9623c5f80276d32e010b9d88eae2033716e9c286d950e226457801dff9d45e8
+  .trae/skills/ponytail-review/SKILL.md: sha256:e0c5c133f7d21219622ebbd76517234b465efbe07523234a820a76ced379170e
   .trae/skills/release-manager/SKILL.md: sha256:bef37ef3b482776f344fc3bc841bda06a588e6d0adc167fbc8f434c5449266e5
   .trae/skills/release-manager/assets/sample_commits.json: sha256:83a0b9c9bcb198e18bc6943a98610c8b1f4cd827d7b82806b8e1b4b531dc6f9b
   .trae/skills/release-manager/assets/sample_git_log_full.txt: sha256:e003097525fb381aa6717d090d2a24f51e6b3ed26493d62f95e80d0631256197
@@ -3362,6 +3627,12 @@ outputs:
   .deepagents/skills/code-reviewer/scripts/review_report_generator.py: sha256:9507bf76ab19c18feac70746554e104a96f03cf51bf82c6c18cf7a53bedc7719
   .deepagents/skills/changelog-generator/SKILL.md: sha256:0973622bc8b1e48f4de7eef712dfad42740fe8252f1632ef14a5a7f44d34a4d3
   .deepagents/skills/quality-gates/SKILL.md: sha256:0b7225be0afd7a9528904e4aae9816aaecc8915f0eecba987676f936ac6c06f3
+  .deepagents/skills/ponytail/SKILL.md: sha256:4cbc1e68a329dffb2b580110deb133fdd4bef078ab59071d043be8e96e25dfca
+  .deepagents/skills/ponytail-audit/SKILL.md: sha256:9e5dc0b550d23ed8522f7cd70d7821f0f90db5dc3b41cad0e2dfbc945f5bdee9
+  .deepagents/skills/ponytail-debt/SKILL.md: sha256:89f6dc5e591e3726c7bf13fcf70cefb9d42e72845ee9c459ce09d29a4d2f2a24
+  .deepagents/skills/ponytail-gain/SKILL.md: sha256:18bd60426d7e457221337484f929d56742784358167c52ad6377e36dba83545e
+  .deepagents/skills/ponytail-help/SKILL.md: sha256:c9623c5f80276d32e010b9d88eae2033716e9c286d950e226457801dff9d45e8
+  .deepagents/skills/ponytail-review/SKILL.md: sha256:e0c5c133f7d21219622ebbd76517234b465efbe07523234a820a76ced379170e
   .deepagents/skills/release-manager/SKILL.md: sha256:bef37ef3b482776f344fc3bc841bda06a588e6d0adc167fbc8f434c5449266e5
   .deepagents/skills/release-manager/assets/sample_commits.json: sha256:83a0b9c9bcb198e18bc6943a98610c8b1f4cd827d7b82806b8e1b4b531dc6f9b
   .deepagents/skills/release-manager/assets/sample_git_log_full.txt: sha256:e003097525fb381aa6717d090d2a24f51e6b3ed26493d62f95e80d0631256197
@@ -3502,6 +3773,12 @@ outputs:
   .factory/skills/code-reviewer/scripts/review_report_generator.py: sha256:9507bf76ab19c18feac70746554e104a96f03cf51bf82c6c18cf7a53bedc7719
   .factory/skills/changelog-generator/SKILL.md: sha256:0973622bc8b1e48f4de7eef712dfad42740fe8252f1632ef14a5a7f44d34a4d3
   .factory/skills/quality-gates/SKILL.md: sha256:0b7225be0afd7a9528904e4aae9816aaecc8915f0eecba987676f936ac6c06f3
+  .factory/skills/ponytail/SKILL.md: sha256:4cbc1e68a329dffb2b580110deb133fdd4bef078ab59071d043be8e96e25dfca
+  .factory/skills/ponytail-audit/SKILL.md: sha256:9e5dc0b550d23ed8522f7cd70d7821f0f90db5dc3b41cad0e2dfbc945f5bdee9
+  .factory/skills/ponytail-debt/SKILL.md: sha256:89f6dc5e591e3726c7bf13fcf70cefb9d42e72845ee9c459ce09d29a4d2f2a24
+  .factory/skills/ponytail-gain/SKILL.md: sha256:18bd60426d7e457221337484f929d56742784358167c52ad6377e36dba83545e
+  .factory/skills/ponytail-help/SKILL.md: sha256:c9623c5f80276d32e010b9d88eae2033716e9c286d950e226457801dff9d45e8
+  .factory/skills/ponytail-review/SKILL.md: sha256:e0c5c133f7d21219622ebbd76517234b465efbe07523234a820a76ced379170e
   .factory/skills/release-manager/SKILL.md: sha256:bef37ef3b482776f344fc3bc841bda06a588e6d0adc167fbc8f434c5449266e5
   .factory/skills/release-manager/assets/sample_commits.json: sha256:83a0b9c9bcb198e18bc6943a98610c8b1f4cd827d7b82806b8e1b4b531dc6f9b
   .factory/skills/release-manager/assets/sample_git_log_full.txt: sha256:e003097525fb381aa6717d090d2a24f51e6b3ed26493d62f95e80d0631256197
@@ -3642,6 +3919,12 @@ outputs:
   .pi/skills/code-reviewer/scripts/review_report_generator.py: sha256:9507bf76ab19c18feac70746554e104a96f03cf51bf82c6c18cf7a53bedc7719
   .pi/skills/changelog-generator/SKILL.md: sha256:0973622bc8b1e48f4de7eef712dfad42740fe8252f1632ef14a5a7f44d34a4d3
   .pi/skills/quality-gates/SKILL.md: sha256:0b7225be0afd7a9528904e4aae9816aaecc8915f0eecba987676f936ac6c06f3
+  .pi/skills/ponytail/SKILL.md: sha256:4cbc1e68a329dffb2b580110deb133fdd4bef078ab59071d043be8e96e25dfca
+  .pi/skills/ponytail-audit/SKILL.md: sha256:9e5dc0b550d23ed8522f7cd70d7821f0f90db5dc3b41cad0e2dfbc945f5bdee9
+  .pi/skills/ponytail-debt/SKILL.md: sha256:89f6dc5e591e3726c7bf13fcf70cefb9d42e72845ee9c459ce09d29a4d2f2a24
+  .pi/skills/ponytail-gain/SKILL.md: sha256:18bd60426d7e457221337484f929d56742784358167c52ad6377e36dba83545e
+  .pi/skills/ponytail-help/SKILL.md: sha256:c9623c5f80276d32e010b9d88eae2033716e9c286d950e226457801dff9d45e8
+  .pi/skills/ponytail-review/SKILL.md: sha256:e0c5c133f7d21219622ebbd76517234b465efbe07523234a820a76ced379170e
   .pi/skills/release-manager/SKILL.md: sha256:bef37ef3b482776f344fc3bc841bda06a588e6d0adc167fbc8f434c5449266e5
   .pi/skills/release-manager/assets/sample_commits.json: sha256:83a0b9c9bcb198e18bc6943a98610c8b1f4cd827d7b82806b8e1b4b531dc6f9b
   .pi/skills/release-manager/assets/sample_git_log_full.txt: sha256:e003097525fb381aa6717d090d2a24f51e6b3ed26493d62f95e80d0631256197
@@ -3782,6 +4065,12 @@ outputs:
   .rovodev/skills/code-reviewer/scripts/review_report_generator.py: sha256:9507bf76ab19c18feac70746554e104a96f03cf51bf82c6c18cf7a53bedc7719
   .rovodev/skills/changelog-generator/SKILL.md: sha256:0973622bc8b1e48f4de7eef712dfad42740fe8252f1632ef14a5a7f44d34a4d3
   .rovodev/skills/quality-gates/SKILL.md: sha256:0b7225be0afd7a9528904e4aae9816aaecc8915f0eecba987676f936ac6c06f3
+  .rovodev/skills/ponytail/SKILL.md: sha256:4cbc1e68a329dffb2b580110deb133fdd4bef078ab59071d043be8e96e25dfca
+  .rovodev/skills/ponytail-audit/SKILL.md: sha256:9e5dc0b550d23ed8522f7cd70d7821f0f90db5dc3b41cad0e2dfbc945f5bdee9
+  .rovodev/skills/ponytail-debt/SKILL.md: sha256:89f6dc5e591e3726c7bf13fcf70cefb9d42e72845ee9c459ce09d29a4d2f2a24
+  .rovodev/skills/ponytail-gain/SKILL.md: sha256:18bd60426d7e457221337484f929d56742784358167c52ad6377e36dba83545e
+  .rovodev/skills/ponytail-help/SKILL.md: sha256:c9623c5f80276d32e010b9d88eae2033716e9c286d950e226457801dff9d45e8
+  .rovodev/skills/ponytail-review/SKILL.md: sha256:e0c5c133f7d21219622ebbd76517234b465efbe07523234a820a76ced379170e
   .rovodev/skills/release-manager/SKILL.md: sha256:bef37ef3b482776f344fc3bc841bda06a588e6d0adc167fbc8f434c5449266e5
   .rovodev/skills/release-manager/assets/sample_commits.json: sha256:83a0b9c9bcb198e18bc6943a98610c8b1f4cd827d7b82806b8e1b4b531dc6f9b
   .rovodev/skills/release-manager/assets/sample_git_log_full.txt: sha256:e003097525fb381aa6717d090d2a24f51e6b3ed26493d62f95e80d0631256197

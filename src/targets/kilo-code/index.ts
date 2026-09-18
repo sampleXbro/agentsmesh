@@ -13,6 +13,7 @@
  * round-trip cleanly.
  */
 
+import { AB_AGENTS, AB_COMMANDS, AB_IGNORE, AB_MCP, AB_RULES } from '../../core/canonical-paths.js';
 import type { TargetGenerators } from '../catalog/target.interface.js';
 import type { TargetDescriptor } from '../catalog/target-descriptor.js';
 import {
@@ -43,11 +44,6 @@ import {
   KILO_CODE_SKILLS_DIR,
   KILO_CODE_MCP_FILE,
   KILO_CODE_IGNORE,
-  KILO_CODE_CANONICAL_RULES_DIR,
-  KILO_CODE_CANONICAL_COMMANDS_DIR,
-  KILO_CODE_CANONICAL_AGENTS_DIR,
-  KILO_CODE_CANONICAL_MCP,
-  KILO_CODE_CANONICAL_IGNORE,
   KILO_GLOBAL_CONFIG_FILE,
 } from './constants.js';
 import { importFromKiloCode } from './importer.js';
@@ -119,7 +115,7 @@ export const descriptor = {
           project: [KILO_CODE_ROOT_RULE],
           global: [KILO_CODE_GLOBAL_AGENTS_MD],
         },
-        canonicalDir: KILO_CODE_CANONICAL_RULES_DIR,
+        canonicalDir: AB_RULES,
         canonicalRootFilename: '_root.md',
         markAsRoot: true,
       },
@@ -130,7 +126,7 @@ export const descriptor = {
           project: [KILO_CODE_RULES_DIR],
           global: [KILO_CODE_GLOBAL_RULES_DIR],
         },
-        canonicalDir: KILO_CODE_CANONICAL_RULES_DIR,
+        canonicalDir: AB_RULES,
         extensions: ['.md'],
         map: kiloNonRootRuleMapper,
       },
@@ -142,7 +138,7 @@ export const descriptor = {
         project: [KILO_CODE_COMMANDS_DIR],
         global: [KILO_CODE_GLOBAL_COMMANDS_DIR],
       },
-      canonicalDir: KILO_CODE_CANONICAL_COMMANDS_DIR,
+      canonicalDir: AB_COMMANDS,
       extensions: ['.md'],
       map: kiloCommandMapper,
     },
@@ -153,7 +149,7 @@ export const descriptor = {
         project: [KILO_CODE_AGENTS_DIR],
         global: [KILO_CODE_GLOBAL_AGENTS_DIR],
       },
-      canonicalDir: KILO_CODE_CANONICAL_AGENTS_DIR,
+      canonicalDir: AB_AGENTS,
       extensions: ['.md'],
       map: kiloAgentMapper,
     },
@@ -169,7 +165,7 @@ export const descriptor = {
         project: [KILO_CODE_MCP_FILE, KILO_CODE_LEGACY_MCP_FILE],
       },
       canonicalDir: '.agentsmesh',
-      canonicalFilename: KILO_CODE_CANONICAL_MCP,
+      canonicalFilename: AB_MCP,
     },
     ignore: {
       feature: 'ignore',
@@ -180,7 +176,7 @@ export const descriptor = {
         project: [KILO_CODE_IGNORE],
       },
       canonicalDir: '.agentsmesh',
-      canonicalFilename: KILO_CODE_CANONICAL_IGNORE,
+      canonicalFilename: AB_IGNORE,
     },
   },
   buildImportPaths: buildKiloCodeImportPaths,

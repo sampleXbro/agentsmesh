@@ -19,6 +19,7 @@
  * emitted when ignore patterns are present.
  */
 
+import { AB_AGENTS, AB_COMMANDS, AB_RULES } from '../../core/canonical-paths.js';
 import type { TargetCapabilities, TargetGenerators } from '../catalog/target.interface.js';
 import type { TargetDescriptor, TargetLayout } from '../catalog/target-descriptor.js';
 import {
@@ -47,9 +48,6 @@ import {
   FACTORY_DROID_GLOBAL_MCP_FILE,
   FACTORY_DROID_GLOBAL_HOOKS_FILE,
   FACTORY_DROID_GLOBAL_SETTINGS_FILE,
-  FACTORY_DROID_CANONICAL_RULES_DIR,
-  FACTORY_DROID_CANONICAL_AGENTS_DIR,
-  FACTORY_DROID_CANONICAL_COMMANDS_DIR,
 } from './constants.js';
 import { importFromFactoryDroid } from './importer.js';
 import { mergeFactoryDroidOutput } from './merge.js';
@@ -182,7 +180,7 @@ export const descriptor = {
         project: [FACTORY_DROID_ROOT_FILE],
         global: [FACTORY_DROID_GLOBAL_ROOT_FILE],
       },
-      canonicalDir: FACTORY_DROID_CANONICAL_RULES_DIR,
+      canonicalDir: AB_RULES,
       canonicalRootFilename: '_root.md',
       markAsRoot: true,
     },
@@ -193,7 +191,7 @@ export const descriptor = {
         project: [FACTORY_DROID_COMMANDS_DIR],
         global: [FACTORY_DROID_GLOBAL_COMMANDS_DIR],
       },
-      canonicalDir: FACTORY_DROID_CANONICAL_COMMANDS_DIR,
+      canonicalDir: AB_COMMANDS,
       extensions: ['.md'],
       preset: 'command',
     },
@@ -204,7 +202,7 @@ export const descriptor = {
         project: [FACTORY_DROID_DROIDS_DIR],
         global: [FACTORY_DROID_GLOBAL_DROIDS_DIR],
       },
-      canonicalDir: FACTORY_DROID_CANONICAL_AGENTS_DIR,
+      canonicalDir: AB_AGENTS,
       extensions: ['.md'],
       preset: 'agent',
     },

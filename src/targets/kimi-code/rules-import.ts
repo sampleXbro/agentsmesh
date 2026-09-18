@@ -14,6 +14,7 @@
  * rebuilding it, losing the rules for good.
  */
 
+import { AB_ROOT_RULE, AB_RULES } from '../../core/canonical-paths.js';
 import { join } from 'node:path';
 import type { ImportResult } from '../../core/types.js';
 import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
@@ -27,8 +28,6 @@ import {
   KIMI_CODE_NESTED_ROOT_FILE,
   KIMI_CODE_GLOBAL_ROOT_FILE,
   KIMI_CODE_SHARED_GLOBAL_ROOT_FILE,
-  KIMI_CODE_CANONICAL_ROOT_RULE,
-  KIMI_CODE_CANONICAL_RULES_DIR,
 } from './constants.js';
 
 type Normalize = (content: string, sourceFile: string, destinationFile: string) => string;
@@ -50,7 +49,7 @@ export async function importKimiCodeRules(
   results: ImportResult[],
   normalize: Normalize,
 ): Promise<void> {
-  const destPath = join(projectRoot, KIMI_CODE_CANONICAL_ROOT_RULE);
+  const destPath = join(projectRoot, AB_ROOT_RULE);
   const sections: Section[] = [];
 
   for (const rel of SOURCES[scope]) {
@@ -62,7 +61,7 @@ export async function importKimiCodeRules(
     const split = await splitEmbeddedRulesToCanonical({
       content,
       projectRoot,
-      rulesDir: KIMI_CODE_CANONICAL_RULES_DIR,
+      rulesDir: AB_RULES,
       sourcePath: srcPath,
       fromTool: KIMI_CODE_TARGET,
       normalize,
@@ -72,7 +71,7 @@ export async function importKimiCodeRules(
     results.push({
       fromTool: KIMI_CODE_TARGET,
       fromPath: srcPath,
-      toPath: KIMI_CODE_CANONICAL_ROOT_RULE,
+      toPath: AB_ROOT_RULE,
       feature: 'rules',
     });
   }
@@ -85,7 +84,7 @@ export async function importKimiCodeRules(
     .filter((text) => text.length > 0)
     .join('\n\n');
 
-  await mkdirp(join(projectRoot, KIMI_CODE_CANONICAL_RULES_DIR));
+  await mkdirp(join(projectRoot, AB_RULES));
   await writeFileAtomic(
     destPath,
     await serializeImportedRuleWithFallback(destPath, { ...frontmatter, root: true }, body),

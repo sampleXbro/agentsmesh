@@ -37,9 +37,3 @@ export const AUGMENT_CODE_GLOBAL_SKILLS_DIR = `${AUGMENT_CODE_GLOBAL_DIR}/skills
 export const AUGMENT_CODE_GLOBAL_SETTINGS_FILE = `${AUGMENT_CODE_GLOBAL_DIR}/settings.json`;
 
 // Canonical paths
-export const AUGMENT_CODE_CANONICAL_RULES_DIR = '.agentsmesh/rules';
-export const AUGMENT_CODE_CANONICAL_AGENTS_DIR = '.agentsmesh/agents';
-export const AUGMENT_CODE_CANONICAL_MCP = '.agentsmesh/mcp.json';
-export const AUGMENT_CODE_CANONICAL_HOOKS = '.agentsmesh/hooks.yaml';
-export const AUGMENT_CODE_CANONICAL_IGNORE = '.agentsmesh/ignore';
-export const AUGMENT_CODE_CANONICAL_PERMISSIONS = '.agentsmesh/permissions.yaml';

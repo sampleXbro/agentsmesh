@@ -1,0 +1,24 @@
+{
+  "$schema": "https://unpkg.com/agentsmesh@0.36.0/schemas/install-manifest.json",
+  "name": "dietrichgebert-ponytail-pack",
+  "source": "github:DietrichGebert/ponytail@e3ba2aa6f1e6f0bc4d69eb09c9f0d0a93af56156",
+  "installed_at": "2026-09-17T07:00:28.473Z",
+  "extends_id": null,
+  "source_type": "anthropic-skill-pack",
+  "files": {
+    "commands/ponytail-audit.md": "sha256:36e33826e488547bac177d385498f38a7669a9a06c9cdb971bacacf3f98b4730",
+    "commands/ponytail-debt.md": "sha256:80761ebe4cad23d99452ddd52fae51da65e0f352460d3b098e1066d941004012",
+    "commands/ponytail-gain.md": "sha256:3f8895302693be590bf2f5b7b2cdcb72d854d434c28cf0480f2055815f0ec55c",
+    "commands/ponytail-help.md": "sha256:e61c5c6c7271a67497f0bda6ae5fa55640586af01dfa2f895d9dcd4c577121f7",
+    "commands/ponytail-review.md": "sha256:a39c9dcbc06843ca711eb865fc45c6263a75d7556957c8beec3d20fc83138ee0",
+    "commands/ponytail.md": "sha256:c16e6260a6757e716bc17ac5a7608bc98319f9c15953dbe3617ebc4b51a2ea9d",
+    "LICENSE": "sha256:fb1bc6909ac3ef82d5c22106e32ef682b0cff66788fa915fb9b53b15c9d2f3ab",
+    "README.md": "sha256:7c36893a7cef4e42a303ff3d29aed1e4c0a7ed405fda07f04b275938e9a868a4",
+    "skills/ponytail-audit/SKILL.md": "sha256:5560b8e383dbe2ddfddc873a1e2bf2e586e23e0cd7d995537482b2315331f6d1",
+    "skills/ponytail-debt/SKILL.md": "sha256:c84fba75f0ca12bfe83f9a78ea02fd125c5dd3f1fbb18124105a489937f284e6",
+    "skills/ponytail-gain/SKILL.md": "sha256:24e01d1c9715cb136ba1c4f1e52a95940c0193558b876828e537736480d6408b",
+    "skills/ponytail-help/SKILL.md": "sha256:2264d1615117b02b0fd5a69ec84cd2757006471a78e4d6c22eed6d581c1d37a4",
+    "skills/ponytail-review/SKILL.md": "sha256:40df33b58fc6ef889b93585733feb9566b76e9586efa7f376785c1e995197ac0",
+    "skills/ponytail/SKILL.md": "sha256:1316a2f3f95741d2300b116fe0c2d81ce4a9568656ed0a62643f54aaf09957f2"
+  }
+}

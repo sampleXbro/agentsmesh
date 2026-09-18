@@ -29,9 +29,8 @@ export const ${p}_RULES_DIR = '.${v.id}/rules';
 export const ${p}_GLOBAL_DIR = '~/.${v.id}';
 export const ${p}_GLOBAL_RULES_DIR = '~/.${v.id}/rules';
 
-// Canonical paths
-export const ${p}_CANONICAL_ROOT_RULE = '.agentsmesh/rules/_root.md';
-export const ${p}_CANONICAL_RULES_DIR = '.agentsmesh/rules';
+// Canonical paths live once in src/core/canonical-paths.ts — import AB_ROOT_RULE /
+// AB_RULES from there rather than re-declaring the literals here.
 `;
 }
 

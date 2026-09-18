@@ -2,15 +2,12 @@
  * Antigravity-specific lint hooks.
  */
 
+import { AB_MCP, AB_PERMISSIONS } from '../../core/canonical-paths.js';
 import type { CanonicalFiles, LintDiagnostic } from '../../core/types.js';
 import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
 import { createWarning } from '../../core/lint/shared/helpers.js';
 import { ANTIGRAVITY_DROPPED_AGENT_FIELDS, hasAgentValue } from './agents-format.js';
-import {
-  ANTIGRAVITY_TARGET,
-  ANTIGRAVITY_CANONICAL_MCP,
-  ANTIGRAVITY_CANONICAL_PERMISSIONS,
-} from './constants.js';
+import { ANTIGRAVITY_TARGET } from './constants.js';
 
 /**
  * Project-scope permissions live outside the repo (`~/.gemini/config/projects/`),
@@ -27,7 +24,7 @@ export function lintPermissions(canonical: CanonicalFiles, options?: unknown): L
   if (scope === 'global') return [];
   return [
     createWarning(
-      ANTIGRAVITY_CANONICAL_PERMISSIONS,
+      AB_PERMISSIONS,
       ANTIGRAVITY_TARGET,
       'Antigravity stores per-project permissions outside the repository (~/.gemini/config/projects/), so nothing is projected for the project; generate with --global to write ~/.gemini/antigravity-cli/settings.json instead.',
     ),
@@ -80,7 +77,7 @@ export function lintMcp(canonical: CanonicalFiles): LintDiagnostic[] {
   if (described.length > 0) {
     diagnostics.push(
       createWarning(
-        ANTIGRAVITY_CANONICAL_MCP,
+        AB_MCP,
         ANTIGRAVITY_TARGET,
         `Antigravity mcp_config.json has no description field; the canonical description is dropped for: ${described.join(', ')}.`,
       ),
@@ -91,7 +88,7 @@ export function lintMcp(canonical: CanonicalFiles): LintDiagnostic[] {
   if (remote.length > 0) {
     diagnostics.push(
       createWarning(
-        ANTIGRAVITY_CANONICAL_MCP,
+        AB_MCP,
         ANTIGRAVITY_TARGET,
         `Antigravity mcp_config.json has no type field; a remote server is written as serverUrl and Antigravity negotiates the transport itself, so the canonical type is dropped for: ${remote.join(', ')}.`,
       ),

@@ -19,6 +19,7 @@
  * names each one so nothing is dropped silently.
  */
 
+import { isRecord } from '../../utils/types/guards.js';
 import { parse as parseToml, stringify as stringifyToml } from 'smol-toml';
 import type { Permissions } from '../../core/types.js';
 
@@ -36,10 +37,6 @@ export interface UnmappedPermissions {
   readonly allow: readonly string[];
   readonly deny: readonly string[];
   readonly ask: readonly string[];
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 /** `Bash(git status:*)` -> `git status`; anything else -> null. */

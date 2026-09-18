@@ -15,6 +15,7 @@
  * every canonical description, corrupting the file for every other target.
  */
 
+import { AB_MCP } from '../../core/canonical-paths.js';
 import { join } from 'node:path';
 import type { ImportResult, McpServer } from '../../core/types.js';
 import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
@@ -24,7 +25,6 @@ import { writeMcpWithMerge } from '../import/mcp-merge.js';
 import { parseAntigravityMcpServers } from './mcp-format.js';
 import {
   ANTIGRAVITY_TARGET,
-  ANTIGRAVITY_CANONICAL_MCP,
   ANTIGRAVITY_GLOBAL_MCP_CONFIG,
   ANTIGRAVITY_MCP_CONFIG,
 } from './constants.js';
@@ -51,17 +51,17 @@ export async function importAntigravityMcp(
   const servers = parseAntigravityMcpServers(content);
   if (Object.keys(servers).length === 0) return;
 
-  const canonical = await parseMcp(join(projectRoot, ANTIGRAVITY_CANONICAL_MCP));
+  const canonical = await parseMcp(join(projectRoot, AB_MCP));
   const preserved: Record<string, McpServer> = {};
   for (const [name, server] of Object.entries(servers)) {
     preserved[name] = carryOverCanonicalFields(canonical?.mcpServers[name], server);
   }
 
-  await writeMcpWithMerge(projectRoot, ANTIGRAVITY_CANONICAL_MCP, preserved);
+  await writeMcpWithMerge(projectRoot, AB_MCP, preserved);
   results.push({
     fromTool: ANTIGRAVITY_TARGET,
     fromPath: srcPath,
-    toPath: ANTIGRAVITY_CANONICAL_MCP,
+    toPath: AB_MCP,
     feature: 'mcp',
   });
 }

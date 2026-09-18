@@ -2,6 +2,7 @@
  * Claude Code settings import helpers — MCP, permissions, and hooks processing.
  */
 
+import { AB_HOOKS, AB_MCP, AB_PERMISSIONS } from '../../core/canonical-paths.js';
 import { join, dirname } from 'node:path';
 import type { ImportResult } from '../../core/types.js';
 import type { McpServer } from '../../core/types.js';
@@ -14,9 +15,6 @@ import {
   CLAUDE_HOOKS_JSON,
   CLAUDE_SETTINGS,
   CLAUDE_MCP_JSON,
-  CLAUDE_CANONICAL_MCP,
-  CLAUDE_CANONICAL_PERMISSIONS,
-  CLAUDE_CANONICAL_HOOKS,
 } from './constants.js';
 import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
 
@@ -74,13 +72,13 @@ export async function importClaudeHooksJson(
   const canonicalHooks = claudeHooksToCanonical(parsed as Record<string, unknown>);
   if (Object.keys(canonicalHooks).length === 0) return false;
   const hooksContent = yamlStringify(canonicalHooks);
-  const destPath = join(projectRoot, CLAUDE_CANONICAL_HOOKS);
+  const destPath = join(projectRoot, AB_HOOKS);
   await mkdirp(dirname(destPath));
   await writeFileAtomic(destPath, hooksContent);
   results.push({
     fromTool: 'claude-code',
     fromPath: hooksPath,
-    toPath: CLAUDE_CANONICAL_HOOKS,
+    toPath: AB_HOOKS,
     feature: 'hooks',
   });
   return true;
@@ -104,11 +102,11 @@ export async function importMcpJson(
 
   if (parsed.mcpServers && typeof parsed.mcpServers === 'object') {
     const servers = parsed.mcpServers as Record<string, McpServer>;
-    await writeMcpWithMerge(projectRoot, CLAUDE_CANONICAL_MCP, servers);
+    await writeMcpWithMerge(projectRoot, AB_MCP, servers);
     results.push({
       fromTool: 'claude-code',
       fromPath: mcpPath,
-      toPath: CLAUDE_CANONICAL_MCP,
+      toPath: AB_MCP,
       feature: 'mcp',
     });
   }
@@ -132,11 +130,11 @@ export async function importSettings(projectRoot: string, results: ImportResult[
   const alreadyImportedMcp = results.some((r) => r.feature === 'mcp');
   if (!alreadyImportedMcp && settings.mcpServers && typeof settings.mcpServers === 'object') {
     const mcpServers = settings.mcpServers as Record<string, McpServer>;
-    await writeMcpWithMerge(projectRoot, CLAUDE_CANONICAL_MCP, mcpServers);
+    await writeMcpWithMerge(projectRoot, AB_MCP, mcpServers);
     results.push({
       fromTool: 'claude-code',
       fromPath: settingsPath,
-      toPath: CLAUDE_CANONICAL_MCP,
+      toPath: AB_MCP,
       feature: 'mcp',
     });
   }
@@ -155,13 +153,13 @@ export async function importSettings(projectRoot: string, results: ImportResult[
       : [];
     if (allow.length > 0 || deny.length > 0 || ask.length > 0) {
       const permContent = yamlStringify({ allow, deny, ask });
-      const destPath = join(projectRoot, CLAUDE_CANONICAL_PERMISSIONS);
+      const destPath = join(projectRoot, AB_PERMISSIONS);
       await mkdirp(dirname(destPath));
       await writeFileAtomic(destPath, permContent);
       results.push({
         fromTool: 'claude-code',
         fromPath: settingsPath,
-        toPath: CLAUDE_CANONICAL_PERMISSIONS,
+        toPath: AB_PERMISSIONS,
         feature: 'permissions',
       });
     }
@@ -177,13 +175,13 @@ export async function importSettings(projectRoot: string, results: ImportResult[
     const canonicalHooks = claudeHooksToCanonical(rawHooks as Record<string, unknown>);
     if (Object.keys(canonicalHooks).length > 0) {
       const hooksContent = yamlStringify(canonicalHooks);
-      const destPath = join(projectRoot, CLAUDE_CANONICAL_HOOKS);
+      const destPath = join(projectRoot, AB_HOOKS);
       await mkdirp(dirname(destPath));
       await writeFileAtomic(destPath, hooksContent);
       results.push({
         fromTool: 'claude-code',
         fromPath: settingsPath,
-        toPath: CLAUDE_CANONICAL_HOOKS,
+        toPath: AB_HOOKS,
         feature: 'hooks',
       });
     }

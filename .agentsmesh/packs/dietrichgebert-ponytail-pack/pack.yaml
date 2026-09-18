@@ -1,0 +1,12 @@
+# yaml-language-server: $schema=https://unpkg.com/agentsmesh@0.36.0/schemas/pack.json
+name: dietrichgebert-ponytail-pack
+source: github:DietrichGebert/ponytail@e3ba2aa6f1e6f0bc4d69eb09c9f0d0a93af56156
+version: e3ba2aa6f1e6f0bc4d69eb09c9f0d0a93af56156
+source_kind: github
+installed_at: 2026-09-17T07:00:28.473Z
+updated_at: 2026-09-17T07:00:28.473Z
+features:
+  - skills
+  - commands
+content_hash: sha256:2ca38ba7bbb583cd258a97ff5ef55e70151547881f07f5ff3b121281268ae5f4
+license: MIT

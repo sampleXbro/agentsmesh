@@ -29,13 +29,7 @@ export type GuardrailCode =
   | 'LOW_SIGNAL_KEYWORD'
   | 'STOPWORD_KEYWORD'
   | 'DEAD_GLOB'
-  | 'NEAR_DUPLICATE_LESSON'
-  // Opt-in capture-time trigger repair (see trigger-repair.ts) — informational,
-  // reported through the same warning channel so CLI/MCP output and capture
-  // telemetry surface what was rewritten.
-  | 'NARROWED_GLOB'
-  | 'KEYWORD_VARIANT_ADDED'
-  | 'DROPPED_KEYWORD';
+  | 'NEAR_DUPLICATE_LESSON';
 
 /**
  * A `file_glob` matching more working-tree files than this is too wide for one

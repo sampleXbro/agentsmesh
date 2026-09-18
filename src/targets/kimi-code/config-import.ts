@@ -12,19 +12,15 @@
  *    permission patterns — plus the file's comments and key order survive.
  */
 
+import { AB_HOOKS, AB_PERMISSIONS } from '../../core/canonical-paths.js';
+import { canonicalDocument } from '../import/yaml-import-helpers.js';
 import { dirname, join } from 'node:path';
-import { Document, parseDocument, isMap } from 'yaml';
 import type { ImportResult, Permissions } from '../../core/types.js';
 import { mkdirp, readFileSafe, writeFileAtomic } from '../../utils/filesystem/fs.js';
 import { parseKimiConfig } from './config-toml.js';
 import { isValidKimiPermissionPattern, type KimiPermissionDecision } from './permissions-format.js';
 import { mergeCanonicalHooks, serializeCanonicalHooks, toCanonicalHooks } from './hooks-import.js';
-import {
-  KIMI_CODE_TARGET,
-  KIMI_CODE_GLOBAL_CONFIG_FILE,
-  KIMI_CODE_CANONICAL_HOOKS,
-  KIMI_CODE_CANONICAL_PERMISSIONS,
-} from './constants.js';
+import { KIMI_CODE_TARGET, KIMI_CODE_GLOBAL_CONFIG_FILE } from './constants.js';
 
 const DECISION_TO_LIST: Record<KimiPermissionDecision, keyof Permissions> = {
   allow: 'allow',
@@ -50,15 +46,6 @@ function toCanonicalPermissions(
   return lists;
 }
 
-/** The canonical file as an editable document; comments and key order survive. */
-function canonicalDocument(content: string | null): Document {
-  if (content !== null) {
-    const doc = parseDocument(content);
-    if (doc.errors.length === 0 && (doc.contents === null || isMap(doc.contents))) return doc;
-  }
-  return new Document({});
-}
-
 function stringList(value: unknown): string[] {
   return Array.isArray(value)
     ? value.filter((entry): entry is string => typeof entry === 'string')
@@ -80,14 +67,14 @@ async function importHooks(
 ): Promise<void> {
   const imported = toCanonicalHooks(entries);
   if (Object.keys(imported).length === 0) return;
-  const destPath = join(projectRoot, KIMI_CODE_CANONICAL_HOOKS);
+  const destPath = join(projectRoot, AB_HOOKS);
   const merged = mergeCanonicalHooks(await readFileSafe(destPath), imported);
   await mkdirp(dirname(destPath));
   await writeFileAtomic(destPath, serializeCanonicalHooks(merged));
   results.push({
     fromTool: KIMI_CODE_TARGET,
     fromPath: join(projectRoot, KIMI_CODE_GLOBAL_CONFIG_FILE),
-    toPath: KIMI_CODE_CANONICAL_HOOKS,
+    toPath: AB_HOOKS,
     feature: 'hooks',
   });
 }
@@ -100,7 +87,7 @@ async function importPermissions(
   const lists = toCanonicalPermissions(rules);
   if (Object.keys(lists).length === 0) return;
 
-  const destPath = join(projectRoot, KIMI_CODE_CANONICAL_PERMISSIONS);
+  const destPath = join(projectRoot, AB_PERMISSIONS);
   const doc = canonicalDocument(await readFileSafe(destPath));
   const existing = (doc.toJS() ?? {}) as Record<string, unknown>;
   for (const [key, imported] of Object.entries(lists)) {
@@ -112,7 +99,7 @@ async function importPermissions(
   results.push({
     fromTool: KIMI_CODE_TARGET,
     fromPath: join(projectRoot, KIMI_CODE_GLOBAL_CONFIG_FILE),
-    toPath: KIMI_CODE_CANONICAL_PERMISSIONS,
+    toPath: AB_PERMISSIONS,
     feature: 'permissions',
   });
 }

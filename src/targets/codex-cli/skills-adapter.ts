@@ -3,6 +3,7 @@
  * skills via the shared orchestrator. Tries the primary skills dir, then a fallback dir.
  */
 
+import { AB_AGENTS, AB_COMMANDS, AB_SKILLS } from '../../core/canonical-paths.js';
 import type { ImportResult } from '../../core/types.js';
 import {
   commandSkillRecognizer,
@@ -10,14 +11,7 @@ import {
   projectedAgentRecognizer,
   type SkillImportOptions,
 } from '../import/shared/skill-import-pipeline.js';
-import {
-  CODEX_TARGET,
-  CODEX_SKILLS_DIR,
-  CODEX_SKILLS_FALLBACK_DIR,
-  CODEX_CANONICAL_COMMANDS_DIR,
-  CODEX_CANONICAL_AGENTS_DIR,
-  CODEX_CANONICAL_SKILLS_DIR,
-} from './constants.js';
+import { CODEX_TARGET, CODEX_SKILLS_DIR, CODEX_SKILLS_FALLBACK_DIR } from './constants.js';
 
 export async function importSkills(
   projectRoot: string,
@@ -26,14 +20,14 @@ export async function importSkills(
 ): Promise<void> {
   const options: SkillImportOptions = {
     projectRoot,
-    destCanonicalSkillsDir: CODEX_CANONICAL_SKILLS_DIR,
+    destCanonicalSkillsDir: AB_SKILLS,
     targetName: CODEX_TARGET,
     normalize,
     results,
   };
 
   await importSkillsDirectory([CODEX_SKILLS_DIR, CODEX_SKILLS_FALLBACK_DIR], options, [
-    commandSkillRecognizer({ canonicalCommandsDir: CODEX_CANONICAL_COMMANDS_DIR }),
-    projectedAgentRecognizer({ canonicalAgentsDir: CODEX_CANONICAL_AGENTS_DIR }),
+    commandSkillRecognizer({ canonicalCommandsDir: AB_COMMANDS }),
+    projectedAgentRecognizer({ canonicalAgentsDir: AB_AGENTS }),
   ]);
 }

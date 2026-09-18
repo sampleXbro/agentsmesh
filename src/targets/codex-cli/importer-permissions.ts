@@ -7,16 +7,12 @@
  * string always survives regardless of how it was tokenized.
  */
 
+import { AB_PERMISSIONS } from '../../core/canonical-paths.js';
 import { join } from 'node:path';
 import { stringify as stringifyYaml } from 'yaml';
 import type { ImportResult } from '../../core/types.js';
 import { readFileSafe, mkdirp, writeFileAtomic } from '../../utils/filesystem/fs.js';
-import {
-  CODEX_TARGET,
-  CODEX_RULES_DIR,
-  CODEX_PERMISSIONS_RULES_BASENAME,
-  CODEX_CANONICAL_PERMISSIONS,
-} from './constants.js';
+import { CODEX_TARGET, CODEX_RULES_DIR, CODEX_PERMISSIONS_RULES_BASENAME } from './constants.js';
 
 const MARKER_PATTERN = /^#\s*agentsmesh-permission\s+(allow|ask|deny):\s*(.+)$/;
 
@@ -44,13 +40,13 @@ export async function importCodexPermissions(
   const canonical: { allow: string[]; deny: string[]; ask?: string[] } = { allow, deny };
   if (ask.length > 0) canonical.ask = ask;
 
-  const destPath = join(projectRoot, CODEX_CANONICAL_PERMISSIONS);
+  const destPath = join(projectRoot, AB_PERMISSIONS);
   await mkdirp(join(projectRoot, '.agentsmesh'));
   await writeFileAtomic(destPath, stringifyYaml(canonical));
   results.push({
     fromTool: CODEX_TARGET,
     fromPath: srcPath,
-    toPath: CODEX_CANONICAL_PERMISSIONS,
+    toPath: AB_PERMISSIONS,
     feature: 'permissions',
   });
 }

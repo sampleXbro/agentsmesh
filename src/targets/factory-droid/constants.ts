@@ -51,8 +51,3 @@ export const FACTORY_DROID_SETTINGS_FILE = '.factory/settings.json';
 export const FACTORY_DROID_GLOBAL_SETTINGS_FILE = '.factory/settings.json';
 
 // Canonical paths
-export const FACTORY_DROID_CANONICAL_RULES_DIR = '.agentsmesh/rules';
-export const FACTORY_DROID_CANONICAL_AGENTS_DIR = '.agentsmesh/agents';
-export const FACTORY_DROID_CANONICAL_COMMANDS_DIR = '.agentsmesh/commands';
-export const FACTORY_DROID_CANONICAL_HOOKS = '.agentsmesh/hooks.yaml';
-export const FACTORY_DROID_CANONICAL_PERMISSIONS = '.agentsmesh/permissions.yaml';

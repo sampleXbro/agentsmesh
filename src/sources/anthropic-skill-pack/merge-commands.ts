@@ -17,7 +17,7 @@
  */
 
 import { join } from 'node:path';
-import { readCommandsDirWithMappers } from '../../install/importers/target-native-commands.js';
+import { readEntityDirWithMappers } from '../../install/importers/target-native-commands.js';
 import type { ParseFrontmatterOptions } from '../../canonical/features/rules.js';
 import type { CanonicalCommand } from '../../core/types.js';
 import type { CommandDedup, CommandMergeSpec } from './aggregate.js';
@@ -38,6 +38,17 @@ export interface MergedCommandsResult {
   readonly cleanup: () => Promise<void>;
 }
 
+/**
+ * Command directories merged in addition to canonical `commands/`. Root
+ * `commands/` wins over both per-tool directories, and `.claude` wins over
+ * `.gemini` on a same-name conflict (C1 contract).
+ */
+export const MERGE_FROM_TOOL_DIRS: readonly CommandMergeSpec[] = [
+  { dir: 'commands', precedence: 0 },
+  { dir: '.claude/commands', target: 'claude-code', precedence: 1 },
+  { dir: '.gemini/commands', target: 'gemini-cli', precedence: 2 },
+];
+
 export async function mergeCommands(
   contentRoot: string,
   specs: readonly CommandMergeSpec[],
@@ -54,10 +65,14 @@ export async function mergeCommands(
     // canonical root (`spec.target` unset) tries every registered target's
     // non-`.md` mapper so cross-format files (e.g. a stray `.toml` in
     // `commands/`) install instead of being silently dropped.
-    const { commands, cleanup } = await readCommandsDirWithMappers(join(contentRoot, spec.dir), {
-      restrictToTarget: spec.target,
-      parseOpts,
-    });
+    const { entities: commands, cleanup } = await readEntityDirWithMappers(
+      join(contentRoot, spec.dir),
+      'commands',
+      {
+        restrictToTarget: spec.target,
+        parseOpts,
+      },
+    );
     cleanups.push(cleanup);
     for (const cmd of commands) {
       const existing = winners.get(cmd.name);

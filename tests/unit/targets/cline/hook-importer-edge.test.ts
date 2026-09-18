@@ -5,13 +5,14 @@
  * - Lines 41-43: missing event or command meta skip the file.
  */
 
+import { AB_HOOKS } from '../../../../src/core/canonical-paths.js';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdirSync, writeFileSync, rmSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { parse as yamlParse } from 'yaml';
 import { importClineHooks } from '../../../../src/targets/cline/hook-importer.js';
-import { CLINE_HOOKS_DIR, CLINE_CANONICAL_HOOKS } from '../../../../src/targets/cline/constants.js';
+import { CLINE_HOOKS_DIR } from '../../../../src/targets/cline/constants.js';
 import type { ImportResult } from '../../../../src/core/types.js';
 
 const TEST_DIR = join(tmpdir(), `am-cline-hook-edge-${process.pid}-${Date.now()}`);
@@ -36,7 +37,7 @@ describe('importClineHooks — edge branches', () => {
     const results: ImportResult[] = [];
     await importClineHooks(TEST_DIR, results);
     expect(results).toHaveLength(1);
-    const parsed = yamlParse(readFileSync(join(TEST_DIR, CLINE_CANONICAL_HOOKS), 'utf8')) as Record<
+    const parsed = yamlParse(readFileSync(join(TEST_DIR, AB_HOOKS), 'utf8')) as Record<
       string,
       Array<{ matcher: string; command: string }>
     >;

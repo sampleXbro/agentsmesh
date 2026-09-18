@@ -56,9 +56,3 @@ export const OPENCODE_RULES_INSTRUCTIONS_GLOB = `${OPENCODE_RULES_DIR}/*.md`;
 export const OPENCODE_GLOBAL_RULES_INSTRUCTIONS_GLOB = `~/${OPENCODE_GLOBAL_RULES_DIR}/*.md`;
 
 // Canonical paths
-export const OPENCODE_CANONICAL_RULES_DIR = '.agentsmesh/rules';
-export const OPENCODE_CANONICAL_COMMANDS_DIR = '.agentsmesh/commands';
-export const OPENCODE_CANONICAL_AGENTS_DIR = '.agentsmesh/agents';
-export const OPENCODE_CANONICAL_MCP = '.agentsmesh/mcp.json';
-export const OPENCODE_CANONICAL_PERMISSIONS = '.agentsmesh/permissions.yaml';
-export const OPENCODE_CANONICAL_IGNORE = '.agentsmesh/ignore';

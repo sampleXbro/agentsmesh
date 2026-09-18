@@ -52,7 +52,3 @@ export const DEEPAGENTS_CLI_GLOBAL_HOOKS_FILE = '.deepagents/hooks.json';
 export const DEEPAGENTS_CLI_GLOBAL_CONFIG_FILE = '.deepagents/config.toml';
 
 // Canonical paths
-export const DEEPAGENTS_CLI_CANONICAL_RULES_DIR = '.agentsmesh/rules';
-export const DEEPAGENTS_CLI_CANONICAL_AGENTS_DIR = '.agentsmesh/agents';
-export const DEEPAGENTS_CLI_CANONICAL_HOOKS = '.agentsmesh/hooks.yaml';
-export const DEEPAGENTS_CLI_CANONICAL_PERMISSIONS = '.agentsmesh/permissions.yaml';

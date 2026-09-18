@@ -12,6 +12,7 @@
  *     and ignore path deny rules)
  */
 
+import type { FeatureGeneratorOutput } from '../catalog/target.interface.js';
 import { basename } from 'node:path';
 import type { CanonicalFiles, CanonicalRule } from '../../core/types.js';
 import type { McpServer } from '../../core/mcp-types.js';
@@ -32,10 +33,7 @@ import {
   OPENCODE_GLOBAL_RULES_INSTRUCTIONS_GLOB,
 } from './constants.js';
 
-export interface OpenCodeOutput {
-  path: string;
-  content: string;
-}
+export type OpenCodeOutput = FeatureGeneratorOutput;
 
 function isAdditionalRule(rule: CanonicalRule): boolean {
   if (rule.root) return false;

@@ -7,6 +7,7 @@
  * file that does NOT import `index.ts`.
  */
 
+import { AB_AGENTS, AB_COMMANDS, AB_RULES } from '../../core/canonical-paths.js';
 import { join } from 'node:path';
 import { parseFrontmatter } from '../../utils/text/markdown.js';
 import {
@@ -16,11 +17,6 @@ import {
 } from '../import/import-metadata.js';
 import type { ImportEntryMapper } from '../catalog/import-descriptor.js';
 import { mapOpenCodePermissionToAgentTools } from './permission-map.js';
-import {
-  OPENCODE_CANONICAL_AGENTS_DIR,
-  OPENCODE_CANONICAL_COMMANDS_DIR,
-  OPENCODE_CANONICAL_RULES_DIR,
-} from './constants.js';
 
 export const opencodeNonRootRuleMapper: ImportEntryMapper = async ({
   relativePath,
@@ -31,7 +27,7 @@ export const opencodeNonRootRuleMapper: ImportEntryMapper = async ({
   const { frontmatter, body } = parseFrontmatter(normalizeTo(destPath));
   return {
     destPath,
-    toPath: `${OPENCODE_CANONICAL_RULES_DIR}/${relativePath}`,
+    toPath: `${AB_RULES}/${relativePath}`,
     content: await serializeImportedRuleWithFallback(
       destPath,
       {
@@ -54,7 +50,7 @@ export const opencodeCommandMapper: ImportEntryMapper = async ({
   const { frontmatter, body } = parseFrontmatter(normalizeTo(destPath));
   return {
     destPath,
-    toPath: `${OPENCODE_CANONICAL_COMMANDS_DIR}/${relativePath}`,
+    toPath: `${AB_COMMANDS}/${relativePath}`,
     content: await serializeImportedCommandWithFallback(
       destPath,
       {
@@ -90,7 +86,7 @@ export const opencodeAgentMapper: ImportEntryMapper = async ({
   }
   return {
     destPath,
-    toPath: `${OPENCODE_CANONICAL_AGENTS_DIR}/${relativePath}`,
+    toPath: `${AB_AGENTS}/${relativePath}`,
     content: await serializeImportedAgentWithFallback(destPath, mapped, body),
   };
 };

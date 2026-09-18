@@ -1,15 +1,8 @@
+import { todayIso } from './add-helpers.js';
 import { existsSync } from 'node:fs';
 import { graphFilePath } from './graph-store.js';
 import { importLegacyLessons, LessonsGraphExistsError } from './import-legacy.js';
 import { lessonsPaths } from './paths.js';
-
-function todayIso(): string {
-  const now = new Date();
-  const y = now.getUTCFullYear();
-  const m = String(now.getUTCMonth() + 1).padStart(2, '0');
-  const d = String(now.getUTCDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
-}
 
 /**
  * One-shot legacy→JSON migration on first access. Shared by the CLI dispatcher

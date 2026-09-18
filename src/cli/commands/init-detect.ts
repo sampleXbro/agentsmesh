@@ -17,9 +17,6 @@ function toolIndicators(scope: ConfigScope): Array<{ id: string; paths: string[]
   return [...byId.entries()].map(([id, paths]) => ({ id, paths }));
 }
 
-/** AI tool indicators for detection — derived from {@link collectDetectionPaths}. */
-export const TOOL_INDICATORS: Array<{ id: string; paths: string[] }> = toolIndicators('project');
-
 /**
  * Detect existing AI tool configs in the project.
  * @param projectRoot - Project root directory

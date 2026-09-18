@@ -1,3 +1,4 @@
+import { toToolsArray as toStringArray } from './shared-import-helpers.js';
 import { basename } from 'node:path';
 import { readFileSafe } from '../../utils/filesystem/fs.js';
 import { parseFrontmatter, serializeFrontmatter } from '../../utils/text/markdown.js';
@@ -10,21 +11,7 @@ export interface ImportedCommandMetadata {
   hasAllowedTools: boolean;
 }
 
-export function toStringArray(value: unknown): string[] {
-  if (Array.isArray(value)) {
-    return value
-      .filter((entry): entry is string => typeof entry === 'string')
-      .map((entry) => entry.trim())
-      .filter(Boolean);
-  }
-  if (typeof value === 'string') {
-    return value
-      .split(',')
-      .map((entry) => entry.trim())
-      .filter(Boolean);
-  }
-  return [];
-}
+export { toStringArray };
 
 export async function readExistingFrontmatter(path: string): Promise<Record<string, unknown>> {
   const existing = await readFileSafe(path);

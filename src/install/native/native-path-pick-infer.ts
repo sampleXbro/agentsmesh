@@ -63,13 +63,3 @@ export async function inferImplicitPickFromNativePath(
 
   return {};
 }
-
-export function isImplicitPickEmpty(p: ExtendPick): boolean {
-  return (
-    (p.commands?.length ?? 0) +
-      (p.rules?.length ?? 0) +
-      (p.skills?.length ?? 0) +
-      (p.agents?.length ?? 0) ===
-    0
-  );
-}

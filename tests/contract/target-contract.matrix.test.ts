@@ -8,7 +8,7 @@ import { runGenerate } from '../../src/cli/commands/generate.js';
 import { loadScopedConfig } from '../../src/config/core/scope.js';
 import { loadCanonicalWithExtends } from '../../src/canonical/extends/extends.js';
 import { runLint } from '../../src/core/lint/linter.js';
-import { getTargetCatalogEntry } from '../../src/targets/catalog/target-catalog.js';
+import { getDescriptor } from '../../src/targets/catalog/registry.js';
 import { getTargetPrimaryRootInstructionPath } from '../../src/targets/catalog/builtin-targets.js';
 import { TARGET_IDS, type BuiltinTargetId } from '../../src/targets/catalog/target-ids.js';
 import { TARGET_CONTRACTS, TARGET_SPECIFIC_PREFIXES } from './contracts/index.js';
@@ -138,7 +138,7 @@ features: [rules]
     appendGenerateReferenceMatrix(dir);
     expect((await runGenerate({ targets: target }, dir, { printMatrix: false })).exitCode).toBe(0);
     rmSync(join(dir, '.agentsmesh'), { recursive: true, force: true });
-    await getTargetCatalogEntry(target).importFrom(dir, { scope: 'project' });
+    await getDescriptor(target)!.generators.importFrom(dir, { scope: 'project' });
     expect(canonicalPathsOnDisk(dir)).toEqual([...TARGET_CONTRACTS[target].imported]);
     const root = readFileSync(join(dir, '.agentsmesh', 'rules', '_root.md'), 'utf-8');
     expect(root).toContain('.agentsmesh/commands/review.md');
@@ -160,7 +160,7 @@ features: [rules]
     expect((await runGenerate({ targets: target }, dir, { printMatrix: false })).exitCode).toBe(0);
     rmSync(join(dir, '.agentsmesh'), { recursive: true, force: true });
 
-    await getTargetCatalogEntry(target).importFrom(dir, { scope: 'project' });
+    await getDescriptor(target)!.generators.importFrom(dir, { scope: 'project' });
 
     // The ritual is canonical content wrapped in sentinels — it round-trips back into _root.md.
     expectLessonsRitual(readFileSync(join(dir, '.agentsmesh/rules/_root.md'), 'utf-8'));
@@ -176,7 +176,7 @@ features: [rules, commands, agents, skills, mcp, hooks, ignore, permissions]
     }
     expect((await runGenerate({ targets: target }, dir, { printMatrix: false })).exitCode).toBe(0);
     rmSync(join(dir, '.agentsmesh'), { recursive: true, force: true });
-    await getTargetCatalogEntry(target).importFrom(dir, { scope: 'project' });
+    await getDescriptor(target)!.generators.importFrom(dir, { scope: 'project' });
     expect((await runGenerate({ targets: target }, dir, { printMatrix: false })).exitCode).toBe(0);
     expect(
       (await runGenerate({ targets: target, check: true }, dir, { printMatrix: false })).exitCode,

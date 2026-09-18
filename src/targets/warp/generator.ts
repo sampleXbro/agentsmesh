@@ -11,10 +11,12 @@
  *   - `.warpindexingignore`  — indexing exclusions (project scope)
  */
 
+import { embeddedRootRule } from '../projection/managed-blocks.js';
+import { NO_OUTPUTS } from '../catalog/no-outputs.js';
+import type { FeatureGeneratorOutput } from '../catalog/target.interface.js';
 import type { CanonicalFiles } from '../../core/types.js';
 import type { GenerateFeatureContext } from '../catalog/target.interface.js';
 import { generateEmbeddedSkills } from '../import/embedded-skill.js';
-import { appendEmbeddedRulesBlock } from '../projection/managed-blocks.js';
 import {
   projectedAgentSkillDirName,
   serializeProjectedAgentSkill,
@@ -29,24 +31,10 @@ import {
   WARP_IGNORE_FILE,
 } from './constants.js';
 
-export interface WarpOutput {
-  path: string;
-  content: string;
-}
+export type WarpOutput = FeatureGeneratorOutput;
 
-export function generateRules(canonical: CanonicalFiles): WarpOutput[] {
-  const root = canonical.rules.find((rule) => rule.root);
-  const nonRootRules = canonical.rules.filter((rule) => {
-    if (rule.root) return false;
-    return rule.targets.length === 0 || rule.targets.includes(WARP_TARGET);
-  });
-
-  const rootBody = root?.body.trim() ?? '';
-  const content = appendEmbeddedRulesBlock(rootBody, nonRootRules);
-  if (!content) return [];
-
-  return [{ path: WARP_ROOT_FILE, content }];
-}
+export const generateRules = (canonical: CanonicalFiles): WarpOutput[] =>
+  embeddedRootRule(canonical, WARP_TARGET, WARP_ROOT_FILE);
 
 export function generateSkills(canonical: CanonicalFiles): WarpOutput[] {
   return generateEmbeddedSkills(canonical, WARP_SKILLS_DIR);
@@ -76,22 +64,9 @@ export function generateMcp(canonical: CanonicalFiles, ctx?: GenerateFeatureCont
   return [{ path, content }];
 }
 
-/**
- * No-op stub — `~/.warp/settings.toml` is user-level only, so permissions are
- * emitted from `globalSupport.scopeExtras` (see `global-permissions.ts`), never
- * at project scope. Lint warnings surface this via lintPermissions.
- */
-export function generatePermissions(_canonical: CanonicalFiles): WarpOutput[] {
-  return [];
-}
+export const generatePermissions = NO_OUTPUTS;
 
-/**
- * No-op stub — Warp has no lifecycle hook system.
- * Lint warnings surface this via lintHooks.
- */
-export function generateHooks(_canonical: CanonicalFiles): WarpOutput[] {
-  return [];
-}
+export const generateHooks = NO_OUTPUTS;
 
 /**
  * `.warpindexingignore` — gitignore syntax, project root only. The global

@@ -9,7 +9,7 @@
  *     keyed by `version` + `hooks`. Two DIFFERENT strings, so both are claimed.
  */
 
-import type { GeneratedOutputMerger } from '../catalog/target-descriptor.js';
+import { firstMerger, type GeneratedOutputMerger } from '../catalog/target-descriptor.js';
 import { ownedJsonKeysMerger } from '../../core/generate/json-owned-keys.js';
 import {
   CANONICAL_MCP_SERVER_KEYS,
@@ -31,11 +31,4 @@ const mergeHooks = ownedJsonKeysMerger(
   ['version', 'hooks'],
 );
 
-export const mergeTraeOutput: GeneratedOutputMerger = (
-  existing,
-  pending,
-  newContent,
-  resolvedPath,
-) =>
-  mergeMcp(existing, pending, newContent, resolvedPath) ??
-  mergeHooks(existing, pending, newContent, resolvedPath);
+export const mergeTraeOutput: GeneratedOutputMerger = firstMerger([mergeMcp, mergeHooks]);

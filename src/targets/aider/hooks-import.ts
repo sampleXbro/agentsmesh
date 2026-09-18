@@ -14,6 +14,7 @@
  * and any other field the config cannot express survive the round trip.
  */
 
+import { AB_HOOKS } from '../../core/canonical-paths.js';
 import { dirname, join } from 'node:path';
 import { Document, isMap, parseDocument } from 'yaml';
 import type { HookEntry, Hooks } from '../../core/hook-types.js';
@@ -22,7 +23,7 @@ import { getHookCommand } from '../../core/hook-command.js';
 import { mkdirp, readFileSafe, writeFileAtomic } from '../../utils/filesystem/fs.js';
 import { projectAiderHooks, type AiderCommandKey, type AiderMappedEntry } from './hooks-format.js';
 import { aiderConfToHookEntries, hasAiderHookKeys } from './hooks-read.js';
-import { AIDER_TARGET, AIDER_CONF_FILE, AIDER_CANONICAL_HOOKS } from './constants.js';
+import { AIDER_TARGET, AIDER_CONF_FILE } from './constants.js';
 
 /** The events aider expresses; only these are rewritten on import. */
 const OWNED_EVENTS = ['PostToolUse', 'Notification'] as const;
@@ -80,7 +81,7 @@ export async function importAiderHooks(
 
   const imported = aiderConfToHookEntries(conf);
   const spoken = new Set(imported.map((item) => item.key));
-  const destPath = join(projectRoot, AIDER_CANONICAL_HOOKS);
+  const destPath = join(projectRoot, AB_HOOKS);
   const doc = canonicalDocument(await readFileSafe(destPath));
   const mapped = projectAiderHooks(canonicalHooks(doc)).mapped;
 
@@ -107,7 +108,7 @@ export async function importAiderHooks(
   results.push({
     fromTool: AIDER_TARGET,
     fromPath: srcPath,
-    toPath: AIDER_CANONICAL_HOOKS,
+    toPath: AB_HOOKS,
     feature: 'hooks',
   });
 }

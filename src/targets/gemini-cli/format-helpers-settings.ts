@@ -1,14 +1,10 @@
+import { AB_HOOKS, AB_IGNORE, AB_MCP } from '../../core/canonical-paths.js';
 import { join } from 'node:path';
 import { stringify as stringifyYaml } from 'yaml';
 import type { ImportResult } from '../../core/types.js';
 import { getHookCommand, hasHookCommand } from '../../core/hook-command.js';
 import { readFileSafe, writeFileAtomic, mkdirp } from '../../utils/filesystem/fs.js';
-import {
-  GEMINI_SETTINGS,
-  GEMINI_CANONICAL_MCP,
-  GEMINI_CANONICAL_HOOKS,
-  GEMINI_CANONICAL_IGNORE,
-} from './constants.js';
+import { GEMINI_SETTINGS } from './constants.js';
 import { mapGeminiHookEvent } from './format-helpers-shared.js';
 
 export async function importGeminiSettings(
@@ -34,13 +30,13 @@ export async function importGeminiSettings(
     mcpServers !== null &&
     Object.keys(mcpServers).length > 0
   ) {
-    const mcpPath = join(projectRoot, GEMINI_CANONICAL_MCP);
+    const mcpPath = join(projectRoot, AB_MCP);
     await mkdirp(join(projectRoot, '.agentsmesh'));
     await writeFileAtomic(mcpPath, JSON.stringify({ mcpServers: mcpServers }, null, 2));
     results.push({
       fromTool: 'gemini-cli',
       fromPath: settingsPath,
-      toPath: GEMINI_CANONICAL_MCP,
+      toPath: AB_MCP,
       feature: 'mcp',
     });
   }
@@ -51,13 +47,13 @@ export async function importGeminiSettings(
     ignorePatterns.length > 0 &&
     ignorePatterns.every((p): p is string => typeof p === 'string')
   ) {
-    const ignorePath = join(projectRoot, GEMINI_CANONICAL_IGNORE);
+    const ignorePath = join(projectRoot, AB_IGNORE);
     await mkdirp(join(projectRoot, '.agentsmesh'));
     await writeFileAtomic(ignorePath, ignorePatterns.join('\n') + '\n');
     results.push({
       fromTool: 'gemini-cli',
       fromPath: settingsPath,
-      toPath: GEMINI_CANONICAL_IGNORE,
+      toPath: AB_IGNORE,
       feature: 'ignore',
     });
   }
@@ -110,13 +106,13 @@ export async function importGeminiSettings(
     );
     if (mappedHooks.length > 0) {
       const hooksYaml = Object.fromEntries(mappedHooks);
-      const hooksPath = join(projectRoot, GEMINI_CANONICAL_HOOKS);
+      const hooksPath = join(projectRoot, AB_HOOKS);
       await mkdirp(join(projectRoot, '.agentsmesh'));
       await writeFileAtomic(hooksPath, stringifyYaml(hooksYaml, { lineWidth: 0 }).trimEnd());
       results.push({
         fromTool: 'gemini-cli',
         fromPath: settingsPath,
-        toPath: GEMINI_CANONICAL_HOOKS,
+        toPath: AB_HOOKS,
         feature: 'hooks',
       });
     }

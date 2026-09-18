@@ -6,6 +6,8 @@
  * IDE-era path not covered by the CLI reference, kept unchanged).
  */
 
+import { NO_OUTPUTS } from '../catalog/no-outputs.js';
+import type { FeatureGeneratorOutput } from '../catalog/target.interface.js';
 import { basename } from 'node:path';
 import type { CanonicalFiles } from '../../core/types.js';
 import { serializeFrontmatter } from '../../utils/text/markdown.js';
@@ -22,10 +24,7 @@ import {
 export { generateAgents } from './agent-generator.js';
 export { generateHooks } from './hook-generator.js';
 
-export interface RulesOutput {
-  path: string;
-  content: string;
-}
+export type RulesOutput = FeatureGeneratorOutput;
 
 function ruleSlug(source: string): string {
   const name = basename(source, '.md');
@@ -127,18 +126,7 @@ export function generateMcp(
   return [{ path: CLINE_MCP_SETTINGS, content }];
 }
 
-/**
- * Cline has no dedicated writable permissions file in either scope — approval
- * control is CLI-flag/env-var/UI only (`--auto-approve`,
- * `CLINE_COMMAND_PERMISSIONS`, Auto Approve/YOLO Mode in the extension UI;
- * see docs.cline.bot/cli/cli-reference). `partial` no-op stub; see
- * `lintPermissions` for the user-facing explanation.
- *
- * @returns Always []
- */
-export function generatePermissions(_canonical: CanonicalFiles): RulesOutput[] {
-  return [];
-}
+export const generatePermissions = NO_OUTPUTS;
 
 /**
  * Generate .cline/skills/{name}/SKILL.md and supporting files.

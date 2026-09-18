@@ -4,6 +4,7 @@
  * customize-copilot/add-mcp-servers). Generator + importer round-trip.
  */
 
+import { AB_MCP } from '../../../../src/core/canonical-paths.js';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -12,7 +13,7 @@ import {
   generateCopilotGlobalMcp,
   importCopilotGlobalMcp,
 } from '../../../../src/targets/copilot/global-mcp.js';
-import { COPILOT_CANONICAL_MCP } from '../../../../src/targets/copilot/constants.js';
+
 import type { CanonicalFiles, ImportResult } from '../../../../src/core/types.js';
 
 function emptyCanonical(): CanonicalFiles {
@@ -111,11 +112,11 @@ describe('importCopilotGlobalMcp', () => {
       {
         fromTool: 'copilot',
         fromPath: join(root, '.copilot', 'mcp-config.json'),
-        toPath: COPILOT_CANONICAL_MCP,
+        toPath: AB_MCP,
         feature: 'mcp',
       },
     ]);
-    const written = JSON.parse(readFileSync(join(root, COPILOT_CANONICAL_MCP), 'utf-8')) as {
+    const written = JSON.parse(readFileSync(join(root, AB_MCP), 'utf-8')) as {
       mcpServers: Record<string, unknown>;
     };
     expect(written.mcpServers.docs).toBeDefined();
@@ -180,7 +181,7 @@ describe('importCopilotGlobalMcp', () => {
     const results: ImportResult[] = [];
     await importCopilotGlobalMcp(root, results);
     expect(results).toHaveLength(1);
-    const written = JSON.parse(readFileSync(join(root, COPILOT_CANONICAL_MCP), 'utf-8')) as {
+    const written = JSON.parse(readFileSync(join(root, AB_MCP), 'utf-8')) as {
       mcpServers: Record<string, unknown>;
     };
     expect(Object.keys(written.mcpServers)).toEqual(['docs']);

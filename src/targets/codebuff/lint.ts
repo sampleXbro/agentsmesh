@@ -6,11 +6,12 @@
  * only finds out when the agent behaves as if the config were never written.
  */
 
+import { AB_MCP } from '../../core/canonical-paths.js';
 import type { CanonicalFiles, LintDiagnostic } from '../../core/types.js';
 import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
 import { createWarning } from '../../core/lint/shared/helpers.js';
 import { isUrlMcpServer } from '../../core/mcp-servers.js';
-import { CODEBUFF_TARGET, CODEBUFF_CANONICAL_MCP } from './constants.js';
+import { CODEBUFF_TARGET } from './constants.js';
 
 function scopeOf(options: unknown): TargetLayoutScope {
   if (options === null || typeof options !== 'object') return 'project';
@@ -34,7 +35,7 @@ export function lintMcp(canonical: CanonicalFiles): LintDiagnostic[] {
   if (described.length > 0) {
     diagnostics.push(
       createWarning(
-        CODEBUFF_CANONICAL_MCP,
+        AB_MCP,
         CODEBUFF_TARGET,
         `Codebuff .agents/mcp.json validates each server with a strict schema that has no description key, so the canonical description is dropped for: ${described.join(', ')}.`,
       ),
@@ -47,7 +48,7 @@ export function lintMcp(canonical: CanonicalFiles): LintDiagnostic[] {
   if (remoteWithEnv.length > 0) {
     diagnostics.push(
       createWarning(
-        CODEBUFF_CANONICAL_MCP,
+        AB_MCP,
         CODEBUFF_TARGET,
         `Codebuff resolves $VAR references only for command servers; the remote schema has no env key, so the canonical env is dropped for: ${remoteWithEnv.join(', ')}. Move the values into headers.`,
       ),

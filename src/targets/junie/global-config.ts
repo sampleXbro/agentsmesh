@@ -16,15 +16,13 @@
  *     https://junie.jetbrains.com/docs/junie-cli-configuration.html
  */
 
+import type { FeatureGeneratorOutput } from '../catalog/target.interface.js';
 import type { CanonicalFiles } from '../../core/types.js';
 import type { GenerateFeatureContext } from '../catalog/target.interface.js';
 import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
 import { JUNIE_GLOBAL_ALLOWLIST, JUNIE_GLOBAL_CONFIG } from './constants.js';
 
-export interface JunieOutput {
-  path: string;
-  content: string;
-}
+export type JunieOutput = FeatureGeneratorOutput;
 
 /**
  * Convert a tool/path name to a Junie allowlist rule entry.

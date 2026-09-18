@@ -9,13 +9,13 @@
  *   - `.crushignore`     — ignore patterns
  */
 
+import { AB_MCP } from '../../core/canonical-paths.js';
 import { dirname, join } from 'node:path';
 import { stringify as stringifyYaml } from 'yaml';
 import type { ImportResult, McpServer } from '../../core/types.js';
 import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
-import { createImportReferenceNormalizer } from '../../core/reference/import-rewriter.js';
 import { importEmbeddedSkills } from '../import/embedded-skill.js';
-import { runDescriptorImport } from '../import/descriptor-import-runner.js';
+import { beginImport } from '../import/descriptor-import-runner.js';
 import { mkdirp, readFileSafe, writeFileAtomic } from '../../utils/filesystem/fs.js';
 import { toStringArray, toStringRecord } from '../import/shared-import-helpers.js';
 import type { HookEntry } from '../../core/hook-types.js';
@@ -26,18 +26,13 @@ import {
   CRUSH_GLOBAL_SKILLS_DIR,
   CRUSH_CONFIG_FILE,
   CRUSH_GLOBAL_CONFIG_FILE,
-  CRUSH_CANONICAL_MCP,
 } from './constants.js';
 
 export async function importFromCrush(
   projectRoot: string,
   options: { scope?: TargetLayoutScope } = {},
 ): Promise<ImportResult[]> {
-  const scope = options.scope ?? 'project';
-  const results: ImportResult[] = [];
-  const normalize = await createImportReferenceNormalizer(CRUSH_TARGET, projectRoot, scope);
-
-  results.push(...(await runDescriptorImport(descriptor, projectRoot, scope, { normalize })));
+  const { scope, results, normalize } = await beginImport(descriptor, projectRoot, options);
 
   const skillsDir = scope === 'global' ? CRUSH_GLOBAL_SKILLS_DIR : CRUSH_SKILLS_DIR;
   await importEmbeddedSkills(projectRoot, skillsDir, CRUSH_TARGET, results, normalize);
@@ -75,7 +70,7 @@ async function importCrushConfigJson(
   // Import MCP servers from `mcp` key
   const mcpServers = parseCrushMcpServers(config['mcp']);
   if (Object.keys(mcpServers).length > 0) {
-    const canonicalPath = CRUSH_CANONICAL_MCP;
+    const canonicalPath = AB_MCP;
     const destPath = join(projectRoot, canonicalPath);
     await mkdirp(dirname(destPath));
     await writeFileAtomic(destPath, JSON.stringify({ mcpServers }, null, 2));

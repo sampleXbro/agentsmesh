@@ -13,6 +13,7 @@
  * Official docs: https://docs.augmentcode.com/setup-augment/guidelines
  */
 
+import type { FeatureGeneratorOutput } from '../catalog/target.interface.js';
 import { basename } from 'node:path';
 import type {
   CanonicalFiles,
@@ -31,10 +32,7 @@ import {
   AUGMENT_CODE_IGNORE_FILE,
 } from './constants.js';
 
-export interface AugmentCodeOutput {
-  path: string;
-  content: string;
-}
+export type AugmentCodeOutput = FeatureGeneratorOutput;
 
 /**
  * Maps a canonical trigger / globs to AugmentCode rule frontmatter.

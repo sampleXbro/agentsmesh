@@ -9,12 +9,13 @@
  * mirroring the equivalent OpenCode import (same underlying config format).
  */
 
+import { AB_MCP } from '../../core/canonical-paths.js';
 import { join } from 'node:path';
 import type { ImportResult } from '../../core/types.js';
 import type { McpServer } from '../../core/mcp-types.js';
 import { readFileSafe } from '../../utils/filesystem/fs.js';
 import { writeMcpWithMerge } from '../import/mcp-merge.js';
-import { KILO_CODE_TARGET, KILO_GLOBAL_CONFIG_FILE, KILO_CODE_CANONICAL_MCP } from './constants.js';
+import { KILO_CODE_TARGET, KILO_GLOBAL_CONFIG_FILE } from './constants.js';
 
 function toStringRecord(value: unknown): Record<string, string> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
@@ -76,11 +77,11 @@ export async function importGlobalKiloMcp(
   if (content === null) return;
   const imported = parseKiloGlobalMcp(content);
   if (Object.keys(imported).length === 0) return;
-  await writeMcpWithMerge(projectRoot, KILO_CODE_CANONICAL_MCP, imported);
+  await writeMcpWithMerge(projectRoot, AB_MCP, imported);
   results.push({
     feature: 'mcp',
     fromTool: KILO_CODE_TARGET,
     fromPath: srcPath,
-    toPath: KILO_CODE_CANONICAL_MCP,
+    toPath: AB_MCP,
   });
 }

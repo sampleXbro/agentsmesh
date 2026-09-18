@@ -2,6 +2,7 @@
  * Load canonical slices from a path: .agentsmesh project, partial rules/commands/agents/skills trees.
  */
 
+import { emptyCanonical } from './empty-canonical.js';
 import { basename, dirname, join } from 'node:path';
 import { stat } from 'node:fs/promises';
 import type { ExtendPick } from '../../config/core/schema.js';
@@ -18,27 +19,10 @@ import {
   importCommands,
   importRules,
 } from '../../install/importers/entity-importers.js';
-import {
-  readAgentsDirWithMappers,
-  readCommandsDirWithMappers,
-  readRulesDirWithMappers,
-} from '../../install/importers/target-native-commands.js';
+import { readEntityDirWithMappers } from '../../install/importers/target-native-commands.js';
 import type { ParseFrontmatterOptions } from '../features/rules.js';
 import { loadCanonicalFiles } from './loader.js';
 import { isSkillPackLayout, loadSkillsAtExtendPath } from './skill-pack-load.js';
-
-function emptyCanonical(): CanonicalFiles {
-  return {
-    rules: [],
-    commands: [],
-    agents: [],
-    skills: [],
-    mcp: null,
-    permissions: null,
-    hooks: null,
-    ignore: [],
-  };
-}
 
 export function isCanonicalSliceEmpty(c: CanonicalFiles): boolean {
   return (
@@ -125,8 +109,8 @@ async function parseRulesAt(
   if (!enableTargetMappers) {
     return { rules: await importRules(rulesDir, opts), cleanup: noop };
   }
-  const result = await readRulesDirWithMappers(rulesDir, { parseOpts: opts });
-  return { rules: [...result.rules], cleanup: result.cleanup };
+  const result = await readEntityDirWithMappers(rulesDir, 'rules', { parseOpts: opts });
+  return { rules: [...result.entities], cleanup: result.cleanup };
 }
 
 async function parseCommandsAt(
@@ -140,8 +124,8 @@ async function parseCommandsAt(
   if (!enableTargetMappers) {
     return { commands: await importCommands(commandsDir, opts), cleanup: noop };
   }
-  const result = await readCommandsDirWithMappers(commandsDir, { parseOpts: opts });
-  return { commands: [...result.commands], cleanup: result.cleanup };
+  const result = await readEntityDirWithMappers(commandsDir, 'commands', { parseOpts: opts });
+  return { commands: [...result.entities], cleanup: result.cleanup };
 }
 
 async function parseAgentsAt(
@@ -155,8 +139,8 @@ async function parseAgentsAt(
   if (!enableTargetMappers) {
     return { agents: await importAgents(agentsDir, opts), cleanup: noop };
   }
-  const result = await readAgentsDirWithMappers(agentsDir, { parseOpts: opts });
-  return { agents: [...result.agents], cleanup: result.cleanup };
+  const result = await readEntityDirWithMappers(agentsDir, 'agents', { parseOpts: opts });
+  return { agents: [...result.entities], cleanup: result.cleanup };
 }
 
 /** Skill pack at slice root or nested `skills/` (common in upstream repos). */

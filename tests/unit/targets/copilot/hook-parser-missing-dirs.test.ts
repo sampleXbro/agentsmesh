@@ -3,6 +3,7 @@
  * readDirRecursiveNoSymlinks swallows ENOENT/ENOTDIR/EACCES itself, so only a
  * rejected listing (e.g. EIO wrapped in FileSystemError) reaches those arms.
  */
+import { AB_HOOKS } from '../../../../src/core/canonical-paths.js';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { existsSync, mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import { mkdtemp, rm } from 'node:fs/promises';
@@ -24,7 +25,6 @@ import {
   COPILOT_HOOKS_DIR,
   COPILOT_LEGACY_HOOKS_DIR,
   COPILOT_GLOBAL_HOOKS_DIR,
-  COPILOT_CANONICAL_HOOKS,
 } from '../../../../src/targets/copilot/constants.js';
 
 interface FsModule {
@@ -50,7 +50,7 @@ describe('importHooks — rejected directory listings', () => {
     await expect(importHooks(projectRoot, results)).resolves.toBeUndefined();
 
     expect(results).toEqual([]);
-    expect(existsSync(join(projectRoot, COPILOT_CANONICAL_HOOKS))).toBe(false);
+    expect(existsSync(join(projectRoot, AB_HOOKS))).toBe(false);
     expect(mockReadDir.mock.calls).toEqual([
       [join(projectRoot, COPILOT_HOOKS_DIR)],
       [join(projectRoot, COPILOT_LEGACY_HOOKS_DIR)],
@@ -89,11 +89,11 @@ describe('importHooks — rejected directory listings', () => {
       {
         fromTool: COPILOT_TARGET,
         fromPath: hooksDir,
-        toPath: COPILOT_CANONICAL_HOOKS,
+        toPath: AB_HOOKS,
         feature: 'hooks',
       },
     ]);
-    const hooks = parseYaml(readFileSync(join(projectRoot, COPILOT_CANONICAL_HOOKS), 'utf-8'));
+    const hooks = parseYaml(readFileSync(join(projectRoot, AB_HOOKS), 'utf-8'));
     expect(hooks).toEqual({
       PreToolUse: [{ matcher: '*', command: 'pnpm lint', type: 'command' }],
     });

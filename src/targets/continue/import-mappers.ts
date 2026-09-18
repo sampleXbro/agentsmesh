@@ -4,6 +4,7 @@
  * mappers without forming a circular import chain through `importer.ts`.
  */
 
+import { AB_AGENTS, AB_COMMANDS, AB_RULES } from '../../core/canonical-paths.js';
 import { join } from 'node:path';
 import { parseFrontmatter } from '../../utils/text/markdown.js';
 import {
@@ -13,11 +14,6 @@ import {
 } from '../import/import-metadata.js';
 import type { ImportEntryMapper } from '../catalog/import-descriptor.js';
 import { parseCommandRuleFrontmatter, serializeImportedCommand } from './command-rule.js';
-import {
-  CONTINUE_CANONICAL_AGENTS_DIR,
-  CONTINUE_CANONICAL_COMMANDS_DIR,
-  CONTINUE_CANONICAL_RULES_DIR,
-} from './constants.js';
 
 function isContinueRootRulePath(relativePath: string): boolean {
   return relativePath === 'general.md' || relativePath === '_root.md';
@@ -45,7 +41,7 @@ export const continueRuleMapper: ImportEntryMapper = async ({
   if (canonical.globs === undefined) delete canonical.globs;
   return {
     destPath,
-    toPath: `${CONTINUE_CANONICAL_RULES_DIR}/${canonicalRelative}`,
+    toPath: `${AB_RULES}/${canonicalRelative}`,
     content: await serializeImportedRuleWithFallback(destPath, canonical, body),
   };
 };
@@ -84,7 +80,7 @@ export const continueCommandMapper: ImportEntryMapper = async ({
   );
   return {
     destPath: commandPath,
-    toPath: `${CONTINUE_CANONICAL_COMMANDS_DIR}/${relativeCommandPath}`,
+    toPath: `${AB_COMMANDS}/${relativeCommandPath}`,
     content,
   };
 };
@@ -104,7 +100,7 @@ export const continueAgentMapper: ImportEntryMapper = async ({
   const { frontmatter, body } = parseFrontmatter(normalizeTo(destPath));
   return {
     destPath,
-    toPath: `${CONTINUE_CANONICAL_AGENTS_DIR}/${relativePath}`,
+    toPath: `${AB_AGENTS}/${relativePath}`,
     content: await serializeImportedAgentWithFallback(destPath, frontmatter, body),
   };
 };

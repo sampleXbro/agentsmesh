@@ -6,6 +6,7 @@
  * the VS Code `servers` key (not `mcpServers`), so the spec sets `mcpServersKey`.
  */
 
+import { AB_AGENTS, AB_COMMANDS, AB_MCP, AB_RULES } from '../../core/canonical-paths.js';
 import type { TargetImporterDescriptor } from '../catalog/import-descriptor.js';
 import {
   COPILOT_INSTRUCTIONS,
@@ -16,10 +17,6 @@ import {
   COPILOT_MCP_JSON,
   COPILOT_GLOBAL_INSTRUCTIONS,
   COPILOT_GLOBAL_AGENTS_DIR,
-  COPILOT_CANONICAL_AGENTS_DIR,
-  COPILOT_CANONICAL_COMMANDS_DIR,
-  COPILOT_CANONICAL_RULES_DIR,
-  COPILOT_CANONICAL_MCP,
 } from './constants.js';
 import {
   copilotAgentMapper,
@@ -35,7 +32,7 @@ export const copilotImporterSpec: TargetImporterDescriptor = {
       feature: 'rules',
       mode: 'singleFile',
       source: { project: [COPILOT_INSTRUCTIONS], global: [COPILOT_GLOBAL_INSTRUCTIONS] },
-      canonicalDir: COPILOT_CANONICAL_RULES_DIR,
+      canonicalDir: AB_RULES,
       canonicalRootFilename: '_root.md',
       markAsRoot: true,
     },
@@ -44,7 +41,7 @@ export const copilotImporterSpec: TargetImporterDescriptor = {
       feature: 'rules',
       mode: 'directory',
       source: { project: [COPILOT_CONTEXT_DIR] },
-      canonicalDir: COPILOT_CANONICAL_RULES_DIR,
+      canonicalDir: AB_RULES,
       extensions: ['.instructions.md'],
       map: copilotLegacyRuleMapper,
     },
@@ -54,7 +51,7 @@ export const copilotImporterSpec: TargetImporterDescriptor = {
       feature: 'rules',
       mode: 'directory',
       source: { project: [COPILOT_INSTRUCTIONS_DIR] },
-      canonicalDir: COPILOT_CANONICAL_RULES_DIR,
+      canonicalDir: AB_RULES,
       extensions: ['.instructions.md', '.md'],
       map: copilotNewRuleMapper,
     },
@@ -65,7 +62,7 @@ export const copilotImporterSpec: TargetImporterDescriptor = {
     feature: 'commands',
     mode: 'directory',
     source: { project: [COPILOT_PROMPTS_DIR] },
-    canonicalDir: COPILOT_CANONICAL_COMMANDS_DIR,
+    canonicalDir: AB_COMMANDS,
     extensions: ['.prompt.md'],
     map: copilotCommandMapper,
   },
@@ -73,7 +70,7 @@ export const copilotImporterSpec: TargetImporterDescriptor = {
     feature: 'agents',
     mode: 'directory',
     source: { project: [COPILOT_AGENTS_DIR], global: [COPILOT_GLOBAL_AGENTS_DIR] },
-    canonicalDir: COPILOT_CANONICAL_AGENTS_DIR,
+    canonicalDir: AB_AGENTS,
     extensions: ['.agent.md'],
     map: copilotAgentMapper,
   },
@@ -83,7 +80,7 @@ export const copilotImporterSpec: TargetImporterDescriptor = {
     mode: 'mcpJson',
     source: { project: [COPILOT_MCP_JSON] },
     canonicalDir: '.agentsmesh',
-    canonicalFilename: COPILOT_CANONICAL_MCP,
+    canonicalFilename: AB_MCP,
     mcpServersKey: 'servers',
   },
 };

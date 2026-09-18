@@ -26,7 +26,6 @@ export interface LessonsConfigFile {
   readonly recallLimit: number;
   readonly recallMaxTokens: number;
   readonly autoPrune: boolean;
-  readonly repairTriggers: boolean;
   /** Opt into the recall/capture/outcome logs that `stats`, effectiveness ranking and the health view read. */
   readonly telemetry: boolean;
 }
@@ -44,7 +43,6 @@ export function defaultLessonsConfig(): LessonsConfigFile {
     recallLimit: DEFAULT_RECALL_LIMIT,
     recallMaxTokens: DEFAULT_RECALL_MAX_TOKENS,
     autoPrune: false,
-    repairTriggers: false,
     telemetry: false,
   };
 }

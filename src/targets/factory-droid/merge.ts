@@ -14,7 +14,7 @@
  *     server set only.
  */
 
-import type { GeneratedOutputMerger } from '../catalog/target-descriptor.js';
+import { firstMerger, type GeneratedOutputMerger } from '../catalog/target-descriptor.js';
 import { ownedJsonKeysMerger } from '../../core/generate/json-owned-keys.js';
 import {
   CANONICAL_MCP_SERVER_KEYS,
@@ -42,12 +42,8 @@ const mergeSettings = ownedJsonKeysMerger(
   ['commandAllowlist', 'commandDenylist'],
 );
 
-export const mergeFactoryDroidOutput: GeneratedOutputMerger = (
-  existing,
-  pending,
-  newContent,
-  resolvedPath,
-) =>
-  mergeMcp(existing, pending, newContent, resolvedPath) ??
-  mergeHooks(existing, pending, newContent, resolvedPath) ??
-  mergeSettings(existing, pending, newContent, resolvedPath);
+export const mergeFactoryDroidOutput: GeneratedOutputMerger = firstMerger([
+  mergeMcp,
+  mergeHooks,
+  mergeSettings,
+]);

@@ -7,13 +7,14 @@
  * refuses. Agent frontmatter drops are reported by `lintAgents`.
  */
 
+import { AB_HOOKS } from '../../core/canonical-paths.js';
 import type { CanonicalFiles, LintDiagnostic } from '../../core/types.js';
 import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
 import { createWarning } from '../../core/lint/shared/helpers.js';
 import { KIMI_CODE_HOOK_EVENTS, unmappedHookEntries } from './hooks-format.js';
 import { unmappedPermissionPatterns } from './permissions-format.js';
 import { hasIgnoredRemoteEnv, isLoadableKimiMcpServer } from './mcp-format.js';
-import { KIMI_CODE_TARGET, KIMI_CODE_CANONICAL_HOOKS } from './constants.js';
+import { KIMI_CODE_TARGET } from './constants.js';
 
 const CANONICAL_PERMISSIONS = '.agentsmesh/permissions.yaml';
 const CANONICAL_MCP = '.agentsmesh/mcp.json';
@@ -36,7 +37,7 @@ export function lintHooks(canonical: CanonicalFiles, options?: unknown): LintDia
   if (scopeOf(options) !== 'global') {
     return [
       warn(
-        KIMI_CODE_CANONICAL_HOOKS,
+        AB_HOOKS,
         'Kimi Code reads hooks only from the user-level ~/.kimi-code/config.toml ([[hooks]]); there is no project config.toml, so canonical hooks are not projected for the project.',
       ),
     ];
@@ -47,7 +48,7 @@ export function lintHooks(canonical: CanonicalFiles, options?: unknown): LintDia
   if (events.length > 0) {
     diagnostics.push(
       warn(
-        KIMI_CODE_CANONICAL_HOOKS,
+        AB_HOOKS,
         `Kimi Code defines ${KIMI_CODE_HOOK_EVENTS.length} hook events and rejects the whole config.toml on an unknown one, so these events are not projected: ${events.join(', ')}.`,
       ),
     );
@@ -55,7 +56,7 @@ export function lintHooks(canonical: CanonicalFiles, options?: unknown): LintDia
   if (promptEvents.length > 0) {
     diagnostics.push(
       warn(
-        KIMI_CODE_CANONICAL_HOOKS,
+        AB_HOOKS,
         `Kimi Code [[hooks]] runs shell commands only; prompt-type hooks under these events are not projected: ${promptEvents.join(', ')}.`,
       ),
     );
@@ -63,7 +64,7 @@ export function lintHooks(canonical: CanonicalFiles, options?: unknown): LintDia
   if (timeouts.length > 0) {
     diagnostics.push(
       warn(
-        KIMI_CODE_CANONICAL_HOOKS,
+        AB_HOOKS,
         `Kimi Code accepts an integer hook timeout of 1–600 seconds; the timeout is dropped (default 30s applies) for these events: ${timeouts.join(', ')}.`,
       ),
     );

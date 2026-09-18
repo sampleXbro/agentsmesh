@@ -110,21 +110,6 @@ describe('logger', () => {
     else process.env.FORCE_COLOR = prevForce;
   });
 
-  it('table formats rows into aligned columns', () => {
-    const rows = [
-      ['Name', 'Status'],
-      ['claude', '✅'],
-      ['cursor', '⚠️'],
-    ];
-    logger.table(rows);
-    expect(process.stdout.write).toHaveBeenCalled();
-  });
-
-  it('table with empty rows does nothing', () => {
-    logger.table([]);
-    expect(process.stdout.write).not.toHaveBeenCalled();
-  });
-
   it('debug writes when AGENTSMESH_DEBUG=1', () => {
     const prev = process.env.AGENTSMESH_DEBUG;
     process.env.AGENTSMESH_DEBUG = '1';
@@ -149,7 +134,6 @@ describe('logger', () => {
     logger.warn('muted-warn');
     logger.error('muted-error');
     logger.success('muted-success');
-    logger.table([['a', 'b']]);
     expect(process.stdout.write).not.toHaveBeenCalled();
     expect(process.stderr.write).not.toHaveBeenCalled();
     unmuteLogger();

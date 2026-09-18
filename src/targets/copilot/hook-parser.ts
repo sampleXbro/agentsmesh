@@ -2,6 +2,7 @@
  * Copilot hook parsing helpers — event mapping, wrapper command extraction, and hook import.
  */
 
+import { AB_HOOKS } from '../../core/canonical-paths.js';
 import { join, dirname, basename } from 'node:path';
 import type { ImportResult } from '../../core/types.js';
 import {
@@ -11,12 +12,7 @@ import {
   mkdirp,
 } from '../../utils/filesystem/fs.js';
 import { stringify as yamlStringify } from 'yaml';
-import {
-  COPILOT_TARGET,
-  COPILOT_HOOKS_DIR,
-  COPILOT_CANONICAL_HOOKS,
-  COPILOT_LEGACY_HOOKS_DIR,
-} from './constants.js';
+import { COPILOT_TARGET, COPILOT_HOOKS_DIR, COPILOT_LEGACY_HOOKS_DIR } from './constants.js';
 
 export function mapCopilotHookEvent(event: string): string | null {
   switch (event) {
@@ -146,13 +142,13 @@ export async function importHooks(
 
   if (Object.keys(hooks).length === 0) return;
 
-  const destPath = join(projectRoot, COPILOT_CANONICAL_HOOKS);
+  const destPath = join(projectRoot, AB_HOOKS);
   await mkdirp(dirname(destPath));
   await writeFileAtomic(destPath, yamlStringify(hooks));
   results.push({
     fromTool: COPILOT_TARGET,
     fromPath: hooksDir,
-    toPath: COPILOT_CANONICAL_HOOKS,
+    toPath: AB_HOOKS,
     feature: 'hooks',
   });
 }

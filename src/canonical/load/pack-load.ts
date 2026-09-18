@@ -2,6 +2,7 @@
  * Load canonical resources from materialized packs in .agentsmesh/packs/.
  */
 
+import { emptyCanonical } from './empty-canonical.js';
 import { join } from 'node:path';
 import type { CanonicalFiles } from '../../core/types.js';
 import { parseRules } from '../features/rules.js';
@@ -16,19 +17,6 @@ import { mergeCanonicalFiles } from './merge.js';
 import { filterCanonicalByFeatures } from '../extends/extends.js';
 import { applyExtendPick } from '../extends/extend-pick.js';
 import { listPacks } from '../../install/pack/pack-reader.js';
-
-function emptyCanonical(): CanonicalFiles {
-  return {
-    rules: [],
-    commands: [],
-    agents: [],
-    skills: [],
-    mcp: null,
-    permissions: null,
-    hooks: null,
-    ignore: [],
-  };
-}
 
 /**
  * Load canonical files from a single pack directory.

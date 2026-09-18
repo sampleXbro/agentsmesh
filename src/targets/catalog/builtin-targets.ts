@@ -74,9 +74,6 @@ const ALL_NONE_CAPABILITIES: TargetCapabilities = {
   permissions: 'none',
 };
 
-/** @deprecated Use TargetDescriptor from target-descriptor.ts instead */
-export type BuiltinTargetDefinition = TargetDescriptor;
-
 /**
  * Builtin target descriptors. The imports above and the array below are kept
  * in sync with `src/targets/<id>/index.ts` by `scripts/generate-target-catalog.ts`

@@ -38,10 +38,7 @@ function sourceIdentity(source: string): string {
 
 function sameFeatures(a: string[], b?: string[]): boolean {
   if (!b) return true;
-  return (
-    a.length === b.length &&
-    [...a].sort().every((feature, index) => feature === [...b].sort()[index])
-  );
+  return a.length === b.length && [...a].sort().join('\0') === [...b].sort().join('\0');
 }
 
 /**

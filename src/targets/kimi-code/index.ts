@@ -16,6 +16,7 @@
  * targets, so agentsmesh never writes them from here.
  */
 
+import { AB_AGENTS } from '../../core/canonical-paths.js';
 import type { TargetCapabilities, TargetGenerators } from '../catalog/target.interface.js';
 import type { TargetDescriptor } from '../catalog/target-descriptor.js';
 import {
@@ -46,7 +47,6 @@ import {
   KIMI_CODE_GLOBAL_SKILLS_DIR,
   KIMI_CODE_GLOBAL_MCP_FILE,
   KIMI_CODE_GLOBAL_CONFIG_FILE,
-  KIMI_CODE_CANONICAL_AGENTS_DIR,
 } from './constants.js';
 
 export const target: TargetGenerators = {
@@ -137,7 +137,7 @@ export const descriptor = {
       feature: 'agents',
       mode: 'directory',
       source: { project: [KIMI_CODE_AGENTS_DIR], global: [KIMI_CODE_GLOBAL_AGENTS_DIR] },
-      canonicalDir: KIMI_CODE_CANONICAL_AGENTS_DIR,
+      canonicalDir: AB_AGENTS,
       extensions: ['.md'],
       preset: 'agent',
     },

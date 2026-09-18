@@ -17,6 +17,7 @@
  * canonical content and duplicate every scoped rule on the next generate.
  */
 
+import { AB_RULES } from '../../core/canonical-paths.js';
 import { basename, dirname, join, relative } from 'node:path';
 import type { ImportResult } from '../../core/types.js';
 import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
@@ -26,12 +27,7 @@ import { serializeImportedRuleWithFallback } from '../import/import-metadata.js'
 import { splitEmbeddedRulesToCanonical } from '../import/embedded-rules.js';
 import { importFileDirectory } from '../import/import-orchestrator.js';
 import { shouldImportScopedAgentsRule } from '../import/scoped-agents-import.js';
-import {
-  CODEBUFF_TARGET,
-  CODEBUFF_ROOT_FILE,
-  CODEBUFF_GLOBAL_ROOT_FILE,
-  CODEBUFF_CANONICAL_RULES_DIR,
-} from './constants.js';
+import { CODEBUFF_TARGET, CODEBUFF_ROOT_FILE, CODEBUFF_GLOBAL_ROOT_FILE } from './constants.js';
 
 type Normalizer = (content: string, sourceFile: string, destinationFile: string) => string;
 
@@ -45,14 +41,14 @@ async function importRootRule(
   const content = await readFileSafe(sourcePath);
   if (content === null) return [];
 
-  const destDir = join(projectRoot, CODEBUFF_CANONICAL_RULES_DIR);
+  const destDir = join(projectRoot, AB_RULES);
   await mkdirp(destDir);
   const destPath = join(destDir, '_root.md');
 
   const split = await splitEmbeddedRulesToCanonical({
     content,
     projectRoot,
-    rulesDir: CODEBUFF_CANONICAL_RULES_DIR,
+    rulesDir: AB_RULES,
     sourcePath,
     fromTool: CODEBUFF_TARGET,
     normalize,
@@ -71,7 +67,7 @@ async function importRootRule(
     {
       fromTool: CODEBUFF_TARGET,
       fromPath: sourcePath,
-      toPath: `${CODEBUFF_CANONICAL_RULES_DIR}/_root.md`,
+      toPath: `${AB_RULES}/_root.md`,
       feature: 'rules',
     },
   ];
@@ -92,7 +88,7 @@ async function importNestedRules(
   projectRoot: string,
   normalize: Normalizer,
 ): Promise<ImportResult[]> {
-  const destDir = join(projectRoot, CODEBUFF_CANONICAL_RULES_DIR);
+  const destDir = join(projectRoot, AB_RULES);
   return importFileDirectory({
     srcDir: projectRoot,
     destDir,
@@ -115,7 +111,7 @@ async function importNestedRules(
         body,
       ).then((content) => ({
         destPath,
-        toPath: `${CODEBUFF_CANONICAL_RULES_DIR}/${ruleName}.md`,
+        toPath: `${AB_RULES}/${ruleName}.md`,
         feature: 'rules',
         content,
       }));

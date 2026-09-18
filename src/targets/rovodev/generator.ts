@@ -10,10 +10,11 @@
  *     project-level MCP file is documented)
  */
 
+import { embeddedRootRule } from '../projection/managed-blocks.js';
+import type { FeatureGeneratorOutput } from '../catalog/target.interface.js';
 import type { CanonicalFiles } from '../../core/types.js';
 import type { GenerateFeatureContext } from '../catalog/target.interface.js';
 import { generateEmbeddedSkills } from '../import/embedded-skill.js';
-import { appendEmbeddedRulesBlock } from '../projection/managed-blocks.js';
 import {
   projectedAgentSkillDirName,
   serializeProjectedAgentSkill,
@@ -26,24 +27,10 @@ import {
   ROVODEV_GLOBAL_MCP_FILE,
 } from './constants.js';
 
-export interface RovodevOutput {
-  path: string;
-  content: string;
-}
+export type RovodevOutput = FeatureGeneratorOutput;
 
-export function generateRules(canonical: CanonicalFiles): RovodevOutput[] {
-  const root = canonical.rules.find((rule) => rule.root);
-  const nonRootRules = canonical.rules.filter((rule) => {
-    if (rule.root) return false;
-    return rule.targets.length === 0 || rule.targets.includes(ROVODEV_TARGET);
-  });
-
-  const rootBody = root?.body.trim() ?? '';
-  const content = appendEmbeddedRulesBlock(rootBody, nonRootRules);
-  if (!content) return [];
-
-  return [{ path: ROVODEV_ROOT_FILE, content }];
-}
+export const generateRules = (canonical: CanonicalFiles): RovodevOutput[] =>
+  embeddedRootRule(canonical, ROVODEV_TARGET, ROVODEV_ROOT_FILE);
 
 export function generateSkills(canonical: CanonicalFiles): RovodevOutput[] {
   return generateEmbeddedSkills(canonical, ROVODEV_SKILLS_DIR);

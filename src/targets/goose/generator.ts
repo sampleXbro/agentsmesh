@@ -12,9 +12,11 @@
  * (`config.yaml`).
  */
 
+import { embeddedRootRule } from '../projection/managed-blocks.js';
+import { NO_OUTPUTS } from '../catalog/no-outputs.js';
+import type { FeatureGeneratorOutput } from '../catalog/target.interface.js';
 import type { CanonicalFiles } from '../../core/types.js';
 import { generateEmbeddedSkills } from '../import/embedded-skill.js';
-import { appendEmbeddedRulesBlock } from '../projection/managed-blocks.js';
 import {
   projectedAgentSkillDirName,
   serializeProjectedAgentSkill,
@@ -29,24 +31,10 @@ import {
   GOOSE_HOOKS_FILE,
 } from './constants.js';
 
-export interface GooseOutput {
-  path: string;
-  content: string;
-}
+export type GooseOutput = FeatureGeneratorOutput;
 
-export function generateRules(canonical: CanonicalFiles): GooseOutput[] {
-  const root = canonical.rules.find((rule) => rule.root);
-  const nonRootRules = canonical.rules.filter((rule) => {
-    if (rule.root) return false;
-    return rule.targets.length === 0 || rule.targets.includes(GOOSE_TARGET);
-  });
-
-  const rootBody = root?.body.trim() ?? '';
-  const content = appendEmbeddedRulesBlock(rootBody, nonRootRules);
-  if (!content) return [];
-
-  return [{ path: GOOSE_ROOT_FILE, content }];
-}
+export const generateRules = (canonical: CanonicalFiles): GooseOutput[] =>
+  embeddedRootRule(canonical, GOOSE_TARGET, GOOSE_ROOT_FILE);
 
 export function generateSkills(canonical: CanonicalFiles): GooseOutput[] {
   return generateEmbeddedSkills(canonical, GOOSE_SKILLS_DIR);
@@ -75,12 +63,4 @@ export function generateHooks(canonical: CanonicalFiles): GooseOutput[] {
   return buildWrappedCommandHooks(canonical, GOOSE_HOOKS_FILE);
 }
 
-/**
- * No-op stub — Goose applies tool permissions only at global scope via
- * ~/.config/goose/permission.yaml (emitted by scopeExtras); project-scope
- * permissions have no file surface. Lint warnings surface this via
- * lintPermissions.
- */
-export function generatePermissions(_canonical: CanonicalFiles): GooseOutput[] {
-  return [];
-}
+export const generatePermissions = NO_OUTPUTS;

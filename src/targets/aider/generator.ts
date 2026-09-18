@@ -10,6 +10,8 @@
  * two features write into it, so it needs one writer and one merge.
  */
 
+import { NO_OUTPUTS } from '../catalog/no-outputs.js';
+import type { FeatureGeneratorOutput } from '../catalog/target.interface.js';
 import type { CanonicalFiles } from '../../core/types.js';
 import { generateEmbeddedSkills } from '../import/embedded-skill.js';
 import { appendEmbeddedRulesBlock } from '../projection/managed-blocks.js';
@@ -20,10 +22,7 @@ import {
 import { commandSkillDirName, serializeCommandSkill } from '../codex-cli/command-skill.js';
 import { AIDER_TARGET, AIDER_CONVENTIONS, AIDER_SKILLS_DIR, AIDER_IGNORE } from './constants.js';
 
-export interface AiderOutput {
-  path: string;
-  content: string;
-}
+export type AiderOutput = FeatureGeneratorOutput;
 
 /** The CONVENTIONS.md body: root rule plus the embedded non-root rules. */
 export function buildAiderConventions(canonical: CanonicalFiles): string {
@@ -69,18 +68,6 @@ export function generateIgnore(canonical: CanonicalFiles): AiderOutput[] {
   return [{ path: AIDER_IGNORE, content: canonical.ignore.join('\n') }];
 }
 
-/**
- * No-op stub — Aider has no MCP config file surface.
- * Lint warnings surface this via lintMcp.
- */
-export function generateMcp(_canonical: CanonicalFiles): AiderOutput[] {
-  return [];
-}
+export const generateMcp = NO_OUTPUTS;
 
-/**
- * No-op stub — Aider has no permissions config.
- * Lint warnings surface this via lintPermissions.
- */
-export function generatePermissions(_canonical: CanonicalFiles): AiderOutput[] {
-  return [];
-}
+export const generatePermissions = NO_OUTPUTS;

@@ -16,6 +16,7 @@
  *    written here.
  */
 
+import { AB_HOOKS } from '../../core/canonical-paths.js';
 import { dirname, join } from 'node:path';
 import { stringify as yamlStringify } from 'yaml';
 import type { CanonicalFiles, ImportResult } from '../../core/types.js';
@@ -23,7 +24,7 @@ import type { GeneratedOutputMerger } from '../catalog/target-descriptor.js';
 import { buildClaudeHooksObjectFromCanonical } from '../claude-code/hooks-format.js';
 import { claudeHooksToCanonical } from '../claude-code/settings-helpers.js';
 import { mkdirp, readFileSafe, writeFileAtomic } from '../../utils/filesystem/fs.js';
-import { CONTINUE_CANONICAL_HOOKS, CONTINUE_SETTINGS, CONTINUE_TARGET } from './constants.js';
+import { CONTINUE_SETTINGS, CONTINUE_TARGET } from './constants.js';
 import type { ContinueOutput } from './generator.js';
 
 /** Hook events Continue dispatches (extensions/cli/src/hooks/types.ts). */
@@ -117,13 +118,13 @@ export async function importContinueHooks(
   const hooks = claudeHooksToCanonical(rawHooks as Record<string, unknown>);
   if (Object.keys(hooks).length === 0) return;
 
-  const destPath = join(projectRoot, CONTINUE_CANONICAL_HOOKS);
+  const destPath = join(projectRoot, AB_HOOKS);
   await mkdirp(dirname(destPath));
   await writeFileAtomic(destPath, yamlStringify(hooks));
   results.push({
     fromTool: CONTINUE_TARGET,
     fromPath: srcPath,
-    toPath: CONTINUE_CANONICAL_HOOKS,
+    toPath: AB_HOOKS,
     feature: 'hooks',
   });
 }

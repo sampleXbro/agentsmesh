@@ -7,6 +7,7 @@
  * follow the same pattern as the project scope.
  */
 
+import { AB_AGENTS, AB_COMMANDS, AB_IGNORE, AB_MCP } from '../../core/canonical-paths.js';
 import type { TargetImporterDescriptor } from '../catalog/import-descriptor.js';
 import {
   TRAE_AGENTS_DIR,
@@ -16,10 +17,6 @@ import {
   TRAE_MCP_FILE,
   TRAE_GLOBAL_MCP_FILE,
   TRAE_IGNORE,
-  TRAE_CANONICAL_AGENTS_DIR,
-  TRAE_CANONICAL_COMMANDS_DIR,
-  TRAE_CANONICAL_MCP,
-  TRAE_CANONICAL_IGNORE,
 } from './constants.js';
 
 export const traeImporterSpec: TargetImporterDescriptor = {
@@ -30,7 +27,7 @@ export const traeImporterSpec: TargetImporterDescriptor = {
       project: [TRAE_AGENTS_DIR],
       global: [TRAE_GLOBAL_AGENTS_DIR],
     },
-    canonicalDir: TRAE_CANONICAL_AGENTS_DIR,
+    canonicalDir: AB_AGENTS,
     extensions: ['.md'],
     preset: 'agent',
   },
@@ -41,7 +38,7 @@ export const traeImporterSpec: TargetImporterDescriptor = {
       project: [TRAE_COMMANDS_DIR],
       global: [TRAE_GLOBAL_COMMANDS_DIR],
     },
-    canonicalDir: TRAE_CANONICAL_COMMANDS_DIR,
+    canonicalDir: AB_COMMANDS,
     extensions: ['.md'],
     preset: 'command',
   },
@@ -50,13 +47,13 @@ export const traeImporterSpec: TargetImporterDescriptor = {
     mode: 'mcpJson',
     source: { project: [TRAE_MCP_FILE], global: [TRAE_GLOBAL_MCP_FILE] },
     canonicalDir: '.agentsmesh',
-    canonicalFilename: TRAE_CANONICAL_MCP,
+    canonicalFilename: AB_MCP,
   },
   ignore: {
     feature: 'ignore',
     mode: 'flatFile',
     source: { project: [TRAE_IGNORE] },
     canonicalDir: '.agentsmesh',
-    canonicalFilename: TRAE_CANONICAL_IGNORE,
+    canonicalFilename: AB_IGNORE,
   },
 };

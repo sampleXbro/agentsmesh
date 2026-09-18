@@ -2,6 +2,7 @@
  * Cline-specific lint hooks.
  */
 
+import { unsupportedFeature } from '../../core/lint/capability-gap.js';
 import type { CanonicalFiles, LintDiagnostic } from '../../core/types.js';
 import { createWarning } from '../../core/lint/shared/helpers.js';
 
@@ -17,20 +18,11 @@ export function lintCommands(canonical: CanonicalFiles): LintDiagnostic[] {
     );
 }
 
-export function lintHooks(canonical: CanonicalFiles): LintDiagnostic[] {
-  if (!canonical.hooks) return [];
-  const hasEntries = Object.values(canonical.hooks).some(
-    (entries) => Array.isArray(entries) && entries.length > 0,
-  );
-  if (!hasEntries) return [];
-  return [
-    createWarning(
-      '.agentsmesh/hooks.yaml',
-      'cline',
-      'cline hooks are emitted as .cline/hooks/*.sh wrapper scripts with a `#!/usr/bin/env bash` header; they require a POSIX shell (git-bash or WSL) to execute on Windows.',
-    ),
-  ];
-}
+export const lintHooks = unsupportedFeature(
+  'hooks',
+  'cline',
+  'cline hooks are emitted as .cline/hooks/*.sh wrapper scripts with a `#!/usr/bin/env bash` header; they require a POSIX shell (git-bash or WSL) to execute on Windows.',
+);
 
 export function lintPermissions(canonical: CanonicalFiles): LintDiagnostic[] {
   if (!canonical.permissions) return [];

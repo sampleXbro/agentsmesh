@@ -12,8 +12,10 @@
  * reading it back would clear canonical `allow` for every other target too.
  */
 
+import { AB_PERMISSIONS } from '../../core/canonical-paths.js';
+import { canonicalDocument } from '../import/yaml-import-helpers.js';
 import { dirname, join } from 'node:path';
-import { Document, YAMLSeq, parseDocument, isMap, isScalar, isSeq } from 'yaml';
+import { Document, YAMLSeq, isScalar, isSeq } from 'yaml';
 import type { ImportResult } from '../../core/types.js';
 import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
 import { mkdirp, readFileSafe, writeFileAtomic } from '../../utils/filesystem/fs.js';
@@ -23,17 +25,7 @@ import {
   PI_AGENT_TARGET,
   PI_AGENT_SETTINGS_FILE,
   PI_AGENT_GLOBAL_SETTINGS_FILE,
-  PI_AGENT_CANONICAL_PERMISSIONS,
 } from './constants.js';
-
-/** The canonical file as an editable document; comments and key order survive. */
-function canonicalDocument(content: string | null): Document {
-  if (content !== null) {
-    const doc = parseDocument(content);
-    if (doc.errors.length === 0 && (doc.contents === null || isMap(doc.contents))) return doc;
-  }
-  return new Document({});
-}
 
 /**
  * Rewrite one canonical list, reusing the node of every entry that survives so
@@ -62,7 +54,7 @@ export async function importPiAgentPermissions(
   const tools = parseDefaultTools(content);
   if (tools === null || tools.length === 0) return;
 
-  const destPath = join(projectRoot, PI_AGENT_CANONICAL_PERMISSIONS);
+  const destPath = join(projectRoot, AB_PERMISSIONS);
   const doc = canonicalDocument(await readFileSafe(destPath));
   const existing = (doc.toJS() ?? {}) as Record<string, unknown>;
   setEntries(doc, 'allow', mergeImportedAllow(toStringArray(existing.allow), tools));
@@ -73,7 +65,7 @@ export async function importPiAgentPermissions(
   results.push({
     fromTool: PI_AGENT_TARGET,
     fromPath: srcPath,
-    toPath: PI_AGENT_CANONICAL_PERMISSIONS,
+    toPath: AB_PERMISSIONS,
     feature: 'permissions',
   });
 }

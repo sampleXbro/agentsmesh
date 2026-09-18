@@ -1,3 +1,4 @@
+import type { FeatureGeneratorOutput } from '../catalog/target.interface.js';
 import { basename } from 'node:path';
 import { stringify as yamlStringify } from 'yaml';
 import type { CanonicalFiles } from '../../core/types.js';
@@ -19,10 +20,7 @@ import {
   ROO_CODE_DENIED_COMMANDS_KEY,
 } from './constants.js';
 
-export interface RooCodeOutput {
-  path: string;
-  content: string;
-}
+export type RooCodeOutput = FeatureGeneratorOutput;
 
 export function generateRules(canonical: CanonicalFiles): RooCodeOutput[] {
   const outputs: RooCodeOutput[] = [];

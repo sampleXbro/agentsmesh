@@ -23,37 +23,22 @@ function ruleSlug(r: CanonicalRule): string {
  * @param overlay - Overlay canonical files (later, wins on conflict)
  * @returns Merged CanonicalFiles
  */
+/** Overlay wins per key; base keeps its position, new overlay entries append. */
+function mergeByKey<T>(base: readonly T[], overlay: readonly T[], key: (item: T) => string): T[] {
+  return [...new Map([...base, ...overlay].map((item) => [key(item), item])).values()];
+}
+
 export function mergeCanonicalFiles(base: CanonicalFiles, overlay: CanonicalFiles): CanonicalFiles {
-  const baseRuleMap = new Map(base.rules.map((r) => [ruleSlug(r), r]));
-  for (const r of overlay.rules) {
-    baseRuleMap.set(ruleSlug(r), r);
-  }
-
-  const baseCmdMap = new Map(base.commands.map((c) => [c.name, c]));
-  for (const c of overlay.commands) {
-    baseCmdMap.set(c.name, c);
-  }
-
-  const baseAgentMap = new Map(base.agents.map((a) => [a.name, a]));
-  for (const a of overlay.agents) {
-    baseAgentMap.set(a.name, a);
-  }
-
-  const baseSkillMap = new Map(base.skills.map((s) => [s.name, s]));
-  for (const s of overlay.skills) {
-    baseSkillMap.set(s.name, s);
-  }
-
   const mcp: McpConfig | null = mergeMcp(base.mcp, overlay.mcp);
   const permissions: Permissions | null = mergePermissions(base.permissions, overlay.permissions);
   const hooks: Hooks | null = mergeHooks(base.hooks, overlay.hooks);
-  const ignore = mergeIgnore(base.ignore, overlay.ignore);
+  const ignore = mergeUniqueStrings(base.ignore, overlay.ignore);
 
   return {
-    rules: Array.from(baseRuleMap.values()),
-    commands: Array.from(baseCmdMap.values()),
-    agents: Array.from(baseAgentMap.values()),
-    skills: Array.from(baseSkillMap.values()),
+    rules: mergeByKey(base.rules, overlay.rules, ruleSlug),
+    commands: mergeByKey(base.commands, overlay.commands, (c) => c.name),
+    agents: mergeByKey(base.agents, overlay.agents, (a) => a.name),
+    skills: mergeByKey(base.skills, overlay.skills, (s) => s.name),
     mcp,
     permissions,
     hooks,
@@ -105,16 +90,4 @@ function mergeHooks(base: Hooks | null, overlay: Hooks | null): Hooks | null {
     result[k] = o !== undefined && o.length > 0 ? o : (b ?? []);
   }
   return result;
-}
-
-function mergeIgnore(base: string[], overlay: string[]): string[] {
-  const seen = new Set(base);
-  const out = [...base];
-  for (const p of overlay) {
-    if (!seen.has(p)) {
-      seen.add(p);
-      out.push(p);
-    }
-  }
-  return out;
 }

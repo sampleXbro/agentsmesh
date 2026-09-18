@@ -53,10 +53,4 @@ export const OPENHANDS_HOOKS_FILE = `${OPENHANDS_DIR}/hooks.json`;
 export const OPENHANDS_GLOBAL_ROOT_FILE = `${OPENHANDS_SKILLS_DIR}/_root.md`;
 
 // Canonical paths
-export const OPENHANDS_CANONICAL_ROOT_RULE = '.agentsmesh/rules/_root.md';
-export const OPENHANDS_CANONICAL_RULES_DIR = '.agentsmesh/rules';
-export const OPENHANDS_CANONICAL_COMMANDS_DIR = '.agentsmesh/commands';
-export const OPENHANDS_CANONICAL_AGENTS_DIR = '.agentsmesh/agents';
 export const OPENHANDS_CANONICAL_MCP = 'mcp.json';
-export const OPENHANDS_CANONICAL_HOOKS = '.agentsmesh/hooks.yaml';
-export const OPENHANDS_CANONICAL_PERMISSIONS = '.agentsmesh/permissions.yaml';

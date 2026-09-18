@@ -3,6 +3,7 @@
  * `runDescriptorImport` orchestrator.
  */
 
+import { AB_AGENTS, AB_COMMANDS, AB_RULES } from '../../core/canonical-paths.js';
 import type { TargetImporterDescriptor } from '../catalog/import-descriptor.js';
 import {
   QWEN_ROOT,
@@ -16,9 +17,6 @@ import {
   QWEN_GLOBAL_COMMANDS_DIR,
   QWEN_GLOBAL_AGENTS_DIR,
   QWEN_GLOBAL_SETTINGS,
-  QWEN_CANONICAL_RULES_DIR,
-  QWEN_CANONICAL_COMMANDS_DIR,
-  QWEN_CANONICAL_AGENTS_DIR,
 } from './constants.js';
 
 export const qwenCodeImporterSpec: TargetImporterDescriptor = {
@@ -30,7 +28,7 @@ export const qwenCodeImporterSpec: TargetImporterDescriptor = {
         project: [QWEN_ROOT],
         global: [QWEN_GLOBAL_ROOT],
       },
-      canonicalDir: QWEN_CANONICAL_RULES_DIR,
+      canonicalDir: AB_RULES,
       canonicalRootFilename: '_root.md',
       markAsRoot: true,
     },
@@ -41,7 +39,7 @@ export const qwenCodeImporterSpec: TargetImporterDescriptor = {
         project: [QWEN_RULES_DIR],
         global: [QWEN_GLOBAL_RULES_DIR],
       },
-      canonicalDir: QWEN_CANONICAL_RULES_DIR,
+      canonicalDir: AB_RULES,
       extensions: ['.md'],
       preset: 'rule' as const,
       // Qwen Code rule files use `paths:` for path-conditional injection (never
@@ -59,7 +57,7 @@ export const qwenCodeImporterSpec: TargetImporterDescriptor = {
       project: [QWEN_COMMANDS_DIR],
       global: [QWEN_GLOBAL_COMMANDS_DIR],
     },
-    canonicalDir: QWEN_CANONICAL_COMMANDS_DIR,
+    canonicalDir: AB_COMMANDS,
     extensions: ['.md'],
     preset: 'command' as const,
   },
@@ -70,7 +68,7 @@ export const qwenCodeImporterSpec: TargetImporterDescriptor = {
       project: [QWEN_AGENTS_DIR],
       global: [QWEN_GLOBAL_AGENTS_DIR],
     },
-    canonicalDir: QWEN_CANONICAL_AGENTS_DIR,
+    canonicalDir: AB_AGENTS,
     extensions: ['.md'],
     preset: 'agent' as const,
   },

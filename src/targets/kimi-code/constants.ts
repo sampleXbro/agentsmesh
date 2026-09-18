@@ -61,9 +61,3 @@ export const KIMI_CODE_GLOBAL_MCP_FILE = '.kimi-code/mcp.json';
 export const KIMI_CODE_GLOBAL_CONFIG_FILE = '.kimi-code/config.toml';
 
 // Canonical paths
-export const KIMI_CODE_CANONICAL_ROOT_RULE = '.agentsmesh/rules/_root.md';
-export const KIMI_CODE_CANONICAL_RULES_DIR = '.agentsmesh/rules';
-export const KIMI_CODE_CANONICAL_AGENTS_DIR = '.agentsmesh/agents';
-export const KIMI_CODE_CANONICAL_MCP_FILE = '.agentsmesh/mcp.json';
-export const KIMI_CODE_CANONICAL_HOOKS = '.agentsmesh/hooks.yaml';
-export const KIMI_CODE_CANONICAL_PERMISSIONS = '.agentsmesh/permissions.yaml';

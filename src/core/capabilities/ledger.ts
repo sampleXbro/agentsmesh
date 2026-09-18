@@ -1,3 +1,4 @@
+import { isRecord } from '../../utils/types/guards.js';
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -20,10 +21,6 @@ const DEFAULT_LEDGER_PATH = join(
 const LEVELS: readonly SupportLevel[] = ['native', 'embedded', 'partial', 'none'];
 const FORMATS: readonly LedgerFormat[] = ['json', 'yaml', 'toml', 'md-frontmatter', 'text'];
 const VERDICTS: readonly LedgerVerdict[] = ['confirmed', 'rejected', 'unverified'];
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
 
 function requireString(obj: Record<string, unknown>, key: string, at: string): string {
   const value = obj[key];

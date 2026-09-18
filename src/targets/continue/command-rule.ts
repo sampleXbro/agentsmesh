@@ -1,3 +1,4 @@
+import { toToolsArray as toStringArray } from '../import/shared-import-helpers.js';
 import { basename } from 'node:path';
 import type { CanonicalCommand } from '../../core/types.js';
 import { serializeFrontmatter } from '../../utils/text/markdown.js';
@@ -7,19 +8,6 @@ interface ParsedCommandRule {
   name: string;
   description: string;
   allowedTools: string[];
-}
-
-function toStringArray(value: unknown): string[] {
-  if (Array.isArray(value)) {
-    return value.filter((entry): entry is string => typeof entry === 'string' && entry.length > 0);
-  }
-  if (typeof value === 'string' && value.length > 0) {
-    return value
-      .split(',')
-      .map((entry) => entry.trim())
-      .filter(Boolean);
-  }
-  return [];
 }
 
 export function continueCommandRulePath(name: string): string {

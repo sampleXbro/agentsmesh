@@ -1,3 +1,4 @@
+import type { FeatureGeneratorOutput } from '../catalog/target.interface.js';
 import { readdir } from 'node:fs/promises';
 import { dirname, join, relative } from 'node:path';
 import type { CanonicalFiles, ImportResult } from '../../core/types.js';
@@ -23,10 +24,7 @@ const AB_SKILLS = '.agentsmesh/skills';
 const AB_COMMANDS = '.agentsmesh/commands';
 const AB_AGENTS = '.agentsmesh/agents';
 
-export interface EmbeddedSkillOutput {
-  path: string;
-  content: string;
-}
+export type EmbeddedSkillOutput = FeatureGeneratorOutput;
 
 export function generateEmbeddedSkills(
   canonical: CanonicalFiles,

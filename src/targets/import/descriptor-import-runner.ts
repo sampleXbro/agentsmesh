@@ -305,3 +305,24 @@ export async function runDescriptorImport(
   }
   return results;
 }
+
+/**
+ * The shared opening of every target's `importFrom`: resolve the scope, build
+ * the reference normalizer for the target, and run the descriptor-declared
+ * import. Returns the accumulator each target then appends its non-declarative
+ * extras (skills, MCP, hooks) to.
+ */
+export async function beginImport(
+  descriptor: TargetDescriptor,
+  projectRoot: string,
+  options: { scope?: TargetLayoutScope } = {},
+): Promise<{
+  scope: TargetLayoutScope;
+  results: ImportResult[];
+  normalize: Awaited<ReturnType<typeof createImportReferenceNormalizer>>;
+}> {
+  const scope = options.scope ?? 'project';
+  const normalize = await createImportReferenceNormalizer(descriptor.id, projectRoot, scope);
+  const results = await runDescriptorImport(descriptor, projectRoot, scope, { normalize });
+  return { scope, results: [...results], normalize };
+}

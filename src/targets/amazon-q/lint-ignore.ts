@@ -7,10 +7,11 @@
  * Amazon Q's per-agent deny scope.
  */
 
+import { AB_IGNORE } from '../../core/canonical-paths.js';
 import type { CanonicalFiles, LintDiagnostic } from '../../core/types.js';
 import { createWarning } from '../../core/lint/shared/helpers.js';
 import { AQ_DENIED_PATH_TOOLS, isNegatedPattern } from './agent-json.js';
-import { AMAZON_Q_TARGET, AMAZON_Q_CANONICAL_IGNORE } from './constants.js';
+import { AMAZON_Q_TARGET } from './constants.js';
 
 /**
  * Amazon Q anchors each denied path to the working directory before building a glob
@@ -22,7 +23,7 @@ function isDepthAnchored(pattern: string): boolean {
 }
 
 function ignoreWarning(message: string): LintDiagnostic {
-  return createWarning(AMAZON_Q_CANONICAL_IGNORE, AMAZON_Q_TARGET, message);
+  return createWarning(AB_IGNORE, AMAZON_Q_TARGET, message);
 }
 
 export function lintIgnore(canonical: CanonicalFiles): LintDiagnostic[] {

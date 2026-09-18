@@ -13,6 +13,7 @@
  * MCP servers are configured via the Replit Integrations UI, not files.
  */
 
+import { AB_RULES } from '../../core/canonical-paths.js';
 import type { TargetCapabilities, TargetGenerators } from '../catalog/target.interface.js';
 import type { TargetDescriptor, TargetLayout } from '../catalog/target-descriptor.js';
 import {
@@ -39,7 +40,6 @@ import {
   REPLIT_AGENT_TARGET,
   REPLIT_AGENT_ROOT_FILE,
   REPLIT_AGENT_SKILLS_DIR,
-  REPLIT_AGENT_CANONICAL_RULES_DIR,
 } from './constants.js';
 
 export const target: TargetGenerators = {
@@ -127,7 +127,7 @@ export const descriptor = {
       source: {
         project: [REPLIT_AGENT_ROOT_FILE],
       },
-      canonicalDir: REPLIT_AGENT_CANONICAL_RULES_DIR,
+      canonicalDir: AB_RULES,
       canonicalRootFilename: '_root.md',
       markAsRoot: true,
     },

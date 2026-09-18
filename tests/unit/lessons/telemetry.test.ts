@@ -12,7 +12,6 @@ import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   appendRecallRecord,
-  capRecallLog,
   isTelemetryEnabled,
   readRecallLog,
   recallLogPath,
@@ -137,38 +136,5 @@ describe('appendRecallRecord', () => {
         'ts',
       ].sort(),
     );
-  });
-});
-
-describe('capRecallLog', () => {
-  const env = { [TELEMETRY_ENV]: '1' };
-
-  it('is a no-op when the log is absent', () => {
-    expect(() => capRecallLog(root, 5)).not.toThrow();
-    expect(existsSync(recallLogPath(root))).toBe(false);
-  });
-
-  it('keeps the file intact when under the record cap', () => {
-    for (let i = 0; i < 3; i++) appendRecallRecord(root, record({ totalMatches: i }), env);
-    capRecallLog(root, 5);
-    expect(readRecallLog(root)).toHaveLength(3);
-  });
-
-  it('truncates to the last N records when over the cap', () => {
-    for (let i = 0; i < 10; i++) appendRecallRecord(root, record({ totalMatches: i }), env);
-    capRecallLog(root, 4);
-    const rows = readRecallLog(root);
-    expect(rows).toHaveLength(4);
-    // Last-N retained: totalMatches 6,7,8,9 (the four most recent).
-    expect(rows.map((r) => r.totalMatches)).toEqual([6, 7, 8, 9]);
-  });
-
-  it('leaves no temp file behind after truncation', () => {
-    for (let i = 0; i < 10; i++) appendRecallRecord(root, record(), env);
-    capRecallLog(root, 4);
-    const dir = recallLogPath(root).replace(/recall-log\.jsonl$/, '');
-    const leftovers = readFileSync(recallLogPath(root), 'utf8');
-    expect(leftovers.endsWith('\n')).toBe(true);
-    expect(existsSync(join(dir, 'recall-log.jsonl'))).toBe(true);
   });
 });

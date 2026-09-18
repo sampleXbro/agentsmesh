@@ -19,7 +19,7 @@ sequenceDiagram
   participant CAN as canonical writers
 
   CLI->>CAT: validate --from target id
-  CLI->>CAT: getTargetCatalogEntry()
+  CLI->>CAT: getDescriptor()
   CAT->>IMP: importFrom(projectRoot)
   IMP->>CAN: normalize native files to canonical form
   CAN-->>CLI: ImportResult[]

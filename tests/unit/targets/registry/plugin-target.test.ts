@@ -6,7 +6,7 @@ import { randomBytes } from 'node:crypto';
 import {
   registerTargetDescriptor,
   resetRegistry,
-  getTarget,
+  getDescriptor,
 } from '../../../../src/targets/catalog/registry.js';
 import type {
   TargetDescriptor,
@@ -108,7 +108,7 @@ describe('plugin descriptor contract', () => {
       hooks: null,
       ignore: [],
     };
-    const gen = getTarget(PLUGIN_ID);
+    const gen = getDescriptor(PLUGIN_ID)!.generators;
     const results = gen.generateRules(canonical);
     expect(results).toHaveLength(1);
     expect(results[0]!.path).toBe('.plugin/rules/_root.md');

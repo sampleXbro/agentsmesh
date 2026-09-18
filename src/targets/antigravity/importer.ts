@@ -1,3 +1,4 @@
+import { AB_ROOT_RULE, AB_RULES } from '../../core/canonical-paths.js';
 import { join } from 'node:path';
 import type { ImportResult } from '../../core/types.js';
 import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
@@ -17,8 +18,6 @@ import {
   ANTIGRAVITY_SKILLS_DIR,
   ANTIGRAVITY_GLOBAL_ROOT,
   ANTIGRAVITY_GLOBAL_SKILLS_DIR,
-  ANTIGRAVITY_CANONICAL_ROOT_RULE,
-  ANTIGRAVITY_CANONICAL_RULES_DIR,
 } from './constants.js';
 import { descriptor } from './index.js';
 
@@ -37,11 +36,11 @@ async function importRootRule(
     const srcPath = join(projectRoot, rel);
     const content = await readFileSafe(srcPath);
     if (content === null) continue;
-    const destPath = join(projectRoot, ANTIGRAVITY_CANONICAL_ROOT_RULE);
+    const destPath = join(projectRoot, AB_ROOT_RULE);
     const split = await splitEmbeddedRulesToCanonical({
       content,
       projectRoot,
-      rulesDir: ANTIGRAVITY_CANONICAL_RULES_DIR,
+      rulesDir: AB_RULES,
       sourcePath: srcPath,
       fromTool: ANTIGRAVITY_TARGET,
       normalize,
@@ -49,12 +48,12 @@ async function importRootRule(
     results.push(...split.results);
     const { body } = parseFrontmatter(normalize(split.rootContent, srcPath, destPath));
     const output = await serializeImportedRuleWithFallback(destPath, { root: true }, body);
-    await mkdirp(join(projectRoot, ANTIGRAVITY_CANONICAL_RULES_DIR));
+    await mkdirp(join(projectRoot, AB_RULES));
     await writeFileAtomic(destPath, output);
     results.push({
       fromTool: ANTIGRAVITY_TARGET,
       fromPath: srcPath,
-      toPath: ANTIGRAVITY_CANONICAL_ROOT_RULE,
+      toPath: AB_ROOT_RULE,
       feature: 'rules',
     });
     return;

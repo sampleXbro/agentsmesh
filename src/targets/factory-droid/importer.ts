@@ -11,13 +11,13 @@
  *   - `.factory/settings.json` — commandAllowlist/commandDenylist → canonical permissions.yaml
  */
 
+import { AB_HOOKS, AB_PERMISSIONS } from '../../core/canonical-paths.js';
 import { dirname, join } from 'node:path';
 import { stringify as yamlStringify } from 'yaml';
 import type { ImportResult } from '../../core/types.js';
 import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
-import { createImportReferenceNormalizer } from '../../core/reference/import-rewriter.js';
 import { importEmbeddedSkills } from '../import/embedded-skill.js';
-import { runDescriptorImport } from '../import/descriptor-import-runner.js';
+import { beginImport } from '../import/descriptor-import-runner.js';
 import { importWrappedCommandHooks } from '../import/wrapped-command-hooks.js';
 import { readFileSafe, writeFileAtomic, mkdirp } from '../../utils/filesystem/fs.js';
 import { importFactoryDroidMcp } from './mcp-import.js';
@@ -27,8 +27,6 @@ import {
   FACTORY_DROID_MCP_FILE,
   FACTORY_DROID_HOOKS_FILE,
   FACTORY_DROID_SETTINGS_FILE,
-  FACTORY_DROID_CANONICAL_HOOKS,
-  FACTORY_DROID_CANONICAL_PERMISSIONS,
   FACTORY_DROID_GLOBAL_SKILLS_DIR,
   FACTORY_DROID_GLOBAL_MCP_FILE,
 } from './constants.js';
@@ -59,13 +57,13 @@ async function importFactoryDroidPermissions(
   const canonical: Record<string, string[]> = {};
   if (allow.length > 0) canonical.allow = allow;
   if (deny.length > 0) canonical.deny = deny;
-  const destPath = join(projectRoot, FACTORY_DROID_CANONICAL_PERMISSIONS);
+  const destPath = join(projectRoot, AB_PERMISSIONS);
   await mkdirp(dirname(destPath));
   await writeFileAtomic(destPath, yamlStringify(canonical));
   results.push({
     fromTool: FACTORY_DROID_TARGET,
     fromPath: settingsPath,
-    toPath: FACTORY_DROID_CANONICAL_PERMISSIONS,
+    toPath: AB_PERMISSIONS,
     feature: 'permissions',
   });
 }
@@ -74,11 +72,7 @@ export async function importFromFactoryDroid(
   projectRoot: string,
   options: { scope?: TargetLayoutScope } = {},
 ): Promise<ImportResult[]> {
-  const scope = options.scope ?? 'project';
-  const results: ImportResult[] = [];
-  const normalize = await createImportReferenceNormalizer(FACTORY_DROID_TARGET, projectRoot, scope);
-
-  results.push(...(await runDescriptorImport(descriptor, projectRoot, scope, { normalize })));
+  const { scope, results, normalize } = await beginImport(descriptor, projectRoot, options);
 
   const skillsDir = scope === 'global' ? FACTORY_DROID_GLOBAL_SKILLS_DIR : FACTORY_DROID_SKILLS_DIR;
   await importEmbeddedSkills(projectRoot, skillsDir, FACTORY_DROID_TARGET, results, normalize);
@@ -91,7 +85,7 @@ export async function importFromFactoryDroid(
   await importWrappedCommandHooks({
     projectRoot,
     hooksFile: FACTORY_DROID_HOOKS_FILE,
-    canonicalHooksPath: FACTORY_DROID_CANONICAL_HOOKS,
+    canonicalHooksPath: AB_HOOKS,
     targetName: FACTORY_DROID_TARGET,
     results,
   });

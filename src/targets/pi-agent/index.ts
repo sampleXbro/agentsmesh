@@ -10,6 +10,7 @@
  * Pi also reads `CLAUDE.md` as a fallback but we generate to `AGENTS.md`.
  */
 
+import { AB_COMMANDS, AB_RULES } from '../../core/canonical-paths.js';
 import type { TargetCapabilities, TargetGenerators } from '../catalog/target.interface.js';
 import type { TargetDescriptor, TargetLayout } from '../catalog/target-descriptor.js';
 import { projectedAgentSkillDirName } from '../projection/projected-agent-skill.js';
@@ -39,8 +40,6 @@ import {
   PI_AGENT_GLOBAL_COMMANDS_DIR,
   PI_AGENT_SETTINGS_FILE,
   PI_AGENT_GLOBAL_SETTINGS_FILE,
-  PI_AGENT_CANONICAL_RULES_DIR,
-  PI_AGENT_CANONICAL_COMMANDS_DIR,
 } from './constants.js';
 
 export const target: TargetGenerators = {
@@ -158,7 +157,7 @@ export const descriptor = {
         project: [PI_AGENT_ROOT_FILE],
         global: [PI_AGENT_GLOBAL_ROOT_FILE],
       },
-      canonicalDir: PI_AGENT_CANONICAL_RULES_DIR,
+      canonicalDir: AB_RULES,
       canonicalRootFilename: '_root.md',
       markAsRoot: true,
     },
@@ -169,7 +168,7 @@ export const descriptor = {
         project: [PI_AGENT_COMMANDS_DIR],
         global: [PI_AGENT_GLOBAL_COMMANDS_DIR],
       },
-      canonicalDir: PI_AGENT_CANONICAL_COMMANDS_DIR,
+      canonicalDir: AB_COMMANDS,
       extensions: ['.md'],
       preset: 'command',
     },

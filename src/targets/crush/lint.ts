@@ -7,16 +7,10 @@
  * options.disabled_tools (deny list) — native round-trip supported.
  */
 
-import type { CanonicalFiles, LintDiagnostic } from '../../core/types.js';
-import { createWarning } from '../../core/lint/shared/helpers.js';
+import { unsupportedFeature } from '../../core/lint/capability-gap.js';
 
-export function lintCommands(canonical: CanonicalFiles): LintDiagnostic[] {
-  if (canonical.commands.length === 0) return [];
-  return [
-    createWarning(
-      '.agentsmesh/commands',
-      'crush',
-      'Crush has no native slash-command format; commands are projected as skills via supportsConversion.',
-    ),
-  ];
-}
+export const lintCommands = unsupportedFeature(
+  'commands',
+  'crush',
+  'Crush has no native slash-command format; commands are projected as skills via supportsConversion.',
+);

@@ -1,3 +1,4 @@
+import { shortHash } from './seen-store.js';
 import { mkdirSync, readFileSync, renameSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
@@ -28,12 +29,6 @@ interface FastpathCache {
 }
 
 /** Short, stable, dependency-free hash (djb2) of a string, base-36. */
-function shortHash(value: string): string {
-  let h = 5381;
-  for (let i = 0; i < value.length; i += 1) h = ((h << 5) + h + value.charCodeAt(i)) >>> 0;
-  return h.toString(36);
-}
-
 /** Cache location (per project, in the OS temp dir). Exported for tests. */
 export function commandFastpathCachePath(projectRoot: string): string {
   return join(tmpdir(), FASTPATH_DIR, `${shortHash(resolve(projectRoot))}.json`);

@@ -131,6 +131,12 @@ describe('collections detectors', () => {
     expect(await detectSkillPack(root)).toBeNull();
   });
 
+  it('detectSkillPack skips an entry whose SKILL.md is a directory, not a file', async () => {
+    // stat() succeeds but isFile() is false — the entry must not claim the pack.
+    mkdirSync(join(root, 'skills', 'not-a-skill', 'SKILL.md'), { recursive: true });
+    expect(await detectSkillPack(root)).toBeNull();
+  });
+
   it('detectSkillPack returns null when skills/ has only underscore-prefixed dirs', async () => {
     mkdirSync(join(root, 'skills', '_template'), { recursive: true });
     writeFileSync(join(root, 'skills', '_template', 'SKILL.md'), '');

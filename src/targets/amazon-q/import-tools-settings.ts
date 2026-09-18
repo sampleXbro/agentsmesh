@@ -15,6 +15,7 @@
  * `allowedPaths` and other tool settings have no canonical home and are not imported.
  */
 
+import { AB_IGNORE } from '../../core/canonical-paths.js';
 import { dirname, join } from 'node:path';
 import type { ImportResult } from '../../core/types.js';
 import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
@@ -26,12 +27,7 @@ import {
 } from '../../utils/filesystem/fs.js';
 import { AQ_DENIED_PATH_TOOLS } from './agent-json.js';
 import { mergeCanonicalIgnore } from './merge-canonical-ignore.js';
-import {
-  AMAZON_Q_TARGET,
-  AMAZON_Q_AGENTS_DIR,
-  AMAZON_Q_GLOBAL_AGENTS_DIR,
-  AMAZON_Q_CANONICAL_IGNORE,
-} from './constants.js';
+import { AMAZON_Q_TARGET, AMAZON_Q_AGENTS_DIR, AMAZON_Q_GLOBAL_AGENTS_DIR } from './constants.js';
 
 function deniedPathsOf(content: string): string[] {
   let parsed: unknown;
@@ -77,7 +73,7 @@ export async function importAmazonQToolsSettings(
   }
   if (patterns.size === 0) return;
 
-  const destPath = join(projectRoot, AMAZON_Q_CANONICAL_IGNORE);
+  const destPath = join(projectRoot, AB_IGNORE);
   await mkdirp(dirname(destPath));
   const existing = await readFileSafe(destPath);
   await writeFileAtomic(destPath, mergeCanonicalIgnore(existing, [...patterns]));
@@ -85,7 +81,7 @@ export async function importAmazonQToolsSettings(
     results.push({
       fromTool: AMAZON_Q_TARGET,
       fromPath,
-      toPath: AMAZON_Q_CANONICAL_IGNORE,
+      toPath: AB_IGNORE,
       feature: 'ignore',
     });
   }

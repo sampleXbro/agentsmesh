@@ -35,6 +35,3 @@ export const ZED_GLOBAL_SETTINGS_FILE = `${ZED_GLOBAL_DIR}/settings.json`;
 export const ZED_GLOBAL_SKILLS_DIR = '.agents/skills';
 
 // Canonical paths
-export const ZED_CANONICAL_RULES_DIR = '.agentsmesh/rules';
-export const ZED_CANONICAL_IGNORE = '.agentsmesh/ignore';
-export const ZED_CANONICAL_PERMISSIONS = '.agentsmesh/permissions.yaml';

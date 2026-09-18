@@ -2,6 +2,7 @@
  * Cursor settings import helpers — permissions, hooks, and ignore file processing.
  */
 
+import { AB_HOOKS, AB_IGNORE, AB_PERMISSIONS } from '../../core/canonical-paths.js';
 import { join, dirname } from 'node:path';
 import type { ImportResult } from '../../core/types.js';
 import { cursorHooksToCanonical } from './hook-format.js';
@@ -14,9 +15,6 @@ import {
   CURSOR_HOOKS,
   CURSOR_IGNORE,
   CURSOR_INDEXING_IGNORE,
-  CURSOR_CANONICAL_PERMISSIONS,
-  CURSOR_CANONICAL_HOOKS,
-  CURSOR_CANONICAL_IGNORE,
 } from './constants.js';
 import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
 
@@ -37,13 +35,13 @@ export async function importSettings(
         const canonical = cursorHooksToCanonical(hooksFile.hooks as Record<string, unknown>);
         if (Object.keys(canonical).length > 0) {
           const hooksContent = yamlStringify(canonical);
-          const destPath = join(projectRoot, CURSOR_CANONICAL_HOOKS);
+          const destPath = join(projectRoot, AB_HOOKS);
           await mkdirp(dirname(destPath));
           await writeFileAtomic(destPath, hooksContent);
           results.push({
             fromTool: 'cursor',
             fromPath: hooksJsonPath,
-            toPath: CURSOR_CANONICAL_HOOKS,
+            toPath: AB_HOOKS,
             feature: 'hooks',
           });
           hooksImportedFromHooksJson = true;
@@ -74,13 +72,13 @@ export async function importSettings(
           : [];
         if (allow.length > 0 || deny.length > 0) {
           const permContent = yamlStringify({ allow, deny });
-          const destPath = join(projectRoot, CURSOR_CANONICAL_PERMISSIONS);
+          const destPath = join(projectRoot, AB_PERMISSIONS);
           await mkdirp(dirname(destPath));
           await writeFileAtomic(destPath, permContent);
           results.push({
             fromTool: 'cursor',
             fromPath: cliJsonPath,
-            toPath: CURSOR_CANONICAL_PERMISSIONS,
+            toPath: AB_PERMISSIONS,
             feature: 'permissions',
           });
         }
@@ -103,13 +101,13 @@ export async function importSettings(
           const canonicalHooks = cursorHooksToCanonical(rawHooks as Record<string, unknown>);
           if (Object.keys(canonicalHooks).length > 0) {
             const hooksContent = yamlStringify(canonicalHooks);
-            const destPath = join(projectRoot, CURSOR_CANONICAL_HOOKS);
+            const destPath = join(projectRoot, AB_HOOKS);
             await mkdirp(dirname(destPath));
             await writeFileAtomic(destPath, hooksContent);
             results.push({
               fromTool: 'cursor',
               fromPath: settingsPath,
-              toPath: CURSOR_CANONICAL_HOOKS,
+              toPath: AB_HOOKS,
               feature: 'hooks',
             });
           }
@@ -140,13 +138,13 @@ export async function importIgnore(projectRoot: string, results: ImportResult[])
     }
   }
   if (patterns.length === 0) return;
-  const destPath = join(projectRoot, CURSOR_CANONICAL_IGNORE);
+  const destPath = join(projectRoot, AB_IGNORE);
   await mkdirp(dirname(destPath));
   await writeFileAtomic(destPath, patterns.join('\n') + '\n');
   results.push({
     fromTool: 'cursor',
     fromPath: join(projectRoot, importedFrom[0]!),
-    toPath: CURSOR_CANONICAL_IGNORE,
+    toPath: AB_IGNORE,
     feature: 'ignore',
   });
 }

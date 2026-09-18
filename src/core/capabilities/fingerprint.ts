@@ -1,3 +1,4 @@
+import { isRecord } from '../../utils/types/guards.js';
 import { parse as parseYaml } from 'yaml';
 import { parse as parseToml } from 'smol-toml';
 import type { Fingerprint, KeyCheck, LedgerCell, LedgerFormat } from './ledger-types.js';
@@ -13,10 +14,6 @@ export function parseByFormat(raw: string, format: LedgerFormat): unknown {
     if (end !== -1) return parseYaml(raw.slice(3, end)) ?? {};
   }
   return {};
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 function kindOf(value: unknown): KeyCheck['kind'] | 'null' {

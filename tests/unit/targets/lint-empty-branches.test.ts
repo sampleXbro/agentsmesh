@@ -82,4 +82,36 @@ describe('per-target lint — empty/edge branches', () => {
       expect(cursorLint.lintHooks(empty)).toEqual([]);
     }
   });
+
+  it('cline lintPermissions returns [] when canonical.permissions is null', () => {
+    expect(clineLint.lintPermissions({ ...empty, permissions: null })).toEqual([]);
+  });
+
+  it('cline lintPermissions returns [] when allow/deny are empty and ask is absent', () => {
+    expect(clineLint.lintPermissions({ ...empty, permissions: { allow: [], deny: [] } })).toEqual(
+      [],
+    );
+  });
+
+  it('cline lintPermissions warns when only allow has entries', () => {
+    const out = clineLint.lintPermissions({
+      ...empty,
+      permissions: { allow: ['Read'], deny: [], ask: [] },
+    });
+    expect(out).toHaveLength(1);
+    expect(out[0]!.file).toBe('.agentsmesh/permissions.yaml');
+    expect(out[0]!.target).toBe('cline');
+  });
+
+  it('cline lintPermissions warns when only deny has entries', () => {
+    expect(
+      clineLint.lintPermissions({ ...empty, permissions: { allow: [], deny: ['Bash'], ask: [] } }),
+    ).toHaveLength(1);
+  });
+
+  it('cline lintPermissions warns when only ask has entries', () => {
+    expect(
+      clineLint.lintPermissions({ ...empty, permissions: { allow: [], deny: [], ask: ['Write'] } }),
+    ).toHaveLength(1);
+  });
 });

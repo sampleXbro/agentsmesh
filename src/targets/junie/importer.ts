@@ -1,3 +1,4 @@
+import { AB_ROOT_RULE, AB_RULES } from '../../core/canonical-paths.js';
 import { join } from 'node:path';
 import type { ImportResult } from '../../core/types.js';
 import { createImportReferenceNormalizer } from '../../core/reference/import-rewriter.js';
@@ -14,8 +15,6 @@ import {
   JUNIE_CI_GUIDELINES,
   JUNIE_GUIDELINES,
   JUNIE_SKILLS_DIR,
-  JUNIE_CANONICAL_ROOT_RULE,
-  JUNIE_CANONICAL_RULES_DIR,
 } from './constants.js';
 import { descriptor } from './index.js';
 
@@ -30,7 +29,7 @@ async function importRootRule(
   normalize: (content: string, sourceFile: string, destinationFile: string) => string,
 ): Promise<void> {
   const sources = [JUNIE_DOT_AGENTS, JUNIE_GUIDELINES, JUNIE_CI_GUIDELINES, JUNIE_AGENTS_FALLBACK];
-  const destPath = join(projectRoot, JUNIE_CANONICAL_ROOT_RULE);
+  const destPath = join(projectRoot, AB_ROOT_RULE);
 
   for (const relPath of sources) {
     const srcPath = join(projectRoot, relPath);
@@ -39,7 +38,7 @@ async function importRootRule(
     const split = await splitEmbeddedRulesToCanonical({
       content,
       projectRoot,
-      rulesDir: JUNIE_CANONICAL_RULES_DIR,
+      rulesDir: AB_RULES,
       sourcePath: srcPath,
       fromTool: JUNIE_TARGET,
       normalize,
@@ -60,7 +59,7 @@ async function importRootRule(
     results.push({
       fromTool: JUNIE_TARGET,
       fromPath: srcPath,
-      toPath: JUNIE_CANONICAL_ROOT_RULE,
+      toPath: AB_ROOT_RULE,
       feature: 'rules',
     });
     return;

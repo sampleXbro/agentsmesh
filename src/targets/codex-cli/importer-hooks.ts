@@ -1,6 +1,7 @@
+import { AB_HOOKS } from '../../core/canonical-paths.js';
 import type { ImportResult } from '../../core/types.js';
 import { importWrappedCommandHooks } from '../import/wrapped-command-hooks.js';
-import { CODEX_CANONICAL_HOOKS, CODEX_HOOKS_FILE, CODEX_TARGET } from './constants.js';
+import { CODEX_HOOKS_FILE, CODEX_TARGET } from './constants.js';
 
 export async function importCodexHooks(
   projectRoot: string,
@@ -9,7 +10,7 @@ export async function importCodexHooks(
   await importWrappedCommandHooks({
     projectRoot,
     hooksFile: CODEX_HOOKS_FILE,
-    canonicalHooksPath: CODEX_CANONICAL_HOOKS,
+    canonicalHooksPath: AB_HOOKS,
     targetName: CODEX_TARGET,
     results,
   });

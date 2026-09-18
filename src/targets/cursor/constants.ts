@@ -29,12 +29,3 @@ export const CURSOR_DOT_CURSOR_AGENTS = '.cursor/AGENTS.md';
 // site clarity, but the aliases were structurally identical — knip flagged
 // them as duplicate exports, so call sites import the project-mode names
 // directly and the global layout reuses them verbatim.
-
-export const CURSOR_CANONICAL_RULES_DIR = '.agentsmesh/rules';
-export const CURSOR_CANONICAL_COMMANDS_DIR = '.agentsmesh/commands';
-export const CURSOR_CANONICAL_AGENTS_DIR = '.agentsmesh/agents';
-export const CURSOR_CANONICAL_SKILLS_DIR = '.agentsmesh/skills';
-export const CURSOR_CANONICAL_MCP = '.agentsmesh/mcp.json';
-export const CURSOR_CANONICAL_PERMISSIONS = '.agentsmesh/permissions.yaml';
-export const CURSOR_CANONICAL_HOOKS = '.agentsmesh/hooks.yaml';
-export const CURSOR_CANONICAL_IGNORE = '.agentsmesh/ignore';

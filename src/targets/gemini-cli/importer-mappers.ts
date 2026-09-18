@@ -1,3 +1,4 @@
+import { AB_COMMANDS, AB_RULES } from '../../core/canonical-paths.js';
 import { join } from 'node:path';
 import { parse as parseToml } from 'smol-toml';
 import {
@@ -7,7 +8,6 @@ import {
 import type { ImportFileMapping } from '../import/import-orchestrator.js';
 import { toGlobsArray, toToolsArray } from '../import/shared-import-helpers.js';
 import { parseFlexibleFrontmatter } from './format-helpers.js';
-import { GEMINI_CANONICAL_RULES_DIR, GEMINI_CANONICAL_COMMANDS_DIR } from './constants.js';
 
 export async function mapGeminiRuleFile(
   relativePath: string,
@@ -28,7 +28,7 @@ export async function mapGeminiRuleFile(
   });
   return {
     destPath,
-    toPath: `${GEMINI_CANONICAL_RULES_DIR}/${relativeMdPath}`,
+    toPath: `${AB_RULES}/${relativeMdPath}`,
     feature: 'rules',
     content: await serializeImportedRuleWithFallback(destPath, canonicalFm, body),
   };
@@ -50,7 +50,7 @@ export async function mapGeminiCommandFile(
   const allowedTools = fromCamel.length > 0 ? fromCamel : fromKebab;
   return {
     destPath,
-    toPath: `${GEMINI_CANONICAL_COMMANDS_DIR}/${relativeMdPath}`,
+    toPath: `${AB_COMMANDS}/${relativeMdPath}`,
     feature: 'commands',
     content: await serializeImportedCommandWithFallback(
       destPath,

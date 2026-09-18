@@ -1,3 +1,4 @@
+import { AB_AGENTS } from '../../core/canonical-paths.js';
 import { basename, join } from 'node:path';
 import type { ImportResult } from '../../core/types.js';
 import {
@@ -7,7 +8,7 @@ import {
   mkdirp,
 } from '../../utils/filesystem/fs.js';
 import { serializeImportedAgent } from '../projection/projected-agent-skill.js';
-import { CODEX_TARGET, CODEX_AGENTS_DIR, CODEX_CANONICAL_AGENTS_DIR } from './constants.js';
+import { CODEX_TARGET, CODEX_AGENTS_DIR } from './constants.js';
 import { parse as parseToml } from 'smol-toml';
 
 export async function importCodexAgentsFromToml(
@@ -16,7 +17,7 @@ export async function importCodexAgentsFromToml(
   normalize: (content: string, sourceFile: string, destinationFile: string) => string,
 ): Promise<void> {
   const agentsPath = join(projectRoot, CODEX_AGENTS_DIR);
-  const agentsDestDir = join(projectRoot, CODEX_CANONICAL_AGENTS_DIR);
+  const agentsDestDir = join(projectRoot, AB_AGENTS);
   try {
     const agentFiles = await readDirRecursiveNoSymlinks(agentsPath);
     const tomlFiles = agentFiles.filter((f) => f.endsWith('.toml'));
@@ -59,7 +60,7 @@ export async function importCodexAgentsFromToml(
       results.push({
         fromTool: CODEX_TARGET,
         fromPath: srcPath,
-        toPath: `${CODEX_CANONICAL_AGENTS_DIR}/${name}.md`,
+        toPath: `${AB_AGENTS}/${name}.md`,
         feature: 'agents',
       });
     }

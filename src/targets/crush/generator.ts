@@ -8,9 +8,10 @@
  *   - `.crushignore`     — ignore patterns
  */
 
+import { embeddedRootRule } from '../projection/managed-blocks.js';
+import type { FeatureGeneratorOutput } from '../catalog/target.interface.js';
 import type { CanonicalFiles } from '../../core/types.js';
 import { generateEmbeddedSkills } from '../import/embedded-skill.js';
-import { appendEmbeddedRulesBlock } from '../projection/managed-blocks.js';
 import {
   projectedAgentSkillDirName,
   serializeProjectedAgentSkill,
@@ -25,24 +26,10 @@ import {
 } from './constants.js';
 import { buildCrushConfigJson } from './config-format.js';
 
-export interface CrushOutput {
-  path: string;
-  content: string;
-}
+export type CrushOutput = FeatureGeneratorOutput;
 
-export function generateRules(canonical: CanonicalFiles): CrushOutput[] {
-  const root = canonical.rules.find((rule) => rule.root);
-  const nonRootRules = canonical.rules.filter((rule) => {
-    if (rule.root) return false;
-    return rule.targets.length === 0 || rule.targets.includes(CRUSH_TARGET);
-  });
-
-  const rootBody = root?.body.trim() ?? '';
-  const content = appendEmbeddedRulesBlock(rootBody, nonRootRules);
-  if (!content) return [];
-
-  return [{ path: CRUSH_ROOT_FILE, content }];
-}
+export const generateRules = (canonical: CanonicalFiles): CrushOutput[] =>
+  embeddedRootRule(canonical, CRUSH_TARGET, CRUSH_ROOT_FILE);
 
 export function generateSkills(canonical: CanonicalFiles): CrushOutput[] {
   return generateEmbeddedSkills(canonical, CRUSH_SKILLS_DIR);

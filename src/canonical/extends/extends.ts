@@ -2,6 +2,7 @@
  * Load canonical files with extends support. Merges extends then local per PRD section 8.
  */
 
+import { emptyCanonical } from '../load/empty-canonical.js';
 import { join } from 'node:path';
 import type { CanonicalFiles } from '../../core/types.js';
 import type { ValidatedConfig } from '../../config/core/schema.js';
@@ -49,19 +50,6 @@ export function filterCanonicalByFeatures(
     permissions: keys.has('permissions') ? canonical.permissions : null,
     hooks: keys.has('hooks') ? canonical.hooks : null,
     ignore: keys.has('ignore') ? canonical.ignore : [],
-  };
-}
-
-function emptyCanonical(): CanonicalFiles {
-  return {
-    rules: [],
-    commands: [],
-    agents: [],
-    skills: [],
-    mcp: null,
-    permissions: null,
-    hooks: null,
-    ignore: [],
   };
 }
 

@@ -1,3 +1,4 @@
+import { AB_COMMANDS, AB_RULES } from '../../core/canonical-paths.js';
 import type { TargetGenerators, TargetCapabilities } from '../catalog/target.interface.js';
 import type { TargetDescriptor } from '../catalog/target-descriptor.js';
 import {
@@ -22,8 +23,6 @@ import {
   GEMINI_GLOBAL_SKILLS_DIR,
   GEMINI_GLOBAL_AGENTS_DIR,
   GEMINI_SETTINGS,
-  GEMINI_CANONICAL_RULES_DIR,
-  GEMINI_CANONICAL_COMMANDS_DIR,
 } from './constants.js';
 import { importFromGemini } from './importer.js';
 import { inferGeminiPick } from '../../install/native/gemini-install-commands.js';
@@ -117,7 +116,7 @@ export const descriptor = {
       feature: 'rules',
       mode: 'directory',
       source: { project: [GEMINI_RULES_DIR] },
-      canonicalDir: GEMINI_CANONICAL_RULES_DIR,
+      canonicalDir: AB_RULES,
       extensions: ['.md'],
       map: geminiRuleMapper,
     },
@@ -125,7 +124,7 @@ export const descriptor = {
       feature: 'commands',
       mode: 'directory',
       source: { project: [GEMINI_COMMANDS_DIR] },
-      canonicalDir: GEMINI_CANONICAL_COMMANDS_DIR,
+      canonicalDir: AB_COMMANDS,
       extensions: ['.md', '.toml'],
       map: geminiCommandMapper,
     },

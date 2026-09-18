@@ -10,9 +10,10 @@
  * workspace settings, requiring a JSON-merge strategy.
  */
 
+import { embeddedRootRule } from '../projection/managed-blocks.js';
+import type { FeatureGeneratorOutput } from '../catalog/target.interface.js';
 import type { CanonicalFiles } from '../../core/types.js';
 import { generateEmbeddedSkills } from '../import/embedded-skill.js';
-import { appendEmbeddedRulesBlock } from '../projection/managed-blocks.js';
 import {
   projectedAgentSkillDirName,
   serializeProjectedAgentSkill,
@@ -20,24 +21,10 @@ import {
 import { commandSkillDirName, serializeCommandSkill } from '../codex-cli/command-skill.js';
 import { AMP_TARGET, AMP_ROOT_FILE, AMP_SKILLS_DIR, AMP_MCP_FILE } from './constants.js';
 
-export interface AmpOutput {
-  path: string;
-  content: string;
-}
+export type AmpOutput = FeatureGeneratorOutput;
 
-export function generateRules(canonical: CanonicalFiles): AmpOutput[] {
-  const root = canonical.rules.find((rule) => rule.root);
-  const nonRootRules = canonical.rules.filter((rule) => {
-    if (rule.root) return false;
-    return rule.targets.length === 0 || rule.targets.includes(AMP_TARGET);
-  });
-
-  const rootBody = root?.body.trim() ?? '';
-  const content = appendEmbeddedRulesBlock(rootBody, nonRootRules);
-  if (!content) return [];
-
-  return [{ path: AMP_ROOT_FILE, content }];
-}
+export const generateRules = (canonical: CanonicalFiles): AmpOutput[] =>
+  embeddedRootRule(canonical, AMP_TARGET, AMP_ROOT_FILE);
 
 export function generateSkills(canonical: CanonicalFiles): AmpOutput[] {
   return generateEmbeddedSkills(canonical, AMP_SKILLS_DIR);

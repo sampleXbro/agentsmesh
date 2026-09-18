@@ -12,6 +12,7 @@
  * than override each other, so only `AGENTS.md` is written.
  */
 
+import { AB_AGENTS, AB_COMMANDS, AB_RULES } from '../../core/canonical-paths.js';
 import type { TargetGenerators } from '../catalog/target.interface.js';
 import type { TargetDescriptor } from '../catalog/target-descriptor.js';
 import { projectCapabilities, globalCapabilities } from './capabilities.js';
@@ -41,9 +42,6 @@ import {
   OPENHANDS_MCP_FILE,
   OPENHANDS_HOOKS_FILE,
   OPENHANDS_GLOBAL_ROOT_FILE,
-  OPENHANDS_CANONICAL_RULES_DIR,
-  OPENHANDS_CANONICAL_COMMANDS_DIR,
-  OPENHANDS_CANONICAL_AGENTS_DIR,
   OPENHANDS_CANONICAL_MCP,
 } from './constants.js';
 
@@ -98,7 +96,7 @@ export const descriptor = {
         feature: 'rules',
         mode: 'singleFile',
         source: { project: [OPENHANDS_ROOT_FILE], global: [OPENHANDS_GLOBAL_ROOT_FILE] },
-        canonicalDir: OPENHANDS_CANONICAL_RULES_DIR,
+        canonicalDir: AB_RULES,
         canonicalRootFilename: '_root.md',
         markAsRoot: true,
       },
@@ -108,7 +106,7 @@ export const descriptor = {
         feature: 'rules',
         mode: 'directory',
         source: { project: [OPENHANDS_SKILLS_DIR], global: [OPENHANDS_SKILLS_DIR] },
-        canonicalDir: OPENHANDS_CANONICAL_RULES_DIR,
+        canonicalDir: AB_RULES,
         extensions: ['.md'],
         map: mapOpenhandsFlatRule,
       },
@@ -117,7 +115,7 @@ export const descriptor = {
       feature: 'commands',
       mode: 'directory',
       source: { project: [OPENHANDS_COMMANDS_DIR], global: [OPENHANDS_COMMANDS_DIR] },
-      canonicalDir: OPENHANDS_CANONICAL_COMMANDS_DIR,
+      canonicalDir: AB_COMMANDS,
       extensions: ['.md'],
       preset: 'command',
     },
@@ -125,7 +123,7 @@ export const descriptor = {
       feature: 'agents',
       mode: 'directory',
       source: { project: [OPENHANDS_AGENTS_DIR], global: [OPENHANDS_AGENTS_DIR] },
-      canonicalDir: OPENHANDS_CANONICAL_AGENTS_DIR,
+      canonicalDir: AB_AGENTS,
       extensions: ['.md'],
       preset: 'agent',
     },

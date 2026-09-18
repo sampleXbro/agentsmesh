@@ -17,8 +17,11 @@
  *    cannot express and the comments attached to surviving entries are kept.
  */
 
+import { AB_PERMISSIONS } from '../../core/canonical-paths.js';
+import { canonicalDocument } from '../import/yaml-import-helpers.js';
+import { isRecord } from '../../utils/types/guards.js';
 import { dirname, join } from 'node:path';
-import { Document, YAMLSeq, parseDocument, isMap, isScalar, isSeq, parse as parseYaml } from 'yaml';
+import { Document, YAMLSeq, isScalar, isSeq, parse as parseYaml } from 'yaml';
 import type { ImportResult } from '../../core/types.js';
 import {
   mkdirp,
@@ -31,19 +34,10 @@ import { toStringArray } from '../import/shared-import-helpers.js';
 import type { KiroEffect, KiroPermissionRule } from './permissions-format.js';
 import { mergeImportedEntries, parseKiroRules } from './permissions-lists.js';
 import { mergeProfileRules } from './permissions-profiles.js';
-import {
-  KIRO_TARGET,
-  KIRO_AGENTS_DIR,
-  KIRO_GLOBAL_PERMISSIONS_FILE,
-  KIRO_CANONICAL_PERMISSIONS,
-} from './constants.js';
+import { KIRO_TARGET, KIRO_AGENTS_DIR, KIRO_GLOBAL_PERMISSIONS_FILE } from './constants.js';
 
 /** Canonical key order; `ask` is only materialised when something needs it. */
 const CANONICAL_EFFECTS: readonly KiroEffect[] = ['allow', 'deny', 'ask'];
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
 
 /** The `rules` list of a permissions document, or `null` when there is none to read. */
 function readRulesList(content: string): unknown[] | null {
@@ -55,15 +49,6 @@ function readRulesList(content: string): unknown[] | null {
   }
   if (!isRecord(parsed) || !Array.isArray(parsed.rules)) return null;
   return parsed.rules;
-}
-
-/** The canonical file as an editable document; comments and key order survive. */
-function canonicalDocument(content: string | null): Document {
-  if (content !== null) {
-    const doc = parseDocument(content);
-    if (doc.errors.length === 0 && (doc.contents === null || isMap(doc.contents))) return doc;
-  }
-  return new Document({});
 }
 
 /**
@@ -87,7 +72,7 @@ async function writeCanonicalPermissions(
   rules: readonly KiroPermissionRule[],
   results: ImportResult[],
 ): Promise<void> {
-  const destPath = join(projectRoot, KIRO_CANONICAL_PERMISSIONS);
+  const destPath = join(projectRoot, AB_PERMISSIONS);
   const doc = canonicalDocument(await readFileSafe(destPath));
   const existing = (doc.toJS() ?? {}) as Record<string, unknown>;
 
@@ -104,7 +89,7 @@ async function writeCanonicalPermissions(
   results.push({
     fromTool: KIRO_TARGET,
     fromPath,
-    toPath: KIRO_CANONICAL_PERMISSIONS,
+    toPath: AB_PERMISSIONS,
     feature: 'permissions',
   });
 }

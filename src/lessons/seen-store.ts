@@ -15,7 +15,7 @@ import { dirname, join, resolve } from 'node:path';
 const SEEN_DIR = 'agentsmesh-lessons-seen';
 
 /** Short, stable, dependency-free hash (djb2) of a string, base-36. */
-function shortHash(value: string): string {
+export function shortHash(value: string): string {
   let h = 5381;
   for (let i = 0; i < value.length; i += 1) h = ((h << 5) + h + value.charCodeAt(i)) >>> 0;
   return h.toString(36);

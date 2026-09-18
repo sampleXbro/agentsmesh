@@ -30,7 +30,7 @@ export function addDirectoryMapping(refs: Map<string, string>, from: string, to:
   refs.set(`${from}/`, `${to}/`);
 }
 
-function addAncestorMappings(
+export function addAncestorMappings(
   refs: Map<string, string>,
   fromPath: string,
   toPath: string,

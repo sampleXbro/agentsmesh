@@ -127,3 +127,58 @@ describe('load-canonical-slice (load path)', () => {
     expect(c.skills[0]!.name).toBe('s1');
   });
 });
+
+describe('load-canonical-slice — enableTargetEntityMappers', () => {
+  const MROOT = join(tmpdir(), 'am-slice-mappers-test');
+
+  beforeEach(() => {
+    rmSync(MROOT, { recursive: true, force: true });
+    mkdirSync(MROOT, { recursive: true });
+  });
+
+  afterEach(() => {
+    rmSync(MROOT, { recursive: true, force: true });
+  });
+
+  it('reads commands through the target-mapper reader', async () => {
+    const proj = join(MROOT, 'cmds');
+    mkdirSync(join(proj, 'commands'), { recursive: true });
+    writeFileSync(join(proj, 'commands', 'review.md'), '---\ndescription: d\n---\n# Review\n');
+    const { canonical, cleanup } = await loadCanonicalSliceAtPath(proj, {
+      enableTargetEntityMappers: true,
+    });
+    expect(canonical.commands.map((c) => c.name)).toEqual(['review']);
+    await cleanup();
+  });
+
+  it('reads agents through the target-mapper reader', async () => {
+    const proj = join(MROOT, 'agents');
+    mkdirSync(join(proj, 'agents'), { recursive: true });
+    writeFileSync(
+      join(proj, 'agents', 'helper.md'),
+      '---\nname: helper\ndescription: d\n---\n# Helper\n',
+    );
+    const { canonical, cleanup } = await loadCanonicalSliceAtPath(proj, {
+      enableTargetEntityMappers: true,
+    });
+    expect(canonical.agents.map((a) => a.name)).toEqual(['helper']);
+    await cleanup();
+  });
+
+  it('reads rules, commands and agents together with mappers enabled', async () => {
+    const proj = join(MROOT, 'all');
+    for (const d of ['rules', 'commands', 'agents']) {
+      mkdirSync(join(proj, d), { recursive: true });
+    }
+    writeFileSync(join(proj, 'rules', 'r.md'), '---\ndescription: d\n---\n# R\n');
+    writeFileSync(join(proj, 'commands', 'c.md'), '---\ndescription: d\n---\n# C\n');
+    writeFileSync(join(proj, 'agents', 'a.md'), '---\nname: a\ndescription: d\n---\n# A\n');
+    const { canonical, cleanup } = await loadCanonicalSliceAtPath(proj, {
+      enableTargetEntityMappers: true,
+    });
+    expect(canonical.rules).toHaveLength(1);
+    expect(canonical.commands).toHaveLength(1);
+    expect(canonical.agents).toHaveLength(1);
+    await cleanup();
+  });
+});

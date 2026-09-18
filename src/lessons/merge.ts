@@ -1,3 +1,4 @@
+import { union } from './add-helpers.js';
 import type { LessonsGraph } from './graph-schema.js';
 import { mutateLessonsGraph } from './mutate.js';
 
@@ -56,14 +57,6 @@ function mergeInto(graph: LessonsGraph, loserId: string, keeperId: string): Merg
   };
   graph.lessons[loserId] = { ...loser, status: 'superseded', supersededBy: keeperId };
   return { loserId, keeperId };
-}
-
-function union(base: readonly string[], extra: readonly string[]): string[] {
-  const out = [...base];
-  for (const item of extra) {
-    if (!out.includes(item)) out.push(item);
-  }
-  return out;
 }
 
 export type { LessonsGraph };

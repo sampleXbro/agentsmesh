@@ -15,14 +15,6 @@ function builtinDefault(
   return getDescriptor(target)?.conversionDefaults?.[key];
 }
 
-export function usesCommandSkillProjection(target: string): boolean {
-  return builtinDefault(target, 'commandsToSkills') !== undefined;
-}
-
-export function usesAgentSkillProjection(target: string): boolean {
-  return builtinDefault(target, 'agentsToSkills') !== undefined;
-}
-
 type ConversionValue = boolean | { project?: boolean; global?: boolean };
 
 function resolveConversionValue(

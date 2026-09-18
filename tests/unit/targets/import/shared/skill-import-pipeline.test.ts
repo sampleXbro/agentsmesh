@@ -8,7 +8,6 @@ import {
   commandSkillRecognizer,
   findDirectorySkills,
   importSkillsDirectory,
-  normalizeProjectedAgentSkill,
   projectedAgentRecognizer,
   readNativeSkill,
   type SkillImportOptions,
@@ -47,33 +46,6 @@ function makeOptions(
 }
 
 describe('skill-import-pipeline', () => {
-  it('normalizeProjectedAgentSkill strips projection markers', () => {
-    const raw = `---
-projected_from_agent: true
-agent_name: "reviewer"
-name: example
-description: "d"
----
-
-Body here`;
-    const out = normalizeProjectedAgentSkill(raw);
-    expect(out).toContain('Body here');
-    expect(out).not.toContain('projected_from_agent');
-    expect(out).not.toContain('agent_name');
-  });
-
-  it('normalizeProjectedAgentSkill returns body alone when only projection markers were present', () => {
-    const raw = `---
-projected_from_agent: true
-agent_name: "reviewer"
----
-
-Just body`;
-    const out = normalizeProjectedAgentSkill(raw);
-    expect(out).toBe('Just body');
-    expect(out).not.toContain('---');
-  });
-
   it('readNativeSkill skips reserved filenames and returns SKILL entries', async () => {
     const dir = join(tmpdir(), `am-skill-${Date.now()}`);
     mkdirSync(join(dir, 'my-skill'), { recursive: true });

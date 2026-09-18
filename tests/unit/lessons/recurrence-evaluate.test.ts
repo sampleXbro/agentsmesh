@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { evaluateCase, runRecurrenceSuite } from '../../../src/lessons/recurrence/evaluate.js';
+import { evaluateCase, runRecurrenceSuite } from '../../harness/lessons-recurrence/evaluate.js';
 import type { Lesson, LessonsGraph, Trigger } from '../../../src/lessons/graph-schema.js';
-import type { RecurrenceCase, RecurrenceSuite } from '../../../src/lessons/recurrence/types.js';
+import type { RecurrenceCase, RecurrenceSuite } from '../../harness/lessons-recurrence/types.js';
 
 function lesson(triggers: string[], over: Partial<Lesson> = {}): Lesson {
   return {

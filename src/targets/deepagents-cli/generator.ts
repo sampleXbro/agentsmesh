@@ -16,9 +16,11 @@
  * global-only `~/.deepagents/hooks.json` support wired via `scopeExtras`.
  */
 
+import { embeddedRootRule } from '../projection/managed-blocks.js';
+import { NO_OUTPUTS } from '../catalog/no-outputs.js';
+import type { FeatureGeneratorOutput } from '../catalog/target.interface.js';
 import type { CanonicalFiles } from '../../core/types.js';
 import { generateEmbeddedSkills } from '../import/embedded-skill.js';
-import { appendEmbeddedRulesBlock } from '../projection/managed-blocks.js';
 import { commandSkillDirName, serializeCommandSkill } from '../codex-cli/command-skill.js';
 import { serializeDeepagentsAgent } from './agent-format.js';
 import {
@@ -29,24 +31,10 @@ import {
   DEEPAGENTS_CLI_MCP_FILE,
 } from './constants.js';
 
-export interface DeepagentsCliOutput {
-  path: string;
-  content: string;
-}
+export type DeepagentsCliOutput = FeatureGeneratorOutput;
 
-export function generateRules(canonical: CanonicalFiles): DeepagentsCliOutput[] {
-  const root = canonical.rules.find((rule) => rule.root);
-  const nonRootRules = canonical.rules.filter((rule) => {
-    if (rule.root) return false;
-    return rule.targets.length === 0 || rule.targets.includes(DEEPAGENTS_CLI_TARGET);
-  });
-
-  const rootBody = root?.body.trim() ?? '';
-  const content = appendEmbeddedRulesBlock(rootBody, nonRootRules);
-  if (!content) return [];
-
-  return [{ path: DEEPAGENTS_CLI_ROOT_FILE, content }];
-}
+export const generateRules = (canonical: CanonicalFiles): DeepagentsCliOutput[] =>
+  embeddedRootRule(canonical, DEEPAGENTS_CLI_TARGET, DEEPAGENTS_CLI_ROOT_FILE);
 
 export function generateSkills(canonical: CanonicalFiles): DeepagentsCliOutput[] {
   return generateEmbeddedSkills(canonical, DEEPAGENTS_CLI_SKILLS_DIR);
@@ -72,19 +60,6 @@ export function generateMcp(canonical: CanonicalFiles): DeepagentsCliOutput[] {
   return [{ path: DEEPAGENTS_CLI_MCP_FILE, content }];
 }
 
-/**
- * No-op stub — Deep Agents CLI has no dedicated ignore file and relies on
- * .gitignore. Lint warnings surface this via lintIgnore.
- */
-export function generateIgnore(_canonical: CanonicalFiles): DeepagentsCliOutput[] {
-  return [];
-}
+export const generateIgnore = NO_OUTPUTS;
 
-/**
- * No-op stub — Deep Agents CLI permissions are partially supported via
- * DEEPAGENTS_CODE_SHELL_ALLOW_LIST in .env; agentsmesh does not generate
- * permissions config. Lint warnings surface this via lintPermissions.
- */
-export function generatePermissions(_canonical: CanonicalFiles): DeepagentsCliOutput[] {
-  return [];
-}
+export const generatePermissions = NO_OUTPUTS;

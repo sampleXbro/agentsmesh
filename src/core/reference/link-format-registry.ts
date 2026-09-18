@@ -13,11 +13,7 @@
  *      plugins can extend them if they introduce new canonical surfaces.
  *
  *   3. `protectedSchemes` — URI / scheme patterns the rewriter must never
- *      touch (`http://`, `ssh://`, `git@host:`, email). Plugins can add their
- *      own (e.g. `notion://`) via `registerLinkFormat`.
- *
- * Plugins call `registerLinkFormat({ ... })` at startup; everything is
- * additive (no override-replace semantics) so plugin order is irrelevant.
+ *      touch (`http://`, `ssh://`, `git@host:`, email).
  */
 
 import type { TargetDescriptor } from '../../targets/catalog/target-descriptor.js';
@@ -48,18 +44,6 @@ export const DEFAULT_MESH_ROOT_SEGMENTS: ReadonlySet<string> = new Set([
   'packs',
 ]);
 
-const overrides: {
-  protectedSchemes: RegExp[];
-  rootRelativePrefixes: string[];
-  meshRootSegments: string[];
-} = {
-  protectedSchemes: [],
-  rootRelativePrefixes: [],
-  meshRootSegments: [],
-};
-
-let cached: LinkFormatRegistry | undefined;
-
 function topLevelDotfilePrefixes(descriptor: TargetDescriptor): Iterable<string> {
   const layouts = [descriptor.project, descriptor.globalSupport?.layout].filter(
     (l): l is NonNullable<typeof l> => l !== undefined,
@@ -84,41 +68,13 @@ function buildDefaultRootRelativePrefixes(): readonly string[] {
   return Array.from(set);
 }
 
-function rebuild(): LinkFormatRegistry {
-  const rootPrefixSet = new Set<string>([
-    ...buildDefaultRootRelativePrefixes(),
-    ...overrides.rootRelativePrefixes,
-  ]);
-  const meshSet = new Set<string>([...DEFAULT_MESH_ROOT_SEGMENTS, ...overrides.meshRootSegments]);
-  return {
-    protectedSchemes: [...DEFAULT_PROTECTED_SCHEMES, ...overrides.protectedSchemes],
-    rootRelativePrefixes: Array.from(rootPrefixSet),
-    meshRootSegments: meshSet,
-  };
-}
+let cached: LinkFormatRegistry | undefined;
 
 export function getLinkFormatRegistry(): LinkFormatRegistry {
-  if (!cached) cached = rebuild();
+  cached ??= {
+    protectedSchemes: DEFAULT_PROTECTED_SCHEMES,
+    rootRelativePrefixes: buildDefaultRootRelativePrefixes(),
+    meshRootSegments: DEFAULT_MESH_ROOT_SEGMENTS,
+  };
   return cached;
-}
-
-/** Add link-format extensions. Always additive; never replaces existing entries. */
-export function registerLinkFormat(plugin: {
-  readonly protectedSchemes?: readonly RegExp[];
-  readonly rootRelativePrefixes?: readonly string[];
-  readonly meshRootSegments?: readonly string[];
-}): void {
-  if (plugin.protectedSchemes) overrides.protectedSchemes.push(...plugin.protectedSchemes);
-  if (plugin.rootRelativePrefixes)
-    overrides.rootRelativePrefixes.push(...plugin.rootRelativePrefixes);
-  if (plugin.meshRootSegments) overrides.meshRootSegments.push(...plugin.meshRootSegments);
-  cached = undefined;
-}
-
-/** Test helper: drop every plugin contribution and rebuild from defaults. */
-export function resetLinkFormatOverrides(): void {
-  overrides.protectedSchemes.length = 0;
-  overrides.rootRelativePrefixes.length = 0;
-  overrides.meshRootSegments.length = 0;
-  cached = undefined;
 }

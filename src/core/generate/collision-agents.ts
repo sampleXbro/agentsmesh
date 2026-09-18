@@ -13,10 +13,6 @@ import { logger } from '../../utils/output/logger.js';
 
 export const AGENTS_SUFFIX = 'AGENTS.md';
 
-function trimmedContent(content: string): string {
-  return content.trim();
-}
-
 /**
  * Strip optional decoration blocks that some targets embed in AGENTS.md while
  * others (e.g. cline) omit, then collapse the resulting whitespace. Two
@@ -40,11 +36,14 @@ function hasOptionalAgentsBlock(content: string): boolean {
   return /<!-- agentsmesh:embedded-rules:start -->/.test(content);
 }
 
-export function richerAgentsResult(left: GenerateResult, right: GenerateResult): GenerateResult | null {
+export function richerAgentsResult(
+  left: GenerateResult,
+  right: GenerateResult,
+): GenerateResult | null {
   if (!left.path.endsWith(AGENTS_SUFFIX) || left.path !== right.path) return null;
 
-  const leftTrimmed = trimmedContent(left.content);
-  const rightTrimmed = trimmedContent(right.content);
+  const leftTrimmed = left.content.trim();
+  const rightTrimmed = right.content.trim();
   if (!leftTrimmed || !rightTrimmed) return null;
 
   const leftContainsRight = leftTrimmed.includes(rightTrimmed);
@@ -153,4 +152,3 @@ export function richerCodexAgentsResult(
   if (covers(otherLines, codexLines)) return other;
   return null;
 }
-

@@ -10,17 +10,14 @@
  * is 'none'.
  */
 
+import { AB_HOOKS } from '../../core/canonical-paths.js';
 import { join, dirname } from 'node:path';
 import { stringify as yamlStringify } from 'yaml';
 import type { CanonicalFiles, GenerateResult, ImportResult } from '../../core/types.js';
 import { mkdirp, readFileSafe, writeFileAtomic } from '../../utils/filesystem/fs.js';
 import { computeStatus } from '../../core/generate/feature-loop.js';
 import { toDeepagentsHooks, deepagentsHooksToCanonical } from './hooks-format.js';
-import {
-  DEEPAGENTS_CLI_TARGET,
-  DEEPAGENTS_CLI_GLOBAL_HOOKS_FILE,
-  DEEPAGENTS_CLI_CANONICAL_HOOKS,
-} from './constants.js';
+import { DEEPAGENTS_CLI_TARGET, DEEPAGENTS_CLI_GLOBAL_HOOKS_FILE } from './constants.js';
 
 export async function generateDeepagentsCliGlobalHooks(
   canonical: CanonicalFiles,
@@ -64,13 +61,13 @@ export async function importDeepagentsCliGlobalHooks(
   const hooks = deepagentsHooksToCanonical((parsed as Record<string, unknown>).hooks);
   if (Object.keys(hooks).length === 0) return;
 
-  const destPath = join(projectRoot, DEEPAGENTS_CLI_CANONICAL_HOOKS);
+  const destPath = join(projectRoot, AB_HOOKS);
   await mkdirp(dirname(destPath));
   await writeFileAtomic(destPath, yamlStringify(hooks));
   results.push({
     fromTool: DEEPAGENTS_CLI_TARGET,
     fromPath: srcPath,
-    toPath: DEEPAGENTS_CLI_CANONICAL_HOOKS,
+    toPath: AB_HOOKS,
     feature: 'hooks',
   });
 }

@@ -11,6 +11,7 @@
  * Global scope reads equivalent paths under `~/.augment/`.
  */
 
+import { AB_AGENTS, AB_RULES } from '../../core/canonical-paths.js';
 import { basename, join } from 'node:path';
 import type { ImportResult } from '../../core/types.js';
 import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
@@ -37,8 +38,6 @@ import {
   AUGMENT_CODE_GLOBAL_AGENTS_DIR,
   AUGMENT_CODE_GLOBAL_SKILLS_DIR,
   AUGMENT_CODE_GLOBAL_SETTINGS_FILE,
-  AUGMENT_CODE_CANONICAL_RULES_DIR,
-  AUGMENT_CODE_CANONICAL_AGENTS_DIR,
 } from './constants.js';
 
 type Normalize = (content: string, sourceFile: string, destinationFile: string) => string;
@@ -68,7 +67,7 @@ async function importRules(
   scope: TargetLayoutScope,
 ): Promise<void> {
   const rulesDir = scope === 'global' ? AUGMENT_CODE_GLOBAL_RULES_DIR : AUGMENT_CODE_RULES_DIR;
-  const destDir = join(projectRoot, AUGMENT_CODE_CANONICAL_RULES_DIR);
+  const destDir = join(projectRoot, AB_RULES);
 
   results.push(
     ...(await importFileDirectory({
@@ -83,7 +82,7 @@ async function importRules(
         const { frontmatter, body } = parseFrontmatter(normalizeTo(destPath));
         return {
           destPath,
-          toPath: `${AUGMENT_CODE_CANONICAL_RULES_DIR}/${relativePath}`,
+          toPath: `${AB_RULES}/${relativePath}`,
           feature: 'rules',
           content: await serializeImportedRuleWithFallback(
             destPath,
@@ -141,7 +140,7 @@ async function importAgents(
   scope: TargetLayoutScope,
 ): Promise<void> {
   const agentsDir = scope === 'global' ? AUGMENT_CODE_GLOBAL_AGENTS_DIR : AUGMENT_CODE_AGENTS_DIR;
-  const destDir = join(projectRoot, AUGMENT_CODE_CANONICAL_AGENTS_DIR);
+  const destDir = join(projectRoot, AB_AGENTS);
 
   results.push(
     ...(await importFileDirectory({
@@ -155,7 +154,7 @@ async function importAgents(
         const { frontmatter, body } = parseFrontmatter(normalizeTo(destPath));
         return {
           destPath,
-          toPath: `${AUGMENT_CODE_CANONICAL_AGENTS_DIR}/${relativePath}`,
+          toPath: `${AB_AGENTS}/${relativePath}`,
           feature: 'agents',
           content: await serializeImportedAgentWithFallback(destPath, frontmatter, body),
         };

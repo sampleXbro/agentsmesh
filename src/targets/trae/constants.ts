@@ -57,10 +57,3 @@ export const TRAE_HOOKS_FILE = `${TRAE_DIR}/hooks.json`;
 export const TRAE_GLOBAL_HOOKS_FILE = '.trae-cn/hooks.json';
 
 // Canonical paths (reference only)
-export const TRAE_CANONICAL_RULES_DIR = '.agentsmesh/rules';
-export const TRAE_CANONICAL_COMMANDS_DIR = '.agentsmesh/commands';
-export const TRAE_CANONICAL_AGENTS_DIR = '.agentsmesh/agents';
-export const TRAE_CANONICAL_MCP = '.agentsmesh/mcp.json';
-export const TRAE_CANONICAL_IGNORE = '.agentsmesh/ignore';
-export const TRAE_CANONICAL_HOOKS = '.agentsmesh/hooks.yaml';
-export const TRAE_CANONICAL_PERMISSIONS = '.agentsmesh/permissions.yaml';

@@ -54,11 +54,3 @@ export const CLINE_HOOKS_DIR = '.cline/hooks';
 export const CLINE_GLOBAL_RULES_DIR = '.cline/data/settings/rules';
 /** Global workflows directory — not covered by CLI docs, unchanged (IDE-era path) */
 export const CLINE_GLOBAL_WORKFLOWS_DIR = 'Documents/Cline/Workflows';
-
-export const CLINE_CANONICAL_HOOKS = '.agentsmesh/hooks.yaml';
-export const CLINE_CANONICAL_RULES_DIR = '.agentsmesh/rules';
-export const CLINE_CANONICAL_COMMANDS_DIR = '.agentsmesh/commands';
-export const CLINE_CANONICAL_IGNORE = '.agentsmesh/ignore';
-export const CLINE_CANONICAL_MCP = '.agentsmesh/mcp.json';
-export const CLINE_CANONICAL_AGENTS_DIR = '.agentsmesh/agents';
-export const CLINE_CANONICAL_SKILLS_DIR = '.agentsmesh/skills';

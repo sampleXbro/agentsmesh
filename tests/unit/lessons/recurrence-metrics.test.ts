@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { aggregateMetrics } from '../../../src/lessons/recurrence/metrics.js';
-import type { CaseOutcome } from '../../../src/lessons/recurrence/types.js';
+import { aggregateMetrics } from '../../harness/lessons-recurrence/metrics.js';
+import type { CaseOutcome } from '../../harness/lessons-recurrence/types.js';
 
 function outcome(partial: Partial<CaseOutcome>): CaseOutcome {
   return {

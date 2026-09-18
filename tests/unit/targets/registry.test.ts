@@ -1,10 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import {
-  registerTarget,
   registerTargetDescriptor,
-  getTarget,
   getDescriptor,
-  getAllTargets,
   getAllDescriptors,
   resetRegistry,
 } from '../../../src/targets/catalog/registry.js';
@@ -59,31 +56,8 @@ describe('target registry', () => {
     resetRegistry();
   });
 
-  it('registers and retrieves a target', () => {
-    registerTarget(mockGenerators);
-    expect(getTarget('test-target')).toBe(mockGenerators);
-  });
-
   it('exposes built-in targets without manual registration', () => {
-    expect(getTarget('claude-code').primaryRootInstructionPath).toBe('CLAUDE.md');
-  });
-
-  it('returns all registered targets', () => {
-    const t1: TargetGenerators = { ...mockGenerators, name: 'a' };
-    const t2: TargetGenerators = { ...mockGenerators, name: 'b' };
-    registerTarget(t1);
-    registerTarget(t2);
-    expect(getAllTargets()).toHaveLength(2);
-  });
-
-  it('throws for unknown target', () => {
-    expect(() => getTarget('nonexistent')).toThrow('Unknown target: nonexistent');
-  });
-
-  it('resetRegistry clears all targets', () => {
-    registerTarget(mockGenerators);
-    resetRegistry();
-    expect(getAllTargets()).toHaveLength(0);
+    expect(getDescriptor('claude-code')?.generators.primaryRootInstructionPath).toBe('CLAUDE.md');
   });
 
   it('registers and retrieves a full descriptor', () => {
@@ -94,9 +68,9 @@ describe('target registry', () => {
     });
   });
 
-  it('getTarget resolves generators from registered descriptor', () => {
+  it('getDescriptor resolves generators from registered descriptor', () => {
     registerTargetDescriptor(mockDescriptor);
-    expect(getTarget('plugin-target').name).toBe(mockGenerators.name);
+    expect(getDescriptor('plugin-target')?.generators.name).toBe(mockGenerators.name);
   });
 
   it('getDescriptor returns built-in descriptors', () => {

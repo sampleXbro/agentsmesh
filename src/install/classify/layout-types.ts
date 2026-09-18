@@ -9,35 +9,28 @@
 
 import type { ManualInstallAs } from '../manual/manual-install-mode.js';
 
-export interface CanonicalRoot {
+/** A detected layout marker: one path, relative to the content root. */
+export interface PathMarker {
   readonly path: string;
 }
 
-export interface SkillPackRoot {
-  readonly path: string;
-}
+export type CanonicalRoot = PathMarker;
+export type SkillPackRoot = PathMarker;
 
 /**
- * Marker for a repo that IS a single skill: `<root>/SKILL.md` (with optional
- * sibling supporting files). Used for repos like `blader/humanizer` where
- * the entire repository is one Anthropic-style skill. Mutually exclusive
- * with `canonical` and `skillPack` (which take precedence).
+ * A repo that IS a single skill: `<root>/SKILL.md` (with optional sibling
+ * supporting files), e.g. `blader/humanizer`. Mutually exclusive with
+ * `canonical` and `skillPack` (which take precedence).
  */
-export interface RootSkill {
-  /** Path of the SKILL.md file relative to the content root (always `SKILL.md`). */
-  readonly path: string;
-}
+export type RootSkill = PathMarker;
 
 /**
- * Marker for a repo with a legacy single-file root rule: `.cursorrules` or
+ * A repo with a legacy single-file root rule: `.cursorrules` or
  * `.windsurfrules` at the repository root (e.g. `grapeot/devin.cursorrules`).
  * Mutually exclusive with `canonical`, `skillPack`, `rootSkill` and
  * `flatCollections` (which all take precedence).
  */
-export interface RootRule {
-  /** Path of the rule file relative to the content root (`.cursorrules` or `.windsurfrules`). */
-  readonly path: string;
-}
+export type RootRule = PathMarker;
 
 export type FileShape = 'md' | 'mdc' | 'toml' | 'copilot-instructions';
 
@@ -48,9 +41,7 @@ export interface FlatCollection {
   readonly inferredTarget?: string;
 }
 
-export interface ToolNativeManifest {
-  readonly path: string;
-}
+export type ToolNativeManifest = PathMarker;
 
 export interface FlatSourceLayout {
   readonly canonical: CanonicalRoot | null;

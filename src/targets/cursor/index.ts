@@ -1,3 +1,4 @@
+import { AB_AGENTS, AB_COMMANDS } from '../../core/canonical-paths.js';
 import type { TargetCapabilities, TargetGenerators } from '../catalog/target.interface.js';
 import type { TargetDescriptor, TargetLayout } from '../catalog/target-descriptor.js';
 import {
@@ -13,8 +14,6 @@ import {
 import {
   CURSOR_COMPAT_AGENTS,
   CURSOR_AGENTS_DIR,
-  CURSOR_CANONICAL_AGENTS_DIR,
-  CURSOR_CANONICAL_COMMANDS_DIR,
   CURSOR_COMMANDS_DIR,
   CURSOR_DOT_CURSOR_AGENTS,
   CURSOR_GENERAL_RULE,
@@ -194,7 +193,7 @@ export const descriptor = {
       feature: 'commands',
       mode: 'directory',
       source: { project: [CURSOR_COMMANDS_DIR] },
-      canonicalDir: CURSOR_CANONICAL_COMMANDS_DIR,
+      canonicalDir: AB_COMMANDS,
       extensions: ['.md'],
       map: cursorCommandMapper,
     },
@@ -202,7 +201,7 @@ export const descriptor = {
       feature: 'agents',
       mode: 'directory',
       source: { project: [CURSOR_AGENTS_DIR] },
-      canonicalDir: CURSOR_CANONICAL_AGENTS_DIR,
+      canonicalDir: AB_AGENTS,
       extensions: ['.md'],
       map: cursorAgentMapper,
     },

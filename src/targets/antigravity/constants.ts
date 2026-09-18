@@ -37,10 +37,4 @@ export const ANTIGRAVITY_GLOBAL_MCP_CONFIG = '.gemini/config/mcp_config.json';
  */
 export const ANTIGRAVITY_GLOBAL_SETTINGS_FILE = '.gemini/antigravity-cli/settings.json';
 
-export const ANTIGRAVITY_CANONICAL_ROOT_RULE = '.agentsmesh/rules/_root.md';
-export const ANTIGRAVITY_CANONICAL_RULES_DIR = '.agentsmesh/rules';
-export const ANTIGRAVITY_CANONICAL_COMMANDS_DIR = '.agentsmesh/commands';
-export const ANTIGRAVITY_CANONICAL_AGENTS_DIR = '.agentsmesh/agents';
-export const ANTIGRAVITY_CANONICAL_MCP = '.agentsmesh/mcp.json';
 export const ANTIGRAVITY_CANONICAL_IGNORE_FILENAME = 'ignore';
-export const ANTIGRAVITY_CANONICAL_PERMISSIONS = '.agentsmesh/permissions.yaml';

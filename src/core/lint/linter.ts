@@ -7,7 +7,6 @@ import type { CanonicalFiles, LintDiagnostic } from '../types.js';
 import type { ValidatedConfig } from '../../config/core/schema.js';
 import type { TargetLayoutScope } from '../../targets/catalog/target-descriptor.js';
 import { readDirRecursive } from '../../utils/filesystem/fs.js';
-import { getTargetCatalogEntry, isBuiltinTargetId } from '../../targets/catalog/target-catalog.js';
 import { getDescriptor } from '../../targets/catalog/registry.js';
 import { lintSilentFeatureDrops } from './shared/silent-drop-guard.js';
 import { lintHookScriptReferences } from './shared/hook-script-references.js';
@@ -61,8 +60,7 @@ export async function runLint(
   const projectFiles = scope === 'global' ? [] : await getProjectFiles(projectRoot);
 
   for (const target of targets) {
-    const fullDesc = getDescriptor(target);
-    const descriptor = isBuiltinTargetId(target) ? getTargetCatalogEntry(target) : fullDesc;
+    const descriptor = getDescriptor(target);
 
     if (descriptor?.capabilities) {
       diagnostics.push(
@@ -80,7 +78,7 @@ export async function runLint(
         ...lintHookScriptReferences({
           target,
           canonical,
-          hasScriptProjection: fullDesc?.postProcessHookOutputs !== undefined,
+          hasScriptProjection: descriptor?.postProcessHookOutputs !== undefined,
         }),
       );
     }
@@ -90,7 +88,7 @@ export async function runLint(
         ...lintRuleScopeInversion({
           target,
           canonical,
-          preservesManualActivation: fullDesc?.preservesManualActivation === true,
+          preservesManualActivation: descriptor?.preservesManualActivation === true,
         }),
       );
     }
@@ -98,8 +96,8 @@ export async function runLint(
     if (hasRules && descriptor?.lintRules) {
       diagnostics.push(...descriptor.lintRules(canonical, projectRoot, projectFiles, { scope }));
     }
-    if (fullDesc?.generators.lint) {
-      diagnostics.push(...fullDesc.generators.lint(canonical));
+    if (descriptor?.generators.lint) {
+      diagnostics.push(...descriptor.generators.lint(canonical));
     }
     const lintOpts = { scope };
     if (hasCommands && descriptor?.lint?.commands) {

@@ -20,6 +20,7 @@
  * writes it and never deletes it.
  */
 
+import { isRecord } from '../../utils/types/guards.js';
 import type { Permissions } from '../../core/types.js';
 
 export const TRAE_PROFILE_KEY = 'defaultCustomProfile';
@@ -45,10 +46,6 @@ export interface UnmappedPermissions {
   readonly allow: readonly string[];
   readonly deny: readonly string[];
   readonly ask: readonly string[];
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 /** `Bash(git status:*)` -> `{ bucket: 'prefix', command: 'git status' }`. */

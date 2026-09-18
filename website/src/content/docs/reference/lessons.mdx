@@ -83,7 +83,6 @@ Per-project tuning lives in `.agentsmesh/lessons/config.json`, which `agentsmesh
   "recallLimit": 10,
   "recallMaxTokens": 1200,
   "autoPrune": false,
-  "repairTriggers": false,
   "telemetry": false
 }
 ```
@@ -94,7 +93,6 @@ Per-project tuning lives in `.agentsmesh/lessons/config.json`, which `agentsmesh
 
 `telemetry` (boolean, default `false`) opts the **project** into the recall, capture and outcome logs that `stats`, effectiveness ranking and the `validate` health view read. It lives in the config, not only in the environment, because the hooks are the most important writer and a hook spawned by a desktop app inherits none of your shell exports — an env-only gate leaves every hook blind while the CLI in a terminal keeps logging. `AGENTSMESH_LESSONS_TELEMETRY` still overrides per process (`1` on, `0` off).
 
-`repairTriggers` (boolean, default `false`) opts into **capture-time trigger repair** — the enforcement half of the warn-only capture guardrails, applied to the capture INPUT before the write. A broad or wide `file_glob` is narrowed toward the evidence file's directory class (`src/lessons/recall.ts` → `src/lessons/*.ts`) — but only when a concrete evidence path exists, the author's glob covers it, and the narrowed glob matches no more files than the original; with no usable evidence the glob is kept and only warned about, never rewritten blind. A stopworded or over-long keyword gets a **matchable variant added beside it** (the original is kept — it still byte-matches prompt text; the variant makes the mandatory `--file`/`--cmd` token path reachable), and a keyword that tokenizes to nothing is dropped. Repair never leaves a lesson with zero triggers. Every rewrite is reported as a warning on the capture result (`NARROWED_GLOB`, `KEYWORD_VARIANT_ADDED`, `DROPPED_KEYWORD`), so the author sees exactly what changed — the narrowed directory class is an automatic compromise, and general/library-behavior rules should still be re-pointed at their true file-CLASS recurrence surface by hand.
 
 ## Validation codes
 

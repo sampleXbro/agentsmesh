@@ -15,6 +15,8 @@
  * untouched by re-import via the existing-frontmatter fallback).
  */
 
+import { AB_COMMANDS } from '../../core/canonical-paths.js';
+import type { FeatureGeneratorOutput } from '../catalog/target.interface.js';
 import { dirname, join } from 'node:path';
 import { parse as yamlParse, stringify as yamlStringify } from 'yaml';
 import type { CanonicalFiles, ImportResult } from '../../core/types.js';
@@ -25,13 +27,9 @@ import {
   ROVODEV_COMMANDS_DIR,
   ROVODEV_COMMANDS_DIRNAME,
   ROVODEV_PROMPTS_FILE,
-  ROVODEV_CANONICAL_COMMANDS_DIR,
 } from './constants.js';
 
-export interface RovodevPromptOutput {
-  path: string;
-  content: string;
-}
+export type RovodevPromptOutput = FeatureGeneratorOutput;
 
 interface RovodevPromptEntry {
   name: string;
@@ -100,7 +98,7 @@ export async function importCommands(
     const body = await readFileSafe(sourcePath);
     if (body === null) continue;
 
-    const destDir = join(projectRoot, ROVODEV_CANONICAL_COMMANDS_DIR);
+    const destDir = join(projectRoot, AB_COMMANDS);
     await mkdirp(destDir);
     const destPath = join(destDir, `${name}.md`);
     const hasDescription = Object.prototype.hasOwnProperty.call(entry, 'description');
@@ -118,7 +116,7 @@ export async function importCommands(
     results.push({
       fromTool: ROVODEV_TARGET,
       fromPath: sourcePath,
-      toPath: `${ROVODEV_CANONICAL_COMMANDS_DIR}/${name}.md`,
+      toPath: `${AB_COMMANDS}/${name}.md`,
       feature: 'commands',
     });
   }

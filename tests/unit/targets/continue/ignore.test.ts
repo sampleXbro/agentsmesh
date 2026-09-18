@@ -3,6 +3,7 @@
  * (project + global), and lintIgnore removal verification.
  */
 
+import { AB_IGNORE } from '../../../../src/core/canonical-paths.js';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdirSync, writeFileSync, rmSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -12,7 +13,6 @@ import { generateIgnore } from '../../../../src/targets/continue/generator.js';
 import {
   CONTINUE_IGNORE,
   CONTINUE_GLOBAL_IGNORE,
-  CONTINUE_CANONICAL_IGNORE,
 } from '../../../../src/targets/continue/constants.js';
 import { importFromContinue } from '../../../../src/targets/continue/importer.js';
 
@@ -88,8 +88,8 @@ describe('importFromContinue — ignore (project scope)', () => {
     const ignoreResult = results.find((r) => r.feature === 'ignore');
     expect(ignoreResult).toBeDefined();
     expect(ignoreResult!.fromTool).toBe('continue');
-    expect(ignoreResult!.toPath).toBe(CONTINUE_CANONICAL_IGNORE);
-    const content = readFileSync(join(TEST_DIR, CONTINUE_CANONICAL_IGNORE), 'utf-8');
+    expect(ignoreResult!.toPath).toBe(AB_IGNORE);
+    const content = readFileSync(join(TEST_DIR, AB_IGNORE), 'utf-8');
     expect(content).toContain('.env');
     expect(content).toContain('node_modules/');
     expect(content).toContain('dist/');
@@ -115,8 +115,8 @@ describe('importFromContinue — ignore (global scope)', () => {
     const ignoreResult = results.find((r) => r.feature === 'ignore');
     expect(ignoreResult).toBeDefined();
     expect(ignoreResult!.fromTool).toBe('continue');
-    expect(ignoreResult!.toPath).toBe(CONTINUE_CANONICAL_IGNORE);
-    const content = readFileSync(join(TEST_DIR, CONTINUE_CANONICAL_IGNORE), 'utf-8');
+    expect(ignoreResult!.toPath).toBe(AB_IGNORE);
+    const content = readFileSync(join(TEST_DIR, AB_IGNORE), 'utf-8');
     expect(content).toContain('dist/');
     expect(content).toContain('*.log');
   });

@@ -1,14 +1,10 @@
 /** Lint rules for the openhands target. */
+import { AB_ROOT_RULE } from '../../core/canonical-paths.js';
 import type { CanonicalFiles, LintDiagnostic } from '../../core/types.js';
 import { validateRules } from '../../core/lint/validate-rules.js';
 import { createWarning } from '../../core/lint/shared/helpers.js';
 import { openhandsRuleSlug } from './rules-format.js';
-import {
-  OPENHANDS_TARGET,
-  OPENHANDS_ROOT_FILE,
-  OPENHANDS_SKILLS_DIR,
-  OPENHANDS_CANONICAL_ROOT_RULE,
-} from './constants.js';
+import { OPENHANDS_TARGET, OPENHANDS_ROOT_FILE, OPENHANDS_SKILLS_DIR } from './constants.js';
 
 /** AGENTS.md is injected verbatim, so a root rule's metadata has nowhere to go. */
 function lintRootMetadata(canonical: CanonicalFiles): LintDiagnostic[] {
@@ -16,7 +12,7 @@ function lintRootMetadata(canonical: CanonicalFiles): LintDiagnostic[] {
   if (!root || !root.description) return [];
   return [
     createWarning(
-      OPENHANDS_CANONICAL_ROOT_RULE,
+      AB_ROOT_RULE,
       OPENHANDS_TARGET,
       `${OPENHANDS_ROOT_FILE} is injected verbatim — frontmatter would appear as literal ` +
         `prompt text — so the root rule's description ("${root.description}") is dropped.`,

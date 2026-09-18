@@ -1,7 +1,6 @@
 import { realpathSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createRouter } from './router.js';
 import { printCommandHelp, printHelp } from './help.js';
 import { printVersion } from './version.js';
 import { handleError } from './error-handler.js';
@@ -86,8 +85,6 @@ export function parseArgs(argv: string[]): ParseResult {
   return { command, flags, args };
 }
 
-const router = createRouter(cmdHandlers);
-
 export async function main(parsed: ParseResult): Promise<void> {
   const { command, flags, args } = parsed;
 
@@ -109,7 +106,13 @@ export async function main(parsed: ParseResult): Promise<void> {
     silenceUi();
   }
 
-  await router.route(command, flags, args);
+  const handler = cmdHandlers[command];
+  if (!handler) {
+    throw new Error(
+      `Unknown command "${command}". Available: ${Object.keys(cmdHandlers).join(', ')}`,
+    );
+  }
+  await handler(flags, args);
 }
 
 export function isMainModule(): boolean {

@@ -3,6 +3,7 @@
  * Sibling-file pattern avoids the `index.ts ↔ importer.ts` TDZ trap.
  */
 
+import { AB_COMMANDS, AB_RULES } from '../../core/canonical-paths.js';
 import { join } from 'node:path';
 import { parseFrontmatter } from '../../utils/text/markdown.js';
 import {
@@ -10,7 +11,6 @@ import {
   serializeImportedRuleWithFallback,
 } from '../import/import-metadata.js';
 import type { ImportEntryMapper } from '../catalog/import-descriptor.js';
-import { ROO_CODE_CANONICAL_COMMANDS_DIR, ROO_CODE_CANONICAL_RULES_DIR } from './constants.js';
 
 /** Skip Roo Code's bundled `00-root.md` (handled separately as the singleFile root). */
 export const rooNonRootRuleMapper: ImportEntryMapper = async ({
@@ -23,7 +23,7 @@ export const rooNonRootRuleMapper: ImportEntryMapper = async ({
   const { frontmatter, body } = parseFrontmatter(normalizeTo(destPath));
   return {
     destPath,
-    toPath: `${ROO_CODE_CANONICAL_RULES_DIR}/${relativePath}`,
+    toPath: `${AB_RULES}/${relativePath}`,
     content: await serializeImportedRuleWithFallback(
       destPath,
       {
@@ -47,7 +47,7 @@ export const rooCommandMapper: ImportEntryMapper = async ({
   const { frontmatter, body } = parseFrontmatter(normalizeTo(destPath));
   return {
     destPath,
-    toPath: `${ROO_CODE_CANONICAL_COMMANDS_DIR}/${relativePath}`,
+    toPath: `${AB_COMMANDS}/${relativePath}`,
     content: await serializeImportedCommandWithFallback(
       destPath,
       {

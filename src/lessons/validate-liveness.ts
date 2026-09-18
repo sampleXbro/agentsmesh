@@ -14,7 +14,7 @@ import type { ValidationFinding } from './validate.js';
  * runner), not a scope-too-narrow one.
  */
 
-function activeTriggerIds(graph: LessonsGraph): Set<string> {
+export function activeTriggerIds(graph: LessonsGraph): Set<string> {
   const ids = new Set<string>();
   for (const lesson of Object.values(graph.lessons)) {
     if (lesson.status !== 'active') continue;

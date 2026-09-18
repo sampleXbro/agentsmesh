@@ -16,18 +16,13 @@
  *   }
  */
 
+import { AB_HOOKS, AB_IGNORE, AB_MCP, AB_PERMISSIONS } from '../../core/canonical-paths.js';
 import { join, dirname } from 'node:path';
 import type { ImportResult, McpServer, Permissions } from '../../core/types.js';
 import { readFileSafe, writeFileAtomic, mkdirp } from '../../utils/filesystem/fs.js';
 import { writeMcpWithMerge } from '../import/mcp-merge.js';
 import { stringify as yamlStringify } from 'yaml';
-import {
-  AUGMENT_CODE_TARGET,
-  AUGMENT_CODE_CANONICAL_MCP,
-  AUGMENT_CODE_CANONICAL_HOOKS,
-  AUGMENT_CODE_CANONICAL_IGNORE,
-  AUGMENT_CODE_CANONICAL_PERMISSIONS,
-} from './constants.js';
+import { AUGMENT_CODE_TARGET } from './constants.js';
 
 /**
  * Convert Augment `toolPermissions` entries back to canonical permissions.
@@ -106,11 +101,11 @@ export async function importAugmentSettings(
   // MCP servers
   if (settings.mcpServers && typeof settings.mcpServers === 'object') {
     const servers = settings.mcpServers as Record<string, McpServer>;
-    await writeMcpWithMerge(projectRoot, AUGMENT_CODE_CANONICAL_MCP, servers);
+    await writeMcpWithMerge(projectRoot, AB_MCP, servers);
     results.push({
       fromTool: AUGMENT_CODE_TARGET,
       fromPath: join(projectRoot, settingsPath),
-      toPath: AUGMENT_CODE_CANONICAL_MCP,
+      toPath: AB_MCP,
       feature: 'mcp',
     });
   }
@@ -120,13 +115,13 @@ export async function importAugmentSettings(
   if (rawHooks && typeof rawHooks === 'object' && !Array.isArray(rawHooks)) {
     const canonicalHooks = augmentHooksToCanonical(rawHooks as Record<string, unknown>);
     if (Object.keys(canonicalHooks).length > 0) {
-      const destPath = join(projectRoot, AUGMENT_CODE_CANONICAL_HOOKS);
+      const destPath = join(projectRoot, AB_HOOKS);
       await mkdirp(dirname(destPath));
       await writeFileAtomic(destPath, yamlStringify(canonicalHooks));
       results.push({
         fromTool: AUGMENT_CODE_TARGET,
         fromPath: join(projectRoot, settingsPath),
-        toPath: AUGMENT_CODE_CANONICAL_HOOKS,
+        toPath: AB_HOOKS,
         feature: 'hooks',
       });
     }
@@ -136,13 +131,13 @@ export async function importAugmentSettings(
   // `.augment/settings.json` and the personal `~/.augment/settings.json`.
   const permissions = parseToolPermissions(settings.toolPermissions);
   if (permissions) {
-    const destPath = join(projectRoot, AUGMENT_CODE_CANONICAL_PERMISSIONS);
+    const destPath = join(projectRoot, AB_PERMISSIONS);
     await mkdirp(dirname(destPath));
     await writeFileAtomic(destPath, yamlStringify(permissions));
     results.push({
       fromTool: AUGMENT_CODE_TARGET,
       fromPath: join(projectRoot, settingsPath),
-      toPath: AUGMENT_CODE_CANONICAL_PERMISSIONS,
+      toPath: AB_PERMISSIONS,
       feature: 'permissions',
     });
   }
@@ -165,13 +160,13 @@ export async function importAugmentIgnore(
     .filter((l) => l.length > 0 && !l.startsWith('#'));
   if (patterns.length === 0) return;
 
-  const destPath = join(projectRoot, AUGMENT_CODE_CANONICAL_IGNORE);
+  const destPath = join(projectRoot, AB_IGNORE);
   await mkdirp(dirname(destPath));
   await writeFileAtomic(destPath, patterns.join('\n'));
   results.push({
     fromTool: AUGMENT_CODE_TARGET,
     fromPath: join(projectRoot, ignorePath),
-    toPath: AUGMENT_CODE_CANONICAL_IGNORE,
+    toPath: AB_IGNORE,
     feature: 'ignore',
   });
 }

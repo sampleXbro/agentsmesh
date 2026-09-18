@@ -16,15 +16,16 @@ describe('globMatch — extra branches', () => {
     expect(typeof fn()).toBe('boolean');
   });
 
-  it('handles literal comma outside braces', () => {
-    // The regex translation treats unescaped `,` as alternation `|`,
-    // which would match "a" or "b" inside the pattern context.
-    expect(globMatch('a', 'a,b')).toBe(true);
-    expect(globMatch('b', 'a,b')).toBe(true);
+  it('treats a comma outside braces as a literal', () => {
+    // Standard glob semantics: only a brace group introduces alternation.
+    expect(globMatch('a,b', 'a,b')).toBe(true);
+    expect(globMatch('a', 'a,b')).toBe(false);
+    expect(globMatch('b', 'a,b')).toBe(false);
   });
 
-  it('matches pattern with only braces and content', () => {
-    expect(globMatch('foo', '{foo}')).toBe(true);
+  it('matches pattern with braces and content', () => {
+    // A single-element brace group is a literal, as in bash.
+    expect(globMatch('{foo}', '{foo}')).toBe(true);
     expect(globMatch('bar', '{foo,bar}')).toBe(true);
   });
 

@@ -10,16 +10,14 @@
  * round-trip stays symmetric.
  */
 
+import type { FeatureGeneratorOutput } from '../catalog/target.interface.js';
 import { dirname, join } from 'node:path';
 import { stringify as stringifyYaml } from 'yaml';
 import type { CanonicalFiles, ImportResult } from '../../core/types.js';
 import { getHookCommand, hasHookCommand } from '../../core/hook-command.js';
 import { readFileSafe, mkdirp, writeFileAtomic } from '../../utils/filesystem/fs.js';
 
-export interface WrappedHookOutput {
-  path: string;
-  content: string;
-}
+export type WrappedHookOutput = FeatureGeneratorOutput;
 
 export function buildWrappedCommandHooks(
   canonical: CanonicalFiles,

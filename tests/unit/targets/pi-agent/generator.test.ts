@@ -297,3 +297,44 @@ describe('generateAgents (pi-agent)', () => {
     expect(results).toHaveLength(0);
   });
 });
+
+describe('generateCommands (pi-agent) — frontmatter/body edge branches', () => {
+  it('omits the description key when the command has no description', () => {
+    const out = generateCommands(
+      makeCanonical({
+        commands: [
+          {
+            source: '/proj/.agentsmesh/commands/bare.md',
+            name: 'bare',
+            description: '',
+            allowedTools: [],
+            body: '# Bare\n',
+          },
+        ],
+      }),
+    );
+    expect(out).toHaveLength(1);
+    expect(out[0]!.path).toBe(`${PI_AGENT_COMMANDS_DIR}/bare.md`);
+    expect(out[0]!.content).not.toContain('description:');
+    expect(out[0]!.content).toContain('# Bare');
+  });
+
+  it('emits an empty body when the command body is whitespace only', () => {
+    const out = generateCommands(
+      makeCanonical({
+        commands: [
+          {
+            source: '/proj/.agentsmesh/commands/empty.md',
+            name: 'empty',
+            description: 'Has a description',
+            allowedTools: [],
+            body: '   \n\n  ',
+          },
+        ],
+      }),
+    );
+    expect(out).toHaveLength(1);
+    expect(out[0]!.content).toContain('description: Has a description');
+    expect(out[0]!.content.replace(/---[\s\S]*?---/, '').trim()).toBe('');
+  });
+});

@@ -11,14 +11,14 @@
  * Skill discovery walks both `.kilo/skills/` and `.kilocode/skills/`.
  */
 
+import { AB_COMMANDS, AB_RULES } from '../../core/canonical-paths.js';
+import { exists as pathExists } from '../../utils/filesystem/fs.js';
 import { join } from 'node:path';
-import { stat } from 'node:fs/promises';
 import type { ImportResult } from '../../core/types.js';
 import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
-import { createImportReferenceNormalizer } from '../../core/reference/import-rewriter.js';
 import { importEmbeddedSkills } from '../import/embedded-skill.js';
 import { importFileDirectory } from '../import/import-orchestrator.js';
-import { runDescriptorImport } from '../import/descriptor-import-runner.js';
+import { beginImport } from '../import/descriptor-import-runner.js';
 import { readFileSafe, writeFileAtomic } from '../../utils/filesystem/fs.js';
 import { serializeImportedRuleWithFallback } from '../import/import-metadata.js';
 import { parseFrontmatter } from '../../utils/text/markdown.js';
@@ -31,23 +31,12 @@ import {
   KILO_CODE_LEGACY_RULES_DIR,
   KILO_CODE_LEGACY_WORKFLOWS_DIR,
   KILO_CODE_LEGACY_SKILLS_DIR,
-  KILO_CODE_CANONICAL_RULES_DIR,
-  KILO_CODE_CANONICAL_COMMANDS_DIR,
 } from './constants.js';
 import { descriptor } from './index.js';
 
 type Normalizer = (content: string, sourceFile: string, destinationFile: string) => string;
-const CANONICAL_ROOT_RULE_PATH = `${KILO_CODE_CANONICAL_RULES_DIR}/_root.md`;
+const CANONICAL_ROOT_RULE_PATH = `${AB_RULES}/_root.md`;
 const LEGACY_ROOT_RULE_FILE = '00-root.md';
-
-async function pathExists(absolutePath: string): Promise<boolean> {
-  try {
-    await stat(absolutePath);
-    return true;
-  } catch {
-    return false;
-  }
-}
 
 /**
  * Walk `.kilocode/rules/*.md` and import as canonical rules. Reuses the same
@@ -60,7 +49,7 @@ async function importLegacyRules(
 ): Promise<void> {
   const srcDir = join(projectRoot, KILO_CODE_LEGACY_RULES_DIR);
   if (!(await pathExists(srcDir))) return;
-  const destDir = join(projectRoot, KILO_CODE_CANONICAL_RULES_DIR);
+  const destDir = join(projectRoot, AB_RULES);
   const rootSourceFile = join(srcDir, LEGACY_ROOT_RULE_FILE);
   const hasCurrentRoot = results.some((result) => result.toPath === CANONICAL_ROOT_RULE_PATH);
   const rootContent = hasCurrentRoot ? null : await readFileSafe(rootSourceFile);
@@ -113,7 +102,7 @@ async function importLegacyWorkflows(
 ): Promise<void> {
   const srcDir = join(projectRoot, KILO_CODE_LEGACY_WORKFLOWS_DIR);
   if (!(await pathExists(srcDir))) return;
-  const destDir = join(projectRoot, KILO_CODE_CANONICAL_COMMANDS_DIR);
+  const destDir = join(projectRoot, AB_COMMANDS);
   results.push(
     ...(await importFileDirectory({
       srcDir,
@@ -140,11 +129,7 @@ export async function importFromKiloCode(
   projectRoot: string,
   options: { scope?: TargetLayoutScope } = {},
 ): Promise<ImportResult[]> {
-  const scope = options.scope ?? 'project';
-  const results: ImportResult[] = [];
-  const normalize = await createImportReferenceNormalizer(KILO_CODE_TARGET, projectRoot, scope);
-
-  results.push(...(await runDescriptorImport(descriptor, projectRoot, scope, { normalize })));
+  const { scope, results, normalize } = await beginImport(descriptor, projectRoot, options);
 
   // New-layout skills (.kilo/skills/) — covered first.
   await importEmbeddedSkills(

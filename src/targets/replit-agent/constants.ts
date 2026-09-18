@@ -19,4 +19,3 @@ export const REPLIT_AGENT_ROOT_FILE = 'replit.md';
 export const REPLIT_AGENT_SKILLS_DIR = '.agents/skills';
 
 // Canonical paths
-export const REPLIT_AGENT_CANONICAL_RULES_DIR = '.agentsmesh/rules';

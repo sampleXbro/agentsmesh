@@ -1,6 +1,6 @@
 import { splitFrontmatter } from '../../utils/text/markdown.js';
 import { basename, join } from 'node:path';
-import type { CanonicalRule } from '../../core/types.js';
+import type { CanonicalRule, CanonicalFiles } from '../../core/types.js';
 
 export const ROOT_CONTRACT_START = '<!-- agentsmesh:root-generation-contract:start -->';
 export const ROOT_CONTRACT_END = '<!-- agentsmesh:root-generation-contract:end -->';
@@ -177,4 +177,22 @@ export function extractEmbeddedRules(content: string): ExtractedEmbeddedRules {
     return '';
   });
   return { rootContent: rootContent.trim(), rules };
+}
+
+/**
+ * The embedded-root-rule generator: the root rule's body plus a managed block
+ * holding every non-root rule that targets `target`, written to `rootFile`.
+ * Targets with no native per-rule file all project rules this way.
+ */
+export function embeddedRootRule(
+  canonical: CanonicalFiles,
+  target: string,
+  rootFile: string,
+): { path: string; content: string }[] {
+  const rootBody = canonical.rules.find((rule) => rule.root)?.body.trim() ?? '';
+  const nonRootRules = canonical.rules.filter(
+    (rule) => !rule.root && (rule.targets.length === 0 || rule.targets.includes(target)),
+  );
+  const content = appendEmbeddedRulesBlock(rootBody, nonRootRules);
+  return content ? [{ path: rootFile, content }] : [];
 }

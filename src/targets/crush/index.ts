@@ -13,6 +13,7 @@
  * Crush has no native slash-command or Markdown-file agent format.
  */
 
+import { AB_IGNORE, AB_RULES } from '../../core/canonical-paths.js';
 import type { TargetCapabilities, TargetGenerators } from '../catalog/target.interface.js';
 import type { TargetDescriptor, TargetLayout } from '../catalog/target-descriptor.js';
 import { commandSkillDirName } from '../codex-cli/command-skill.js';
@@ -43,8 +44,6 @@ import {
   CRUSH_GLOBAL_SKILLS_DIR,
   CRUSH_GLOBAL_CONFIG_FILE,
   CRUSH_GLOBAL_IGNORE,
-  CRUSH_CANONICAL_RULES_DIR,
-  CRUSH_CANONICAL_IGNORE,
 } from './constants.js';
 
 export const target: TargetGenerators = {
@@ -181,7 +180,7 @@ export const descriptor = {
         project: [CRUSH_ROOT_FILE],
         global: [CRUSH_GLOBAL_ROOT_FILE],
       },
-      canonicalDir: CRUSH_CANONICAL_RULES_DIR,
+      canonicalDir: AB_RULES,
       canonicalRootFilename: '_root.md',
       markAsRoot: true,
     },
@@ -193,7 +192,7 @@ export const descriptor = {
         global: [CRUSH_GLOBAL_IGNORE],
       },
       canonicalDir: '.agentsmesh',
-      canonicalFilename: CRUSH_CANONICAL_IGNORE,
+      canonicalFilename: AB_IGNORE,
     },
   },
   buildImportPaths: buildCrushImportPaths,

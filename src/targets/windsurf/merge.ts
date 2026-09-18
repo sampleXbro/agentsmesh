@@ -13,7 +13,7 @@
  *     claimed.
  */
 
-import type { GeneratedOutputMerger } from '../catalog/target-descriptor.js';
+import { firstMerger, type GeneratedOutputMerger } from '../catalog/target-descriptor.js';
 import { ownedJsonKeysMerger } from '../../core/generate/json-owned-keys.js';
 import {
   CANONICAL_MCP_SERVER_KEYS,
@@ -31,11 +31,4 @@ const mergeHooks = ownedJsonKeysMerger(
   ['hooks'],
 );
 
-export const mergeWindsurfOutput: GeneratedOutputMerger = (
-  existing,
-  pending,
-  newContent,
-  resolvedPath,
-) =>
-  mergeMcp(existing, pending, newContent, resolvedPath) ??
-  mergeHooks(existing, pending, newContent, resolvedPath);
+export const mergeWindsurfOutput: GeneratedOutputMerger = firstMerger([mergeMcp, mergeHooks]);

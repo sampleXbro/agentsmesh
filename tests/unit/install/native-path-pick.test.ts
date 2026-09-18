@@ -6,7 +6,6 @@ import { describe, it, expect } from 'vitest';
 import {
   targetHintFromNativePath,
   pathSupportsNativePick,
-  resolveEffectiveTargetForInstall,
   validateTargetMatchesPath,
   extendPickHasArrays,
 } from '../../../src/install/native/native-path-pick.js';
@@ -66,62 +65,6 @@ describe('pathSupportsNativePick', () => {
 
   it('returns false for unknown paths', () => {
     expect(pathSupportsNativePick('unknown/path', 'cursor')).toBe(false);
-  });
-});
-
-describe('resolveEffectiveTargetForInstall', () => {
-  it('prefers explicit target', () => {
-    expect(
-      resolveEffectiveTargetForInstall({
-        explicitTarget: 'copilot',
-        importHappened: true,
-        usedTargetFromImport: 'claude-code',
-        pathInRepoPosix: '.gemini/commands',
-      }),
-    ).toBe('copilot');
-  });
-
-  it('prefers path hint over detected import target', () => {
-    expect(
-      resolveEffectiveTargetForInstall({
-        explicitTarget: undefined,
-        importHappened: true,
-        usedTargetFromImport: 'claude-code',
-        pathInRepoPosix: '.gemini/commands',
-      }),
-    ).toBe('gemini-cli');
-  });
-
-  it('falls back to import target when no path hint', () => {
-    expect(
-      resolveEffectiveTargetForInstall({
-        explicitTarget: undefined,
-        importHappened: true,
-        usedTargetFromImport: 'claude-code',
-        pathInRepoPosix: 'unknown/path',
-      }),
-    ).toBe('claude-code');
-  });
-
-  it('returns undefined when no target can be determined', () => {
-    expect(
-      resolveEffectiveTargetForInstall({
-        explicitTarget: undefined,
-        importHappened: false,
-        pathInRepoPosix: 'unknown/path',
-      }),
-    ).toBeUndefined();
-  });
-
-  it('handles empty path', () => {
-    expect(
-      resolveEffectiveTargetForInstall({
-        explicitTarget: undefined,
-        importHappened: true,
-        usedTargetFromImport: 'cursor',
-        pathInRepoPosix: '',
-      }),
-    ).toBe('cursor');
   });
 });
 

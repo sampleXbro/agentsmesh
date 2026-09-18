@@ -13,6 +13,7 @@
  * global equivalent), so they are skipped entirely in global scope.
  */
 
+import { AB_COMMANDS, AB_IGNORE } from '../../core/canonical-paths.js';
 import { join } from 'node:path';
 import type { ImportResult } from '../../core/types.js';
 import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
@@ -25,8 +26,6 @@ import {
   CLINE_TARGET,
   CLINE_IGNORE,
   CLINE_WORKFLOWS_DIR,
-  CLINE_CANONICAL_COMMANDS_DIR,
-  CLINE_CANONICAL_IGNORE,
   CLINE_SKILLS_DIR,
   CLINE_GLOBAL_RULES_DIR,
   CLINE_GLOBAL_SKILLS_DIR,
@@ -48,12 +47,12 @@ async function importClineIgnore(projectRoot: string, results: ImportResult[]): 
   }
   if (patterns.length === 0) return;
   await mkdirp(join(projectRoot, '.agentsmesh'));
-  const destIgnorePath = join(projectRoot, CLINE_CANONICAL_IGNORE);
+  const destIgnorePath = join(projectRoot, AB_IGNORE);
   await writeFileAtomic(destIgnorePath, patterns.join('\n'));
   results.push({
     fromTool: 'cline',
     fromPath: ignorePath,
-    toPath: CLINE_CANONICAL_IGNORE,
+    toPath: AB_IGNORE,
     feature: 'ignore',
   });
 }
@@ -87,7 +86,7 @@ export async function importFromCline(
   // Commands (workflows) capability is unchanged by this fix and stays
   // native at both scopes — the directory path itself is not scope-aware
   // (pre-existing behavior, out of scope for this correction).
-  const destCommandsDir = join(projectRoot, CLINE_CANONICAL_COMMANDS_DIR);
+  const destCommandsDir = join(projectRoot, AB_COMMANDS);
   results.push(
     ...(await importFileDirectory({
       srcDir: join(projectRoot, CLINE_WORKFLOWS_DIR),
