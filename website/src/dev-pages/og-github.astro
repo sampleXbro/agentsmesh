@@ -1,0 +1,16 @@
+---
+/**
+ * Source for `assets/social-preview.png` (1280x640), the image GitHub shows
+ * when the repository is linked on social media, in chat, and in search.
+ * GitHub recommends 1280x640 and rejects anything over 1 MB.
+ *
+ * Served only by `astro dev` at /og-github/ (see integrations/dev-only-routes.mjs).
+ * Regenerate exactly as for /og, at 1280x640.
+ *
+ * GitHub exposes no API for the social preview, so the PNG has to be uploaded
+ * by hand once, under Settings then General then Social preview.
+ */
+import SocialCardPage from '../components/og/SocialCardPage.astro';
+---
+
+<SocialCardPage title="AgentsMesh GitHub social preview" width={1280} height={640} />

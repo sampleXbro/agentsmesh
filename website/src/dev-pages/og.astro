@@ -1,120 +1,17 @@
 ---
 /**
- * Source for `public/og-image.png` (1200x630). Served only by `astro dev` at
- * /og/ (see integrations/dev-only-routes.mjs). To regenerate: run
- * `astro preferences disable devToolbar`, start `astro dev`, screenshot the
- * viewport at 1200x630, then re-enable the toolbar.
+ * Source for `public/og-image.png` (1200x630), the site's Open Graph image.
+ * Served only by `astro dev` at /og/ (see integrations/dev-only-routes.mjs).
+ *
+ * To regenerate: restart `astro dev` so the card's scoped stylesheet is not
+ * stale, run `astro preferences disable devToolbar` or it renders into the
+ * bottom of the frame, screenshot the viewport at exactly 1200x630, downsample
+ * if your capture is 2x, then re-enable the toolbar.
+ *
+ * Artwork lives in components/og/SocialCard.astro and the page shell in
+ * SocialCardPage.astro, both shared with /og-github so the two cannot drift.
  */
-import '@fontsource-variable/bricolage-grotesque';
-import '@fontsource/ibm-plex-sans/500.css';
-import '@fontsource/ibm-plex-mono/400.css';
-import '../styles/tokens.css';
-import HubScene from '../components/home/HubScene.astro';
-import logo from '../assets/logo-dark.svg';
+import SocialCardPage from '../components/og/SocialCardPage.astro';
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="robots" content="noindex" />
-    <title>AgentsMesh social card</title>
-  </head>
-  <body>
-    <main class="og">
-      <div class="og-copy">
-        <img class="og-logo" src={logo.src} alt="AgentsMesh" />
-        <p class="og-eyebrow">Open source · CLI + TypeScript API</p>
-        <h1>One config.<br />Every AI coding tool.</h1>
-        <p class="og-tagline">Sync rules, MCP servers and skills to every tool. Agents that learn.</p>
-      </div>
-      <div class="og-visual">
-        <HubScene variant="wide" static />
-      </div>
-    </main>
-  </body>
-</html>
-
-<style>
-  :root {
-    --__sl-font-mono: var(--sl-font-mono), ui-monospace, monospace;
-  }
-
-  body {
-    margin: 0;
-    width: 1200px;
-    height: 630px;
-    overflow: hidden;
-    background: var(--sl-color-black);
-    color: var(--sl-color-gray-2);
-    font-family: var(--sl-font), system-ui, sans-serif;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  .og {
-    position: relative;
-    display: grid;
-    grid-template-columns: 560px 1fr;
-    align-items: center;
-    gap: 24px;
-    width: 1200px;
-    height: 630px;
-    padding: 0 48px 0 64px;
-    box-sizing: border-box;
-    background-image: radial-gradient(var(--sl-color-gray-5) 1.2px, transparent 1.8px);
-    background-size: 28px 28px;
-  }
-
-  .og::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(ellipse 60% 70% at 78% 50%, color-mix(in srgb, var(--am-signal) 16%, transparent), transparent 70%);
-    pointer-events: none;
-  }
-
-  .og-copy {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-  }
-
-  .og-logo {
-    height: 40px;
-    width: auto;
-    align-self: flex-start;
-    margin-bottom: 14px;
-  }
-
-  .og-eyebrow {
-    margin: 0;
-    font-family: var(--__sl-font-mono);
-    font-size: 15px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--am-signal);
-  }
-
-  h1 {
-    margin: 0;
-    font-size: 60px;
-    line-height: 1.02;
-    letter-spacing: -0.035em;
-    color: var(--sl-color-white);
-  }
-
-  .og-tagline {
-    margin: 4px 0 0;
-    max-width: 30ch;
-    font-size: 24px;
-    line-height: 1.4;
-    color: var(--sl-color-gray-2);
-  }
-
-  .og-visual {
-    position: relative;
-    z-index: 1;
-    min-width: 0;
-  }
-</style>
+<SocialCardPage title="AgentsMesh social card" width={1200} height={630} />

@@ -103,6 +103,11 @@ export const cmdHandlers: Record<string, CommandHandler> = {
         yes: flags.yes === true,
         global: flags.global === true,
         lessons: flags.lessons === true,
+        targets:
+          typeof flags.targets === 'string'
+            ? flags.targets.split(',').map((t) => t.trim())
+            : undefined,
+        allTargets: flags['all-targets'] === true,
       },
       deps,
     );

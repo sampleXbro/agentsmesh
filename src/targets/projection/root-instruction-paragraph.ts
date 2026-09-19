@@ -45,9 +45,21 @@ const ROOT_INSTRUCTION_BODY_V9 =
 const ROOT_INSTRUCTION_BODY_V10 =
   '**MUST follow when changing any rule, agent, command, skill, hook, MCP server, permission, or ignore pattern.** `agentsmesh.yaml` selects targets/features (`agentsmesh.local.yaml` overrides locally), and `.agentsmesh` is the only place to add or edit canonical items: `rules/_root.md`, `rules/*.md`, `commands/*.md`, `agents/*.md`, `skills/*/SKILL.md` plus supporting files, `mcp.json`, `hooks.yaml`, `permissions.yaml`, and `ignore`; if missing run `agentsmesh init`, use `agentsmesh import --from <tool>` for native configs, `agentsmesh install <source>` or `install --sync` for reusable packs, then run `agentsmesh generate`. Use `diff`, `lint`, `check`, `watch`, `matrix`, `merge`, and `refresh` as needed; never edit generated tool files.';
 
-/** Body v11 (current): leads with explicit prohibition naming generated files. */
-const ROOT_INSTRUCTION_BODY =
+/** Body v11: the long contract listing every canonical file and CLI command. */
+const ROOT_INSTRUCTION_BODY_V11 =
   '**NEVER edit generated files** (`.claude/`, `.cursor/`, `AGENTS.md`, `.github/copilot-instructions.md`, and similar target outputs) — `agentsmesh generate` overwrites them. **All changes MUST go through `.agentsmesh` first**: edit `rules/_root.md`, `rules/*.md`, `commands/*.md`, `agents/*.md`, `skills/*/SKILL.md` plus supporting files, `mcp.json`, `hooks.yaml`, `permissions.yaml`, and `ignore`; `agentsmesh.yaml` selects targets/features (`agentsmesh.local.yaml` overrides locally); if missing run `agentsmesh init`, use `agentsmesh import --from <tool>` for native configs, `agentsmesh install <source>` or `install --sync` for reusable packs, then run `agentsmesh generate`. Use `diff`, `lint`, `check`, `watch`, `matrix`, `merge`, and `refresh` as needed.';
+
+/**
+ * Body v12 (current): the load-bearing instruction only.
+ *
+ * This block is projected into every target's root instruction, so every agent
+ * re-reads it on every turn — length here is a tax paid per session, per tool.
+ * v11 spent ~120 words enumerating canonical filenames and the CLI surface,
+ * both of which an agent can discover from the directory itself or `--help`.
+ * What it cannot infer is the rule: generated files are not the source.
+ */
+const ROOT_INSTRUCTION_BODY =
+  '**NEVER edit generated files** (`CLAUDE.md`, `AGENTS.md`, `.claude/`, `.cursor/`, `.github/copilot-instructions.md`, and other tool outputs) — `agentsmesh generate` overwrites them. Edit the canonical source in `.agentsmesh` instead, or `agentsmesh.yaml` to change targets and features, then run `agentsmesh generate`.';
 
 const LEGACY_AGENTSMESH_ROOT_INSTRUCTION_PARAGRAPH = ROOT_INSTRUCTION_BODY_V1;
 
@@ -105,6 +117,11 @@ const AGENTSMESH_CONTRACT_WITH_V10_BODY = `## AgentsMesh Generation Contract
 
 ${ROOT_INSTRUCTION_BODY_V10}`;
 
+/** Prior shipped heading + v11 body (still stripped on import after the trim). */
+const AGENTSMESH_CONTRACT_WITH_V11_BODY = `## AgentsMesh Generation Contract
+
+${ROOT_INSTRUCTION_BODY_V11}`;
+
 export const AGENTSMESH_ROOT_INSTRUCTION_PARAGRAPH = `${ROOT_CONTRACT_START}
 ## AgentsMesh Generation Contract
 
@@ -113,6 +130,7 @@ ${ROOT_CONTRACT_END}`;
 
 /** All legacy paragraph forms, newest first. Each is tried for upgrade/strip. */
 const LEGACY_FORMS = [
+  AGENTSMESH_CONTRACT_WITH_V11_BODY,
   AGENTSMESH_CONTRACT_WITH_V10_BODY,
   AGENTSMESH_CONTRACT_WITH_V9_BODY,
   AGENTSMESH_CONTRACT_WITH_V8_BODY,

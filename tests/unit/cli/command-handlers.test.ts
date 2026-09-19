@@ -182,6 +182,8 @@ describe('cmdHandlers', () => {
         yes: true,
         global: true,
         lessons: false,
+        targets: undefined,
+        allTargets: false,
       },
       {},
     );
@@ -192,6 +194,8 @@ describe('cmdHandlers', () => {
         yes: false,
         global: false,
         lessons: false,
+        targets: undefined,
+        allTargets: false,
       },
       {},
     );
@@ -202,6 +206,8 @@ describe('cmdHandlers', () => {
         yes: false,
         global: false,
         lessons: true,
+        targets: undefined,
+        allTargets: false,
       },
       {},
     );

@@ -12,6 +12,11 @@ import { seedAgentsmeshMcpEntry } from './seed-mcp-entry.js';
 import type { ImportData } from '../command-result.js';
 import { scaffoldLessons } from '../../lessons/init.js';
 import { LESSONS_CONTRACT_START } from '../../targets/projection/managed-blocks.js';
+import {
+  readRootRuleBody,
+  rootRuleBodyGrew,
+} from '../../targets/import/root-rule-body-merge.js';
+import { AB_ROOT_RULE } from '../../core/canonical-paths.js';
 
 export interface ImportCommandResult {
   exitCode: number;
@@ -41,7 +46,7 @@ async function ensureImportedLessonsSubsystem(
 ): Promise<void> {
   if (scope !== 'project') return;
 
-  const rootRule = join(rootBase, '.agentsmesh/rules/_root.md');
+  const rootRule = join(rootBase, AB_ROOT_RULE);
   if (!existsSync(rootRule)) return;
   const body = readFileSync(rootRule, 'utf8');
 
@@ -70,6 +75,7 @@ export async function runImport(
   if (isBuiltinTargetId(normalized)) {
     const context = resolveScopeContext(root, scope);
     const target = getDescriptor(normalized)!;
+    const rootBefore = readRootRuleBody(context.rootBase);
     const results = await target.generators.importFrom(context.rootBase, { scope });
     if (results.length > 0) {
       await seedAgentsmeshMcpEntry(context.rootBase);
@@ -81,6 +87,7 @@ export async function runImport(
         scope,
         target: normalized,
         files: mapResults(results, context.rootBase),
+        rootRuleMerged: rootRuleBodyGrew(rootBefore, readRootRuleBody(context.rootBase)),
       },
     };
   }
@@ -104,6 +111,7 @@ export async function runImport(
     );
   }
 
+  const rootBefore = readRootRuleBody(context.rootBase);
   const results = await descriptor.generators.importFrom(context.rootBase, { scope });
   if (results.length > 0) {
     await seedAgentsmeshMcpEntry(context.rootBase);
@@ -115,6 +123,7 @@ export async function runImport(
       scope,
       target: normalized,
       files: mapResults(results, context.rootBase),
+      rootRuleMerged: rootRuleBodyGrew(rootBefore, readRootRuleBody(context.rootBase)),
     },
   };
 }

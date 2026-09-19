@@ -18,6 +18,18 @@ export function starterInitTargetIds(): readonly BuiltinTargetId[] {
 }
 
 /**
+ * The minimal default set: what `init` enables when there is no evidence of any
+ * tool in the project or on the machine. Descriptor-driven via
+ * `minimalInitDefault`, and intersected with the starter set so a target that
+ * opts out of bulk scaffolding can never land here.
+ */
+export function minimalInitTargetIds(): readonly BuiltinTargetId[] {
+  return BUILTIN_TARGETS.filter((d) => d.minimalInitDefault === true && !d.excludeFromStarterInit)
+    .map((d) => d.id)
+    .filter(isBuiltinTargetId);
+}
+
+/**
  * Targets eligible for global (`--global`) init — those whose descriptor declares
  * a `globalSupport` layout. Single source for both the non-interactive global
  * default set and the interactive global wizard's selectable options.

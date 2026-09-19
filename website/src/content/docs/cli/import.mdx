@@ -129,9 +129,39 @@ During import, AgentsMesh rewrites internal file references:
 
 This keeps cross-references valid after import.
 
+## Importing more than one tool
+
+Most canonical paths are last-import-wins: if two tools each define a command named
+`ship`, the second import replaces the first, because both describe the same entity.
+
+`.agentsmesh/rules/_root.md` is the exception. It is the single slot every tool's root
+instruction collapses into, so `CLAUDE.md` and an always-apply Cursor rule are different
+rules that merely share a destination. Importing the second one **appends** it to the
+first instead of replacing it, and the CLI says the root rule was merged:
+
+```bash
+agentsmesh import --from claude-code
+agentsmesh import --from cursor
+# Root rule merged into .agentsmesh/rules/_root.md — it already held another
+# tool's rules, so both are kept. Review and edit it if they overlap.
+```
+
+`agentsmesh init` reports the same thing when it auto-imports several detected tools at
+once. Open `.agentsmesh/rules/_root.md` afterwards and remove anything the two tools
+said twice in different words — the merge preserves content, it does not reconcile it.
+
 ## Import idempotency
 
-Running import twice on the same source is safe. Existing canonical files are merged — no duplicates are created.
+Running import twice on the same source is safe. Existing canonical files are merged — no
+duplicates are created. For the root rule specifically, re-importing unchanged content
+changes nothing, and re-importing a source that gained lines upstream replaces the shorter
+body rather than appending a near-duplicate beside it.
+
+:::caution
+If you *remove* lines from a tool's root file and re-import, the removed lines stay in
+`.agentsmesh/rules/_root.md`, because the importer never deletes root-rule content it
+cannot prove is obsolete. Delete them in the canonical file and run `agentsmesh generate`.
+:::
 
 ## Post-import: MCP server entry
 

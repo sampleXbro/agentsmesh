@@ -1,0 +1,53 @@
+---
+/**
+ * The full-page shell a social card is captured from: fonts, tokens, and a body
+ * sized to the card so the viewport screenshot has no margin.
+ *
+ * Two dev-only pages use it, at the two sizes we publish — /og for the site's
+ * Open Graph image and /og-github for the repository social preview.
+ */
+import '@fontsource-variable/bricolage-grotesque';
+import '@fontsource/ibm-plex-sans/500.css';
+import '@fontsource/ibm-plex-mono/400.css';
+import '../../styles/tokens.css';
+import SocialCard from './SocialCard.astro';
+
+interface Props {
+  /** Document title; never rendered into the image. */
+  title: string;
+  /** Card width in px. */
+  width: number;
+  /** Card height in px. */
+  height: number;
+}
+
+const { title, width, height } = Astro.props;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex" />
+    <title>{title}</title>
+  </head>
+  <body style={`--page-w:${width}px; --page-h:${height}px;`}>
+    <SocialCard width={width} height={height} />
+  </body>
+</html>
+
+<style>
+  :root {
+    --__sl-font-mono: var(--sl-font-mono), ui-monospace, monospace;
+  }
+
+  body {
+    margin: 0;
+    width: var(--page-w);
+    height: var(--page-h);
+    overflow: hidden;
+    background: var(--sl-color-black);
+    color: var(--sl-color-gray-2);
+    font-family: var(--sl-font), system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+</style>

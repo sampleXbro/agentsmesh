@@ -1,7 +1,7 @@
 ---
 draft: false
-title: agentsmesh init
-description: Scaffold the canonical .agentsmesh/ directory and agentsmesh.yaml. Detects existing AI tool configs and offers to import them.
+title: agentsmesh init — generate AGENTS.md and canonical config
+description: Generate AGENTS.md, CLAUDE.md and every other tool file from one source. Scaffolds .agentsmesh/ and agentsmesh.yaml, detects the tools you already use, and imports their config.
 ---
 
 import { Aside } from '@astrojs/starlight/components';
@@ -20,13 +20,15 @@ agentsmesh init [flags]
 |------|-------------|
 | `--global` | Initialize canonical home config under `~/.agentsmesh/`. |
 | `--yes` | Auto-import all detected tool configs, then add starter examples only under empty canonical folders (skip categories import already filled). |
+| `--targets <csv>` | Enable exactly these target IDs, skipping detection entirely. An unknown ID stops the run. |
+| `--all-targets` | Enable every target in the starter set, which is what `init` did by default before. |
 | `--lessons` | Scaffold the project-level lessons recall + capture subsystem: inject the always-on trigger into `_root.md`, seed the `lessons` skill manual under `skills/lessons/`, and wire a `PostToolUse` recall hook into `hooks.yaml` so [hook mode](../lessons/#hook-mode-deterministic-recall) is deterministic on hook-capable targets. Cannot be combined with `--global`. |
 
 ## Interactive wizard
 
 On an interactive terminal, `agentsmesh init` runs a short wizard:
 
-1. **Targets** — multi-select which tools to generate for. Nothing is pre-selected, so you must pick at least one; the recommended tools are listed first.
+1. **Targets** — multi-select which tools to generate for. The tools this project or your machine already uses are pre-selected (the same choice the non-interactive path would make); the recommended tools are listed first. You must keep at least one.
 2. **Import** — if existing tool configs are detected (Cursor, Claude Code, …), asks whether to import them all into `.agentsmesh/`.
 3. **Lessons** — enable the shared recall/capture memory (default **yes**).
 4. **Generate** — optionally run `generate` right away.
@@ -170,20 +172,38 @@ agentsmesh generate
   If the project is already initialized (`agentsmesh.yaml` exists), `init` stops with an "already initialized" error instead of overwriting anything. Use `agentsmesh init --lessons` to add lessons to an existing project. Removing `agentsmesh.yaml` and re-running `init` restores the config file but keeps every canonical file already in `.agentsmesh/`. See [Already initialized](#already-initialized).
 </Aside>
 
-## Generated agentsmesh.yaml
+## How init chooses targets
 
-The starter config enables every [supported target](../../reference/supported-tools/) (except `codex-cli`, whose root `AGENTS.md` would collide with the other AGENTS.md-first targets) plus all features:
+`init` enables the tools you actually use rather than every tool it supports, because each
+enabled target writes real files into your project. It takes the first rule that matches:
+
+| # | Rule | Result |
+|---|------|--------|
+| 1 | `--targets a,b` | Exactly those IDs. An unknown ID stops the run. |
+| 2 | `--all-targets` | The whole starter set. |
+| 3 | Tool config in the project | Those tools, e.g. `CLAUDE.md` and `.cursor/rules/` → `claude-code`, `cursor`. |
+| 4 | Tools installed on your machine | Those tools, found from each target's own home-directory paths (`~/.claude/`, `~/.cursor/`, `~/.config/zed/`, …). Nothing is imported from your home directory; it only informs the choice. |
+| 5 | Nothing found | A minimal set: `claude-code`, `cursor`, `copilot`. |
+
+Unless you passed a flag, `init` prints what it picked and why:
+
+```text
+Enabled 3 targets (no tool config or install found, so a minimal set was used):
+claude-code, copilot, cursor. Edit agentsmesh.yaml or pass --targets a,b to change them.
+```
+
+A target that opts out of bulk scaffolding (`codex-cli`, whose root `AGENTS.md` index collides
+with the other AGENTS.md-first targets) is never enabled by rules 2 or 4. Rules 1 and 3 still
+honour it, because naming it or committing its config is explicit evidence.
+
+## Generated agentsmesh.yaml
 
 ```yaml
 version: 1
 targets:
-  # Every built-in target except codex-cli — see /reference/supported-tools/ for the full list.
-  - aider
-  - amazon-q
-  - amp
-  # ...
-  - windsurf
-  - zed
+  - claude-code
+  - copilot
+  - cursor
 features:
   - rules
   - commands
@@ -195,11 +215,9 @@ features:
   - permissions
 ```
 
-Remove any target IDs you don't use. Add `codex-cli` only if you've disabled the other AGENTS.md-first targets.
-
-`codex-cli` is supported, but not enabled by default in the starter config because its generated `AGENTS.md` rule index can conflict with the shared `AGENTS.md` mirrors emitted by other default targets. Add it manually when your project needs Codex output.
-
-Edit this to match your team's actual tool usage before running `generate`.
+Add or remove target IDs to match your team's actual tool usage before running `generate`, or
+re-run with `--targets`. See the [supported targets](../../reference/supported-tools/) for the
+full list.
 
 ## MCP server
 

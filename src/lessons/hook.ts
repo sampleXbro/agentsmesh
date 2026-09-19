@@ -3,6 +3,7 @@ import { hookCommandFastpath } from './cmd-fastpath.js';
 import { contextKey } from './context-key.js';
 import { diffTerms } from './diff-terms.js';
 import { errorClass } from './error-class.js';
+import { failureText } from './failure-text.js';
 import {
   contextOutput,
   emitRecall,
@@ -121,8 +122,8 @@ export async function buildRecallHookOutput(
   // on a normally-named tool-call event, so detect failure by the event name OR a
   // non-empty `tool_error` (portable). This also stops a failed tool-call from being
   // mis-recorded as a successful delivery on a harness that reuses PostToolUse.
-  const failureText = str(parsed.tool_error);
-  if (parsed.hook_event_name === 'PostToolUseFailure' || failureText !== undefined) {
+  const errorText = failureText(parsed);
+  if (parsed.hook_event_name === 'PostToolUseFailure' || errorText !== undefined) {
     // Only a real action (file/command) can be attributed, recorded, and covered. An
     // action-less failure (a failed Read/Grep/MCP call → key 'none') still gets the
     // generic nudge, but is never recorded — it would fabricate cross-action recurrence.
@@ -136,7 +137,7 @@ export async function buildRecallHookOutput(
       recordFailure(
         projectRoot,
         key,
-        errorClass(failureText ?? str(parsed.tool_response)),
+        errorClass(errorText),
         process.env,
         sessionId,
       );

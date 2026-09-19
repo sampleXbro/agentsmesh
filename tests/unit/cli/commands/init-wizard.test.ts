@@ -63,12 +63,71 @@ describe('buildTargetOptions', () => {
   });
 });
 
+describe('runInitWizard — pre-selected targets', () => {
+  it('offers the suggested targets as the initial multiselect selection', async () => {
+    const context = resolveScopeContext(TEST_DIR, 'project');
+    let seen: readonly string[] | undefined;
+    const prompter = fakePrompter({ targets: ['claude-code'], lessons: false, generate: false });
+    const spy: Prompter = {
+      ...prompter,
+      multiselect: async (opts: MultiselectOptions) => {
+        seen = opts.initialValues;
+        return ['claude-code'];
+      },
+    };
+
+    await runInitWizard(spy, {
+      projectRoot: TEST_DIR,
+      context,
+      detected: [],
+      suggestedTargets: ['claude-code', 'cursor'],
+    });
+
+    expect(seen).toEqual(['claude-code', 'cursor']);
+  });
+
+  it('starts from an empty selection when nothing is suggested', async () => {
+    const context = resolveScopeContext(TEST_DIR, 'project');
+    let seen: readonly string[] | undefined;
+    const prompter = fakePrompter({ targets: ['zed'], lessons: false, generate: false });
+    const spy: Prompter = {
+      ...prompter,
+      multiselect: async (opts: MultiselectOptions) => {
+        seen = opts.initialValues;
+        return ['zed'];
+      },
+    };
+
+    await runInitWizard(spy, { projectRoot: TEST_DIR, context, detected: [] });
+
+    expect(seen).toEqual([]);
+  });
+
+  it('still writes whatever the user ends up selecting, not the suggestion', async () => {
+    const context = resolveScopeContext(TEST_DIR, 'project');
+    const result = await runInitWizard(
+      fakePrompter({ targets: ['zed'], lessons: false, generate: false }),
+      {
+        projectRoot: TEST_DIR,
+        context,
+        detected: [],
+        suggestedTargets: ['claude-code', 'cursor'],
+      },
+    );
+
+    expect(result.data.targets).toEqual(['zed']);
+    const config = readFileSync(join(TEST_DIR, 'agentsmesh.yaml'), 'utf-8');
+    expect(config).toContain('- zed');
+    expect(config).not.toContain('- claude-code');
+  });
+});
+
 describe('runInitWizard (project)', () => {
   it('writes config with exactly the selected targets, scaffolds lessons, skips generate', async () => {
     const context = resolveScopeContext(TEST_DIR, 'project');
     const result = await runInitWizard(
       fakePrompter({ targets: ['claude-code', 'cursor'], lessons: true, generate: false }),
-      { projectRoot: TEST_DIR, context, detected: [], defaultTargets: undefined },
+      { projectRoot: TEST_DIR, context, detected: [] },
     );
 
     expect(result.exitCode).toBe(0);
@@ -86,7 +145,7 @@ describe('runInitWizard (project)', () => {
     const context = resolveScopeContext(TEST_DIR, 'project');
     const result = await runInitWizard(
       fakePrompter({ import: true, targets: ['claude-code'], lessons: false, generate: false }),
-      { projectRoot: TEST_DIR, context, detected: ['claude-code'], defaultTargets: undefined },
+      { projectRoot: TEST_DIR, context, detected: ['claude-code'] },
     );
     expect(result.data.scaffoldType).toBe('gap-fill');
     const root = readFileSync(join(TEST_DIR, '.agentsmesh', 'rules', '_root.md'), 'utf-8');
@@ -107,7 +166,6 @@ describe('runInitWizard (project)', () => {
       projectRoot: TEST_DIR,
       context,
       detected: [],
-      defaultTargets: undefined,
     });
     expect(note).toContain('agentsmesh init --lessons');
   });
@@ -126,7 +184,6 @@ describe('runInitWizard (project)', () => {
       projectRoot: TEST_DIR,
       context,
       detected: ['claude-code'],
-      defaultTargets: undefined,
     });
     expect(captured?.required).toBe(true);
     expect(captured?.initialValues ?? []).toEqual([]); // nothing pre-checked
@@ -157,7 +214,6 @@ describe('runInitWizard (project)', () => {
       projectRoot: TEST_DIR,
       context,
       detected: [],
-      defaultTargets: undefined,
     });
 
     // Targets was shown twice (Back re-ran it); the revisit restored the prior pick.
@@ -176,7 +232,6 @@ describe('runInitWizard (project)', () => {
       projectRoot: TEST_DIR,
       context,
       detected: [],
-      defaultTargets: undefined,
     });
     expect(result.data.cancelled).toBe(true);
     expect(existsSync(join(TEST_DIR, 'agentsmesh.yaml'))).toBe(false);
@@ -196,7 +251,6 @@ describe('runInitWizard (project)', () => {
       projectRoot: TEST_DIR,
       context,
       detected: [],
-      defaultTargets: undefined,
     });
 
     expect(result.exitCode).toBe(0);
@@ -215,7 +269,7 @@ describe('runInitWizard (project)', () => {
     // Targets chosen, then the user cancels (Ctrl-C) at the Lessons yes/no step.
     const result = await runInitWizard(
       fakePrompter({ targets: ['claude-code'], lessons: CANCEL }),
-      { projectRoot: TEST_DIR, context, detected: [], defaultTargets: undefined },
+      { projectRoot: TEST_DIR, context, detected: [] },
     );
     expect(result.data.cancelled).toBe(true);
     expect(existsSync(join(TEST_DIR, 'agentsmesh.yaml'))).toBe(false);
@@ -247,7 +301,6 @@ describe('runInitWizard (project)', () => {
       projectRoot: TEST_DIR,
       context,
       detected: [],
-      defaultTargets: undefined,
     });
 
     expect(initialValuesSeen[0]).toBe('yes'); // Lessons first visit → recommended default
@@ -286,7 +339,6 @@ describe('runInitWizard (global) — interactive, but no lessons', () => {
       projectRoot: workspace,
       context,
       detected: [],
-      defaultTargets: [...globalInitTargetIds()],
     });
 
     expect(result.data.scope).toBe('global');
@@ -333,7 +385,6 @@ describe('runInitWizard (global) — interactive, but no lessons', () => {
         projectRoot: workspace,
         context,
         detected: [],
-        defaultTargets: [...globalInitTargetIds()],
       });
 
       expect(result.data.scope).toBe('global');

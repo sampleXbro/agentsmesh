@@ -15,6 +15,8 @@ describe('renderInit', () => {
         detectedConfigs: ['claude-code'],
         imported: [],
         importedToolCount: 0,
+        targets: [],
+        targetSource: 'explicit',
         scaffoldType: 'full',
         gitignoreUpdated: false,
       },
@@ -36,6 +38,8 @@ describe('renderInit', () => {
         detectedConfigs: ['claude-code', 'cursor'],
         imported: [{ from: '.claude/CLAUDE.md', to: '.agentsmesh/rules/_root.md' }],
         importedToolCount: 2,
+        targets: [],
+        targetSource: 'explicit',
         scaffoldType: 'gap-fill',
         gitignoreUpdated: true,
       },
@@ -61,6 +65,8 @@ describe('renderInit', () => {
         detectedConfigs: [],
         imported: [{ from: '.cursor/rules/a.mdc', to: '.agentsmesh/rules/a.md' }],
         importedToolCount: 1,
+        targets: [],
+        targetSource: 'explicit',
         scaffoldType: 'none',
         gitignoreUpdated: false,
       },
@@ -80,6 +86,8 @@ describe('renderInit', () => {
         detectedConfigs: [],
         imported: [],
         importedToolCount: 0,
+        targets: [],
+        targetSource: 'explicit',
         scaffoldType: 'full',
         gitignoreUpdated: false,
         lessons: {
@@ -111,6 +119,8 @@ describe('renderInit', () => {
         detectedConfigs: [],
         imported: [],
         importedToolCount: 0,
+        targets: [],
+        targetSource: 'explicit',
         scaffoldType: 'none',
         gitignoreUpdated: false,
         lessonsOnly: true,
@@ -137,6 +147,8 @@ describe('renderInit', () => {
         detectedConfigs: [],
         imported: [],
         importedToolCount: 0,
+        targets: [],
+        targetSource: 'explicit',
         scaffoldType: 'none',
         gitignoreUpdated: false,
         lessonsOnly: true,
@@ -167,6 +179,8 @@ describe('renderInit', () => {
         detectedConfigs: [],
         imported: [],
         importedToolCount: 0,
+        targets: [],
+        targetSource: 'explicit',
         scaffoldType: 'full',
         gitignoreUpdated: false,
         lessons: {
@@ -196,6 +210,8 @@ describe('renderInit', () => {
         detectedConfigs: [],
         imported: [],
         importedToolCount: 0,
+        targets: [],
+        targetSource: 'explicit',
         scaffoldType: 'none',
         gitignoreUpdated: false,
         lessonsOnly: true,
@@ -226,6 +242,8 @@ describe('renderInit', () => {
         detectedConfigs: [],
         imported: [],
         importedToolCount: 0,
+        targets: [],
+        targetSource: 'explicit',
         scaffoldType: 'full',
         gitignoreUpdated: false,
         lessonsOnly: true,
@@ -233,5 +251,49 @@ describe('renderInit', () => {
     });
 
     expect(output.stdout()).toContain('Created agentsmesh.yaml');
+  });
+
+  it('explains an undetected default and names the flag that changes it', () => {
+    renderInit({
+      exitCode: 0,
+      data: {
+        scope: 'project',
+        configFile: 'agentsmesh.yaml',
+        localConfigFile: 'agentsmesh.local.yaml',
+        detectedConfigs: [],
+        imported: [],
+        importedToolCount: 0,
+        targets: ['claude-code', 'copilot', 'cursor'],
+        targetSource: 'fallback',
+        scaffoldType: 'full',
+        gitignoreUpdated: false,
+      },
+    });
+
+    const stdout = output.stdout();
+    expect(stdout).toContain('Enabled 3 targets');
+    expect(stdout).toContain('no tool config or install found');
+    expect(stdout).toContain('claude-code, copilot, cursor');
+    expect(stdout).toContain('--targets a,b');
+  });
+
+  it('stays quiet about targets when the user chose them', () => {
+    renderInit({
+      exitCode: 0,
+      data: {
+        scope: 'project',
+        configFile: 'agentsmesh.yaml',
+        localConfigFile: 'agentsmesh.local.yaml',
+        detectedConfigs: [],
+        imported: [],
+        importedToolCount: 0,
+        targets: ['zed'],
+        targetSource: 'explicit',
+        scaffoldType: 'full',
+        gitignoreUpdated: false,
+      },
+    });
+
+    expect(output.stdout()).not.toContain('Enabled 1 target');
   });
 });

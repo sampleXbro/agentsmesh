@@ -54,7 +54,7 @@ export default defineConfig({
   integrations: [
     starlight({
       plugins: [starlightLinksValidator({ errorOnRelativeLinks: false })],
-      title: 'AgentsMesh',
+      title: 'AgentsMesh CLI',
       tagline: 'One config for every AI coding tool. Agents that learn.',
       components: {
         Head: './src/components/Head.astro',
@@ -186,9 +186,11 @@ export default defineConfig({
         {
           label: 'Guides',
           items: [
+            { label: 'CLAUDE.md vs AGENTS.md', slug: 'guides/claude-md-vs-agents-md' },
             { label: 'Adopting AgentsMesh', slug: 'guides/existing-project' },
             { label: 'Teach Your Agents (Lessons)', slug: 'guides/lessons' },
             { label: 'Multi-Tool Teams', slug: 'guides/multi-tool-teams' },
+            { label: 'One mcp.json for Every Tool', slug: 'guides/one-mcp-json' },
             { label: 'Sharing Config Across Repos', slug: 'guides/sharing-config' },
             { label: 'CI Drift Detection', slug: 'guides/ci-drift-detection' },
             { label: 'Community Packs', slug: 'guides/community-packs' },
@@ -214,9 +216,12 @@ export default defineConfig({
       ],
     }),
     seoRobotsIntegration(() => deploySite.publicUrl),
-    devOnlyRoutes([{ pattern: '/og', entrypoint: './src/dev-pages/og.astro' }]),
+    devOnlyRoutes([
+      { pattern: '/og', entrypoint: './src/dev-pages/og.astro' },
+      { pattern: '/og-github', entrypoint: './src/dev-pages/og-github.astro' },
+    ]),
     llmsTxtIntegration({
-      siteName: 'AgentsMesh',
+      siteName: 'AgentsMesh CLI',
       description:
         'One config for every AI coding tool, with a shared lessons memory that learns from your repo.',
       getSiteUrl: () => docsRoot,

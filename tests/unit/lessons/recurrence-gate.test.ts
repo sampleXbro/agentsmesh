@@ -17,6 +17,7 @@ const GRAPH: LessonsGraph = {
   triggers: {
     'glob-src': { kind: 'file_glob', pattern: 'src/**' },
     'cmd-commit': { kind: 'command_pattern', pattern: 'git commit -m' },
+    'cmd-grep': { kind: 'command_pattern', pattern: 'grep' },
   },
   lessons: {
     l1: {
@@ -31,6 +32,14 @@ const GRAPH: LessonsGraph = {
       rule: 'commit with care',
       topics: ['t'],
       triggers: ['cmd-commit'],
+      evidence: [],
+      status: 'active',
+      createdAt: '2026-01-01',
+    },
+    l3: {
+      rule: 'grep carefully',
+      topics: ['t'],
+      triggers: ['cmd-grep'],
       evidence: [],
       status: 'active',
       createdAt: '2026-01-01',
@@ -53,8 +62,10 @@ afterEach(() => {
   rmSync(root, { recursive: true, force: true });
 });
 
-const seedFailures = (key: string, times: number): void => {
-  for (let i = 0; i < times; i += 1) recordFailure(root, key, undefined, ON);
+// Seeds the realistic case: the SAME error recurring, which is what the gate
+// now requires. A run with no error signature is covered by its own test.
+const seedFailures = (key: string, times: number, errorClass = 'same error'): void => {
+  for (let i = 0; i < times; i += 1) recordFailure(root, key, errorClass, ON);
 };
 
 describe('recurrenceEscalation', () => {
@@ -156,5 +167,41 @@ describe('hasCoveringLesson (moved from hook.ts)', () => {
   it('matches command triggers against the raw command text', () => {
     expect(hasCoveringLesson(root, undefined, 'git commit -m "wip"')).toBe(true);
     expect(hasCoveringLesson(root, undefined, 'git push')).toBe(false);
+  });
+});
+
+describe('recurrenceEscalation — same error, not just same program', () => {
+  it('stays quiet when the failures under one action class were different errors', () => {
+    // `cat a` and `cat b` share the key `cmd:cat`; six unrelated errors are not
+    // one recurring problem, and claiming otherwise is what made ordinary reads
+    // look like defects.
+    const command = 'git commit -m wip';
+    const key = contextKey({ command }, root);
+    recordFailure(root, key, 'error one', ON, 's1');
+    recordFailure(root, key, 'error two', ON, 's1');
+    recordFailure(root, key, 'error three', ON, 's1');
+
+    expect(recurrenceEscalation(root, { command, sessionId: 's1' })).toBeNull();
+  });
+
+  it('escalates when the same error recurred, and says how many times', () => {
+    const command = 'git commit -m wip';
+    const key = contextKey({ command }, root);
+    recordFailure(root, key, 'hook rejected the commit', ON, 's1');
+    recordFailure(root, key, 'unrelated blip', ON, 's1');
+    recordFailure(root, key, 'hook rejected the commit', ON, 's1');
+
+    const out = recurrenceEscalation(root, { command, sessionId: 's1' });
+    expect(out).toContain('failed 2× with the same error');
+    expect(out).toContain('commit with care');
+  });
+
+  it('stays quiet when the harness reported no error signature at all', () => {
+    const command = 'git commit -m wip';
+    const key = contextKey({ command }, root);
+    recordFailure(root, key, undefined, ON, 's1');
+    recordFailure(root, key, undefined, ON, 's1');
+
+    expect(recurrenceEscalation(root, { command, sessionId: 's1' })).toBeNull();
   });
 });

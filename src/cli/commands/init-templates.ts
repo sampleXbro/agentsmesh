@@ -9,8 +9,8 @@
  * matches the file format the writer used.
  */
 
-import { starterInitTargetIds } from '../../targets/catalog/init-starter-targets.js';
 import { yamlSchemaDirective } from '../../utils/output/schema-directive.js';
+import { ROOT_RULE_PLACEHOLDER_BODY } from '../../canonical/root-rule-placeholder.js';
 
 const ALL_FEATURES = [
   'rules',
@@ -24,24 +24,11 @@ const ALL_FEATURES = [
 ];
 
 /**
- * Starter targets intentionally exclude codex-cli.
- * Codex appends an AGENTS.md rule index when additional canonical rules exist,
- * which makes the out-of-the-box starter scaffold conflict with other AGENTS.md-based targets.
- * Users can opt into codex-cli by adding it to agentsmesh.yaml after init.
- */
-export const DEFAULT_INIT_TARGETS = starterInitTargetIds();
-
-/**
  * Build agentsmesh.yaml content for the given targets.
- * @param targets - Target tool IDs to include; uses the starter target set if empty
+ * @param targets - Target tool IDs to include; never empty (see init-target-resolution)
  */
-export function buildConfig(
-  targets: readonly string[],
-  defaultTargets: readonly string[] = DEFAULT_INIT_TARGETS,
-): string {
-  const targetList = (targets.length > 0 ? targets : defaultTargets)
-    .map((t) => `  - ${t}`)
-    .join('\n');
+export function buildConfig(targets: readonly string[]): string {
+  const targetList = targets.map((t) => `  - ${t}`).join('\n');
   const featureList = ALL_FEATURES.map((f) => `  - ${f}`).join('\n');
   return `${yamlSchemaDirective('agentsmesh')}version: 1\ntargets:\n${targetList}\nfeatures:\n${featureList}\n`;
 }
@@ -53,10 +40,7 @@ root: true
 description: "Project rules"
 ---
 
-# Project Rules
-
-Add your project-wide instructions here.
-This file is always included in AI tool context and synced to all configured tools.
+${ROOT_RULE_PLACEHOLDER_BODY}
 `;
 
 export const TEMPLATE_EXAMPLE_RULE = `---

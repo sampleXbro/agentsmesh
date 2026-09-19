@@ -140,6 +140,7 @@ const globalCapabilities: TargetCapabilities = {
 export const descriptor = {
   mergeGeneratedOutputContent: mergeCursorOutput,
   id: 'cursor',
+  minimalInitDefault: true,
   metadata: {
     displayName: 'Cursor',
     category: 'ide',

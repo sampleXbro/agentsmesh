@@ -5,9 +5,9 @@ import {
 } from '../../../src/targets/projection/root-instruction-paragraph.js';
 
 describe('appendAgentsmeshRootInstructionParagraph', () => {
-  const CURRENT_BODY_SNIPPET = '`agentsmesh.yaml` selects targets/features';
+  const CURRENT_BODY_SNIPPET = '`agentsmesh.yaml` to change targets and features';
   const CURRENT_PROHIBITION_SNIPPET = '**NEVER edit generated files**';
-  const CURRENT_CANONICAL_SNIPPET = '**All changes MUST go through `.agentsmesh` first**';
+  const CURRENT_CANONICAL_SNIPPET = 'Edit the canonical source in `.agentsmesh`';
 
   const LEGACY_BODY_V1 =
     "AgentsMesh is a config sync library for AI coding tools. The only canonical source of truth is `.agentsmesh/`; files emitted into target formats such as `AGENTS.md`, `.claude/`, `.cursor/`, `.junie/`, and similar directories are generated artifacts. When making changes, edit canonical config first, then regenerate and verify the target outputs. Preserve the library's bidirectional contract: import native tool config into canonical form, generate back to target-specific layouts, and keep projected or embedded features round-trippable rather than treating them as plain text exports.";
@@ -38,6 +38,9 @@ describe('appendAgentsmeshRootInstructionParagraph', () => {
 
   const LEGACY_BODY_V10 =
     '**MUST follow when changing any rule, agent, command, skill, hook, MCP server, permission, or ignore pattern.** `agentsmesh.yaml` selects targets/features (`agentsmesh.local.yaml` overrides locally), and `.agentsmesh` is the only place to add or edit canonical items: `rules/_root.md`, `rules/*.md`, `commands/*.md`, `agents/*.md`, `skills/*/SKILL.md` plus supporting files, `mcp.json`, `hooks.yaml`, `permissions.yaml`, and `ignore`; if missing run `agentsmesh init`, use `agentsmesh import --from <tool>` for native configs, `agentsmesh install <source>` or `install --sync` for reusable packs, then run `agentsmesh generate`. Use `diff`, `lint`, `check`, `watch`, `matrix`, `merge`, and `refresh` as needed; never edit generated tool files.';
+
+  const LEGACY_BODY_V11 =
+    '**NEVER edit generated files** (`.claude/`, `.cursor/`, `AGENTS.md`, `.github/copilot-instructions.md`, and similar target outputs) — `agentsmesh generate` overwrites them. **All changes MUST go through `.agentsmesh` first**: edit `rules/_root.md`, `rules/*.md`, `commands/*.md`, `agents/*.md`, `skills/*/SKILL.md` plus supporting files, `mcp.json`, `hooks.yaml`, `permissions.yaml`, and `ignore`; `agentsmesh.yaml` selects targets/features (`agentsmesh.local.yaml` overrides locally); if missing run `agentsmesh init`, use `agentsmesh import --from <tool>` for native configs, `agentsmesh install <source>` or `install --sync` for reusable packs, then run `agentsmesh generate`. Use `diff`, `lint`, `check`, `watch`, `matrix`, `merge`, and `refresh` as needed.';
 
   it('places the headed section at the top, above existing content', () => {
     const result = appendAgentsmeshRootInstructionParagraph('First');
@@ -183,6 +186,28 @@ describe('appendAgentsmeshRootInstructionParagraph', () => {
     expect(result).toContain(CURRENT_PROHIBITION_SNIPPET);
     expect(result).toContain(CURRENT_CANONICAL_SNIPPET);
     expect(result).toContain(CURRENT_BODY_SNIPPET);
+  });
+
+  it('upgrades the v11 body (the long pre-trim contract) under the current heading', () => {
+    const v11Contract = `First\n\n## AgentsMesh Generation Contract\n\n${LEGACY_BODY_V11}`;
+    const result = appendAgentsmeshRootInstructionParagraph(v11Contract);
+    expect(result).toContain('## AgentsMesh Generation Contract');
+    expect(result.match(/## AgentsMesh Generation Contract/g)).toHaveLength(1);
+    expect(result).toContain(CURRENT_PROHIBITION_SNIPPET);
+    expect(result).toContain(CURRENT_CANONICAL_SNIPPET);
+    expect(result).toContain(CURRENT_BODY_SNIPPET);
+    // The enumerations the trim removed must not survive the upgrade.
+    expect(result).not.toContain('**All changes MUST go through');
+    expect(result).not.toContain('skills/*/SKILL.md');
+    expect(result).not.toContain('`matrix`, `merge`, and `refresh`');
+  });
+
+  it('keeps the contract short enough to re-read every session', () => {
+    // The block is injected into every tool's root instruction, so every agent
+    // pays for it on every turn. v11 ran to ~120 words; hold the line well under.
+    const body = AGENTSMESH_ROOT_INSTRUCTION_PARAGRAPH.split('## AgentsMesh Generation Contract')[1];
+    expect(body).toBeDefined();
+    expect(body!.trim().split(/\s+/).length).toBeLessThan(60);
   });
 
   it('upgrades the v10 body (mandate without prohibition) under the current heading', () => {

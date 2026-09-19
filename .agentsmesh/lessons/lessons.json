@@ -352,14 +352,7 @@
         "ci-and-release-security"
       ],
       "triggers": [
-        "t-cmd-a678d8ce",
-        "t-cmd-f1a7b672",
-        "t-cmd-9b9e4933",
-        "t-cmd-c3982e63",
-        "t-cmd-e39c134d",
-        "t-cmd-8776ee66",
-        "t-cmd-e00abc0c",
-        "t-cmd-6ea72461"
+        "t-cmd-f1a7b672"
       ]
     },
     "ci-and-release-security-rule-10": {
@@ -374,9 +367,6 @@
         "ci-and-release-security"
       ],
       "triggers": [
-        "t-cmd-a678d8ce",
-        "t-cmd-f1a7b672",
-        "t-cmd-9b9e4933",
         "t-cmd-c3982e63",
         "t-cmd-e39c134d",
         "t-cmd-8776ee66",
@@ -418,14 +408,8 @@
         "ci-and-release-security"
       ],
       "triggers": [
-        "t-cmd-a678d8ce",
         "t-cmd-f1a7b672",
-        "t-cmd-9b9e4933",
-        "t-cmd-c3982e63",
-        "t-cmd-e39c134d",
-        "t-cmd-8776ee66",
-        "t-cmd-e00abc0c",
-        "t-cmd-6ea72461"
+        "t-cmd-e00abc0c"
       ]
     },
     "ci-and-release-security-rule-13": {
@@ -507,14 +491,7 @@
         "ci-and-release-security"
       ],
       "triggers": [
-        "t-cmd-a678d8ce",
-        "t-cmd-f1a7b672",
-        "t-cmd-9b9e4933",
-        "t-cmd-c3982e63",
-        "t-cmd-e39c134d",
-        "t-cmd-8776ee66",
-        "t-cmd-e00abc0c",
-        "t-cmd-6ea72461"
+        "t-cmd-a678d8ce"
       ]
     },
     "ci-and-release-security-rule-2": {
@@ -573,14 +550,7 @@
         "ci-and-release-security"
       ],
       "triggers": [
-        "t-cmd-a678d8ce",
-        "t-cmd-f1a7b672",
-        "t-cmd-9b9e4933",
-        "t-cmd-c3982e63",
-        "t-cmd-e39c134d",
-        "t-cmd-8776ee66",
-        "t-cmd-e00abc0c",
-        "t-cmd-6ea72461"
+        "t-cmd-a678d8ce"
       ]
     },
     "ci-and-release-security-rule-5": {
@@ -683,11 +653,6 @@
         "ci-and-release-security"
       ],
       "triggers": [
-        "t-cmd-a678d8ce",
-        "t-cmd-f1a7b672",
-        "t-cmd-9b9e4933",
-        "t-cmd-c3982e63",
-        "t-cmd-e39c134d",
         "t-cmd-8776ee66",
         "t-cmd-e00abc0c",
         "t-cmd-6ea72461"
@@ -959,13 +924,9 @@
       ],
       "triggers": [
         "t-glob-08eb6b3f",
-        "t-glob-a970d979",
-        "t-glob-151a6581",
-        "t-glob-d23b21be",
         "t-cmd-ed8bfc0c",
         "t-cmd-3c746c92",
-        "t-cmd-fd015df7",
-        "t-cmd-703162ab"
+        "t-cmd-fd015df7"
       ]
     },
     "dist-backed-tests-rule-2": {
@@ -980,13 +941,9 @@
       ],
       "triggers": [
         "t-glob-08eb6b3f",
-        "t-glob-a970d979",
-        "t-glob-151a6581",
-        "t-glob-d23b21be",
         "t-cmd-ed8bfc0c",
         "t-cmd-3c746c92",
-        "t-cmd-fd015df7",
-        "t-cmd-703162ab"
+        "t-cmd-fd015df7"
       ]
     },
     "dist-backed-tests-rule-3": {
@@ -1001,13 +958,9 @@
       ],
       "triggers": [
         "t-glob-08eb6b3f",
-        "t-glob-a970d979",
-        "t-glob-151a6581",
-        "t-glob-d23b21be",
         "t-cmd-ed8bfc0c",
         "t-cmd-3c746c92",
-        "t-cmd-fd015df7",
-        "t-cmd-703162ab"
+        "t-cmd-fd015df7"
       ]
     },
     "dist-backed-tests-rule-4": {
@@ -1022,13 +975,9 @@
       ],
       "triggers": [
         "t-glob-08eb6b3f",
-        "t-glob-a970d979",
-        "t-glob-151a6581",
-        "t-glob-d23b21be",
         "t-cmd-ed8bfc0c",
         "t-cmd-3c746c92",
-        "t-cmd-fd015df7",
-        "t-cmd-703162ab"
+        "t-cmd-fd015df7"
       ]
     },
     "dist-backed-tests-rule-5": {
@@ -1064,13 +1013,9 @@
       ],
       "triggers": [
         "t-glob-08eb6b3f",
-        "t-glob-a970d979",
-        "t-glob-151a6581",
-        "t-glob-d23b21be",
         "t-cmd-ed8bfc0c",
         "t-cmd-3c746c92",
-        "t-cmd-fd015df7",
-        "t-cmd-703162ab"
+        "t-cmd-fd015df7"
       ]
     },
     "dist-backed-tests-rule-7": {
@@ -1085,13 +1030,9 @@
       ],
       "triggers": [
         "t-glob-08eb6b3f",
-        "t-glob-a970d979",
-        "t-glob-151a6581",
-        "t-glob-d23b21be",
         "t-cmd-ed8bfc0c",
         "t-cmd-3c746c92",
-        "t-cmd-fd015df7",
-        "t-cmd-703162ab"
+        "t-cmd-fd015df7"
       ]
     },
     "dist-backed-tests-tests-e2e-agents-last-run": {
@@ -1141,6 +1082,20 @@
         "t-kw-1397bfda"
       ]
     },
+    "docs-lock-format-changing-the-generation-contract-wording": {
+      "createdAt": "2026-09-19",
+      "evidence": [
+        "8205c682"
+      ],
+      "rule": "Changing the generation-contract wording requires the full version ladder in src/targets/projection/root-instruction-paragraph.ts: demote the current ROOT_INSTRUCTION_BODY to ROOT_INSTRUCTION_BODY_V<n>, add an AGENTSMESH_CONTRACT_WITH_V<n>_BODY pair, and prepend it to LEGACY_FORMS — otherwise an existing root file keeps the old raw paragraph alongside the new block. The body must never contain the literal '.agentsmesh/' with a trailing slash (link-rewrite e2e contract). After editing, run 'agentsmesh generate' to refresh this repo's own tracked CLAUDE.md/AGENTS.md and .agentsmesh/.lock.",
+      "status": "active",
+      "topics": [
+        "docs-lock-format"
+      ],
+      "triggers": [
+        "t-glob-c96d6408"
+      ]
+    },
     "docs-lock-format-the-agentsmesh-lock-is-a": {
       "createdAt": "2026-07-18",
       "evidence": [
@@ -1154,6 +1109,21 @@
       "triggers": [
         "t-glob-d0a4b76e",
         "t-kw-4683ab67"
+      ]
+    },
+    "docs-lock-format-to-regenerate-a-social-card": {
+      "createdAt": "2026-09-19",
+      "evidence": [
+        "a5839637"
+      ],
+      "rule": "To regenerate a social card PNG from the Astro dev-only pages (/og at 1200x640, /og-github at 1280x640): disable the dev toolbar first ('node node_modules/astro/astro.js preferences disable devToolbar' in website/) or it renders into the bottom edge of the capture, restart the dev server so the card's scoped stylesheet is not stale, capture with chrome-devtools take_screenshot filePath (which only accepts paths inside the workspace root, never /tmp), then downsample with 'sips --resampleHeightWidth' because the capture comes back at 2x DPR and GitHub rejects social previews over 1 MB. Re-enable the toolbar afterwards.",
+      "status": "active",
+      "topics": [
+        "docs-lock-format"
+      ],
+      "triggers": [
+        "t-glob-76c2bb84",
+        "t-glob-29371cdf"
       ]
     },
     "fixture-and-assertion-discipline-after-changing-a-target-capability": {
@@ -1300,13 +1270,8 @@
         "fixture-and-assertion-discipline"
       ],
       "triggers": [
-        "t-glob-1fe91ebe",
         "t-glob-593303ad",
-        "t-glob-257fb095",
-        "t-glob-11a8af2c",
-        "t-kw-0bc71226",
-        "t-kw-129cc275",
-        "t-cmd-bde9db6b"
+        "t-glob-11a8af2c"
       ]
     },
     "fixture-and-assertion-discipline-rule-11": {
@@ -1320,13 +1285,7 @@
         "fixture-and-assertion-discipline"
       ],
       "triggers": [
-        "t-glob-1fe91ebe",
-        "t-glob-593303ad",
-        "t-glob-257fb095",
-        "t-glob-11a8af2c",
-        "t-kw-0bc71226",
-        "t-kw-129cc275",
-        "t-cmd-bde9db6b"
+        "t-glob-11a8af2c"
       ]
     },
     "fixture-and-assertion-discipline-rule-12": {
@@ -1482,13 +1441,7 @@
         "fixture-and-assertion-discipline"
       ],
       "triggers": [
-        "t-glob-1fe91ebe",
-        "t-glob-593303ad",
-        "t-glob-257fb095",
-        "t-glob-11a8af2c",
-        "t-kw-0bc71226",
-        "t-kw-129cc275",
-        "t-cmd-bde9db6b"
+        "t-glob-1fe91ebe"
       ]
     },
     "fixture-and-assertion-discipline-rule-5": {
@@ -1566,12 +1519,7 @@
         "install-import-pickers"
       ],
       "triggers": [
-        "t-glob-848355ab",
-        "t-glob-12b9dee9",
-        "t-glob-7d39ded4",
-        "t-glob-6511ff88",
-        "t-cmd-3dd013c6",
-        "t-cmd-8a0598a5"
+        "t-glob-7d39ded4"
       ]
     },
     "fixture-and-assertion-discipline-rule-9": {
@@ -1585,13 +1533,7 @@
         "fixture-and-assertion-discipline"
       ],
       "triggers": [
-        "t-glob-1fe91ebe",
-        "t-glob-593303ad",
-        "t-glob-257fb095",
-        "t-glob-11a8af2c",
-        "t-kw-0bc71226",
-        "t-kw-129cc275",
-        "t-cmd-bde9db6b"
+        "t-kw-129cc275"
       ]
     },
     "fixture-and-assertion-discipline-strict-generated-artifact-contract-array": {
@@ -1851,9 +1793,7 @@
       "triggers": [
         "t-glob-49e2783c",
         "t-glob-8df49dba",
-        "t-glob-7f548275",
-        "t-glob-7462f277",
-        "t-glob-62cc99bd"
+        "t-glob-7f548275"
       ]
     },
     "frontmatter-and-canonical-shapes-rule-6": {
@@ -1869,11 +1809,7 @@
         "install-import-pickers"
       ],
       "triggers": [
-        "t-glob-49e2783c",
-        "t-glob-8df49dba",
-        "t-glob-7f548275",
-        "t-glob-7462f277",
-        "t-glob-62cc99bd"
+        "t-glob-7462f277"
       ]
     },
     "frontmatter-and-canonical-shapes-rule-7": {
@@ -1891,9 +1827,7 @@
       "triggers": [
         "t-glob-49e2783c",
         "t-glob-8df49dba",
-        "t-glob-7f548275",
-        "t-glob-7462f277",
-        "t-glob-62cc99bd"
+        "t-glob-7f548275"
       ]
     },
     "frontmatter-and-canonical-shapes-rule-8": {
@@ -2037,8 +1971,7 @@
         "generation-collision-source-maps"
       ],
       "triggers": [
-        "t-glob-fb5c7dc9",
-        "t-kw-ae28d58d"
+        "t-glob-fb5c7dc9"
       ]
     },
     "generation-collision-source-maps-adding-a-parameter-to-a": {
@@ -2117,8 +2050,6 @@
       "triggers": [
         "t-glob-a23d7b79",
         "t-glob-1bd6cdf4",
-        "t-glob-5995acad",
-        "t-glob-106a67a9",
         "t-cmd-25ae0863",
         "t-cmd-7d02fc72"
       ]
@@ -2134,12 +2065,7 @@
         "generation-collision-source-maps"
       ],
       "triggers": [
-        "t-glob-a23d7b79",
-        "t-glob-1bd6cdf4",
-        "t-glob-5995acad",
-        "t-glob-106a67a9",
-        "t-cmd-25ae0863",
-        "t-cmd-7d02fc72"
+        "t-glob-5995acad"
       ]
     },
     "generation-collision-source-maps-rule-12": {
@@ -2155,8 +2081,6 @@
       "triggers": [
         "t-glob-a23d7b79",
         "t-glob-1bd6cdf4",
-        "t-glob-5995acad",
-        "t-glob-106a67a9",
         "t-cmd-25ae0863",
         "t-cmd-7d02fc72"
       ]
@@ -2172,12 +2096,7 @@
         "generation-collision-source-maps"
       ],
       "triggers": [
-        "t-glob-a23d7b79",
-        "t-glob-1bd6cdf4",
-        "t-glob-5995acad",
-        "t-glob-106a67a9",
-        "t-cmd-25ae0863",
-        "t-cmd-7d02fc72"
+        "t-glob-5995acad"
       ]
     },
     "generation-collision-source-maps-rule-14": {
@@ -2191,12 +2110,7 @@
         "generation-collision-source-maps"
       ],
       "triggers": [
-        "t-glob-a23d7b79",
-        "t-glob-1bd6cdf4",
-        "t-glob-5995acad",
-        "t-glob-106a67a9",
-        "t-cmd-25ae0863",
-        "t-cmd-7d02fc72"
+        "t-glob-5995acad"
       ]
     },
     "generation-collision-source-maps-rule-15": {
@@ -2310,8 +2224,6 @@
       "triggers": [
         "t-glob-a23d7b79",
         "t-glob-1bd6cdf4",
-        "t-glob-5995acad",
-        "t-glob-106a67a9",
         "t-cmd-25ae0863",
         "t-cmd-7d02fc72"
       ]
@@ -2385,12 +2297,7 @@
         "generation-collision-source-maps"
       ],
       "triggers": [
-        "t-glob-a23d7b79",
-        "t-glob-1bd6cdf4",
-        "t-glob-5995acad",
-        "t-glob-106a67a9",
-        "t-cmd-25ae0863",
-        "t-cmd-7d02fc72"
+        "t-glob-5995acad"
       ]
     },
     "generation-collision-source-maps-rule-6": {
@@ -2404,12 +2311,7 @@
         "generation-collision-source-maps"
       ],
       "triggers": [
-        "t-glob-a23d7b79",
-        "t-glob-1bd6cdf4",
-        "t-glob-5995acad",
-        "t-glob-106a67a9",
-        "t-cmd-25ae0863",
-        "t-cmd-7d02fc72"
+        "t-cmd-25ae0863"
       ]
     },
     "generation-collision-source-maps-rule-7": {
@@ -2426,7 +2328,6 @@
         "t-glob-a23d7b79",
         "t-glob-1bd6cdf4",
         "t-glob-5995acad",
-        "t-glob-106a67a9",
         "t-cmd-25ae0863",
         "t-cmd-7d02fc72"
       ]
@@ -2461,12 +2362,7 @@
         "generation-collision-source-maps"
       ],
       "triggers": [
-        "t-glob-a23d7b79",
-        "t-glob-1bd6cdf4",
-        "t-glob-5995acad",
-        "t-glob-106a67a9",
-        "t-cmd-25ae0863",
-        "t-cmd-7d02fc72"
+        "t-glob-5995acad"
       ]
     },
     "generation-collision-source-maps-when-changing-a-targetdescriptor-hook": {
@@ -2669,8 +2565,7 @@
         "generation-safety"
       ],
       "triggers": [
-        "t-glob-40524b6c",
-        "t-kw-b9c4415c"
+        "t-glob-40524b6c"
       ]
     },
     "generation-safety-when-you-add-a-guard": {
@@ -2766,8 +2661,7 @@
         "git-commit-hygiene"
       ],
       "triggers": [
-        "t-cmd-eae4aa4a",
-        "t-kw-eeddb5dd"
+        "t-cmd-eae4aa4a"
       ]
     },
     "git-commit-hygiene-when-auditing-unpushed-work-probe": {
@@ -2824,12 +2718,7 @@
         "global-mode"
       ],
       "triggers": [
-        "t-cmd-2136a61d",
-        "t-cmd-ac418287",
-        "t-cmd-e5052e92",
-        "t-cmd-dbf01710",
-        "t-cmd-f2638ce0",
-        "t-cmd-fe0fbdb4"
+        "t-cmd-ac418287"
       ]
     },
     "global-mode-rule-10": {
@@ -2845,12 +2734,7 @@
         "fixture-and-assertion-discipline"
       ],
       "triggers": [
-        "t-cmd-2136a61d",
-        "t-cmd-ac418287",
-        "t-cmd-e5052e92",
-        "t-cmd-dbf01710",
-        "t-cmd-f2638ce0",
-        "t-cmd-fe0fbdb4"
+        "t-cmd-ac418287"
       ]
     },
     "global-mode-rule-11": {
@@ -2902,12 +2786,8 @@
         "global-mode"
       ],
       "triggers": [
-        "t-cmd-2136a61d",
         "t-cmd-ac418287",
-        "t-cmd-e5052e92",
-        "t-cmd-dbf01710",
-        "t-cmd-f2638ce0",
-        "t-cmd-fe0fbdb4"
+        "t-cmd-e5052e92"
       ]
     },
     "global-mode-rule-14": {
@@ -2941,12 +2821,7 @@
         "global-mode"
       ],
       "triggers": [
-        "t-cmd-2136a61d",
-        "t-cmd-ac418287",
-        "t-cmd-e5052e92",
-        "t-cmd-dbf01710",
-        "t-cmd-f2638ce0",
-        "t-cmd-fe0fbdb4"
+        "t-cmd-ac418287"
       ]
     },
     "global-mode-rule-3": {
@@ -2979,12 +2854,7 @@
         "global-mode"
       ],
       "triggers": [
-        "t-cmd-2136a61d",
-        "t-cmd-ac418287",
-        "t-cmd-e5052e92",
-        "t-cmd-dbf01710",
-        "t-cmd-f2638ce0",
-        "t-cmd-fe0fbdb4"
+        "t-cmd-e5052e92"
       ]
     },
     "global-mode-rule-5": {
@@ -3021,12 +2891,7 @@
         "install-import-pickers"
       ],
       "triggers": [
-        "t-cmd-2136a61d",
-        "t-cmd-ac418287",
-        "t-cmd-e5052e92",
-        "t-cmd-dbf01710",
-        "t-cmd-f2638ce0",
-        "t-cmd-fe0fbdb4"
+        "t-cmd-e5052e92"
       ]
     },
     "global-mode-rule-7": {
@@ -3080,12 +2945,7 @@
         "global-mode"
       ],
       "triggers": [
-        "t-cmd-2136a61d",
-        "t-cmd-ac418287",
-        "t-cmd-e5052e92",
-        "t-cmd-dbf01710",
-        "t-cmd-f2638ce0",
-        "t-cmd-fe0fbdb4"
+        "t-cmd-ac418287"
       ]
     },
     "imports-before-importing-a-named-symbol": {
@@ -3172,8 +3032,22 @@
         "init"
       ],
       "triggers": [
-        "t-glob-68c54751",
-        "t-kw-fa762c9e"
+        "t-glob-68c54751"
+      ]
+    },
+    "install-import-pickers-agentsmesh-init-target-selection-is": {
+      "createdAt": "2026-09-19",
+      "evidence": [
+        "4d5c0a51"
+      ],
+      "rule": "agentsmesh init target selection is evidence-based, not breadth-based: --targets, --all-targets, project config, machine installs (descriptor global detection paths against $HOME), then the minimal set from descriptors declaring minimalInitDefault. Because init reads $HOME, any unit test exercising runInit MUST stub HOME/USERPROFILE to an empty dir or results vary per developer machine. buildConfig() now requires a non-empty target list; resolveInitTargets guarantees it.",
+      "status": "active",
+      "topics": [
+        "install-import-pickers"
+      ],
+      "triggers": [
+        "t-glob-2c569101",
+        "t-glob-c7eb35ad"
       ]
     },
     "install-import-pickers-allocate-pack-staging-and-backups": {
@@ -3190,6 +3064,21 @@
       "triggers": [
         "t-glob-dda7e920",
         "t-kw-468c3ca3"
+      ]
+    },
+    "install-import-pickers-canonical-paths-are-last-import": {
+      "createdAt": "2026-09-19",
+      "evidence": [
+        "4d5c0a51"
+      ],
+      "rule": "Canonical paths are last-import-wins EXCEPT .agentsmesh/rules/_root.md and mcp.json, which accumulate. Root rule merging lives in the single shared serializer serializeImportedRuleWithFallback (src/targets/import/import-metadata-core.ts) because all ~45 root write sites across 33 targets funnel through it — never patch per-target importers for root-rule behavior. When changing it, remember the init placeholder body (src/canonical/root-rule-placeholder.ts) must count as unwritten or every import stacks under scaffold boilerplate.",
+      "status": "active",
+      "topics": [
+        "install-import-pickers"
+      ],
+      "triggers": [
+        "t-glob-f98a792a",
+        "t-glob-cfe44da2"
       ]
     },
     "install-import-pickers-every-per-target-mcp-importer": {
@@ -3218,6 +3107,21 @@
       "triggers": [
         "t-glob-c424af85",
         "t-glob-b47f5129"
+      ]
+    },
+    "install-import-pickers-lessons-hook-recall-has-two": {
+      "createdAt": "2026-09-19",
+      "evidence": [
+        "427118c8"
+      ],
+      "rule": "Lessons hook recall has two distinct caps and they are not interchangeable: HOOK_INJECT_LIMIT (5, src/lessons/hook-emit.ts) overrides the configured recallLimit, and recallMaxTokens (default 1200) is the token budget applied after the count slice. On a large graph the COUNT cap almost always binds, so any truncation message must attribute which cap fired before naming a knob. Separately, the hook path has no read-only classifier by default: use isReadOnlyCommand (src/lessons/read-only-command.ts) before recordFailure and before recurrenceEscalation, or read-only classes like cmd:cat and cmd:grep dominate the failure log and trigger false RECURRENT FAILURE banners.",
+      "status": "active",
+      "topics": [
+        "install-import-pickers"
+      ],
+      "triggers": [
+        "t-glob-72c19fb3",
+        "t-glob-eb1e5fce"
       ]
     },
     "install-import-pickers-rule-1": {
@@ -3358,14 +3262,7 @@
         "install-import-pickers"
       ],
       "triggers": [
-        "t-cmd-2398d904",
-        "t-cmd-34d713b6",
-        "t-cmd-45d8ae56",
-        "t-cmd-cae616a1",
-        "t-cmd-d9dce045",
-        "t-cmd-b66a9431",
-        "t-cmd-2c6e7fc6",
-        "t-cmd-e097d363"
+        "t-cmd-b66a9431"
       ]
     },
     "install-import-pickers-rule-16": {
@@ -3678,14 +3575,7 @@
         "install-import-pickers"
       ],
       "triggers": [
-        "t-cmd-2398d904",
-        "t-cmd-34d713b6",
-        "t-cmd-45d8ae56",
-        "t-cmd-cae616a1",
-        "t-cmd-d9dce045",
-        "t-cmd-b66a9431",
-        "t-cmd-2c6e7fc6",
-        "t-cmd-e097d363"
+        "t-cmd-2398d904"
       ]
     },
     "install-import-pickers-rule-3": {
@@ -4537,8 +4427,7 @@
       ],
       "triggers": [
         "t-glob-f6905ae6",
-        "t-glob-a93a3ef5",
-        "t-kw-aa93e0e6"
+        "t-glob-a93a3ef5"
       ]
     },
     "lessons-system-list-existing-lesson-topics-before": {
@@ -5412,9 +5301,7 @@
       "triggers": [
         "t-glob-52935bc9",
         "t-glob-0f48b5c8",
-        "t-glob-3ce2b476",
-        "t-glob-51b8926c",
-        "t-glob-40333e0c"
+        "t-glob-3ce2b476"
       ]
     },
     "link-rebaser-rule-10": {
@@ -5471,9 +5358,7 @@
       "triggers": [
         "t-glob-52935bc9",
         "t-glob-0f48b5c8",
-        "t-glob-3ce2b476",
-        "t-glob-51b8926c",
-        "t-glob-40333e0c"
+        "t-glob-3ce2b476"
       ]
     },
     "link-rebaser-rule-13": {
@@ -5648,11 +5533,7 @@
         "link-rebaser"
       ],
       "triggers": [
-        "t-glob-52935bc9",
-        "t-glob-0f48b5c8",
-        "t-glob-3ce2b476",
-        "t-glob-51b8926c",
-        "t-glob-40333e0c"
+        "t-glob-51b8926c"
       ]
     },
     "link-rebaser-rule-21": {
@@ -5667,9 +5548,6 @@
         "link-rebaser"
       ],
       "triggers": [
-        "t-glob-52935bc9",
-        "t-glob-0f48b5c8",
-        "t-glob-3ce2b476",
         "t-glob-51b8926c",
         "t-glob-40333e0c"
       ]
@@ -5690,7 +5568,6 @@
         "t-glob-52935bc9",
         "t-glob-0f48b5c8",
         "t-glob-3ce2b476",
-        "t-glob-51b8926c",
         "t-glob-40333e0c"
       ]
     },
@@ -5747,7 +5624,6 @@
         "t-glob-52935bc9",
         "t-glob-0f48b5c8",
         "t-glob-3ce2b476",
-        "t-glob-51b8926c",
         "t-glob-40333e0c"
       ]
     },
@@ -5763,11 +5639,7 @@
         "link-rebaser"
       ],
       "triggers": [
-        "t-glob-52935bc9",
-        "t-glob-0f48b5c8",
-        "t-glob-3ce2b476",
-        "t-glob-51b8926c",
-        "t-glob-40333e0c"
+        "t-glob-51b8926c"
       ]
     },
     "link-rebaser-rule-27": {
@@ -5805,7 +5677,6 @@
         "t-glob-52935bc9",
         "t-glob-0f48b5c8",
         "t-glob-3ce2b476",
-        "t-glob-51b8926c",
         "t-glob-40333e0c"
       ]
     },
@@ -6117,6 +5988,37 @@
         "t-glob-5a3df53a",
         "t-glob-1f849af2",
         "t-kw-b54b3b44"
+      ]
+    },
+    "readme-authoring-before-publishing-any-competitor-compari": {
+      "createdAt": "2026-09-19",
+      "evidence": [
+        "15bd2c41"
+      ],
+      "rule": "Before publishing any competitor comparison (README 'How AgentsMesh compares', website reference/alternatives.mdx), re-verify every row against the competitor's SOURCE, not a prior summary: as of 2026-09-19 rulesync ships a self-serve MCP server (src/cli/commands/mcp.ts + src/mcp/) and a documented programmatic API with a global --json envelope, both of which our table wrongly marked absent/partial, and neither rulesync nor Ruler advertises a tool count so quoting 'their marketing number' invented a claim. Verified-unique rows are cross-file link rewriting, lockfile-verified drift + merge recovery, target plugins, and lessons.",
+      "status": "active",
+      "topics": [
+        "readme-authoring"
+      ],
+      "triggers": [
+        "t-glob-d044343b",
+        "t-glob-6e3bf4c6"
+      ]
+    },
+    "readme-authoring-before-publishing-readme-website-or": {
+      "createdAt": "2026-09-19",
+      "evidence": [
+        "4d5c0a51"
+      ],
+      "rule": "Before publishing README, website, or marketing copy that claims 'safe adoption', 'lossless import', or 'nothing overwritten blind', run the two-root-file repro (repo with both CLAUDE.md and .cursor/rules/*.mdc, then 'init --yes' or two sequential 'import --from'): as of v0.38.0 the second import silently overwrites .agentsmesh/rules/_root.md and reports success for both, so the claim is false for the most common adopter. Verify the fix landed, or soften the claim, before shipping the copy.",
+      "status": "active",
+      "topics": [
+        "readme-authoring"
+      ],
+      "triggers": [
+        "t-glob-d044343b",
+        "t-glob-d0a4b76e",
+        "t-glob-4f36b2c0"
       ]
     },
     "readme-authoring-when-trimming-or-rewriting-readme": {
@@ -6611,11 +6513,7 @@
         "typescript-esm-cycles"
       ],
       "triggers": [
-        "t-glob-49e2783c",
-        "t-glob-8df49dba",
-        "t-glob-7f548275",
-        "t-glob-7462f277",
-        "t-glob-62cc99bd"
+        "t-glob-7462f277"
       ]
     },
     "shell-quoting-rule-8": {
@@ -6909,8 +6807,7 @@
         "target-capabilities"
       ],
       "triggers": [
-        "t-glob-21a3924d",
-        "t-kw-875469bd"
+        "t-glob-21a3924d"
       ]
     },
     "target-capabilities-for-kilo-code-the-new": {
@@ -6967,8 +6864,7 @@
         "target-capabilities"
       ],
       "triggers": [
-        "t-glob-c36b4923",
-        "t-kw-6b0a8413"
+        "t-glob-c36b4923"
       ]
     },
     "target-capabilities-when-auditing-the-antigravity-target": {
@@ -7025,8 +6921,7 @@
         "target-capability-audits"
       ],
       "triggers": [
-        "t-glob-72a39ab6",
-        "t-kw-265fd6c5"
+        "t-glob-72a39ab6"
       ]
     },
     "target-capability-audits-after-changing-a-target-s": {
@@ -7040,8 +6935,7 @@
         "target-capability-audits"
       ],
       "triggers": [
-        "t-glob-e06b465d",
-        "t-kw-5c8c2424"
+        "t-glob-e06b465d"
       ]
     },
     "target-capability-audits-augment-code-tool-permissions-are": {
@@ -7172,8 +7066,7 @@
         "target-capability-audits"
       ],
       "triggers": [
-        "t-glob-3851162d",
-        "t-kw-cfaa4738"
+        "t-glob-3851162d"
       ]
     },
     "target-capability-audits-for-codex-cli-codex-instructions": {
@@ -7189,8 +7082,7 @@
         "target-capability-audits"
       ],
       "triggers": [
-        "t-glob-e1afdd1c",
-        "t-kw-3f61d5a5"
+        "t-glob-e1afdd1c"
       ]
     },
     "target-capability-audits-for-gemini-cli-permissions-global": {
@@ -7219,8 +7111,7 @@
         "target-capability-audits"
       ],
       "triggers": [
-        "t-glob-009c44d8",
-        "t-kw-db955d8e"
+        "t-glob-009c44d8"
       ]
     },
     "target-capability-audits-for-the-continue-target-permissions": {
@@ -7369,8 +7260,7 @@
       ],
       "triggers": [
         "t-glob-9f0a5990",
-        "t-kw-c6d64f2b",
-        "t-kw-797b277a"
+        "t-kw-c6d64f2b"
       ]
     },
     "target-capability-audits-when-a-target-declares-a-2": {
@@ -7385,8 +7275,7 @@
         "target-capability-audits"
       ],
       "triggers": [
-        "t-glob-9f0a5990",
-        "t-kw-706233bb"
+        "t-glob-9f0a5990"
       ]
     },
     "target-capability-audits-when-a-target-descriptor-declares": {
@@ -7399,8 +7288,7 @@
         "target-capability-audits"
       ],
       "triggers": [
-        "t-glob-9f0a5990",
-        "t-kw-2d3efbf2"
+        "t-glob-9f0a5990"
       ]
     },
     "target-capability-audits-when-a-target-gains-a": {
@@ -7414,8 +7302,7 @@
         "target-capability-audits"
       ],
       "triggers": [
-        "t-glob-35a0a200",
-        "t-kw-535bc930"
+        "t-glob-35a0a200"
       ]
     },
     "target-capability-audits-when-changing-a-target-s": {
@@ -7432,9 +7319,7 @@
       "triggers": [
         "t-glob-c6e66385",
         "t-glob-08277af8",
-        "t-glob-17bd0955",
-        "t-kw-e48528c1",
-        "t-kw-057477d3"
+        "t-glob-17bd0955"
       ]
     },
     "target-capability-audits-when-changing-a-target-s-2": {
@@ -7448,8 +7333,7 @@
         "target-capability-audits"
       ],
       "triggers": [
-        "t-glob-960c3805",
-        "t-kw-1b4e1dda"
+        "t-glob-960c3805"
       ]
     },
     "target-capability-audits-when-dozens-of-cli-renderer": {
@@ -7463,8 +7347,7 @@
         "target-capability-audits"
       ],
       "triggers": [
-        "t-cmd-08ecd38a",
-        "t-kw-8738d72d"
+        "t-cmd-08ecd38a"
       ]
     },
     "target-capability-audits-when-extracting-capabilities-to-a": {
@@ -7621,8 +7504,7 @@
         "target-capability-expansion"
       ],
       "triggers": [
-        "t-glob-5a2080aa",
-        "t-kw-31b53f67"
+        "t-glob-5a2080aa"
       ]
     },
     "target-capability-expansion-when-expanding-a-target-from": {
@@ -7692,8 +7574,7 @@
         "target-permissions"
       ],
       "triggers": [
-        "t-glob-11717c97",
-        "t-kw-4abb9189"
+        "t-glob-11717c97"
       ]
     },
     "target-permissions-when-a-target-generator-rewrites": {
@@ -7719,8 +7600,7 @@
         "targets"
       ],
       "triggers": [
-        "t-glob-8ac72756",
-        "t-kw-b8d88f99"
+        "t-glob-8ac72756"
       ]
     },
     "targets-import-into-a-shared-canonical": {
@@ -7746,8 +7626,7 @@
         "targets"
       ],
       "triggers": [
-        "t-glob-7346acca",
-        "t-kw-74382752"
+        "t-glob-7346acca"
       ]
     },
     "targets-never-invent-a-stricter-validator": {
@@ -7760,7 +7639,6 @@
         "targets"
       ],
       "triggers": [
-        "t-kw-c05b997a",
         "t-glob-563e56bd",
         "t-glob-592c65a4",
         "t-glob-4c7af71e",
@@ -7778,8 +7656,7 @@
         "targets"
       ],
       "triggers": [
-        "t-glob-a9a4fad0",
-        "t-kw-2a85c9a4"
+        "t-glob-a9a4fad0"
       ]
     },
     "targets-when-a-target-reads-several": {
@@ -7792,7 +7669,6 @@
         "targets"
       ],
       "triggers": [
-        "t-kw-e15dc48c",
         "t-glob-55ff9a58",
         "t-glob-bdb31b92",
         "t-kw-e10b834c",
@@ -7866,8 +7742,7 @@
         "targets"
       ],
       "triggers": [
-        "t-glob-17bd0955",
-        "t-kw-92e062be"
+        "t-glob-17bd0955"
       ]
     },
     "targets-when-two-targets-emit-the": {
@@ -8083,8 +7958,7 @@
         "testing"
       ],
       "triggers": [
-        "t-cmd-d04a125f",
-        "t-kw-8b9ce28d"
+        "t-cmd-d04a125f"
       ]
     },
     "testing-to-prove-a-pure-refactor": {
@@ -8130,7 +8004,6 @@
       ],
       "triggers": [
         "t-glob-4c29ad88",
-        "t-kw-ccc4cf3d",
         "t-kw-e9de15ff"
       ]
     },
@@ -8197,11 +8070,7 @@
       ],
       "triggers": [
         "t-glob-848355ab",
-        "t-glob-12b9dee9",
-        "t-glob-7d39ded4",
-        "t-glob-6511ff88",
-        "t-cmd-3dd013c6",
-        "t-cmd-8a0598a5"
+        "t-glob-12b9dee9"
       ]
     },
     "typescript-esm-cycles-rule-10": {
@@ -8254,12 +8123,7 @@
         "generation-collision-source-maps"
       ],
       "triggers": [
-        "t-glob-848355ab",
-        "t-glob-12b9dee9",
-        "t-glob-7d39ded4",
-        "t-glob-6511ff88",
-        "t-cmd-3dd013c6",
-        "t-cmd-8a0598a5"
+        "t-glob-7d39ded4"
       ]
     },
     "typescript-esm-cycles-rule-13": {
@@ -8330,11 +8194,7 @@
       ],
       "triggers": [
         "t-glob-848355ab",
-        "t-glob-12b9dee9",
-        "t-glob-7d39ded4",
-        "t-glob-6511ff88",
-        "t-cmd-3dd013c6",
-        "t-cmd-8a0598a5"
+        "t-glob-12b9dee9"
       ]
     },
     "typescript-esm-cycles-rule-3": {
@@ -8349,11 +8209,7 @@
       ],
       "triggers": [
         "t-glob-848355ab",
-        "t-glob-12b9dee9",
-        "t-glob-7d39ded4",
-        "t-glob-6511ff88",
-        "t-cmd-3dd013c6",
-        "t-cmd-8a0598a5"
+        "t-glob-12b9dee9"
       ]
     },
     "typescript-esm-cycles-rule-4": {
@@ -8369,11 +8225,7 @@
         "generation-collision-source-maps"
       ],
       "triggers": [
-        "t-glob-848355ab",
-        "t-glob-12b9dee9",
         "t-glob-7d39ded4",
-        "t-glob-6511ff88",
-        "t-cmd-3dd013c6",
         "t-cmd-8a0598a5"
       ]
     },
@@ -8407,12 +8259,7 @@
         "typescript-esm-cycles"
       ],
       "triggers": [
-        "t-glob-848355ab",
-        "t-glob-12b9dee9",
-        "t-glob-7d39ded4",
-        "t-glob-6511ff88",
-        "t-cmd-3dd013c6",
-        "t-cmd-8a0598a5"
+        "t-cmd-3dd013c6"
       ]
     },
     "typescript-esm-cycles-rule-7": {
@@ -8426,12 +8273,8 @@
         "typescript-esm-cycles"
       ],
       "triggers": [
-        "t-glob-848355ab",
-        "t-glob-12b9dee9",
         "t-glob-7d39ded4",
-        "t-glob-6511ff88",
-        "t-cmd-3dd013c6",
-        "t-cmd-8a0598a5"
+        "t-cmd-3dd013c6"
       ]
     },
     "typescript-esm-cycles-rule-8": {
@@ -8445,10 +8288,6 @@
         "typescript-esm-cycles"
       ],
       "triggers": [
-        "t-glob-848355ab",
-        "t-glob-12b9dee9",
-        "t-glob-7d39ded4",
-        "t-glob-6511ff88",
         "t-cmd-3dd013c6",
         "t-cmd-8a0598a5"
       ]
@@ -8763,11 +8602,8 @@
       "triggers": [
         "t-glob-0c69c521",
         "t-glob-aacd9271",
-        "t-glob-20330f9b",
         "t-glob-19a73bc2",
-        "t-glob-41b0a32c",
-        "t-cmd-18d320e9",
-        "t-cmd-0cf3ec87"
+        "t-cmd-18d320e9"
       ]
     },
     "watch-and-test-timing-rule-10": {
@@ -8782,11 +8618,9 @@
         "watch-and-test-timing"
       ],
       "triggers": [
-        "t-glob-0c69c521",
         "t-glob-aacd9271",
         "t-glob-20330f9b",
         "t-glob-19a73bc2",
-        "t-glob-41b0a32c",
         "t-cmd-18d320e9",
         "t-cmd-0cf3ec87"
       ]
@@ -8803,13 +8637,9 @@
         "watch-and-test-timing"
       ],
       "triggers": [
-        "t-glob-0c69c521",
         "t-glob-aacd9271",
-        "t-glob-20330f9b",
         "t-glob-19a73bc2",
-        "t-glob-41b0a32c",
-        "t-cmd-18d320e9",
-        "t-cmd-0cf3ec87"
+        "t-cmd-18d320e9"
       ]
     },
     "watch-and-test-timing-rule-12": {
@@ -8847,13 +8677,8 @@
         "watch-and-test-timing"
       ],
       "triggers": [
-        "t-glob-0c69c521",
         "t-glob-aacd9271",
-        "t-glob-20330f9b",
-        "t-glob-19a73bc2",
-        "t-glob-41b0a32c",
-        "t-cmd-18d320e9",
-        "t-cmd-0cf3ec87"
+        "t-cmd-18d320e9"
       ]
     },
     "watch-and-test-timing-rule-3": {
@@ -8868,11 +8693,7 @@
         "watch-and-test-timing"
       ],
       "triggers": [
-        "t-glob-0c69c521",
         "t-glob-aacd9271",
-        "t-glob-20330f9b",
-        "t-glob-19a73bc2",
-        "t-glob-41b0a32c",
         "t-cmd-18d320e9",
         "t-cmd-0cf3ec87"
       ]
@@ -8890,11 +8711,7 @@
         "watch-and-test-timing"
       ],
       "triggers": [
-        "t-glob-0c69c521",
         "t-glob-aacd9271",
-        "t-glob-20330f9b",
-        "t-glob-19a73bc2",
-        "t-glob-41b0a32c",
         "t-cmd-18d320e9",
         "t-cmd-0cf3ec87"
       ]
@@ -8913,11 +8730,7 @@
       "triggers": [
         "t-glob-0c69c521",
         "t-glob-aacd9271",
-        "t-glob-20330f9b",
-        "t-glob-19a73bc2",
-        "t-glob-41b0a32c",
-        "t-cmd-18d320e9",
-        "t-cmd-0cf3ec87"
+        "t-cmd-18d320e9"
       ]
     },
     "watch-and-test-timing-rule-6": {
@@ -8934,9 +8747,6 @@
       "triggers": [
         "t-glob-0c69c521",
         "t-glob-aacd9271",
-        "t-glob-20330f9b",
-        "t-glob-19a73bc2",
-        "t-glob-41b0a32c",
         "t-cmd-18d320e9",
         "t-cmd-0cf3ec87"
       ]
@@ -8953,11 +8763,7 @@
         "watch-and-test-timing"
       ],
       "triggers": [
-        "t-glob-0c69c521",
         "t-glob-aacd9271",
-        "t-glob-20330f9b",
-        "t-glob-19a73bc2",
-        "t-glob-41b0a32c",
         "t-cmd-18d320e9",
         "t-cmd-0cf3ec87"
       ]
@@ -8976,11 +8782,8 @@
       "triggers": [
         "t-glob-0c69c521",
         "t-glob-aacd9271",
-        "t-glob-20330f9b",
         "t-glob-19a73bc2",
-        "t-glob-41b0a32c",
-        "t-cmd-18d320e9",
-        "t-cmd-0cf3ec87"
+        "t-cmd-18d320e9"
       ]
     },
     "watch-and-test-timing-rule-9": {
@@ -8995,13 +8798,8 @@
         "watch-and-test-timing"
       ],
       "triggers": [
-        "t-glob-0c69c521",
         "t-glob-aacd9271",
-        "t-glob-20330f9b",
-        "t-glob-19a73bc2",
-        "t-glob-41b0a32c",
-        "t-cmd-18d320e9",
-        "t-cmd-0cf3ec87"
+        "t-cmd-18d320e9"
       ]
     },
     "website-docs-in-website-docs-pages-under": {
@@ -9255,13 +9053,8 @@
       ],
       "triggers": [
         "t-glob-3932d5a5",
-        "t-glob-62627edd",
-        "t-glob-75de7d28",
         "t-glob-b43f25de",
-        "t-glob-b13cc3e2",
-        "t-glob-a5fc7764",
-        "t-glob-771c5cde",
-        "t-cmd-e86f6687"
+        "t-glob-b13cc3e2"
       ]
     },
     "windows-paths-rule-10": {
@@ -9277,13 +9070,8 @@
       ],
       "triggers": [
         "t-glob-3932d5a5",
-        "t-glob-62627edd",
-        "t-glob-75de7d28",
-        "t-glob-b43f25de",
         "t-glob-b13cc3e2",
-        "t-glob-a5fc7764",
-        "t-glob-771c5cde",
-        "t-cmd-e86f6687"
+        "t-glob-771c5cde"
       ]
     },
     "windows-paths-rule-11": {
@@ -9301,13 +9089,8 @@
       ],
       "triggers": [
         "t-glob-3932d5a5",
-        "t-glob-62627edd",
-        "t-glob-75de7d28",
-        "t-glob-b43f25de",
         "t-glob-b13cc3e2",
-        "t-glob-a5fc7764",
-        "t-glob-771c5cde",
-        "t-cmd-e86f6687"
+        "t-glob-a5fc7764"
       ]
     },
     "windows-paths-rule-12": {
@@ -9322,14 +9105,7 @@
         "windows-paths"
       ],
       "triggers": [
-        "t-glob-3932d5a5",
-        "t-glob-62627edd",
-        "t-glob-75de7d28",
-        "t-glob-b43f25de",
-        "t-glob-b13cc3e2",
-        "t-glob-a5fc7764",
-        "t-glob-771c5cde",
-        "t-cmd-e86f6687"
+        "t-glob-b13cc3e2"
       ]
     },
     "windows-paths-rule-13": {
@@ -9347,12 +9123,7 @@
         "global-mode"
       ],
       "triggers": [
-        "t-cmd-2136a61d",
-        "t-cmd-ac418287",
-        "t-cmd-e5052e92",
-        "t-cmd-dbf01710",
-        "t-cmd-f2638ce0",
-        "t-cmd-fe0fbdb4"
+        "t-cmd-e5052e92"
       ]
     },
     "windows-paths-rule-14": {
@@ -9368,13 +9139,7 @@
       ],
       "triggers": [
         "t-glob-3932d5a5",
-        "t-glob-62627edd",
-        "t-glob-75de7d28",
-        "t-glob-b43f25de",
-        "t-glob-b13cc3e2",
-        "t-glob-a5fc7764",
-        "t-glob-771c5cde",
-        "t-cmd-e86f6687"
+        "t-glob-a5fc7764"
       ]
     },
     "windows-paths-rule-15": {
@@ -9389,14 +9154,7 @@
         "windows-paths"
       ],
       "triggers": [
-        "t-glob-3932d5a5",
-        "t-glob-62627edd",
-        "t-glob-75de7d28",
-        "t-glob-b43f25de",
-        "t-glob-b13cc3e2",
-        "t-glob-a5fc7764",
-        "t-glob-771c5cde",
-        "t-cmd-e86f6687"
+        "t-glob-3932d5a5"
       ]
     },
     "windows-paths-rule-16": {
@@ -9412,13 +9170,7 @@
       ],
       "triggers": [
         "t-glob-3932d5a5",
-        "t-glob-62627edd",
-        "t-glob-75de7d28",
-        "t-glob-b43f25de",
-        "t-glob-b13cc3e2",
-        "t-glob-a5fc7764",
-        "t-glob-771c5cde",
-        "t-cmd-e86f6687"
+        "t-glob-b13cc3e2"
       ]
     },
     "windows-paths-rule-17": {
@@ -9436,14 +9188,7 @@
         "shell-quoting"
       ],
       "triggers": [
-        "t-cmd-4f9ca035",
-        "t-cmd-3efc6ee1",
-        "t-cmd-42e0c859",
-        "t-cmd-852dbc34",
-        "t-cmd-8ab47a8c",
-        "t-cmd-43e6903e",
-        "t-cmd-813423e2",
-        "t-cmd-69dc7d4e"
+        "t-cmd-852dbc34"
       ]
     },
     "windows-paths-rule-18": {
@@ -9481,13 +9226,8 @@
       ],
       "triggers": [
         "t-glob-3932d5a5",
-        "t-glob-62627edd",
-        "t-glob-75de7d28",
-        "t-glob-b43f25de",
         "t-glob-b13cc3e2",
-        "t-glob-a5fc7764",
-        "t-glob-771c5cde",
-        "t-cmd-e86f6687"
+        "t-glob-a5fc7764"
       ]
     },
     "windows-paths-rule-2": {
@@ -9509,11 +9249,8 @@
         "t-glob-3932d5a5",
         "t-glob-62627edd",
         "t-glob-75de7d28",
-        "t-glob-b43f25de",
-        "t-glob-b13cc3e2",
         "t-glob-a5fc7764",
-        "t-glob-771c5cde",
-        "t-cmd-e86f6687"
+        "t-glob-771c5cde"
       ]
     },
     "windows-paths-rule-3": {
@@ -9551,13 +9288,8 @@
       ],
       "triggers": [
         "t-glob-3932d5a5",
-        "t-glob-62627edd",
-        "t-glob-75de7d28",
-        "t-glob-b43f25de",
-        "t-glob-b13cc3e2",
         "t-glob-a5fc7764",
-        "t-glob-771c5cde",
-        "t-cmd-e86f6687"
+        "t-glob-771c5cde"
       ]
     },
     "windows-paths-rule-5": {
@@ -9572,14 +9304,7 @@
         "windows-paths"
       ],
       "triggers": [
-        "t-glob-3932d5a5",
-        "t-glob-62627edd",
-        "t-glob-75de7d28",
-        "t-glob-b43f25de",
-        "t-glob-b13cc3e2",
-        "t-glob-a5fc7764",
-        "t-glob-771c5cde",
-        "t-cmd-e86f6687"
+        "t-glob-3932d5a5"
       ]
     },
     "windows-paths-rule-6": {
@@ -9595,14 +9320,7 @@
         "windows-paths"
       ],
       "triggers": [
-        "t-glob-3932d5a5",
-        "t-glob-62627edd",
-        "t-glob-75de7d28",
-        "t-glob-b43f25de",
-        "t-glob-b13cc3e2",
-        "t-glob-a5fc7764",
-        "t-glob-771c5cde",
-        "t-cmd-e86f6687"
+        "t-glob-b13cc3e2"
       ]
     },
     "windows-paths-rule-7": {
@@ -9621,13 +9339,7 @@
       ],
       "triggers": [
         "t-glob-3932d5a5",
-        "t-glob-62627edd",
-        "t-glob-75de7d28",
-        "t-glob-b43f25de",
-        "t-glob-b13cc3e2",
-        "t-glob-a5fc7764",
-        "t-glob-771c5cde",
-        "t-cmd-e86f6687"
+        "t-glob-b13cc3e2"
       ]
     },
     "windows-paths-rule-8": {
@@ -9643,14 +9355,9 @@
         "windows-paths"
       ],
       "triggers": [
-        "t-glob-3932d5a5",
-        "t-glob-62627edd",
         "t-glob-75de7d28",
         "t-glob-b43f25de",
-        "t-glob-b13cc3e2",
-        "t-glob-a5fc7764",
-        "t-glob-771c5cde",
-        "t-cmd-e86f6687"
+        "t-glob-b13cc3e2"
       ]
     },
     "windows-paths-rule-9": {
@@ -10475,9 +10182,17 @@
       "kind": "file_glob",
       "pattern": "src/public/*.ts"
     },
+    "t-glob-29371cdf": {
+      "kind": "file_glob",
+      "pattern": "website/src/components/og/*.astro"
+    },
     "t-glob-2be00990": {
       "kind": "file_glob",
       "pattern": "src/cli/commands/init-wizard.ts"
+    },
+    "t-glob-2c569101": {
+      "kind": "file_glob",
+      "pattern": "src/cli/commands/init*.ts"
     },
     "t-glob-2d4b85c9": {
       "kind": "file_glob",
@@ -10639,6 +10354,10 @@
       "kind": "file_glob",
       "pattern": "src/cli/commands/lessons-handlers.ts"
     },
+    "t-glob-4f36b2c0": {
+      "kind": "file_glob",
+      "pattern": "docs/marketing/**/*.md"
+    },
     "t-glob-51b8926c": {
       "kind": "file_glob",
       "pattern": "tests/**/link-rebaser*.test.ts"
@@ -10783,6 +10502,10 @@
       "kind": "file_glob",
       "pattern": "src/mcp/writers/*document*.ts"
     },
+    "t-glob-6e3bf4c6": {
+      "kind": "file_glob",
+      "pattern": "website/src/content/docs/reference/alternatives.mdx"
+    },
     "t-glob-6e7640eb": {
       "kind": "file_glob",
       "pattern": "src/targets/*/lint.ts"
@@ -10815,6 +10538,10 @@
       "kind": "file_glob",
       "pattern": "tests/e2e/fixtures/**"
     },
+    "t-glob-72c19fb3": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/hook*.ts"
+    },
     "t-glob-7346acca": {
       "kind": "file_glob",
       "pattern": "tests/unit/targets/**/descriptor*.test.ts"
@@ -10838,6 +10565,10 @@
     "t-glob-75e89e62": {
       "kind": "file_glob",
       "pattern": "src/targets/opencode/index.ts"
+    },
+    "t-glob-76c2bb84": {
+      "kind": "file_glob",
+      "pattern": "website/src/dev-pages/*.astro"
     },
     "t-glob-771c5cde": {
       "kind": "file_glob",
@@ -11231,6 +10962,10 @@
       "kind": "file_glob",
       "pattern": "src/targets/*/generator/hooks.ts"
     },
+    "t-glob-c7eb35ad": {
+      "kind": "file_glob",
+      "pattern": "src/targets/catalog/init-starter-targets.ts"
+    },
     "t-glob-c88404c0": {
       "kind": "file_glob",
       "pattern": "src/lessons/outcome-log.ts"
@@ -11238,6 +10973,10 @@
     "t-glob-c8eff4c3": {
       "kind": "file_glob",
       "pattern": "src/targets/factory-droid/importer.ts"
+    },
+    "t-glob-c96d6408": {
+      "kind": "file_glob",
+      "pattern": "src/targets/projection/root-instruction-paragraph.ts"
     },
     "t-glob-c9a321aa": {
       "kind": "file_glob",
@@ -11262,6 +11001,10 @@
     "t-glob-cf079804": {
       "kind": "file_glob",
       "pattern": "src/core/generate/*-merge.ts"
+    },
+    "t-glob-cfe44da2": {
+      "kind": "file_glob",
+      "pattern": "src/canonical/root-rule-placeholder.ts"
     },
     "t-glob-d044343b": {
       "kind": "file_glob",
@@ -11455,6 +11198,10 @@
       "kind": "file_glob",
       "pattern": "src/utils/filesystem/rename-retry.ts"
     },
+    "t-glob-f98a792a": {
+      "kind": "file_glob",
+      "pattern": "src/targets/import/*.ts"
+    },
     "t-glob-f9f526aa": {
       "kind": "file_glob",
       "pattern": "src/cli/commands/generate-lock.ts"
@@ -11498,10 +11245,6 @@
     "t-kw-0560ceb4": {
       "kind": "keyword",
       "pattern": "mergeGeneratedOutputContent, resolveOutputCollisions, shared output path"
-    },
-    "t-kw-057477d3": {
-      "kind": "keyword",
-      "pattern": "target output format blast radius tests"
     },
     "t-kw-05eaa965": {
       "kind": "keyword",
@@ -11587,10 +11330,6 @@
       "kind": "keyword",
       "pattern": "refactor"
     },
-    "t-kw-1b4e1dda": {
-      "kind": "keyword",
-      "pattern": "reference-targets two chains outputPaths expectedRefs command path"
-    },
     "t-kw-1d0e5147": {
       "kind": "keyword",
       "pattern": "strip markers"
@@ -11639,10 +11378,6 @@
       "kind": "keyword",
       "pattern": "coOwnedFiles"
     },
-    "t-kw-265fd6c5": {
-      "kind": "keyword",
-      "pattern": "fixture gitignored force-add CI-red local-green missing file"
-    },
     "t-kw-26809656": {
       "kind": "keyword",
       "pattern": "regex cleanup"
@@ -11663,14 +11398,6 @@
       "kind": "keyword",
       "pattern": "session start reset"
     },
-    "t-kw-2a85c9a4": {
-      "kind": "keyword",
-      "pattern": "managedOutputs,stale cleanup,settings.json ownership"
-    },
-    "t-kw-2d3efbf2": {
-      "kind": "keyword",
-      "pattern": "capability gap none to embedded"
-    },
     "t-kw-2df7a7e6": {
       "kind": "keyword",
       "pattern": "chrome devtools responsive viewport screenshot"
@@ -11682,10 +11409,6 @@
     "t-kw-313d1d49": {
       "kind": "keyword",
       "pattern": "lesson outcome attribution"
-    },
-    "t-kw-31b53f67": {
-      "kind": "keyword",
-      "pattern": "dedicated settings file same directory as per-rule output"
     },
     "t-kw-32512568": {
       "kind": "keyword",
@@ -11759,10 +11482,6 @@
       "kind": "keyword",
       "pattern": "additionalContext"
     },
-    "t-kw-3f61d5a5": {
-      "kind": "keyword",
-      "pattern": "codex additionalRules instructions mcp config.toml http"
-    },
     "t-kw-4143c059": {
       "kind": "keyword",
       "pattern": "valueless flags"
@@ -11794,10 +11513,6 @@
     "t-kw-492df4f9": {
       "kind": "keyword",
       "pattern": "web search parser failure"
-    },
-    "t-kw-4abb9189": {
-      "kind": "keyword",
-      "pattern": "permissions importer merge canonical allow deny ask"
     },
     "t-kw-4c23a772": {
       "kind": "keyword",
@@ -11831,10 +11546,6 @@
       "kind": "keyword",
       "pattern": "catastrophic backtracking"
     },
-    "t-kw-535bc930": {
-      "kind": "keyword",
-      "pattern": "new generated file dirTreeExactly generate-capabilities contract exact tree"
-    },
     "t-kw-544706af": {
       "kind": "keyword",
       "pattern": "NFA engine"
@@ -11863,10 +11574,6 @@
       "kind": "keyword",
       "pattern": "config.toml"
     },
-    "t-kw-5c8c2424": {
-      "kind": "keyword",
-      "pattern": "e2e round-trip stale dist rebuild importer contract passes e2e fails"
-    },
     "t-kw-603ecbc4": {
       "kind": "keyword",
       "pattern": "global scope generator path branch"
@@ -11882,10 +11589,6 @@
     "t-kw-67b582a5": {
       "kind": "keyword",
       "pattern": "zsh separator echo equals"
-    },
-    "t-kw-6b0a8413": {
-      "kind": "keyword",
-      "pattern": "permission regex allowlist denylist round-trip"
     },
     "t-kw-6c171a08": {
       "kind": "keyword",
@@ -11911,10 +11614,6 @@
       "kind": "keyword",
       "pattern": "stranded lessons"
     },
-    "t-kw-706233bb": {
-      "kind": "keyword",
-      "pattern": "global capability none partial scope leak"
-    },
     "t-kw-719d8353": {
       "kind": "keyword",
       "pattern": "parseArgs boolean flag"
@@ -11931,10 +11630,6 @@
       "kind": "keyword",
       "pattern": "subagent findings"
     },
-    "t-kw-74382752": {
-      "kind": "keyword",
-      "pattern": "target descriptor unit test commandPath conversion"
-    },
     "t-kw-745cab00": {
       "kind": "keyword",
       "pattern": "workflow fixes"
@@ -11942,10 +11637,6 @@
     "t-kw-75645732": {
       "kind": "keyword",
       "pattern": "environment variable"
-    },
-    "t-kw-797b277a": {
-      "kind": "keyword",
-      "pattern": "raise capability partial to native"
     },
     "t-kw-7b64e8ec": {
       "kind": "keyword",
@@ -11987,14 +11678,6 @@
       "kind": "keyword",
       "pattern": "fan out"
     },
-    "t-kw-8738d72d": {
-      "kind": "keyword",
-      "pattern": "FORCE_COLOR renderer color tests fail locally CI green"
-    },
-    "t-kw-875469bd": {
-      "kind": "keyword",
-      "pattern": "amazon-q capability"
-    },
     "t-kw-8791c1d5": {
       "kind": "keyword",
       "pattern": "import canonical ignore round-trip"
@@ -12010,10 +11693,6 @@
     "t-kw-8a80159c": {
       "kind": "keyword",
       "pattern": "hash drift"
-    },
-    "t-kw-8b9ce28d": {
-      "kind": "keyword",
-      "pattern": "working directory persists relative path wrong file"
     },
     "t-kw-8be8afaf": {
       "kind": "keyword",
@@ -12042,10 +11721,6 @@
     "t-kw-92d6db38": {
       "kind": "keyword",
       "pattern": "branch coverage threshold precommit"
-    },
-    "t-kw-92e062be": {
-      "kind": "keyword",
-      "pattern": "shared artifact,sharedArtifacts,.agents/skills,command skill projection"
     },
     "t-kw-9304db48": {
       "kind": "keyword",
@@ -12091,10 +11766,6 @@
       "kind": "keyword",
       "pattern": "scoped coverage run"
     },
-    "t-kw-aa93e0e6": {
-      "kind": "keyword",
-      "pattern": "always-on lesson"
-    },
     "t-kw-ab6ac577": {
       "kind": "keyword",
       "pattern": "adversarial review"
@@ -12114,10 +11785,6 @@
     "t-kw-adbdb028": {
       "kind": "keyword",
       "pattern": "commit untracked"
-    },
-    "t-kw-ae28d58d": {
-      "kind": "keyword",
-      "pattern": "merge user config revoke owned keys"
     },
     "t-kw-ae9d9bb9": {
       "kind": "keyword",
@@ -12155,10 +11822,6 @@
       "kind": "keyword",
       "pattern": "seen store shape"
     },
-    "t-kw-b8d88f99": {
-      "kind": "keyword",
-      "pattern": "embedded additional rules import round trip"
-    },
     "t-kw-b975b1b2": {
       "kind": "keyword",
       "pattern": "structured output"
@@ -12166,10 +11829,6 @@
     "t-kw-b97d39e2": {
       "kind": "keyword",
       "pattern": "mergeContent, managedOutputs, wholesale rewrite"
-    },
-    "t-kw-b9c4415c": {
-      "kind": "keyword",
-      "pattern": "invariant test oracle, co-owned, managedOutputs"
     },
     "t-kw-baecf908": {
       "kind": "keyword",
@@ -12182,10 +11841,6 @@
     "t-kw-bd0b86a3": {
       "kind": "keyword",
       "pattern": "wizard back navigation step prompter"
-    },
-    "t-kw-c05b997a": {
-      "kind": "keyword",
-      "pattern": "permission pattern validation,tool schema validator"
     },
     "t-kw-c34b7cc1": {
       "kind": "keyword",
@@ -12227,14 +11882,6 @@
       "kind": "keyword",
       "pattern": "compaction"
     },
-    "t-kw-ccc4cf3d": {
-      "kind": "keyword",
-      "pattern": "rethrow in catch"
-    },
-    "t-kw-cfaa4738": {
-      "kind": "keyword",
-      "pattern": "global-only permissions scopeExtras generateX leaks project scope"
-    },
     "t-kw-d1ad9a9a": {
       "kind": "keyword",
       "pattern": "outputsStale, drift gate provenance"
@@ -12271,10 +11918,6 @@
       "kind": "keyword",
       "pattern": "matcher work budget"
     },
-    "t-kw-db955d8e": {
-      "kind": "keyword",
-      "pattern": "qwen-code global additionalRules rules directory"
-    },
     "t-kw-dbd98683": {
       "kind": "keyword",
       "pattern": "file_scan_exclusions"
@@ -12295,10 +11938,6 @@
       "kind": "keyword",
       "pattern": "AGENTS.md"
     },
-    "t-kw-e15dc48c": {
-      "kind": "keyword",
-      "pattern": "instruction file discovery,AGENTS.md,managedOutputs"
-    },
     "t-kw-e2160d81": {
       "kind": "keyword",
       "pattern": "subagent fixes"
@@ -12314,10 +11953,6 @@
     "t-kw-e43b6312": {
       "kind": "keyword",
       "pattern": "review workflow results"
-    },
-    "t-kw-e48528c1": {
-      "kind": "keyword",
-      "pattern": "change generated file format event names shape"
     },
     "t-kw-e61f5882": {
       "kind": "keyword",
@@ -12363,10 +11998,6 @@
       "kind": "keyword",
       "pattern": "amp.hooks"
     },
-    "t-kw-eeddb5dd": {
-      "kind": "keyword",
-      "pattern": "worktree husky pre-commit hook activate"
-    },
     "t-kw-eeeb356f": {
       "kind": "keyword",
       "pattern": "canonicalize keys"
@@ -12398,10 +12029,6 @@
     "t-kw-f821d655": {
       "kind": "keyword",
       "pattern": "block comment"
-    },
-    "t-kw-fa762c9e": {
-      "kind": "keyword",
-      "pattern": "interactive wizard global scope behavior change"
     },
     "t-kw-fb488002": {
       "kind": "keyword",

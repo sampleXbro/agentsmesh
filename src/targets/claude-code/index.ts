@@ -119,6 +119,7 @@ const globalCapabilities: TargetCapabilities = {
 
 export const descriptor = {
   id: 'claude-code',
+  minimalInitDefault: true,
   metadata: {
     displayName: 'Claude Code',
     category: 'cli',

@@ -33,6 +33,11 @@ export function renderInit(result: InitCommandResult): void {
       logger.success(`  ${f.from} → ${f.to}`);
     }
     logger.info(`Imported ${data.imported.length} file(s) from ${data.importedToolCount} tool(s).`);
+    if (data.rootRuleMerged) {
+      logger.info(
+        `  More than one tool had a root rule — all of them were merged into .agentsmesh/rules/_root.md. Review it before running 'agentsmesh generate'.`,
+      );
+    }
   }
 
   const targetsSuffix =
@@ -40,6 +45,7 @@ export function renderInit(result: InitCommandResult): void {
       ? ` (targets: ${data.detectedConfigs.join(', ')})`
       : '';
   logger.success(`Created ${data.configFile}${targetsSuffix}`);
+  renderTargetChoice(data);
   logger.success(`Created ${data.localConfigFile}`);
 
   if (data.gitignoreUpdated) {
@@ -49,6 +55,27 @@ export function renderInit(result: InitCommandResult): void {
   if (data.lessons !== undefined) {
     renderLessons(data.lessons);
   }
+}
+
+/**
+ * Say how many targets were enabled and why, so a default the user did not pick
+ * is never silent — and always name the flag that changes it.
+ */
+function renderTargetChoice(data: InitCommandResult['data']): void {
+  // 'explicit' and 'all' both mean the user named what they wanted.
+  const chosen = data.targetSource === 'explicit' || data.targetSource === 'all';
+  if (chosen || data.targets.length === 0) return;
+  const count = data.targets.length;
+  const noun = count === 1 ? 'target' : 'targets';
+  const why: Record<string, string> = {
+    project: 'from tool config found in this project',
+    machine: 'from tools installed on this machine',
+    fallback: 'no tool config or install found, so a minimal set was used',
+  };
+  logger.info(
+    `Enabled ${count} ${noun} (${why[data.targetSource]}): ${data.targets.join(', ')}. ` +
+      `Edit ${data.configFile} or pass --targets a,b to change them.`,
+  );
 }
 
 function renderLessons(lessons: NonNullable<InitCommandResult['data']['lessons']>): void {

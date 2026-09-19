@@ -28,9 +28,9 @@ import type { MultiselectOption, Prompter, SelectOption } from '../prompts/promp
 const BACK = '__back__';
 
 /**
- * Selectable targets for the given scope, ordered for discovery. Nothing is
- * pre-selected by default — the user must actively pick at least one (enforced
- * by the multiselect's `required` flag).
+ * Selectable targets for the given scope, ordered for discovery. The caller
+ * pre-selects the targets detection suggests; the user must still end up with
+ * at least one (enforced by the multiselect's `required` flag).
  * - project: every builtin target, recommended (starter) set first then alphabetical.
  * - global: only global-capable targets, alphabetical.
  */
@@ -96,6 +96,9 @@ function cancelledResult(scope: ScopeContext['scope']): InitCommandResult {
       detectedConfigs: [],
       imported: [],
       importedToolCount: 0,
+      rootRuleMerged: false,
+      targets: [],
+      targetSource: 'explicit',
       scaffoldType: 'none',
       gitignoreUpdated: false,
       cancelled: true,
@@ -109,13 +112,14 @@ export async function runInitWizard(
     projectRoot: string;
     context: ScopeContext;
     detected: readonly string[];
-    defaultTargets: readonly string[] | undefined;
+    /** Targets the non-interactive path would have chosen; pre-selected in step 1. */
+    suggestedTargets?: readonly string[];
   },
 ): Promise<InitCommandResult> {
   const scope = ctx.context.scope;
   prompter.intro(scope === 'global' ? 'agentsmesh init --global' : 'agentsmesh init');
 
-  const answers: Answers = { targets: [] };
+  const answers: Answers = { targets: [...(ctx.suggestedTargets ?? [])] };
 
   // Step list, in display order. Each runs a prompt and returns a navigation
   // result; the loop below moves forward on 'next', backward on 'back'.
@@ -194,7 +198,8 @@ export async function runInitWizard(
   const plan: InitPlan = {
     scope,
     targets: answers.targets,
-    defaultTargets: ctx.defaultTargets,
+    // The wizard's selection is the user's own, however it was pre-filled.
+    targetSource: 'explicit',
     detected: ctx.detected,
     doImport: answers.doImport ?? false,
     lessons: answers.lessons ?? false,
