@@ -16,6 +16,11 @@ export function renderImport(result: ImportCommandResult): void {
   for (const f of data.files) {
     ui.success(`${f.from} → ${f.to}`);
   }
+  if (data.rootRuleMerged) {
+    ui.info(
+      `Root rule merged into .agentsmesh/rules/_root.md — it already held another tool's rules, so both are kept. Review and edit it if they overlap.`,
+    );
+  }
   const scopeFlag = data.scope === 'global' ? ' --global' : '';
   ui.info(
     `Imported ${data.files.length} file(s). Run 'agentsmesh generate${scopeFlag}' to sync to other tools.`,

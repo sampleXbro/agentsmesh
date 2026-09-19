@@ -59,6 +59,7 @@ export async function runInit(
         detectedConfigs: [],
         imported: [],
         importedToolCount: 0,
+        rootRuleMerged: false,
         scaffoldType: 'none',
         gitignoreUpdated: false,
         lessons,

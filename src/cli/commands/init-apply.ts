@@ -6,6 +6,7 @@
  * `generate` is NOT run here — the wizard owns that step.
  */
 
+import { existsSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { writeFileAtomic } from '../../utils/filesystem/fs.js';
 import { ensureGitignoreEntries } from '../../utils/filesystem/gitignore.js';
@@ -16,6 +17,9 @@ import { writeScaffoldFull, writeScaffoldGapFill } from './init-scaffold.js';
 import type { ConfigScope, ScopeContext } from '../../config/core/scope.js';
 import { scaffoldLessons } from '../../lessons/init.js';
 import type { InitData } from '../command-result.js';
+import { AB_ROOT_RULE } from '../../core/canonical-paths.js';
+import { rootRuleBodyGrew } from '../../targets/import/root-rule-body-merge.js';
+import { parseFrontmatter } from '../../utils/text/markdown.js';
 
 export interface InitCommandResult {
   exitCode: number;
@@ -57,17 +61,35 @@ export interface InitPlan {
   lessons: boolean;
 }
 
+/**
+ * Body of the canonical root rule, or `''` when absent. Sampled around each
+ * tool's import so init can report that two tools' root rules were combined
+ * rather than one silently replacing the other.
+ */
+function readRootRuleBody(rootBase: string): string {
+  const rootRule = join(rootBase, AB_ROOT_RULE);
+  if (!existsSync(rootRule)) return '';
+  return parseFrontmatter(readFileSync(rootRule, 'utf8')).body;
+}
+
 /** Run each detected tool's importer and collect forward-slash relative file moves. */
 async function importDetectedTools(
   rootBase: string,
   scope: ConfigScope,
   toolIds: readonly string[],
-): Promise<{ imported: Array<{ from: string; to: string }>; importedToolCount: number }> {
+): Promise<{
+  imported: Array<{ from: string; to: string }>;
+  importedToolCount: number;
+  rootRuleMerged: boolean;
+}> {
   const imported: Array<{ from: string; to: string }> = [];
+  let rootRuleMerged = false;
   for (const toolId of toolIds) {
     const importerFn = IMPORTERS[toolId];
     if (!importerFn) continue;
+    const rootBefore = readRootRuleBody(rootBase);
     const results = await importerFn(rootBase, scope);
+    if (rootRuleBodyGrew(rootBefore, readRootRuleBody(rootBase))) rootRuleMerged = true;
     for (const r of results) {
       imported.push({
         from: relative(rootBase, r.fromPath).replaceAll('\\', '/'),
@@ -75,7 +97,7 @@ async function importDetectedTools(
       });
     }
   }
-  return { imported, importedToolCount: toolIds.length };
+  return { imported, importedToolCount: toolIds.length, rootRuleMerged };
 }
 
 /** Apply an InitPlan and return the structured InitData. */
@@ -88,12 +110,14 @@ export async function applyInitPlan(
 
   let imported: Array<{ from: string; to: string }> = [];
   let importedToolCount = 0;
+  let rootRuleMerged = false;
   let scaffoldType: 'full' | 'gap-fill';
 
   if (plan.doImport) {
     const res = await importDetectedTools(context.rootBase, plan.scope, plan.detected);
     imported = res.imported;
     importedToolCount = res.importedToolCount;
+    rootRuleMerged = res.rootRuleMerged;
     await writeScaffoldGapFill(context.canonicalDir);
     scaffoldType = 'gap-fill';
   } else {
@@ -126,6 +150,7 @@ export async function applyInitPlan(
     configFile: CONFIG_FILENAME,
     localConfigFile: LOCAL_CONFIG_FILENAME,
     detectedConfigs: [...plan.detected],
+    rootRuleMerged,
     imported,
     importedToolCount,
     scaffoldType,

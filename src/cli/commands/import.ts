@@ -12,6 +12,8 @@ import { seedAgentsmeshMcpEntry } from './seed-mcp-entry.js';
 import type { ImportData } from '../command-result.js';
 import { scaffoldLessons } from '../../lessons/init.js';
 import { LESSONS_CONTRACT_START } from '../../targets/projection/managed-blocks.js';
+import { rootRuleBodyGrew } from '../../targets/import/root-rule-body-merge.js';
+import { parseFrontmatter } from '../../utils/text/markdown.js';
 
 export interface ImportCommandResult {
   exitCode: number;
@@ -50,6 +52,17 @@ async function ensureImportedLessonsSubsystem(
 }
 
 /**
+ * Body of the canonical root rule, or `''` when it does not exist yet.
+ * Sampled around the import so the CLI can say whether this target's root rule
+ * accumulated onto another tool's instead of replacing it.
+ */
+function readRootRuleBody(rootBase: string): string {
+  const rootRule = join(rootBase, '.agentsmesh/rules/_root.md');
+  if (!existsSync(rootRule)) return '';
+  return parseFrontmatter(readFileSync(rootRule, 'utf8')).body;
+}
+
+/**
  * Run the import command.
  * @param flags - CLI flags (from)
  * @param projectRoot - Project root (default process.cwd())
@@ -70,6 +83,7 @@ export async function runImport(
   if (isBuiltinTargetId(normalized)) {
     const context = resolveScopeContext(root, scope);
     const target = getDescriptor(normalized)!;
+    const rootBefore = readRootRuleBody(context.rootBase);
     const results = await target.generators.importFrom(context.rootBase, { scope });
     if (results.length > 0) {
       await seedAgentsmeshMcpEntry(context.rootBase);
@@ -81,6 +95,7 @@ export async function runImport(
         scope,
         target: normalized,
         files: mapResults(results, context.rootBase),
+        rootRuleMerged: rootRuleBodyGrew(rootBefore, readRootRuleBody(context.rootBase)),
       },
     };
   }
@@ -104,6 +119,7 @@ export async function runImport(
     );
   }
 
+  const rootBefore = readRootRuleBody(context.rootBase);
   const results = await descriptor.generators.importFrom(context.rootBase, { scope });
   if (results.length > 0) {
     await seedAgentsmeshMcpEntry(context.rootBase);
@@ -115,6 +131,7 @@ export async function runImport(
       scope,
       target: normalized,
       files: mapResults(results, context.rootBase),
+      rootRuleMerged: rootRuleBodyGrew(rootBefore, readRootRuleBody(context.rootBase)),
     },
   };
 }

@@ -2,7 +2,11 @@
  * Sequential `agentsmesh import --from <target>` behavior across targets.
  *
  * Overlapping canonical paths are last-import-wins; disjoint paths accumulate.
- * MCP servers are merged by name across sequential imports (imported wins on conflict).
+ * Two exceptions, both because the canonical slot holds more than one source:
+ * MCP servers merge by name across sequential imports (imported wins on
+ * conflict), and `rules/_root.md` accumulates every target's root rule —
+ * two tools' root instructions are distinct content, not one entity described
+ * twice, so replacing there would destroy the user's rules.
  *
  * Global scope (`import --global`): `resolveScopeContext` uses `homedir()` for both `rootBase`
  * and canonical output (`~/.agentsmesh`), regardless of cwd. Project scope writes under `<cwd>/.agentsmesh`.
@@ -69,27 +73,66 @@ describe('import: multi-target sequential merge (integration)', () => {
     );
     const root = readFileSync(join(TEST_DIR, '.agentsmesh', 'rules', '_root.md'), 'utf-8');
     expect(root).toContain('CURSOR_ROOT_ONLY');
-    expect(root).not.toContain('CLAUDE_ROOT_BODY');
+    expect(root).toContain('CLAUDE_ROOT_BODY');
   });
 
-  it('last import wins for shared rules/_root.md (claude then cursor vs cursor then claude)', () => {
+  it('shared rules/_root.md accumulates both targets, in either order', () => {
     mkdirSync(join(TEST_DIR, '.claude'), { recursive: true });
     writeFileSync(join(TEST_DIR, '.claude', 'CLAUDE.md'), '# A\n\nROOT_MARKER_CLAUDE');
     writeFileSync(join(TEST_DIR, 'AGENTS.md'), '# B\n\nROOT_MARKER_CURSOR');
 
     runImport('claude-code');
     runImport('cursor');
-    expect(readFileSync(join(TEST_DIR, '.agentsmesh', 'rules', '_root.md'), 'utf-8')).toContain(
-      'ROOT_MARKER_CURSOR',
-    );
+    const forward = readFileSync(join(TEST_DIR, '.agentsmesh', 'rules', '_root.md'), 'utf-8');
+    expect(forward).toContain('ROOT_MARKER_CURSOR');
+    expect(forward).toContain('ROOT_MARKER_CLAUDE');
 
     rmSync(join(TEST_DIR, '.agentsmesh'), { recursive: true, force: true });
 
     runImport('cursor');
     runImport('claude-code');
-    expect(readFileSync(join(TEST_DIR, '.agentsmesh', 'rules', '_root.md'), 'utf-8')).toContain(
-      'ROOT_MARKER_CLAUDE',
+    const reverse = readFileSync(join(TEST_DIR, '.agentsmesh', 'rules', '_root.md'), 'utf-8');
+    expect(reverse).toContain('ROOT_MARKER_CLAUDE');
+    expect(reverse).toContain('ROOT_MARKER_CURSOR');
+  });
+
+  it('last import wins when two targets define the same NON-root rule name', () => {
+    // Guards the root-rule exception: only `_root.md` accumulates. A named rule
+    // colliding on the same canonical path is still one entity, last import wins.
+    mkdirSync(join(TEST_DIR, '.claude', 'rules'), { recursive: true });
+    mkdirSync(join(TEST_DIR, '.cursor', 'rules'), { recursive: true });
+    writeFileSync(
+      join(TEST_DIR, '.claude', 'rules', 'typescript.md'),
+      '---\ndescription: TS\n---\n\nRULE_BODY_FROM_CLAUDE',
     );
+    writeFileSync(
+      join(TEST_DIR, '.cursor', 'rules', 'typescript.mdc'),
+      '---\ndescription: TS\nalwaysApply: false\n---\n\nRULE_BODY_FROM_CURSOR',
+    );
+
+    runImport('claude-code');
+    runImport('cursor');
+    const rule = readFileSync(join(TEST_DIR, '.agentsmesh', 'rules', 'typescript.md'), 'utf-8');
+    expect(rule).toContain('RULE_BODY_FROM_CURSOR');
+    expect(rule).not.toContain('RULE_BODY_FROM_CLAUDE');
+  });
+
+  it('root-rule merge keeps frontmatter the second source cannot express', () => {
+    mkdirSync(join(TEST_DIR, '.claude'), { recursive: true });
+    writeFileSync(
+      join(TEST_DIR, '.claude', 'CLAUDE.md'),
+      '---\ndescription: Kept description\n---\n\nROOT_FM_CLAUDE',
+    );
+    writeFileSync(join(TEST_DIR, 'AGENTS.md'), '# B\n\nROOT_FM_CURSOR');
+
+    runImport('claude-code');
+    runImport('cursor');
+
+    const root = readFileSync(join(TEST_DIR, '.agentsmesh', 'rules', '_root.md'), 'utf-8');
+    expect(root).toContain('root: true');
+    expect(root).toContain('Kept description');
+    expect(root).toContain('ROOT_FM_CLAUDE');
+    expect(root).toContain('ROOT_FM_CURSOR');
   });
 
   it('last import wins when both targets define the same command name', () => {
@@ -354,14 +397,14 @@ describe('import: global sequential merge (integration)', () => {
     ).toContain('CURSOR_NAMED_RULE');
   });
 
-  it('global cursor import can still overwrite _root when ~/.cursor/AGENTS.md is present', () => {
+  it('global cursor import accumulates onto _root when ~/.cursor/AGENTS.md is present', () => {
     const fakeHome = join(TEST_DIR, 'global-home-root-overwrite');
     const cwd = join(TEST_DIR, 'global-cwd-2');
     mkdirSync(join(fakeHome, '.claude'), { recursive: true });
     mkdirSync(join(fakeHome, '.cursor'), { recursive: true });
     mkdirSync(cwd, { recursive: true });
 
-    writeFileSync(join(fakeHome, '.claude', 'CLAUDE.md'), '# A\n\nSHOULD_BE_REPLACED');
+    writeFileSync(join(fakeHome, '.claude', 'CLAUDE.md'), '# A\n\nROOT_FROM_CLAUDE_GLOBAL');
     writeFileSync(join(fakeHome, '.cursor', 'AGENTS.md'), '# B\n\nROOT_FROM_CURSOR_GLOBAL');
 
     runImportGlobal('claude-code', cwd, fakeHome);
@@ -369,12 +412,12 @@ describe('import: global sequential merge (integration)', () => {
 
     const root = readFileSync(join(fakeHome, '.agentsmesh', 'rules', '_root.md'), 'utf-8');
     expect(root).toContain('ROOT_FROM_CURSOR_GLOBAL');
-    expect(root).not.toContain('SHOULD_BE_REPLACED');
+    expect(root).toContain('ROOT_FROM_CLAUDE_GLOBAL');
   });
 });
 
 describe('import: three targets in one project (integration)', () => {
-  it('merges disjoint rule files from claude-code, cursor, and gemini-cli (last target sets _root)', () => {
+  it('merges disjoint rule files from claude-code, cursor, and gemini-cli (every root accumulates)', () => {
     const projectDir = join(TEST_DIR, 'triple');
     mkdirSync(join(projectDir, '.claude', 'rules'), { recursive: true });
     mkdirSync(join(projectDir, '.cursor', 'rules'), { recursive: true });
@@ -411,6 +454,6 @@ describe('import: three targets in one project (integration)', () => {
 
     const root = readFileSync(join(projectDir, '.agentsmesh', 'rules', '_root.md'), 'utf-8');
     expect(root).toContain('ROOT_GEMINI_TRIPLE');
-    expect(root).not.toContain('ROOT_CLAUDE_TRIPLE');
+    expect(root).toContain('ROOT_CLAUDE_TRIPLE');
   });
 });

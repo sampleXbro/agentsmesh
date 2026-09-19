@@ -33,6 +33,11 @@ export function renderInit(result: InitCommandResult): void {
       logger.success(`  ${f.from} → ${f.to}`);
     }
     logger.info(`Imported ${data.imported.length} file(s) from ${data.importedToolCount} tool(s).`);
+    if (data.rootRuleMerged) {
+      logger.info(
+        `  More than one tool had a root rule — all of them were merged into .agentsmesh/rules/_root.md. Review it before running 'agentsmesh generate'.`,
+      );
+    }
   }
 
   const targetsSuffix =

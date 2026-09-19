@@ -96,6 +96,7 @@ function cancelledResult(scope: ScopeContext['scope']): InitCommandResult {
       detectedConfigs: [],
       imported: [],
       importedToolCount: 0,
+      rootRuleMerged: false,
       scaffoldType: 'none',
       gitignoreUpdated: false,
       cancelled: true,

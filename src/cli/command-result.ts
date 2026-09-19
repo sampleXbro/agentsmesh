@@ -26,6 +26,8 @@ export interface InitData {
   detectedConfigs: string[];
   imported: Array<{ from: string; to: string }>;
   importedToolCount: number;
+  /** Two or more detected tools' root rules were combined into one canonical root. */
+  rootRuleMerged: boolean;
   scaffoldType: 'full' | 'gap-fill' | 'none';
   gitignoreUpdated: boolean;
   /**
@@ -50,6 +52,8 @@ export interface ImportData {
   scope: 'project' | 'global';
   target: string;
   files: Array<{ from: string; to: string }>;
+  /** This target's root rule accumulated onto one already in the canonical root. */
+  rootRuleMerged: boolean;
 }
 
 export interface DiffData {

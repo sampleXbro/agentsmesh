@@ -3,6 +3,7 @@ import { basename } from 'node:path';
 import { readFileSafe } from '../../utils/filesystem/fs.js';
 import { parseFrontmatter, serializeFrontmatter } from '../../utils/text/markdown.js';
 import { stripAgentsmeshRootInstructionParagraph } from '../projection/root-instruction-paragraph.js';
+import { mergeRootRuleBody } from './root-rule-body-merge.js';
 
 export interface ImportedCommandMetadata {
   description?: string;
@@ -13,10 +14,18 @@ export interface ImportedCommandMetadata {
 
 export { toStringArray };
 
-export async function readExistingFrontmatter(path: string): Promise<Record<string, unknown>> {
+async function readExisting(path: string): Promise<{
+  frontmatter: Record<string, unknown>;
+  body: string;
+}> {
   const existing = await readFileSafe(path);
-  if (!existing) return {};
-  return parseFrontmatter(existing).frontmatter;
+  if (!existing) return { frontmatter: {}, body: '' };
+  const parsed = parseFrontmatter(existing);
+  return { frontmatter: parsed.frontmatter, body: parsed.body };
+}
+
+export async function readExistingFrontmatter(path: string): Promise<Record<string, unknown>> {
+  return (await readExisting(path)).frontmatter;
 }
 
 export function readString(frontmatter: Record<string, unknown>, key: string): string | undefined {
@@ -54,11 +63,14 @@ export async function serializeImportedRuleWithFallback(
   importedFrontmatter: Record<string, unknown>,
   body: string,
 ): Promise<string> {
-  const existingFrontmatter = await readExistingFrontmatter(destinationPath);
-  const normalizedBody =
-    basename(destinationPath, '.md') === '_root'
-      ? stripAgentsmeshRootInstructionParagraph(body)
-      : body.trim();
+  const isRootRule = basename(destinationPath, '.md') === '_root';
+  const { frontmatter: existingFrontmatter, body: existingBody } =
+    await readExisting(destinationPath);
+  // The root rule is the one canonical slot every target collapses into, so a
+  // second tool's body accumulates instead of replacing the first.
+  const normalizedBody = isRootRule
+    ? mergeRootRuleBody(existingBody, stripAgentsmeshRootInstructionParagraph(body))
+    : body.trim();
   const mergedFrontmatter = serializeCanonicalRuleFrontmatter(
     destinationPath,
     pruneUndefined({ ...existingFrontmatter, ...importedFrontmatter }),

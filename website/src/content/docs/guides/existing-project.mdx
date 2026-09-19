@@ -47,6 +47,15 @@ If your project already has AI tool configs scattered across `.claude/`, `.curso
 
    Check that all your rules, commands, agents, and other config came through correctly.
 
+   <Aside type="note" title="Several tools with root rules">
+     If more than one tool had a root instruction — say `CLAUDE.md` and an always-apply
+     `.cursor/rules/*.mdc` — all of them are combined into `.agentsmesh/rules/_root.md`
+     and the CLI tells you the root rule was merged. Nothing is dropped, but nothing is
+     reconciled either: read the merged file and delete anything the tools said twice.
+     Every other canonical path (commands, skills, hooks, permissions, ignore) is
+     last-import-wins.
+   </Aside>
+
 3. **Configure agentsmesh.yaml**
 
    Set the targets your team actually uses:

@@ -11,6 +11,7 @@
 
 import { starterInitTargetIds } from '../../targets/catalog/init-starter-targets.js';
 import { yamlSchemaDirective } from '../../utils/output/schema-directive.js';
+import { ROOT_RULE_PLACEHOLDER_BODY } from '../../canonical/root-rule-placeholder.js';
 
 const ALL_FEATURES = [
   'rules',
@@ -53,10 +54,7 @@ root: true
 description: "Project rules"
 ---
 
-# Project Rules
-
-Add your project-wide instructions here.
-This file is always included in AI tool context and synced to all configured tools.
+${ROOT_RULE_PLACEHOLDER_BODY}
 `;
 
 export const TEMPLATE_EXAMPLE_RULE = `---
