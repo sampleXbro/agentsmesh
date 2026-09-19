@@ -1,0 +1,51 @@
+---
+/**
+ * Source for `assets/social-preview.png` (1280x640), the image GitHub shows
+ * when the repository is linked on social media, in chat, and in search.
+ * GitHub recommends 1280x640; anything smaller is upscaled.
+ *
+ * Served only by `astro dev` at /og-github/ (see integrations/dev-only-routes.mjs).
+ *
+ * To regenerate: restart `astro dev` (a running server can serve a stale scoped
+ * stylesheet for the card), run `astro preferences disable devToolbar`,
+ * screenshot the viewport at exactly 1280x640, then re-enable the toolbar.
+ *
+ * GitHub does not expose an API for the social preview, so the PNG has to be
+ * uploaded by hand once, under Settings → General → Social preview.
+ *
+ * The artwork is shared with the site's Open Graph card at /og/.
+ */
+import '@fontsource-variable/bricolage-grotesque';
+import '@fontsource/ibm-plex-sans/500.css';
+import '@fontsource/ibm-plex-mono/400.css';
+import '../styles/tokens.css';
+import SocialCard from '../components/og/SocialCard.astro';
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex" />
+    <title>AgentsMesh GitHub social preview</title>
+  </head>
+  <body>
+    <SocialCard width={1280} height={640} />
+  </body>
+</html>
+
+<style>
+  :root {
+    --__sl-font-mono: var(--sl-font-mono), ui-monospace, monospace;
+  }
+
+  body {
+    margin: 0;
+    width: 1280px;
+    height: 640px;
+    overflow: hidden;
+    background: var(--sl-color-black);
+    color: var(--sl-color-gray-2);
+    font-family: var(--sl-font), system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+</style>

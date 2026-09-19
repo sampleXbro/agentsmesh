@@ -214,7 +214,10 @@ export default defineConfig({
       ],
     }),
     seoRobotsIntegration(() => deploySite.publicUrl),
-    devOnlyRoutes([{ pattern: '/og', entrypoint: './src/dev-pages/og.astro' }]),
+    devOnlyRoutes([
+      { pattern: '/og', entrypoint: './src/dev-pages/og.astro' },
+      { pattern: '/og-github', entrypoint: './src/dev-pages/og-github.astro' },
+    ]),
     llmsTxtIntegration({
       siteName: 'AgentsMesh',
       description:
