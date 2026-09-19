@@ -1170,6 +1170,21 @@
         "t-kw-4683ab67"
       ]
     },
+    "docs-lock-format-to-regenerate-a-social-card": {
+      "createdAt": "2026-09-19",
+      "evidence": [
+        "a5839637"
+      ],
+      "rule": "To regenerate a social card PNG from the Astro dev-only pages (/og at 1200x640, /og-github at 1280x640): disable the dev toolbar first ('node node_modules/astro/astro.js preferences disable devToolbar' in website/) or it renders into the bottom edge of the capture, restart the dev server so the card's scoped stylesheet is not stale, capture with chrome-devtools take_screenshot filePath (which only accepts paths inside the workspace root, never /tmp), then downsample with 'sips --resampleHeightWidth' because the capture comes back at 2x DPR and GitHub rejects social previews over 1 MB. Re-enable the toolbar afterwards.",
+      "status": "active",
+      "topics": [
+        "docs-lock-format"
+      ],
+      "triggers": [
+        "t-glob-76c2bb84",
+        "t-glob-29371cdf"
+      ]
+    },
     "fixture-and-assertion-discipline-after-changing-a-target-capability": {
       "createdAt": "2026-06-14",
       "evidence": [
@@ -10550,6 +10565,10 @@
       "kind": "file_glob",
       "pattern": "src/public/*.ts"
     },
+    "t-glob-29371cdf": {
+      "kind": "file_glob",
+      "pattern": "website/src/components/og/*.astro"
+    },
     "t-glob-2be00990": {
       "kind": "file_glob",
       "pattern": "src/cli/commands/init-wizard.ts"
@@ -10925,6 +10944,10 @@
     "t-glob-75e89e62": {
       "kind": "file_glob",
       "pattern": "src/targets/opencode/index.ts"
+    },
+    "t-glob-76c2bb84": {
+      "kind": "file_glob",
+      "pattern": "website/src/dev-pages/*.astro"
     },
     "t-glob-771c5cde": {
       "kind": "file_glob",
