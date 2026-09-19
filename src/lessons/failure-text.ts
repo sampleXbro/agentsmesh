@@ -37,7 +37,6 @@ export function failureText(payload: {
 }): string | undefined {
   return (
     nonEmptyString(payload.tool_error) ??
-    fromRecord(payload.tool_error) ??
     nonEmptyString(payload.tool_response) ??
     fromRecord(payload.tool_response)
   );
