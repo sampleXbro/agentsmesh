@@ -20,7 +20,11 @@ Every AI coding assistant reads its own config: `CLAUDE.md`, `AGENTS.md`, `.curs
 
 **AgentsMesh makes `.agentsmesh/` the one source.** Write rules, commands, agents, skills, MCP servers, hooks, ignore patterns, and permissions once. `agentsmesh generate` writes every tool's native files, `agentsmesh import` pulls existing configs back in without loss, and `agentsmesh check` fails CI when anything drifts.
 
-**Your agents learn from your repo.** [Lessons](#teach-your-agents-lessons) give every agent, in every tool, one git-tracked memory: capture a rule after a failure, recall it before the next edit. Same mistake, never twice.
+**Your agents learn from your repo.** [Lessons](#teach-your-agents-lessons) give every agent, in every tool, one git-tracked memory: capture a rule after a failure, recall it before the next edit. Same mistake, never twice. No other config-sync tool has this.
+
+<div align="center">
+  <img src="https://raw.githubusercontent.com/sampleXbro/agentsmesh/master/assets/lessons-demo.gif" alt="an AI agent captures a lesson after a failure, then recalls it before editing the same file" width="100%" />
+</div>
 
 > [!NOTE]
 > Full documentation, guides, and the per-tool reference: **[samplexbro.github.io/agentsmesh](https://samplexbro.github.io/agentsmesh/)**
@@ -95,11 +99,7 @@ AGENTS.md
 
 ## Teach your agents: lessons
 
-No other config-sync tool has this. Lessons are a memory of past mistakes that every agent reads before it acts and writes after something goes wrong, so a lesson one agent learns today helps every teammate's agent tomorrow, in any tool.
-
-<div align="center">
-  <img src="https://raw.githubusercontent.com/sampleXbro/agentsmesh/master/assets/lessons-demo.gif" alt="an AI agent captures a lesson after a failure, then recalls it before editing the same file" width="100%" />
-</div>
+Lessons are a memory of past mistakes that every agent reads before it acts and writes after something goes wrong, so a lesson one agent learns today helps every teammate's agent tomorrow, in any tool.
 
 The memory is one git-tracked file, `.agentsmesh/lessons/lessons.json`, driven by two commands:
 
@@ -191,6 +191,9 @@ AgentsMesh generates native config for every major AI coding assistant, plus plu
 
 ### Project scope (`agentsmesh generate`)
 
+<details>
+<summary>Per-feature support for all 33 tools</summary>
+
 <!-- agentsmesh:support-matrix:project -->
 | Feature | Aider | Amazon Q Developer | Amp | Antigravity | Augment Code | Claude Code | Cline | Codebuff | Codex CLI | Continue | GitHub Copilot | Crush | Cursor | Deep Agents CLI | Factory Droid | Gemini CLI | Goose | Jules | Junie | Kilo Code | Kimi Code CLI | Kiro | OpenCode | OpenHands | Pi Agent | Qwen Code | Replit Agent | Roo Code | Rovo Dev | Trae | Warp | Windsurf | Zed |
 |---|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|
@@ -205,7 +208,12 @@ AgentsMesh generates native config for every major AI coding assistant, plus plu
 | Permissions | Partial | Embedded | Partial | Partial | Native | Native | Partial | Partial | Native | — | — | Native | Native | Partial | Native | Partial | Partial | Partial | Partial | Native | Partial | Embedded | Native | Partial | Native | Native | Partial | Native | — | — | Partial | Partial | — |
 <!-- /agentsmesh:support-matrix:project -->
 
+</details>
+
 ### Global scope (`agentsmesh generate --global`)
+
+<details>
+<summary>Per-feature support for all 33 tools in global mode</summary>
 
 <!-- agentsmesh:support-matrix:global -->
 | Feature | Aider | Amazon Q Developer | Amp | Antigravity | Augment Code | Claude Code | Cline | Codebuff | Codex CLI | Continue | GitHub Copilot | Crush | Cursor | Deep Agents CLI | Factory Droid | Gemini CLI | Goose | Jules | Junie | Kilo Code | Kimi Code CLI | Kiro | OpenCode | OpenHands | Pi Agent | Qwen Code | Replit Agent | Roo Code | Rovo Dev | Trae | Warp | Windsurf | Zed |
@@ -220,6 +228,8 @@ AgentsMesh generates native config for every major AI coding assistant, plus plu
 | Ignore | Native | Embedded | Partial | — | — | Native | — | — | — | Native | — | Native | Native | Partial | Partial | — | Native | — | — | — | — | Native | Embedded | — | Partial | — | — | — | Partial | — | Partial | Native | Embedded |
 | Permissions | Partial | Embedded | Partial | Native | Native | Native | Partial | Partial | Native | Native | Partial | Native | Native | Embedded | Native | Native | Native | — | Native | Native | Native | Native | Native | Partial | Native | Native | — | Partial | Native | Partial | Native | Partial | Native |
 <!-- /agentsmesh:support-matrix:global -->
+
+</details>
 
 ## Documentation
 

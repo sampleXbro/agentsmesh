@@ -54,7 +54,7 @@ export default defineConfig({
   integrations: [
     starlight({
       plugins: [starlightLinksValidator({ errorOnRelativeLinks: false })],
-      title: 'AgentsMesh',
+      title: 'AgentsMesh CLI',
       tagline: 'One config for every AI coding tool. Agents that learn.',
       components: {
         Head: './src/components/Head.astro',
@@ -220,7 +220,7 @@ export default defineConfig({
       { pattern: '/og-github', entrypoint: './src/dev-pages/og-github.astro' },
     ]),
     llmsTxtIntegration({
-      siteName: 'AgentsMesh',
+      siteName: 'AgentsMesh CLI',
       description:
         'One config for every AI coding tool, with a shared lessons memory that learns from your repo.',
       getSiteUrl: () => docsRoot,

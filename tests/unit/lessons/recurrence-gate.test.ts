@@ -17,6 +17,7 @@ const GRAPH: LessonsGraph = {
   triggers: {
     'glob-src': { kind: 'file_glob', pattern: 'src/**' },
     'cmd-commit': { kind: 'command_pattern', pattern: 'git commit -m' },
+    'cmd-grep': { kind: 'command_pattern', pattern: 'grep' },
   },
   lessons: {
     l1: {
@@ -31,6 +32,14 @@ const GRAPH: LessonsGraph = {
       rule: 'commit with care',
       topics: ['t'],
       triggers: ['cmd-commit'],
+      evidence: [],
+      status: 'active',
+      createdAt: '2026-01-01',
+    },
+    l3: {
+      rule: 'grep carefully',
+      topics: ['t'],
+      triggers: ['cmd-grep'],
       evidence: [],
       status: 'active',
       createdAt: '2026-01-01',
@@ -156,5 +165,35 @@ describe('hasCoveringLesson (moved from hook.ts)', () => {
   it('matches command triggers against the raw command text', () => {
     expect(hasCoveringLesson(root, undefined, 'git commit -m "wip"')).toBe(true);
     expect(hasCoveringLesson(root, undefined, 'git push')).toBe(false);
+  });
+});
+
+describe('recurrenceEscalation — read-only commands', () => {
+  it('never escalates a pure-read command, however often it is logged', () => {
+    const command = 'grep -rn foo src/';
+    const key = contextKey({ command }, root);
+    for (let i = 0; i < 5; i += 1) recordFailure(root, key, 'other', ON, 's1');
+
+    expect(recurrenceEscalation(root, { command, sessionId: 's1' })).toBeNull();
+  });
+
+  it('still escalates a state-changing command with the same history', () => {
+    const command = 'git commit -m wip';
+    const key = contextKey({ command }, root);
+    recordFailure(root, key, 'other', ON, 's1');
+    recordFailure(root, key, 'other', ON, 's1');
+
+    const out = recurrenceEscalation(root, { command, sessionId: 's1' });
+    expect(out).toContain('RECURRENT FAILURE');
+    expect(out).toContain('commit with care');
+  });
+
+  it('still escalates a file edit, which is never a pure read', () => {
+    const file = join(root, 'src/thing.ts');
+    const key = contextKey({ file }, root);
+    recordFailure(root, key, 'other', ON, 's1');
+    recordFailure(root, key, 'other', ON, 's1');
+
+    expect(recurrenceEscalation(root, { file, sessionId: 's1' })).toContain('RECURRENT FAILURE');
   });
 });

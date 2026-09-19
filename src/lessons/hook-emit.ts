@@ -105,14 +105,31 @@ function hiddenByCap(totalMatches: number, suppressed: number, delivered: number
   return Math.max(0, totalMatches - suppressed - delivered);
 }
 
+/**
+ * Why the recall was truncated, so the notice names a knob that can actually
+ * change the outcome. The per-call ceiling overrides the configured recall
+ * limit, so on a large graph it is almost always what binds — and pointing at
+ * `recallMaxTokens` in that case sends the reader to a setting that does
+ * nothing.
+ */
+function truncationNotice(hidden: number, deliveredCount: number): string {
+  if (hidden <= 0) return '';
+  if (deliveredCount >= HOOK_INJECT_LIMIT) {
+    return (
+      `\n(${hidden} more matched; recall injects at most ${HOOK_INJECT_LIMIT} rules per call. ` +
+      `Narrow these lessons' triggers so the most relevant ones rank first.)`
+    );
+  }
+  return (
+    `\n(${hidden} more matched but did not fit the recall token budget — raise ` +
+    `recallMaxTokens in .agentsmesh/lessons/config.json, or narrow these lessons' triggers.)`
+  );
+}
+
 /** The injected context body: lead sentence, clamped rule bullets, cap notice. */
 function injectionText(lead: string, rules: readonly string[], hidden = 0): string {
   const bullets = rules.map((r) => `- ${clampRule(r)}`).join('\n');
-  const notice =
-    hidden > 0
-      ? `\n(${hidden} more matched but did not fit the recall budget — raise recallMaxTokens in .agentsmesh/lessons/config.json, or narrow these lessons' triggers.)`
-      : '';
-  return `${lead} — apply before your next action:\n${bullets}${notice}`;
+  return `${lead} — apply before your next action:\n${bullets}${truncationNotice(hidden, rules.length)}`;
 }
 
 /** Assemble recalled rules into the harness's injection shape (clamp + bullets + lead + wrap). */

@@ -1,6 +1,7 @@
 import { buildCaptureNudge, RECURRENCE_THRESHOLD } from './capture-nudge.js';
 import { hookCommandFastpath } from './cmd-fastpath.js';
 import { contextKey } from './context-key.js';
+import { isReadOnlyCommand } from './read-only-command.js';
 import { diffTerms } from './diff-terms.js';
 import { errorClass } from './error-class.js';
 import {
@@ -129,7 +130,11 @@ export async function buildRecallHookOutput(
     let failures = 0;
     let lastErrorClass: string | undefined;
     let covered = false;
-    if (file !== undefined || command !== undefined) {
+    // A pure read (`grep` exiting 1 on no match, `cat` of a missing path) is not
+    // the kind of failure recurrence should count; recording it buried the real
+    // signal under read-only classes like `cmd:cat` and `cmd:grep`.
+    const readOnly = file === undefined && command !== undefined && isReadOnlyCommand(command);
+    if (!readOnly && (file !== undefined || command !== undefined)) {
       const key = contextKey({ file, command }, projectRoot);
       // Record the failure so effectiveness can tell whether a lesson delivered for
       // this same action earlier actually prevented the repeat (EVALUATE).

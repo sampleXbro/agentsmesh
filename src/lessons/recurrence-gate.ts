@@ -1,5 +1,6 @@
 import { RECURRENCE_THRESHOLD } from './capture-nudge.js';
 import { contextKey } from './context-key.js';
+import { isReadOnlyCommand } from './read-only-command.js';
 import { loadLessonsGraphResilient } from './graph-store.js';
 import { clampRule } from './hook-emit.js';
 import { normalizeRecallFile } from './normalize-query-file.js';
@@ -87,6 +88,11 @@ export function recurrenceEscalation(
   input: RecurrenceGateInput,
 ): string | null {
   if (input.file === undefined && input.command === undefined) return null;
+  // A pure read cannot fail destructively, and the ritual has always exempted
+  // one. Without this, a `grep` exiting 1 on no match escalates like a bad edit.
+  if (input.file === undefined && input.command !== undefined && isReadOnlyCommand(input.command)) {
+    return null;
+  }
   if (!outcomeLogExists(projectRoot)) return null;
   const key = contextKey({ file: input.file, command: input.command }, projectRoot);
   const { count } = failuresForContext(projectRoot, key);
