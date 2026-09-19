@@ -3279,6 +3279,21 @@
         "t-glob-b47f5129"
       ]
     },
+    "install-import-pickers-lessons-hook-recall-has-two": {
+      "createdAt": "2026-09-19",
+      "evidence": [
+        "427118c8"
+      ],
+      "rule": "Lessons hook recall has two distinct caps and they are not interchangeable: HOOK_INJECT_LIMIT (5, src/lessons/hook-emit.ts) overrides the configured recallLimit, and recallMaxTokens (default 1200) is the token budget applied after the count slice. On a large graph the COUNT cap almost always binds, so any truncation message must attribute which cap fired before naming a knob. Separately, the hook path has no read-only classifier by default: use isReadOnlyCommand (src/lessons/read-only-command.ts) before recordFailure and before recurrenceEscalation, or read-only classes like cmd:cat and cmd:grep dominate the failure log and trigger false RECURRENT FAILURE banners.",
+      "status": "active",
+      "topics": [
+        "install-import-pickers"
+      ],
+      "triggers": [
+        "t-glob-72c19fb3",
+        "t-glob-eb1e5fce"
+      ]
+    },
     "install-import-pickers-rule-1": {
       "createdAt": "2026-06-05",
       "evidence": [
@@ -10920,6 +10935,10 @@
     "t-glob-72a39ab6": {
       "kind": "file_glob",
       "pattern": "tests/e2e/fixtures/**"
+    },
+    "t-glob-72c19fb3": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/hook*.ts"
     },
     "t-glob-7346acca": {
       "kind": "file_glob",
