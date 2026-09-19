@@ -1,10 +1,14 @@
 import { RECURRENCE_THRESHOLD } from './capture-nudge.js';
 import { contextKey } from './context-key.js';
-import { isReadOnlyCommand } from './read-only-command.js';
 import { loadLessonsGraphResilient } from './graph-store.js';
 import { clampRule } from './hook-emit.js';
 import { normalizeRecallFile } from './normalize-query-file.js';
-import { failuresForContext, outcomeLogExists, recordDelivered } from './outcome-log.js';
+import {
+  failuresForContext,
+  failuresForErrorClass,
+  outcomeLogExists,
+  recordDelivered,
+} from './outcome-log.js';
 import { queryLessons, type LessonsQuery } from './query.js';
 import { commitSeen, openSessionDedup } from './seen-cache.js';
 
@@ -88,15 +92,17 @@ export function recurrenceEscalation(
   input: RecurrenceGateInput,
 ): string | null {
   if (input.file === undefined && input.command === undefined) return null;
-  // A pure read cannot fail destructively, and the ritual has always exempted
-  // one. Without this, a `grep` exiting 1 on no match escalates like a bad edit.
-  if (input.file === undefined && input.command !== undefined && isReadOnlyCommand(input.command)) {
-    return null;
-  }
   if (!outcomeLogExists(projectRoot)) return null;
   const key = contextKey({ file: input.file, command: input.command }, projectRoot);
-  const { count } = failuresForContext(projectRoot, key);
+  const { count, lastErrorClass } = failuresForContext(projectRoot, key);
   if (count < RECURRENCE_THRESHOLD) return null;
+  // The action key is a CLASS (`cat a` and `cat b` are both `cmd:cat`), so a raw
+  // count cannot tell one recurring problem from unrelated failures that happen
+  // to share a program. Escalate only when the SAME error recurred; with no
+  // error signature we cannot claim recurrence at all, so we stay quiet.
+  if (lastErrorClass === undefined) return null;
+  const recurrences = failuresForErrorClass(projectRoot, key, lastErrorClass);
+  if (recurrences < RECURRENCE_THRESHOLD) return null;
   const covering = coveringRules(projectRoot, input.file, input.command);
   if (covering.length === 0) return null;
   const dedup = openSessionDedup({ explicit: input.sessionId, projectRoot });
@@ -119,7 +125,7 @@ export function recurrenceEscalation(
   }
   const bullets = shown.map((c) => `- ${clampRule(c.rule)}`).join('\n');
   return (
-    `RECURRENT FAILURE: this exact action has failed ${count}× before and a ` +
-    `captured lesson covers it — apply the rule before retrying:\n${bullets}`
+    `RECURRENT FAILURE: this action has failed ${recurrences}× with the same error ` +
+    `and a captured lesson covers it — apply the rule before retrying:\n${bullets}`
   );
 }

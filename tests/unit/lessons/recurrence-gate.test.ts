@@ -62,8 +62,10 @@ afterEach(() => {
   rmSync(root, { recursive: true, force: true });
 });
 
-const seedFailures = (key: string, times: number): void => {
-  for (let i = 0; i < times; i += 1) recordFailure(root, key, undefined, ON);
+// Seeds the realistic case: the SAME error recurring, which is what the gate
+// now requires. A run with no error signature is covered by its own test.
+const seedFailures = (key: string, times: number, errorClass = 'same error'): void => {
+  for (let i = 0; i < times; i += 1) recordFailure(root, key, errorClass, ON);
 };
 
 describe('recurrenceEscalation', () => {
@@ -168,32 +170,38 @@ describe('hasCoveringLesson (moved from hook.ts)', () => {
   });
 });
 
-describe('recurrenceEscalation — read-only commands', () => {
-  it('never escalates a pure-read command, however often it is logged', () => {
-    const command = 'grep -rn foo src/';
+describe('recurrenceEscalation — same error, not just same program', () => {
+  it('stays quiet when the failures under one action class were different errors', () => {
+    // `cat a` and `cat b` share the key `cmd:cat`; six unrelated errors are not
+    // one recurring problem, and claiming otherwise is what made ordinary reads
+    // look like defects.
+    const command = 'git commit -m wip';
     const key = contextKey({ command }, root);
-    for (let i = 0; i < 5; i += 1) recordFailure(root, key, 'other', ON, 's1');
+    recordFailure(root, key, 'error one', ON, 's1');
+    recordFailure(root, key, 'error two', ON, 's1');
+    recordFailure(root, key, 'error three', ON, 's1');
 
     expect(recurrenceEscalation(root, { command, sessionId: 's1' })).toBeNull();
   });
 
-  it('still escalates a state-changing command with the same history', () => {
+  it('escalates when the same error recurred, and says how many times', () => {
     const command = 'git commit -m wip';
     const key = contextKey({ command }, root);
-    recordFailure(root, key, 'other', ON, 's1');
-    recordFailure(root, key, 'other', ON, 's1');
+    recordFailure(root, key, 'hook rejected the commit', ON, 's1');
+    recordFailure(root, key, 'unrelated blip', ON, 's1');
+    recordFailure(root, key, 'hook rejected the commit', ON, 's1');
 
     const out = recurrenceEscalation(root, { command, sessionId: 's1' });
-    expect(out).toContain('RECURRENT FAILURE');
+    expect(out).toContain('failed 2× with the same error');
     expect(out).toContain('commit with care');
   });
 
-  it('still escalates a file edit, which is never a pure read', () => {
-    const file = join(root, 'src/thing.ts');
-    const key = contextKey({ file }, root);
-    recordFailure(root, key, 'other', ON, 's1');
-    recordFailure(root, key, 'other', ON, 's1');
+  it('stays quiet when the harness reported no error signature at all', () => {
+    const command = 'git commit -m wip';
+    const key = contextKey({ command }, root);
+    recordFailure(root, key, undefined, ON, 's1');
+    recordFailure(root, key, undefined, ON, 's1');
 
-    expect(recurrenceEscalation(root, { file, sessionId: 's1' })).toContain('RECURRENT FAILURE');
+    expect(recurrenceEscalation(root, { command, sessionId: 's1' })).toBeNull();
   });
 });

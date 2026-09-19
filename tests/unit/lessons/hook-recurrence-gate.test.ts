@@ -62,8 +62,8 @@ const contextOf = (output: string): string => {
 
 const seedRecurringFailure = (): void => {
   const key = contextKey({ file: 'src/x.ts' }, root);
-  recordFailure(root, key, undefined, ON);
-  recordFailure(root, key, undefined, ON);
+  recordFailure(root, key, 'same error', ON);
+  recordFailure(root, key, 'same error', ON);
 };
 
 describe('hook wiring: recurrence gate on PreToolUse', () => {
@@ -168,8 +168,8 @@ describe('hook wiring: recurrence gate on PreToolUse', () => {
     writeFileSync(graphFilePath(root), JSON.stringify(cmdGraph), 'utf8');
     const raw = 'git commit -m "wip"';
     const key = contextKey({ command: raw }, root);
-    recordFailure(root, key, undefined, ON);
-    recordFailure(root, key, undefined, ON);
+    recordFailure(root, key, 'same error', ON);
+    recordFailure(root, key, 'same error', ON);
     const out = await buildRecallHookOutput(
       JSON.stringify({
         hook_event_name: 'PreToolUse',
