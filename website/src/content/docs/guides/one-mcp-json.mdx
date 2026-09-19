@@ -66,22 +66,6 @@ Or let an agent do it through the [MCP server](../../reference/mcp-server/), whi
 `add_mcp_server` and `update_mcp_server` so the config can be changed in conversation without
 hand-editing five files.
 
-Environment variables are written through verbatim, so a secret stays a reference rather than
-a value:
-
-```json
-{
-  "mcpServers": {
-    "github": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-github"],
-      "env": { "GITHUB_TOKEN": "${GITHUB_TOKEN}" }
-    }
-  }
-}
-```
-
 ## Importing servers you already have
 
 If your tools already carry MCP servers, pull them in rather than retyping:
