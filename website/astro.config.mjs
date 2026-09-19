@@ -186,6 +186,7 @@ export default defineConfig({
         {
           label: 'Guides',
           items: [
+            { label: 'CLAUDE.md vs AGENTS.md', slug: 'guides/claude-md-vs-agents-md' },
             { label: 'Adopting AgentsMesh', slug: 'guides/existing-project' },
             { label: 'Teach Your Agents (Lessons)', slug: 'guides/lessons' },
             { label: 'Multi-Tool Teams', slug: 'guides/multi-tool-teams' },

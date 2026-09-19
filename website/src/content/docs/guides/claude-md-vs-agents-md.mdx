@@ -1,0 +1,176 @@
+---
+draft: false
+title: CLAUDE.md vs AGENTS.md
+description: Claude Code 2.1.277 reads AGENTS.md when there is no CLAUDE.md. What that fallback covers, the five ways it surprises people, and which parts of your agent config are still per-tool.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+On 18 September 2026, Claude Code 2.1.277 shipped this line in its changelog:
+
+> Added AGENTS.md support: in a project with no CLAUDE.md, Claude Code reads AGENTS.md instead; change it under "Project instructions" in `/config` (not yet on Bedrock, Vertex or Foundry)
+
+That is a real step toward one instruction file for every tool, and it retires a pile of symlink
+and `@AGENTS.md` include hacks. It is also narrower than most of the reaction suggested. This page
+is what the fallback actually does, where it surprises people, and which parts of a modern agent
+setup no standard covers yet.
+
+## It is a fallback, not a merge
+
+The distinction matters because most repos that care about this already have both files.
+
+> By default, Claude reads `AGENTS.md` only when you have no `CLAUDE.md` in your working directory or above it.
+
+So if both exist, `AGENTS.md` is ignored entirely. It is not appended, and it is not merged. Which
+files trigger that, per Anthropic's memory docs:
+
+| File | Effect on `AGENTS.md` |
+|---|---|
+| `CLAUDE.md` in the working directory or above | Disables it |
+| `.claude/CLAUDE.md` in the working directory or above | Disables it |
+| `CLAUDE.local.md` in the working directory or above | Disables it |
+| `~/.claude/CLAUDE.md` (your user memory) | Loads alongside it |
+| Your organization's managed `CLAUDE.md` | Loads alongside it |
+| `.claude/rules/` files | Load alongside it |
+
+<Aside type="caution" title="One developer can silently switch the team off">
+  `CLAUDE.local.md` is a personal, usually gitignored file. If a teammate has one, their Claude
+  Code stops reading the `AGENTS.md` everyone else relies on, and nothing reports it. The same
+  applies to a stray `CLAUDE.md` in a parent directory, outside the repo entirely.
+</Aside>
+
+## Five things it does not do
+
+1. **There is no user-level `AGENTS.md`.** `~/.claude/CLAUDE.md` has no cross-tool equivalent. Your personal preferences stay Claude-specific.
+2. **There is no managed or enterprise `AGENTS.md`.** Under a managed-only policy, every `AGENTS.md` is left out.
+3. **`.agents/` is not read at all.** Neither `AGENTS.local.md`, nor `AGENTS.override.md`, nor anything under a `.agents/` directory.
+4. **Directories added with `--add-dir` do not contribute one.** Their `AGENTS.md` does not load.
+5. **It is invisible to your tooling.** `AGENTS.md` files are not listed in `/memory` or `/context`, and `InstructionsLoaded` hooks do not fire for them.
+
+It is also **not available on Amazon Bedrock, Google Vertex AI, or Microsoft Foundry**, nor in any
+session that skips feature-flag fetching, which includes sessions with `DISABLE_TELEMETRY`,
+`DO_NOT_TRACK`, or `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` set, and the first session after an
+install or upgrade. Teams on a cloud provider get `CLAUDE.md` behavior regardless of what their
+repo contains.
+
+## Opting into a merge
+
+The behavior is a built-in mod with an `instructionFiles` option, reachable from `/config` under
+**Project instructions**, or in settings:
+
+```json
+{
+  "pluginConfigs": {
+    "agents-md@builtin": {
+      "options": { "instructionFiles": "claude-md-and-agents-md" }
+    }
+  }
+}
+```
+
+The four values are `claude-md-or-agents-md` (the default fallback), `claude-md-and-agents-md`
+(read both), `claude-md` (ignore `AGENTS.md`), and `managed-only`.
+
+<Aside type="note" title="This cannot be set per project">
+  Claude Code honors `instructionFiles` only in `~/.claude/settings.json`, in `--settings`, or in
+  managed settings. It is ignored in project and local settings files, so a repository cannot ask
+  contributors to read both files. Each developer opts in on their own machine, or an administrator
+  does it for the fleet.
+</Aside>
+
+## What the standard actually standardizes
+
+Less than its adoption implies. [agents.md](https://agents.md) is a website and an FAQ rather than
+a versioned specification. It carries no version number, no date, and no normative language. Its
+own description:
+
+> Think of AGENTS.md as a README for agents: a dedicated, predictable place to provide the context and instructions to help AI coding agents work on your project.
+
+There are no required fields. It is plain Markdown, and the nearest file to the edited one wins.
+That is the whole contract, and for what it covers it works: of the 33 tools AgentsMesh generates
+for, 17 read a root `AGENTS.md`, and Claude Code now makes 18.
+
+Rules were always the easy part.
+
+## The part no standard covers
+
+[Agent Plugins 1.0.0](https://agent-plugins.org), backed by maintainers from Amazon, Cursor,
+Microsoft, OpenAI and Vercel, is the most serious attempt at a portable package format. It defines
+exactly two component types, skills and MCP servers, and is explicit about why it stops there:
+
+> Other proposed component types — such as commands, hooks, agents, rules, and LSP servers — remain too client-specific for a stable portable contract and are outside the v1 format until their formats converge.
+
+Permissions are excluded separately: v1.0.0 "does not define a trust model, permission system, or
+sandboxing requirements for plugins."
+
+So the standards map looks like this:
+
+| Surface | Cross-tool standard today |
+|---|---|
+| Instructions / rules | `AGENTS.md`, informal but widely read |
+| Skills | [Agent Skills](https://agentskills.io) (`SKILL.md`), adopted normatively by Agent Plugins v1 |
+| MCP servers | The Model Context Protocol, plus Agent Plugins v1 packaging |
+| Slash commands | None. Explicitly out of scope |
+| Subagents | None. Explicitly out of scope |
+| Hooks | None. Explicitly out of scope |
+| Permissions | None. Explicitly deferred |
+| Ignore files | None |
+
+Even the two solved rows have gaps. Agent Skills standardizes the `SKILL.md` format but not where
+skills live on disk, which is why Claude Code reads `.claude/skills/` and the proposal for a shared
+`.agents/skills/` location is [still open](https://github.com/agentskills/agentskills/issues/15).
+A shared directory is frequently described as settled. It is not.
+
+## How fragmented the rest really is
+
+Measured across the 33 tools AgentsMesh supports, counting only native support:
+
+| Feature | Tools with native support |
+|---|---|
+| Rules | 33 of 33 |
+| Skills | 31 of 33 |
+| MCP servers | 27 of 33 |
+| Subagents | 21 of 33 |
+| Hooks | 18 of 33 |
+| Permissions | 11 of 33 |
+
+Permissions are the clearest case. Claude Code has a real allow and deny model; most tools have
+something weaker, something differently shaped, or nothing at all. There is no portable way to say
+"never run `terraform apply`" and have every assistant on the team honor it.
+
+## What to do about it today
+
+Independently of any tooling:
+
+- **Pick one instruction file and delete the other.** Since the default is a fallback, keeping both means the `AGENTS.md` is dead weight that reads as if it were live. If you want both, every developer has to opt in individually.
+- **Check for stray `CLAUDE.local.md` files** when a teammate reports that the agent is ignoring a rule everyone else sees.
+- **Do not assume a cloud deployment behaves like the desktop.** On Bedrock, Vertex or Foundry, `AGENTS.md` is not read.
+- **Treat hooks, permissions, subagents and commands as per-tool** for now, and keep them somewhere you can regenerate from, because they will keep changing shape.
+
+## Where AgentsMesh fits
+
+This project exists for the rows in that table with "None" in them. One canonical `.agentsmesh`
+directory holds rules, commands, subagents, skills, MCP servers, hooks, permissions and ignore
+patterns, and `agentsmesh generate` writes each tool's native files, including a root `AGENTS.md`
+and a `CLAUDE.md` that cannot drift from it. Where a tool has no native slot for a feature, it is
+embedded with round-trip metadata rather than dropped, so re-importing reconstructs the original.
+
+If your fragmentation is limited to instructions, you may not need it: one `AGENTS.md` is now
+genuinely enough for a lot of teams, and that is a good outcome. If you maintain hooks, permissions
+or subagents across more than one assistant, none of that is standardized, and something has to
+keep the copies honest.
+
+Start with the [existing-project guide](../existing-project/), or see the
+[supported tools matrix](../../reference/supported-tools/) for native versus embedded support per
+tool and feature.
+
+## Sources
+
+- Claude Code [v2.1.277 release](https://github.com/anthropics/claude-code/releases/tag/v2.1.277) and [CHANGELOG](https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md)
+- Claude Code [memory documentation](https://code.claude.com/docs/en/memory)
+- [agents.md](https://agents.md)
+- [Agent Plugins specification](https://agent-plugins.org)
+- [Agent Skills specification](https://agentskills.io)
+
+<sub>Verified against these sources on 2026-09-19. Claude Code ships frequently; if something here
+has changed, please [open an issue](https://github.com/sampleXbro/agentsmesh/issues).</sub>
