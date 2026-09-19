@@ -6163,6 +6163,21 @@
         "t-kw-b54b3b44"
       ]
     },
+    "readme-authoring-before-publishing-any-competitor-compari": {
+      "createdAt": "2026-09-19",
+      "evidence": [
+        "15bd2c41"
+      ],
+      "rule": "Before publishing any competitor comparison (README 'How AgentsMesh compares', website reference/alternatives.mdx), re-verify every row against the competitor's SOURCE, not a prior summary: as of 2026-09-19 rulesync ships a self-serve MCP server (src/cli/commands/mcp.ts + src/mcp/) and a documented programmatic API with a global --json envelope, both of which our table wrongly marked absent/partial, and neither rulesync nor Ruler advertises a tool count so quoting 'their marketing number' invented a claim. Verified-unique rows are cross-file link rewriting, lockfile-verified drift + merge recovery, target plugins, and lessons.",
+      "status": "active",
+      "topics": [
+        "readme-authoring"
+      ],
+      "triggers": [
+        "t-glob-d044343b",
+        "t-glob-6e3bf4c6"
+      ]
+    },
     "readme-authoring-before-publishing-readme-website-or": {
       "createdAt": "2026-09-19",
       "evidence": [
@@ -10850,6 +10865,10 @@
     "t-glob-6de83f22": {
       "kind": "file_glob",
       "pattern": "src/mcp/writers/*document*.ts"
+    },
+    "t-glob-6e3bf4c6": {
+      "kind": "file_glob",
+      "pattern": "website/src/content/docs/reference/alternatives.mdx"
     },
     "t-glob-6e7640eb": {
       "kind": "file_glob",
