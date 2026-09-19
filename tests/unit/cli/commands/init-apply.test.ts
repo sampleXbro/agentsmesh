@@ -14,7 +14,6 @@ function projectPlan(over: Partial<InitPlan> = {}): InitPlan {
   return {
     scope: 'project',
     targets: ['claude-code', 'cursor'],
-    defaultTargets: undefined,
     detected: [],
     doImport: false,
     lessons: false,
@@ -75,7 +74,6 @@ describe('applyInitPlan (global scope — lessons never available)', () => {
     const plan: InitPlan = {
       scope: 'global',
       targets: ['claude-code'],
-      defaultTargets: ['claude-code'],
       detected: [],
       doImport: false,
       lessons: true,

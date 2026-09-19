@@ -24,6 +24,10 @@ export interface InitData {
   configFile: string;
   localConfigFile: string;
   detectedConfigs: string[];
+  /** Target IDs written to agentsmesh.yaml. */
+  targets: string[];
+  /** Which rule picked `targets`: explicit flag, detection, or the minimal fallback. */
+  targetSource: 'explicit' | 'all' | 'project' | 'machine' | 'fallback';
   imported: Array<{ from: string; to: string }>;
   importedToolCount: number;
   /** Two or more detected tools' root rules were combined into one canonical root. */

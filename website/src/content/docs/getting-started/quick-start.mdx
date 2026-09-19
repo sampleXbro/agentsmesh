@@ -27,7 +27,7 @@ Choose the path that matches your situation. Most repos already use at least one
    - Updates `.gitignore` to exclude `agentsmesh.local.yaml`, `.agentsmeshcache`, `.agentsmesh/.lock.tmp`, and `.agentsmesh/packs/` (see [What to commit](#what-to-commit-and-what-to-gitignore))
 
    <Aside type="tip">
-     On an interactive terminal, `agentsmesh init` asks which tools to target and whether to enable lessons. In CI or with `--yes` it runs non-interactively with sensible defaults.
+     On an interactive terminal, `agentsmesh init` asks which tools to target and whether to enable lessons. In CI or with `--yes` it runs non-interactively, enabling the tools this project or your machine already uses, or a minimal set of `claude-code`, `cursor` and `copilot` when it finds none. Pass [`--targets a,b`](../../cli/init/#how-init-chooses-targets) to choose them yourself.
    </Aside>
 
 2. **Edit your root rule**

@@ -17,6 +17,7 @@ import { writeScaffoldFull, writeScaffoldGapFill } from './init-scaffold.js';
 import type { ConfigScope, ScopeContext } from '../../config/core/scope.js';
 import { scaffoldLessons } from '../../lessons/init.js';
 import type { InitData } from '../command-result.js';
+import type { InitTargetSource } from './init-target-resolution.js';
 import { AB_ROOT_RULE } from '../../core/canonical-paths.js';
 import { rootRuleBodyGrew } from '../../targets/import/root-rule-body-merge.js';
 import { parseFrontmatter } from '../../utils/text/markdown.js';
@@ -49,10 +50,10 @@ const IMPORTERS: Record<string, (root: string, scope: ConfigScope) => Promise<Im
 
 export interface InitPlan {
   scope: ConfigScope;
-  /** Target IDs written to agentsmesh.yaml; empty → buildConfig falls back to defaultTargets. */
+  /** Target IDs written to agentsmesh.yaml; always at least one. */
   targets: readonly string[];
-  /** Override the default target set (global init); undefined → project starter set. */
-  defaultTargets: readonly string[] | undefined;
+  /** Which rule picked `targets`; surfaced so the CLI can explain the choice. */
+  targetSource: InitTargetSource;
   /** Tool configs detected on disk (drives InitData.detectedConfigs and which tools import). */
   detected: readonly string[];
   /** When true, import the detected tools and gap-fill; else write the full example scaffold. */
@@ -125,13 +126,7 @@ export async function applyInitPlan(
     scaffoldType = 'full';
   }
 
-  // buildConfig's 2nd arg defaults to the project starter set when undefined.
-  await writeFileAtomic(
-    configPath,
-    plan.defaultTargets === undefined
-      ? buildConfig(plan.targets)
-      : buildConfig(plan.targets, plan.defaultTargets),
-  );
+  await writeFileAtomic(configPath, buildConfig(plan.targets));
 
   await writeFileAtomic(join(context.configDir, LOCAL_CONFIG_FILENAME), LOCAL_TEMPLATE);
 
@@ -150,6 +145,8 @@ export async function applyInitPlan(
     configFile: CONFIG_FILENAME,
     localConfigFile: LOCAL_CONFIG_FILENAME,
     detectedConfigs: [...plan.detected],
+    targets: [...plan.targets],
+    targetSource: plan.targetSource,
     rootRuleMerged,
     imported,
     importedToolCount,

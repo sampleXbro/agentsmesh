@@ -26,7 +26,8 @@ export const COMMANDS: HelpCommand[] = [
     description:
       'Create agentsmesh.yaml, agentsmesh.local.yaml, and canonical .agentsmesh scaffold. ' +
       'On a TTY runs an interactive wizard (targets, import, generate; plus lessons in project scope, ' +
-      'never in --global); --yes, --json, and non-TTY/CI run non-interactively with current behavior.',
+      'never in --global); --yes, --json, and non-TTY/CI run non-interactively. Targets default to the ' +
+      'tools found in the project, else those installed on this machine, else a minimal set.',
     flags: [
       {
         name: '--global',
@@ -37,6 +38,15 @@ export const COMMANDS: HelpCommand[] = [
         name: '--yes',
         description:
           'Auto-import detected tool configs, then add example scaffold only under empty canonical paths',
+      },
+      {
+        name: '--targets <csv>',
+        description:
+          'Enable exactly these target IDs (comma-separated), instead of detecting them',
+      },
+      {
+        name: '--all-targets',
+        description: 'Enable every target in the starter set instead of only detected ones',
       },
       {
         name: '--lessons',

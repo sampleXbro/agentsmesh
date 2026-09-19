@@ -367,6 +367,15 @@ export interface TargetDescriptor {
    */
   readonly excludeFromStarterInit?: boolean;
   /**
+   * When true, this target is part of the minimal set `agentsmesh init` enables
+   * when it finds no evidence of any tool — neither config in the project nor
+   * an install on the machine. Keep this list very small: it is the footprint a
+   * brand-new project gets by default, and `--all-targets` remains one flag
+   * away. A target opts in on its own descriptor so the set stays descriptor-
+   * driven rather than a hardcoded list in the CLI.
+   */
+  readonly minimalInitDefault?: boolean;
+  /**
    * Built-in default values for `commands_to_skills` / `agents_to_skills`
    * conversion projections. A `true` value enables conversion by default; an
    * explicit `false` disables it (still consults the user's per-target config

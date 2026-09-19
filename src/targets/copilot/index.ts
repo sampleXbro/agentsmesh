@@ -163,6 +163,7 @@ const globalLayout: TargetLayout = {
 
 export const descriptor = {
   id: 'copilot',
+  minimalInitDefault: true,
   metadata: {
     displayName: 'GitHub Copilot',
     category: 'ide',

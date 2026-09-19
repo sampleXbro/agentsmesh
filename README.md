@@ -47,12 +47,14 @@ Binaries with SHA-256 checksums are on [GitHub Releases](https://github.com/samp
 ## 60-second quickstart
 
 ```bash
-agentsmesh init       # detect and import existing tool configs, or scaffold fresh
+agentsmesh init       # detect the tools you use, import their configs, or scaffold fresh
 agentsmesh generate   # write each tool's native config from the one source
 agentsmesh check      # CI drift gate against .agentsmesh/.lock
 ```
 
 On a terminal, `init` runs a short wizard: pick targets, import detected configs (`.cursor/`, `.claude/`, `.github/copilot-instructions.md`, and more), enable lessons, and optionally generate right away. Nothing is written until you finish. Use `--yes` for the non-interactive default, `--global` for your user-level config under `~/.agentsmesh/`, and `npx agentsmesh` if you installed it as a dev dependency.
+
+`init` enables the tools you actually use, not all of them: whatever this project already has config for, else whatever is installed on your machine, else a minimal set of Claude Code, Cursor and Copilot. It prints what it picked. Pass `--targets a,b` to choose, or `--all-targets` for everything.
 
 > [!TIP]
 > Commit both `.agentsmesh/` and the generated tool files, like a lockfile: the tools read the generated files directly, and `agentsmesh check` keeps the two from drifting.

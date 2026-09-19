@@ -12,6 +12,7 @@ import { globalInitTargetIds } from '../../targets/catalog/init-starter-targets.
 import { resolveScopeContext, type ConfigScope } from '../../config/core/scope.js';
 import { scaffoldLessons } from '../../lessons/init.js';
 import { detectExistingConfigs } from './init-detect.js';
+import { resolveInitTargets } from './init-target-resolution.js';
 import {
   applyInitPlan,
   CONFIG_FILENAME,
@@ -28,12 +29,29 @@ export { detectExistingConfigs };
 const GLOBAL_INIT_TARGETS: readonly BuiltinTargetId[] = globalInitTargetIds();
 
 /**
+ * Tools installed for this user, found by running each descriptor's global
+ * detection paths against the home directory. Used only to pick sensible
+ * targets for a project that has no tool config of its own — nothing is ever
+ * imported from the home directory into a project.
+ */
+async function detectMachineTools(projectRoot: string): Promise<string[]> {
+  const home = resolveScopeContext(projectRoot, 'global');
+  return detectExistingConfigs(home.rootBase, 'global');
+}
+
+/**
  * Run the init command.
  * @throws Error if already initialized (unless --lessons retrofits an existing init).
  */
 export async function runInit(
   projectRoot: string,
-  options: { yes?: boolean; global?: boolean; lessons?: boolean } = {},
+  options: {
+    yes?: boolean;
+    global?: boolean;
+    lessons?: boolean;
+    targets?: readonly string[];
+    allTargets?: boolean;
+  } = {},
   deps: { prompter?: Prompter } = {},
 ): Promise<InitCommandResult> {
   const scope: ConfigScope = options.global === true ? 'global' : 'project';
@@ -60,6 +78,8 @@ export async function runInit(
         imported: [],
         importedToolCount: 0,
         rootRuleMerged: false,
+        targets: [],
+        targetSource: 'explicit',
         scaffoldType: 'none',
         gitignoreUpdated: false,
         lessons,
@@ -83,7 +103,6 @@ export async function runInit(
           GLOBAL_INIT_TARGETS.includes(target as BuiltinTargetId),
         )
       : detected;
-  const defaultTargets = scope === 'global' ? GLOBAL_INIT_TARGETS : undefined;
 
   // Interactive wizard: prompter injected (project or global), not --yes.
   // The wizard itself is scope-aware (global skips the lessons step).
@@ -92,15 +111,31 @@ export async function runInit(
       projectRoot,
       context,
       detected: existing,
-      defaultTargets,
+      // Pre-select the same targets the non-interactive path would pick, so
+      // both entry points agree on what a sensible default looks like.
+      suggestedTargets: resolveInitTargets({
+        projectDetected: existing,
+        machineDetected: scope === 'global' ? [] : await detectMachineTools(projectRoot),
+        allowed: scope === 'global' ? GLOBAL_INIT_TARGETS : undefined,
+      }).targets,
     });
   }
 
   const doImport = existing.length > 0 && options.yes === true;
+  const resolved = resolveInitTargets({
+    explicit: options.targets,
+    allTargets: options.allTargets,
+    projectDetected: existing,
+    // Global scope already detects against the home directory, so a second
+    // machine pass would just repeat `existing`.
+    machineDetected: scope === 'global' ? [] : await detectMachineTools(projectRoot),
+    allowed: scope === 'global' ? GLOBAL_INIT_TARGETS : undefined,
+  });
+
   const plan: InitPlan = {
     scope,
-    targets: doImport ? existing : [],
-    defaultTargets,
+    targets: resolved.targets,
+    targetSource: resolved.source,
     detected: existing,
     doImport,
     lessons: wantLessons,

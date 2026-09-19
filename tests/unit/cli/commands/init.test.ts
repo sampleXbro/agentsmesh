@@ -10,11 +10,24 @@ import { runInit, detectExistingConfigs } from '../../../../src/cli/commands/ini
 import { resolveScopeContext } from '../../../../src/config/core/scope.js';
 
 const TEST_DIR = join(tmpdir(), 'am-init-test');
+/**
+ * `init` consults the home directory to see which tools the developer has
+ * installed. Pin it to an empty dir so target selection is deterministic and
+ * does not depend on whose machine the suite runs on; tests that need machine
+ * detection re-stub HOME themselves.
+ */
+const EMPTY_HOME = join(tmpdir(), 'am-init-test-empty-home');
 
-beforeEach(() => mkdirSync(TEST_DIR, { recursive: true }));
+beforeEach(() => {
+  mkdirSync(TEST_DIR, { recursive: true });
+  mkdirSync(EMPTY_HOME, { recursive: true });
+  vi.stubEnv('HOME', EMPTY_HOME);
+  vi.stubEnv('USERPROFILE', EMPTY_HOME);
+});
 afterEach(() => {
   vi.unstubAllEnvs();
   rmSync(TEST_DIR, { recursive: true, force: true });
+  rmSync(EMPTY_HOME, { recursive: true, force: true });
 });
 
 describe('detectExistingConfigs', () => {
@@ -152,15 +165,17 @@ describe('runInit — structured result', () => {
 });
 
 describe('runInit — scaffold (no existing configs)', () => {
-  it('creates agentsmesh.yaml with the starter target set', async () => {
+  it('creates agentsmesh.yaml with the minimal set when nothing is detected', async () => {
     await runInit(TEST_DIR);
     const content = readFileSync(join(TEST_DIR, 'agentsmesh.yaml'), 'utf-8');
     expect(content).toContain('version: 1');
     expect(content).toContain('claude-code');
-    expect(content).toContain('continue');
-    expect(content).toContain('junie');
-    expect(content).toContain('kiro');
     expect(content).toContain('cursor');
+    expect(content).toContain('copilot');
+    // Nothing was detected, so breadth is not assumed.
+    expect(content).not.toContain('continue');
+    expect(content).not.toContain('junie');
+    expect(content).not.toContain('kiro');
     expect(content).not.toContain('codex-cli');
     expect(content).toContain('rules');
   });
@@ -321,11 +336,21 @@ describe('runInit — existing configs detected, no --yes', () => {
     expect(existsSync(join(TEST_DIR, '.agentsmesh', 'mcp.json'))).toBe(true);
   });
 
-  it('still creates agentsmesh.yaml with the starter target set when no --yes', async () => {
+  it('creates agentsmesh.yaml scoped to the detected tool when no --yes', async () => {
     writeFileSync(join(TEST_DIR, 'CLAUDE.md'), '# Rules\n');
     await runInit(TEST_DIR);
     const content = readFileSync(join(TEST_DIR, 'agentsmesh.yaml'), 'utf-8');
     expect(content).toContain('version: 1');
+    expect(content).toContain('claude-code');
+    // Breadth is no longer the default: an unrelated target is not enabled.
+    expect(content).not.toContain('kiro');
+    expect(content).not.toContain('codex-cli');
+  });
+
+  it('enables the whole starter set only when asked with --all-targets', async () => {
+    writeFileSync(join(TEST_DIR, 'CLAUDE.md'), '# Rules\n');
+    await runInit(TEST_DIR, { allTargets: true });
+    const content = readFileSync(join(TEST_DIR, 'agentsmesh.yaml'), 'utf-8');
     expect(content).toContain('claude-code');
     expect(content).toContain('kiro');
     expect(content).not.toContain('codex-cli');

@@ -45,6 +45,7 @@ export function renderInit(result: InitCommandResult): void {
       ? ` (targets: ${data.detectedConfigs.join(', ')})`
       : '';
   logger.success(`Created ${data.configFile}${targetsSuffix}`);
+  renderTargetChoice(data);
   logger.success(`Created ${data.localConfigFile}`);
 
   if (data.gitignoreUpdated) {
@@ -54,6 +55,26 @@ export function renderInit(result: InitCommandResult): void {
   if (data.lessons !== undefined) {
     renderLessons(data.lessons);
   }
+}
+
+/**
+ * Say how many targets were enabled and why, so a default the user did not pick
+ * is never silent — and always name the flag that changes it.
+ */
+function renderTargetChoice(data: InitCommandResult['data']): void {
+  if (data.targetSource === 'explicit' || data.targets.length === 0) return;
+  const count = data.targets.length;
+  const noun = count === 1 ? 'target' : 'targets';
+  const why: Record<string, string> = {
+    project: 'from tool config found in this project',
+    machine: 'from tools installed on this machine',
+    fallback: 'no tool config or install found, so a minimal set was used',
+    all: 'the full starter set (--all-targets)',
+  };
+  logger.info(
+    `Enabled ${count} ${noun} (${why[data.targetSource]}): ${data.targets.join(', ')}. ` +
+      `Edit ${data.configFile} or pass --targets a,b to change them.`,
+  );
 }
 
 function renderLessons(lessons: NonNullable<InitCommandResult['data']['lessons']>): void {
