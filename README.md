@@ -119,23 +119,25 @@ Full walkthrough: [Teach your AI agents with lessons](https://samplexbro.github.
 
 ## How AgentsMesh compares
 
-Most sync tools stop at copying rule files into each assistant's folder. AgentsMesh also round-trips losslessly, rebases cross-tool links, lints before a tool would silently drop content, and lets anyone add a new tool as a plugin.
+[Ruler](https://github.com/intellectronica/ruler) and [rulesync](https://github.com/dyoshikawa/rulesync) both cover the common ground well, and rulesync supports more tools than AgentsMesh does. What is left to differentiate is what survives translation: links rewritten per target, a round-trip that loses nothing, a lockfile-backed drift gate, new tools addable without a core release, and a memory that learns.
 
-| Capability | AgentsMesh | [Ruler](https://github.com/intellectronica/ruler) | [rulesync](https://github.com/dyoshikawa/rulesync) |
+| Capability | AgentsMesh | Ruler | rulesync |
 |---|:---:|:---:|:---:|
 | Generate native config for many tools | ✅ | ✅ | ✅ |
+| Tools supported (counted from source) | 33 | ~31 | ~50 |
 | Import existing tool config back to source | ✅ | — | ✅ |
-| **Lossless round-trip** (re-import restores originals) | ✅ | — | partial |
 | Convert one tool's config directly to another | ✅ | — | ✅ |
-| **Automatic cross-tool link rebasing** | ✅ | — | — |
+| CI drift gate (non-zero exit on drift) | ✅ | partial | ✅ |
+| Lint before a target silently drops content | ✅ | partial | partial |
+| Self-serve MCP server (agent-operable config) | ✅ | — | ✅ |
+| `--json` output + typed programmatic API | ✅ | — | ✅ |
+| **Lossless round-trip** (re-import restores originals) | ✅ | — | partial |
+| **Cross-file links rewritten per target** | ✅ | — | — |
+| **Lockfile-verified drift + git-merge recovery** | ✅ | — | — |
+| **Target plugins: add a tool without a core release** | ✅ | — | — |
 | **Lessons: a shared agent memory that learns** | ✅ | — | — |
-| **Plugins: add a target without a release** | ✅ | — | — |
-| Cross-target lint (warn before silent data loss) | ✅ | — | — |
-| CI drift gate + git-merge recovery | ✅ | partial | partial |
-| Self-serve MCP server (agent-operable config) | ✅ | — | — |
-| `--json` output + typed programmatic API | ✅ | — | partial |
 
-<sub>Reflects the public projects as of June 2026. Sources and detail in the [alternatives guide](https://samplexbro.github.io/agentsmesh/reference/alternatives/); corrections welcome.</sub>
+<sub>Verified against each project's source and docs on 2026-09-19. Tool counts are counted from source, not marketing claims, and differ by how variants are tallied. Two newer projects solve adjacent problems rather than this one: [capa](https://github.com/infragate/capa) is a package manager and MCP gateway, and [Sentry's dotagents](https://github.com/getsentry/dotagents) manages skill and MCP dependencies without emitting instruction files. Detail and sources in the [alternatives guide](https://samplexbro.github.io/agentsmesh/reference/alternatives/); corrections welcome.</sub>
 
 Built to be depended on: 12,000+ tests on Linux, macOS, and Windows CI, JSON-Schema-validated configs, npm releases with [provenance](https://docs.npmjs.com/generating-provenance-statements), and a per-file coverage floor in the test gate.
 
@@ -150,7 +152,7 @@ Built to be depended on: 12,000+ tests on Linux, macOS, and Windows CI, JSON-Sch
 - **Global mode.** `~/.agentsmesh/` syncs personal config to `~/.claude/`, `~/.cursor/`, `~/.codex/`, and more; config commands accept `--global`. [Global paths](https://samplexbro.github.io/agentsmesh/reference/supported-tools/#global-mode)
 - **CI-ready.** `check` gates drift, `diff` previews, `merge` rebuilds the lock after a Git conflict, and `lint` warns about content a tool would mishandle. [check](https://samplexbro.github.io/agentsmesh/cli/check/) · [lint](https://samplexbro.github.io/agentsmesh/cli/lint/)
 - **Community packs and `extends`.** Install rules, skills, agents, and commands from any git repo; hooks, permissions, and MCP from remote sources stay off until you opt in. [install](https://samplexbro.github.io/agentsmesh/cli/install/)
-- **Plugins.** Ship a new tool as an npm package with full parity to built-in targets. [Build a plugin](https://samplexbro.github.io/agentsmesh/guides/building-plugins/)
+- **Target plugins.** Ship a new tool as an npm package with full parity to built-in targets. [Build a plugin](https://samplexbro.github.io/agentsmesh/guides/building-plugins/)
 - **Schema-validated configs.** Every config ships a JSON Schema for editor autocomplete. [JSON schemas](https://samplexbro.github.io/agentsmesh/reference/json-schemas/)
 - **Scriptable.** A typed API for `generate`, `import`, `lint`, `diff`, and `check`, `--json` envelopes on every command except `watch`, and an MCP server so agents can operate the config themselves. [API](https://samplexbro.github.io/agentsmesh/reference/programmatic-api/) · [MCP server](https://samplexbro.github.io/agentsmesh/reference/mcp-server/)
 
