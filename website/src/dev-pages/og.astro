@@ -3,45 +3,15 @@
  * Source for `public/og-image.png` (1200x630), the site's Open Graph image.
  * Served only by `astro dev` at /og/ (see integrations/dev-only-routes.mjs).
  *
- * To regenerate: run `astro preferences disable devToolbar`, start `astro dev`,
- * screenshot the viewport at exactly 1200x630, then re-enable the toolbar.
- * Restart the dev server first — it can serve a stale scoped stylesheet for the
- * card component, which shows up as new markup under old CSS.
+ * To regenerate: restart `astro dev` so the card's scoped stylesheet is not
+ * stale, run `astro preferences disable devToolbar` or it renders into the
+ * bottom of the frame, screenshot the viewport at exactly 1200x630, downsample
+ * if your capture is 2x, then re-enable the toolbar.
  *
- * The artwork itself lives in components/og/SocialCard.astro, shared with the
- * GitHub social preview at /og-github/ so the two cannot drift apart.
+ * Artwork lives in components/og/SocialCard.astro and the page shell in
+ * SocialCardPage.astro, both shared with /og-github so the two cannot drift.
  */
-import '@fontsource-variable/bricolage-grotesque';
-import '@fontsource/ibm-plex-sans/500.css';
-import '@fontsource/ibm-plex-mono/400.css';
-import '../styles/tokens.css';
-import SocialCard from '../components/og/SocialCard.astro';
+import SocialCardPage from '../components/og/SocialCardPage.astro';
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="robots" content="noindex" />
-    <title>AgentsMesh social card</title>
-  </head>
-  <body>
-    <SocialCard width={1200} height={630} />
-  </body>
-</html>
-
-<style>
-  :root {
-    --__sl-font-mono: var(--sl-font-mono), ui-monospace, monospace;
-  }
-
-  body {
-    margin: 0;
-    width: 1200px;
-    height: 630px;
-    overflow: hidden;
-    background: var(--sl-color-black);
-    color: var(--sl-color-gray-2);
-    font-family: var(--sl-font), system-ui, sans-serif;
-    -webkit-font-smoothing: antialiased;
-  }
-</style>
+<SocialCardPage title="AgentsMesh social card" width={1200} height={630} />

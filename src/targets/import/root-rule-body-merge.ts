@@ -19,7 +19,11 @@
  * supersedes the shorter body instead of being appended beside it.
  */
 
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { ROOT_RULE_PLACEHOLDER_BODY } from '../../canonical/root-rule-placeholder.js';
+import { AB_ROOT_RULE } from '../../core/canonical-paths.js';
+import { parseFrontmatter } from '../../utils/text/markdown.js';
 
 /** Line endings are normalized so a CRLF-authored source still de-duplicates. */
 function normalizeBody(body: string): string {
@@ -53,6 +57,17 @@ export function mergeRootRuleBody(existingBody: string, incomingBody: string): s
   // The source grew upstream; the longer body replaces the one it contains.
   if (incoming.includes(existing)) return incoming;
   return `${existing}\n\n${incoming}`;
+}
+
+/**
+ * Body of the canonical root rule under `rootBase`, or `''` when there is none.
+ * Sampled either side of an import so the CLI can report that two tools' root
+ * rules were combined rather than one silently replacing the other.
+ */
+export function readRootRuleBody(rootBase: string): string {
+  const rootRule = join(rootBase, AB_ROOT_RULE);
+  if (!existsSync(rootRule)) return '';
+  return parseFrontmatter(readFileSync(rootRule, 'utf8')).body;
 }
 
 /**

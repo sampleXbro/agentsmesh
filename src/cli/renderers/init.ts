@@ -62,14 +62,15 @@ export function renderInit(result: InitCommandResult): void {
  * is never silent — and always name the flag that changes it.
  */
 function renderTargetChoice(data: InitCommandResult['data']): void {
-  if (data.targetSource === 'explicit' || data.targets.length === 0) return;
+  // 'explicit' and 'all' both mean the user named what they wanted.
+  const chosen = data.targetSource === 'explicit' || data.targetSource === 'all';
+  if (chosen || data.targets.length === 0) return;
   const count = data.targets.length;
   const noun = count === 1 ? 'target' : 'targets';
   const why: Record<string, string> = {
     project: 'from tool config found in this project',
     machine: 'from tools installed on this machine',
     fallback: 'no tool config or install found, so a minimal set was used',
-    all: 'the full starter set (--all-targets)',
   };
   logger.info(
     `Enabled ${count} ${noun} (${why[data.targetSource]}): ${data.targets.join(', ')}. ` +

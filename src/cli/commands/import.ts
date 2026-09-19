@@ -12,8 +12,11 @@ import { seedAgentsmeshMcpEntry } from './seed-mcp-entry.js';
 import type { ImportData } from '../command-result.js';
 import { scaffoldLessons } from '../../lessons/init.js';
 import { LESSONS_CONTRACT_START } from '../../targets/projection/managed-blocks.js';
-import { rootRuleBodyGrew } from '../../targets/import/root-rule-body-merge.js';
-import { parseFrontmatter } from '../../utils/text/markdown.js';
+import {
+  readRootRuleBody,
+  rootRuleBodyGrew,
+} from '../../targets/import/root-rule-body-merge.js';
+import { AB_ROOT_RULE } from '../../core/canonical-paths.js';
 
 export interface ImportCommandResult {
   exitCode: number;
@@ -43,23 +46,12 @@ async function ensureImportedLessonsSubsystem(
 ): Promise<void> {
   if (scope !== 'project') return;
 
-  const rootRule = join(rootBase, '.agentsmesh/rules/_root.md');
+  const rootRule = join(rootBase, AB_ROOT_RULE);
   if (!existsSync(rootRule)) return;
   const body = readFileSync(rootRule, 'utf8');
 
   const hasLessons = body.includes(LESSONS_CONTRACT_START) || /^## Lessons \(/m.test(body);
   if (hasLessons) await scaffoldLessons(rootBase);
-}
-
-/**
- * Body of the canonical root rule, or `''` when it does not exist yet.
- * Sampled around the import so the CLI can say whether this target's root rule
- * accumulated onto another tool's instead of replacing it.
- */
-function readRootRuleBody(rootBase: string): string {
-  const rootRule = join(rootBase, '.agentsmesh/rules/_root.md');
-  if (!existsSync(rootRule)) return '';
-  return parseFrontmatter(readFileSync(rootRule, 'utf8')).body;
 }
 
 /**

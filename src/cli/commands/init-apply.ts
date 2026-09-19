@@ -6,7 +6,6 @@
  * `generate` is NOT run here — the wizard owns that step.
  */
 
-import { existsSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { writeFileAtomic } from '../../utils/filesystem/fs.js';
 import { ensureGitignoreEntries } from '../../utils/filesystem/gitignore.js';
@@ -18,9 +17,10 @@ import type { ConfigScope, ScopeContext } from '../../config/core/scope.js';
 import { scaffoldLessons } from '../../lessons/init.js';
 import type { InitData } from '../command-result.js';
 import type { InitTargetSource } from './init-target-resolution.js';
-import { AB_ROOT_RULE } from '../../core/canonical-paths.js';
-import { rootRuleBodyGrew } from '../../targets/import/root-rule-body-merge.js';
-import { parseFrontmatter } from '../../utils/text/markdown.js';
+import {
+  readRootRuleBody,
+  rootRuleBodyGrew,
+} from '../../targets/import/root-rule-body-merge.js';
 
 export interface InitCommandResult {
   exitCode: number;
@@ -60,17 +60,6 @@ export interface InitPlan {
   doImport: boolean;
   /** Scaffold the lessons subsystem. */
   lessons: boolean;
-}
-
-/**
- * Body of the canonical root rule, or `''` when absent. Sampled around each
- * tool's import so init can report that two tools' root rules were combined
- * rather than one silently replacing the other.
- */
-function readRootRuleBody(rootBase: string): string {
-  const rootRule = join(rootBase, AB_ROOT_RULE);
-  if (!existsSync(rootRule)) return '';
-  return parseFrontmatter(readFileSync(rootRule, 'utf8')).body;
 }
 
 /** Run each detected tool's importer and collect forward-slash relative file moves. */

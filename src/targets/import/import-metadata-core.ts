@@ -20,8 +20,7 @@ async function readExisting(path: string): Promise<{
 }> {
   const existing = await readFileSafe(path);
   if (!existing) return { frontmatter: {}, body: '' };
-  const parsed = parseFrontmatter(existing);
-  return { frontmatter: parsed.frontmatter, body: parsed.body };
+  return parseFrontmatter(existing);
 }
 
 export async function readExistingFrontmatter(path: string): Promise<Record<string, unknown>> {
