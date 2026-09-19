@@ -1141,6 +1141,20 @@
         "t-kw-1397bfda"
       ]
     },
+    "docs-lock-format-changing-the-generation-contract-wording": {
+      "createdAt": "2026-09-19",
+      "evidence": [
+        "8205c682"
+      ],
+      "rule": "Changing the generation-contract wording requires the full version ladder in src/targets/projection/root-instruction-paragraph.ts: demote the current ROOT_INSTRUCTION_BODY to ROOT_INSTRUCTION_BODY_V<n>, add an AGENTSMESH_CONTRACT_WITH_V<n>_BODY pair, and prepend it to LEGACY_FORMS — otherwise an existing root file keeps the old raw paragraph alongside the new block. The body must never contain the literal '.agentsmesh/' with a trailing slash (link-rewrite e2e contract). After editing, run 'agentsmesh generate' to refresh this repo's own tracked CLAUDE.md/AGENTS.md and .agentsmesh/.lock.",
+      "status": "active",
+      "topics": [
+        "docs-lock-format"
+      ],
+      "triggers": [
+        "t-glob-c96d6408"
+      ]
+    },
     "docs-lock-format-the-agentsmesh-lock-is-a": {
       "createdAt": "2026-07-18",
       "evidence": [
@@ -11296,6 +11310,10 @@
     "t-glob-c8eff4c3": {
       "kind": "file_glob",
       "pattern": "src/targets/factory-droid/importer.ts"
+    },
+    "t-glob-c96d6408": {
+      "kind": "file_glob",
+      "pattern": "src/targets/projection/root-instruction-paragraph.ts"
     },
     "t-glob-c9a321aa": {
       "kind": "file_glob",
