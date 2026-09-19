@@ -190,6 +190,7 @@ export default defineConfig({
             { label: 'Adopting AgentsMesh', slug: 'guides/existing-project' },
             { label: 'Teach Your Agents (Lessons)', slug: 'guides/lessons' },
             { label: 'Multi-Tool Teams', slug: 'guides/multi-tool-teams' },
+            { label: 'One mcp.json for Every Tool', slug: 'guides/one-mcp-json' },
             { label: 'Sharing Config Across Repos', slug: 'guides/sharing-config' },
             { label: 'CI Drift Detection', slug: 'guides/ci-drift-detection' },
             { label: 'Community Packs', slug: 'guides/community-packs' },

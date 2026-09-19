@@ -1,0 +1,113 @@
+---
+draft: false
+title: One mcp.json for Claude Code, Cursor, Codex and Gemini
+description: The same MCP server has to be declared in four different file formats, including TOML. Write it once in .agentsmesh/mcp.json and generate every tool's native shape.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+The Model Context Protocol standardises how an agent talks to a server. It does not
+standardise where each tool expects that server to be declared, or under which key. Adding
+one server by hand today means editing four files in three shapes, and one of them is TOML.
+
+## The same server, five files
+
+Declare it once:
+
+```json
+// .agentsmesh/mcp.json
+{
+  "mcpServers": {
+    "github": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"]
+    }
+  }
+}
+```
+
+Then `agentsmesh generate` writes each tool's native form:
+
+| Tool | File | Shape |
+|---|---|---|
+| Claude Code | `.mcp.json` | JSON, `mcpServers` |
+| Cursor | `.cursor/mcp.json` | JSON, `mcpServers` |
+| GitHub Copilot | `.vscode/mcp.json` | JSON, **`servers`** |
+| Gemini CLI | `.gemini/settings.json` | JSON, `mcpServers`, alongside unrelated settings |
+| Codex CLI | `.codex/config.toml` | **TOML**, `[mcp_servers.github]` |
+
+Two details in that table are the whole problem. Copilot uses `servers` where everyone else
+uses `mcpServers`, so a copy-paste between the two silently defines nothing. And Codex reads
+TOML, so there is no copy-paste at all:
+
+```toml
+# .codex/config.toml
+[mcp_servers.github]
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-github"]
+```
+
+<Aside type="note" title="Your other settings survive">
+  `.gemini/settings.json` and `.codex/config.toml` hold much more than MCP servers.
+  AgentsMesh merges into them rather than replacing them: keys it does not manage are left
+  exactly as written, including ones it does not model.
+</Aside>
+
+## Adding a server
+
+Edit the canonical file and regenerate:
+
+```bash
+agentsmesh generate
+```
+
+Or let an agent do it through the [MCP server](../../reference/mcp-server/), which exposes
+`add_mcp_server` and `update_mcp_server` so the config can be changed in conversation without
+hand-editing five files.
+
+Environment variables are written through verbatim, so a secret stays a reference rather than
+a value:
+
+```json
+{
+  "mcpServers": {
+    "github": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": { "GITHUB_TOKEN": "${GITHUB_TOKEN}" }
+    }
+  }
+}
+```
+
+## Importing servers you already have
+
+If your tools already carry MCP servers, pull them in rather than retyping:
+
+```bash
+agentsmesh init --yes          # imports every detected tool
+agentsmesh import --from cursor   # or one at a time
+```
+
+Servers accumulate across sequential imports and merge by name, so importing Claude Code and
+then Cursor gives you the union rather than whichever ran last.
+
+## Keeping them honest
+
+Because the five files are generated, they can drift the moment somebody edits one directly.
+`agentsmesh check` fails the build when that happens:
+
+```bash
+agentsmesh check
+```
+
+See the [drift guide](../ci-drift-detection/) for the CI wiring, and the
+[supported-tools matrix](../../reference/supported-tools/) for which tools support MCP
+natively — 27 of the 33 AgentsMesh generates for, with the rest partial or absent.
+
+## Related
+
+- [MCP servers in canonical config](../../canonical-config/mcp-servers/) — the file format in full
+- [AgentsMesh MCP server](../../reference/mcp-server/) — let an agent edit the config itself
