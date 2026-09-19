@@ -1,9 +1,9 @@
 # Auto-generated. DO NOT EDIT MANUALLY.
 # Tracks the state of all config files for team conflict resolution.
 
-generated_at: 2026-09-17T12:17:24.195Z
+generated_at: 2026-09-19T15:20:36.389Z
 generated_by: serhii
-lib_version: 0.36.0
+lib_version: 0.38.0
 checksums:
   agents/code-debugger.md: sha256:33452bf839256a119a602cd10d085bff3cdb8f537ded76e60053bb9d8e5d33bc
   agents/code-documenter.md: sha256:89b4ebd27718bcd50a7283c95ea1ff9cad153b1112cf695f9f1fc22d90ec85ec
@@ -137,43 +137,43 @@ packs:
   mattpocock-skills-skills: sha256:b2848e2f170d699f7b3de5c9d686af4f3cf9903c5b74724916bb7ae476df3e7d
   njengah-claude-code-cheat-sheet-agents: sha256:6b0a573bc4a725d0a5d38d323d19382f7a24bd948885d3555b94cbca47a05cbf
 outputs:
-  CLAUDE.md: sha256:b84bbb85465525f729e7f2dbcb29ba8417bcfb96b68252e457d5146f2dbd5cd7
+  CLAUDE.md: sha256:6e15d36c45aa9caf6ec5e321f7d65d215dca31c6d8632858155d452be320e1a7
   .claude/rules/typescript.md: sha256:8ffe7a805c52aa22c070c4efcb9fd5de1c946197712582629f156c195a90709c
-  AGENTS.md: sha256:abe071fd784fe1681f6f813f6603587c647b4928cefc118d23b902fe2558cc22
-  .cursor/rules/general.mdc: sha256:0329ad4d06abeaa41bde854e889f4277b3a4d088b36cb85d106aa4bc92971925
+  AGENTS.md: sha256:e31197bb6b816ca06bc248d16b224afbdb349860eaf29c2b268f171f63f1c3ad
+  .cursor/rules/general.mdc: sha256:db24c27174b45c1ad17f1faffe8406fe57a4ae6450a2a03e1b8937a95fb568a3
   .cursor/rules/typescript.mdc: sha256:f7e4f54d82fd35d53871bc44d5330c5d1062253cb10b838d4f896a594f1a048c
-  .cursor/AGENTS.md: sha256:987b693e268b1b8bbea7d16460852522b13a192bc0566478df0ab9b2c84110ef
-  .github/copilot-instructions.md: sha256:e90554e6ac79c37e3ea30c25f8298c43f64cc134ee2b93f6b397e1dcb1706fee
+  .cursor/AGENTS.md: sha256:3a0b003d53dee067092f58a50adf8fff775390eb048394109834efe0ef0e4425
+  .github/copilot-instructions.md: sha256:7639bee1599227a4914a660d1fdef907c3e2fff1baa34f73a08a83473c040706
   .github/instructions/typescript.instructions.md: sha256:e137275142f4613a56292cc04926d1c96a290d1627c4ac0844b059bb7e18a018
-  GEMINI.md: sha256:8fb9eb1c6b4afaed39922f1df16b2d667fd3570f3f0c533834c023bc3f02f762
+  GEMINI.md: sha256:a092e6e133dfed9b3331be87dbe60dd0659eb970eb3ae51cb70819d66d6af7c2
   .cline/rules/typescript.md: sha256:157a99004dac3a3d42928971c2f090b4f5b076a48f0e7c23089b4fa6b4787c46
   src/AGENTS.md: sha256:f417aa9c45ec6da39a74f1911e482347033f7373f86229676a12073620abce84
   .windsurf/rules/typescript.md: sha256:49186d6f55329f891c1f3da626b34ffc510dda0692ca321214ccd0f091f463cc
-  .continue/rules/general.md: sha256:5a94844415507ff3615e5c34973de18a2dc527fb7905f707808223d1c9728bc3
+  .continue/rules/general.md: sha256:4a90a39588a3662e5ad7e36fe47d4f5861967182117bbb9a567329a96faaa59b
   .continue/rules/typescript.md: sha256:8ffe7a805c52aa22c070c4efcb9fd5de1c946197712582629f156c195a90709c
-  .junie/AGENTS.md: sha256:79cc3e53031260a4522a8b6bcde8581bdf0bc200960ebdd025edb91a6a0ac73a
+  .junie/AGENTS.md: sha256:7e692a46b05f3a963b28463a1b96389524ab42db71bdc3dbdfb301cfcd317afc
   .junie/rules/typescript.md: sha256:f417aa9c45ec6da39a74f1911e482347033f7373f86229676a12073620abce84
-  .agents/rules/general.md: sha256:d2e5fd32d77be65906c5885a07e851d813feb9f2d41e3eef40a67a4c0d6cb174
+  .agents/rules/general.md: sha256:13d8580bbb6e5527eb8beb5f5e42ed9b0a5383703741fcd148aaf5533914c425
   .agents/rules/typescript.md: sha256:f417aa9c45ec6da39a74f1911e482347033f7373f86229676a12073620abce84
-  .roo/rules/00-root.md: sha256:4953e8cced695db71db33ba1fdff6338a03e8ada2b2451b5abd4df475f2f504b
+  .roo/rules/00-root.md: sha256:68490a8f31111334c6c548ab3e84eb9c76dcb98647c6fe0ee2f018c0ecfec775
   .roo/rules/typescript.md: sha256:f417aa9c45ec6da39a74f1911e482347033f7373f86229676a12073620abce84
   .kiro/steering/typescript.md: sha256:b15a9ae6a158fbf13e1a2456724a0a719666c2ecb9e471a0b8d9540159623ad0
   .kilo/rules/typescript.md: sha256:8ffe7a805c52aa22c070c4efcb9fd5de1c946197712582629f156c195a90709c
   .opencode/rules/typescript.md: sha256:8ffe7a805c52aa22c070c4efcb9fd5de1c946197712582629f156c195a90709c
-  .goosehints: sha256:47266a18dd886f18847823e3bb23f718d74569781e9ae3f3a0ca3fabd50b2330
-  .rules: sha256:47266a18dd886f18847823e3bb23f718d74569781e9ae3f3a0ca3fabd50b2330
-  CONVENTIONS.md: sha256:8602cdf471d98d47e011f9aa8e810097cb599d4d6a9bb40408cb1c6afd9cab25
+  .goosehints: sha256:6ca258d15719e1b21fb21cd18832477ac1db9e984048c0f789b857d450ab000f
+  .rules: sha256:6ca258d15719e1b21fb21cd18832477ac1db9e984048c0f789b857d450ab000f
+  CONVENTIONS.md: sha256:439f2609a9982ec18ecb506722bd4d934c8caf27163b9fed88d806bc1a8eef01
   .amazonq/rules/_root.md: sha256:4e8b004afc6fbf5ddfa673e3afb7b060b722c9f4c1e9c28740bb82b5ad1ff8b4
   .amazonq/rules/typescript.md: sha256:f417aa9c45ec6da39a74f1911e482347033f7373f86229676a12073620abce84
   .augment/rules/_root.md: sha256:ff206f1b2cc7ff9ae8190dea9802b9743f3826bab1b2ec2a80bd55f61760d1dd
   .augment/rules/typescript.md: sha256:68746440cdadddf0790eb5eb56f3f6b7abba1e5a6c7f8572bb05498c5497f479
-  CRUSH.md: sha256:903e52f0db411a31d4ce961095454665fc32fb76429b99a2189ab0d49015159b
-  QWEN.md: sha256:b974d2f1f1ff251d6c0605c3964774f4681700f45cced7e6f31a94f103c3cfb8
+  CRUSH.md: sha256:8b780e25a7eceae64de23020821a2034ca8489207cfe0804d85378f8eedfe0e8
+  QWEN.md: sha256:3a04fb12f6020d0f01c5ef975c2f26b95c327d00c96a97e958e00ffb4f9a7da5
   .qwen/rules/typescript.md: sha256:157a99004dac3a3d42928971c2f090b4f5b076a48f0e7c23089b4fa6b4787c46
-  .trae/rules/project_rules.md: sha256:a4375ea24a37f5b0b9b56af9614d0acea72d171f3d73963c450d8ed0554b5cfd
+  .trae/rules/project_rules.md: sha256:6574149be82b71509f59bafceeb428d0dea38b98f7210cc9460eb83d2d2407eb
   .trae/rules/typescript.md: sha256:f417aa9c45ec6da39a74f1911e482347033f7373f86229676a12073620abce84
-  .deepagents/AGENTS.md: sha256:02127c6a44704e2fadfe03ac63addbe1f18d5e51240943f331620b6a573b9c84
-  replit.md: sha256:47266a18dd886f18847823e3bb23f718d74569781e9ae3f3a0ca3fabd50b2330
+  .deepagents/AGENTS.md: sha256:075792ca9759095b604c99ce793beb4ba37c9f774600fa97280b23cde2f32863
+  replit.md: sha256:6ca258d15719e1b21fb21cd18832477ac1db9e984048c0f789b857d450ab000f
   .claude/commands/commit.md: sha256:3e6dcc5871ad157c36efe19c162b43cdc0d723a8695fb0d45c1f90cc28fa931c
   .claude/commands/review.md: sha256:ba3053410e7cc3271f41ba329056df07c6ccd2f07e2ed3dda601c56e46a77d54
   .claude/commands/test.md: sha256:a60932b216ff9eb407c2b38e4459ac4b9606a3aed275f4af84a646eb6c2937e7
