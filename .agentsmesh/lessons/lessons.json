@@ -3176,6 +3176,21 @@
         "t-kw-fa762c9e"
       ]
     },
+    "install-import-pickers-agentsmesh-init-target-selection-is": {
+      "createdAt": "2026-09-19",
+      "evidence": [
+        "4d5c0a51"
+      ],
+      "rule": "agentsmesh init target selection is evidence-based, not breadth-based: --targets, --all-targets, project config, machine installs (descriptor global detection paths against $HOME), then the minimal set from descriptors declaring minimalInitDefault. Because init reads $HOME, any unit test exercising runInit MUST stub HOME/USERPROFILE to an empty dir or results vary per developer machine. buildConfig() now requires a non-empty target list; resolveInitTargets guarantees it.",
+      "status": "active",
+      "topics": [
+        "install-import-pickers"
+      ],
+      "triggers": [
+        "t-glob-2c569101",
+        "t-glob-c7eb35ad"
+      ]
+    },
     "install-import-pickers-allocate-pack-staging-and-backups": {
       "createdAt": "2026-09-07",
       "evidence": [
@@ -3190,6 +3205,21 @@
       "triggers": [
         "t-glob-dda7e920",
         "t-kw-468c3ca3"
+      ]
+    },
+    "install-import-pickers-canonical-paths-are-last-import": {
+      "createdAt": "2026-09-19",
+      "evidence": [
+        "4d5c0a51"
+      ],
+      "rule": "Canonical paths are last-import-wins EXCEPT .agentsmesh/rules/_root.md and mcp.json, which accumulate. Root rule merging lives in the single shared serializer serializeImportedRuleWithFallback (src/targets/import/import-metadata-core.ts) because all ~45 root write sites across 33 targets funnel through it — never patch per-target importers for root-rule behavior. When changing it, remember the init placeholder body (src/canonical/root-rule-placeholder.ts) must count as unwritten or every import stacks under scaffold boilerplate.",
+      "status": "active",
+      "topics": [
+        "install-import-pickers"
+      ],
+      "triggers": [
+        "t-glob-f98a792a",
+        "t-glob-cfe44da2"
       ]
     },
     "install-import-pickers-every-per-target-mcp-importer": {
@@ -6117,6 +6147,22 @@
         "t-glob-5a3df53a",
         "t-glob-1f849af2",
         "t-kw-b54b3b44"
+      ]
+    },
+    "readme-authoring-before-publishing-readme-website-or": {
+      "createdAt": "2026-09-19",
+      "evidence": [
+        "4d5c0a51"
+      ],
+      "rule": "Before publishing README, website, or marketing copy that claims 'safe adoption', 'lossless import', or 'nothing overwritten blind', run the two-root-file repro (repo with both CLAUDE.md and .cursor/rules/*.mdc, then 'init --yes' or two sequential 'import --from'): as of v0.38.0 the second import silently overwrites .agentsmesh/rules/_root.md and reports success for both, so the claim is false for the most common adopter. Verify the fix landed, or soften the claim, before shipping the copy.",
+      "status": "active",
+      "topics": [
+        "readme-authoring"
+      ],
+      "triggers": [
+        "t-glob-d044343b",
+        "t-glob-d0a4b76e",
+        "t-glob-4f36b2c0"
       ]
     },
     "readme-authoring-when-trimming-or-rewriting-readme": {
@@ -10479,6 +10525,10 @@
       "kind": "file_glob",
       "pattern": "src/cli/commands/init-wizard.ts"
     },
+    "t-glob-2c569101": {
+      "kind": "file_glob",
+      "pattern": "src/cli/commands/init*.ts"
+    },
     "t-glob-2d4b85c9": {
       "kind": "file_glob",
       "pattern": "website/src/components/home/*.astro"
@@ -10638,6 +10688,10 @@
     "t-glob-4eefad64": {
       "kind": "file_glob",
       "pattern": "src/cli/commands/lessons-handlers.ts"
+    },
+    "t-glob-4f36b2c0": {
+      "kind": "file_glob",
+      "pattern": "docs/marketing/**/*.md"
     },
     "t-glob-51b8926c": {
       "kind": "file_glob",
@@ -11231,6 +11285,10 @@
       "kind": "file_glob",
       "pattern": "src/targets/*/generator/hooks.ts"
     },
+    "t-glob-c7eb35ad": {
+      "kind": "file_glob",
+      "pattern": "src/targets/catalog/init-starter-targets.ts"
+    },
     "t-glob-c88404c0": {
       "kind": "file_glob",
       "pattern": "src/lessons/outcome-log.ts"
@@ -11262,6 +11320,10 @@
     "t-glob-cf079804": {
       "kind": "file_glob",
       "pattern": "src/core/generate/*-merge.ts"
+    },
+    "t-glob-cfe44da2": {
+      "kind": "file_glob",
+      "pattern": "src/canonical/root-rule-placeholder.ts"
     },
     "t-glob-d044343b": {
       "kind": "file_glob",
@@ -11454,6 +11516,10 @@
     "t-glob-f9578eb1": {
       "kind": "file_glob",
       "pattern": "src/utils/filesystem/rename-retry.ts"
+    },
+    "t-glob-f98a792a": {
+      "kind": "file_glob",
+      "pattern": "src/targets/import/*.ts"
     },
     "t-glob-f9f526aa": {
       "kind": "file_glob",
