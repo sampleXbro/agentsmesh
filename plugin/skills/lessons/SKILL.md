@@ -3,6 +3,12 @@ name: lessons
 description: Use when about to edit a file or run a state-changing command, or after any failure, correction, or surprising result.
 ---
 
+> **In this plugin, reach lessons through the MCP tools** — `lessons_query`,
+> `lessons_add`, `lessons_topics`, `lessons_show`, `lessons_deprecate` — which
+> this plugin ships and which work in any repository. The `agentsmesh` CLI
+> commands named below are the equivalent shell form; use them only if the CLI
+> is installed. Everything else on this page applies unchanged.
+
 # Lessons — operating manual (Iron Law)
 
 ## The Iron Law

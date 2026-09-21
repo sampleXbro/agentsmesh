@@ -45,8 +45,15 @@ async function loadProjectPlugins(projectRoot: string): Promise<void> {
   }
 }
 
-export async function resolveContext(opts: { cwd: string }): Promise<McpContext> {
-  const projectRoot = await findProjectRoot(opts.cwd);
+export async function resolveContext(opts: {
+  cwd: string;
+  /** Default true. False resolves to `cwd` when no `agentsmesh.yaml` is found. */
+  requireProject?: boolean;
+}): Promise<McpContext> {
+  const projectRoot =
+    opts.requireProject === false
+      ? await findProjectRoot(opts.cwd).catch(() => resolve(opts.cwd))
+      : await findProjectRoot(opts.cwd);
   await loadProjectPlugins(projectRoot);
   return {
     projectRoot,

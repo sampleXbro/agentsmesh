@@ -3,7 +3,7 @@
     "agentsmesh": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "agentsmesh", "mcp"]
+      "args": ["-y", "agentsmesh@latest", "mcp"]
     }
   }
 }

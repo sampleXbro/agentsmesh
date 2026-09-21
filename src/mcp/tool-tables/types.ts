@@ -7,6 +7,13 @@ export interface ToolDescriptor {
   inputSchema: z.ZodTypeAny;
   handler: (ctx: McpContext, input: unknown) => Promise<unknown>;
   resourceUri?: string;
+  /**
+   * The tool works in a directory with no `agentsmesh.yaml`. Lessons are
+   * self-contained — the CLI already recalls and captures in a bare repo — so
+   * requiring a project on the MCP surface only locked out agents with no
+   * shell. Config tools leave this unset and still require a project.
+   */
+  projectOptional?: boolean;
 }
 
 export interface ResourceDescriptor {
