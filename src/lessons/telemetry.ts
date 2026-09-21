@@ -59,6 +59,17 @@ export interface RecallTelemetryRecord {
   readonly returnedTokens: number;
   /** True when caps hid matches (`totalMatches > returnedCount`). */
   readonly truncated: boolean;
+  /**
+   * The normalized action this recall was for (`file:src/x.ts`, `cmd:git commit`,
+   * or `none` for a keyword-only query) — the SAME key the outcome log uses, so
+   * this stores no content the logs did not already hold.
+   *
+   * Without it the log proves a recall happened but not for which action, so
+   * occurrences per action cannot be counted and no before/after effectiveness
+   * claim is computable. Optional because records written before this existed
+   * have no key.
+   */
+  readonly contextKey?: string;
   /** Matched lessons attributable to each trigger kind (overlaps allowed). */
   readonly matchedByKind: {
     readonly file: number;
