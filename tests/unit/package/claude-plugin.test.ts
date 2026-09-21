@@ -13,7 +13,10 @@ import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
 const ROOT = process.cwd();
-const PLUGIN = join(ROOT, 'plugin');
+// Deliberately not `plugin/`: a root directory by that name makes the reference
+// rewriter treat the `/plugin` slash command in skill prose as a path and strip
+// its leading slash, corrupting generated skills.
+const PLUGIN = join(ROOT, 'claude-plugin');
 
 function readJson(rel: string): Record<string, unknown> {
   return JSON.parse(readFileSync(join(PLUGIN, rel), 'utf8')) as Record<string, unknown>;
