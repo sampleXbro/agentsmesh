@@ -1,0 +1,22 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "*",
+        "hooks": [{ "type": "command", "command": "npx -y agentsmesh lessons hook" }]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|Bash",
+        "hooks": [{ "type": "command", "command": "npx -y agentsmesh lessons hook" }]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "matcher": "Edit|Write|Bash",
+        "hooks": [{ "type": "command", "command": "npx -y agentsmesh lessons hook" }]
+      }
+    ]
+  }
+}
