@@ -27,7 +27,11 @@ describe('marketplace catalogs', () => {
   // (confirmed against openai/plugins, which ships exactly this layout).
   const codex = () =>
     readJson(MARKETPLACE) as unknown as {
-      plugins: { name: string; source: { source: string; path: string } }[];
+      plugins: {
+        name: string;
+        source: { source: string; path: string };
+        policy: Record<string, string>;
+      }[];
     };
   const claude = () =>
     readJson(CLAUDE_MARKETPLACE) as unknown as {
@@ -42,6 +46,14 @@ describe('marketplace catalogs', () => {
       source: 'local',
       path: './plugins/agentsmesh-lessons',
     });
+  });
+
+  it('omits authentication, the only shape Codex accepts for a server needing none', () => {
+    // `codex plugin marketplace add` refuses the whole catalog with
+    // "unknown variant `NONE`, expected `ON_INSTALL` or `ON_USE`". The field is
+    // optional, and this plugin authenticates nothing, so it must be absent
+    // rather than set to a value meaning "none".
+    expect(codex().plugins[0]!.policy).toEqual({ installation: 'AVAILABLE' });
   });
 
   it('offers the bundle to Claude Code at the same path', () => {

@@ -11,8 +11,7 @@
         "path": "./plugins/agentsmesh-lessons"
       },
       "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "NONE"
+        "installation": "AVAILABLE"
       },
       "category": "Productivity"
     }
