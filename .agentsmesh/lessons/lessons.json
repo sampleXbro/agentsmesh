@@ -7772,6 +7772,21 @@
         "t-glob-2511e880"
       ]
     },
+    "targets-to-prove-a-claude-code": {
+      "createdAt": "2026-09-22",
+      "evidence": [
+        "4043bfde"
+      ],
+      "rationale": "Tool presence is ambiguous when the user already configures a server of the same name; the plugin_ prefix is the only reliable attribution.",
+      "rule": "To prove a Claude Code plugin actually loaded, check the tool namespace, not just `claude plugin details`: plugin-provided MCP tools appear as `mcp__plugin_<plugin>_<server>__*`, which is distinct from a same-named server in the user's own config (`mcp__<server>__*`). Both can be present at once, so tool existence alone proves nothing. The bundled skill likewise appears namespaced as `<plugin>:<skill>`. Note plugins load at session start, so install then start a NEW session before looking.",
+      "status": "active",
+      "topics": [
+        "targets"
+      ],
+      "triggers": [
+        "t-glob-581b70ac"
+      ]
+    },
     "targets-when-a-target-reads-several": {
       "createdAt": "2026-09-01",
       "evidence": [],
