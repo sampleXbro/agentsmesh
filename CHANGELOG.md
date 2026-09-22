@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.40.0
+
+### Minor Changes
+
+- 4fbf6a6: **Fixed — lessons over MCP no longer require an initialized project.** `lessons_query` and the other lessons tools rejected every call in a directory without `agentsmesh.yaml` with `NO_PROJECT`, while the CLI did the opposite: `agentsmesh lessons query` printed a setup hint and exited 0, and `lessons add` created the graph. Since MCP is the documented path for an agent with no shell — and the only path a Claude Code plugin has — the feature was unreachable for exactly the callers it was meant to serve. All five lessons tools now fall back to the working directory. Config tools such as `generate` still require a project and still report `NO_PROJECT`.
+
+### Patch Changes
+
+- 5989d1f: **Fixed — a slash command in prose is no longer rewritten as a path.** `/plugin`, `/config`, `/memory` and friends are indistinguishable from a one-segment root-absolute path, and reference resolution is existence-gated, so the corruption appeared only once a repository grew a directory of that name: a repo with `plugin/` saw every `/plugin` in its skills and rules silently rewritten to `plugin` on the next `generate`. Directory names like `config`, `docs`, `test` and `build` make this likely in an ordinary project, and agent-facing documentation is full of slash commands.
+
+  A root-absolute token now has to look like a path to be treated as one — a further segment, a file extension, or a trailing slash. `/docs/x.md`, `/AGENTS.md` and `/docs/` still rewrite; `/docs` is left alone. Write `/docs/` or `docs/` when you mean the directory.
+
+- 5e8ef3b: **Added — the recall log records which action it was for.** `lessons stats` reports a held-rate and correctly calls it a weak upper bound, because a delivery with no recorded repeat is not proof of prevention. The missing piece was exposure: the log proved a recall happened but not for which action, so occurrences per action could not be counted and no before/after rate was computable.
+
+  Each recall record now carries the normalized `contextKey` the outcome log already stores (`file:src/x.ts`, `cmd:git commit`, or `none` for a keyword-only query), so this adds no content the logs did not already hold and never records a raw command. Telemetry remains opt-in and off by default. Records written before this change have no key and are reported as such rather than silently skewing an average.
+
+- ead5625: AgentsMesh can now be listed in the official MCP registry. The published package declares `mcpName`, the field the registry reads to confirm that the npm package and the registry entry share an owner — without it a submission is rejected outright. The registry manifest `server.json` also stops pinning an npm version, so it can no longer advertise a release that has been superseded, and its remaining version field is written by `changeset version` instead of by hand.
+
 ## 0.39.0
 
 ### Minor Changes

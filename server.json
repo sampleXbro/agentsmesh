@@ -3,7 +3,7 @@
   "name": "io.github.samplexbro/agentsmesh",
   "title": "AgentsMesh",
   "description": "Read and edit AI coding config from one canonical source: rules, commands, agents, skills, MCP servers, hooks, permissions and ignore patterns, then generate each tool's native files. Includes the lessons memory an agent uses to recall a rule before acting and capture one after a failure.",
-  "version": "0.39.0",
+  "version": "0.40.0",
   "websiteUrl": "https://samplexbro.github.io/agentsmesh/reference/mcp-server/",
   "repository": {
     "url": "https://github.com/sampleXbro/agentsmesh",
