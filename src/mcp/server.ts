@@ -49,7 +49,10 @@ export async function startServer(): Promise<void> {
         const details = enrichValidationIssues(desc.inputSchema, parsed.error.issues);
         throw new McpError('VALIDATION_FAILED', 'invalid input', details);
       }
-      const ctx = await resolveContext({ cwd: process.cwd() });
+      const ctx = await resolveContext({
+        cwd: process.cwd(),
+        requireProject: desc.projectOptional !== true,
+      });
       const result = await desc.handler(ctx, parsed.data);
       return { content: [{ type: 'text' as const, text: JSON.stringify(result) }] };
     } catch (e) {

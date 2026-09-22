@@ -111,6 +111,7 @@ export const LESSONS_TOOL_DESCRIPTORS: ToolDescriptor[] = [
     description:
       'Recall primitive — return active lessons whose triggers match the supplied (file, command, keyword) predicates, relevance-ranked (trigger specificity + per-query topic coherence + BM25 over rule text) and capped to `limit` (default 10). Pass at least one predicate OR `always:true` (a call with neither is rejected); always include `file` for an edit and `command` for a shell command — keyword-only recall misses file/command-scoped lessons. `always:true` additionally prepends the universal always-on lessons. Session dedup is ON by default (correlator: AGENTSMESH_SESSION_ID, else this server process): a lesson already delivered this session is suppressed and counted in `suppressed` — pass `no_dedup:true` to re-show everything (e.g. after context compaction), or `session` to control the scope. Returns compact `{id, rule}` by default; pass `verbose:true` for topics/triggers/evidence/score. Excludes deprecated and superseded lessons.',
     inputSchema: LessonsQueryInput,
+    projectOptional: true,
     handler: (ctx, i) => lessonsHandlers.query(ctx, i as never),
   },
   {
@@ -118,6 +119,7 @@ export const LESSONS_TOOL_DESCRIPTORS: ToolDescriptor[] = [
     description:
       'Capture primitive — atomically add a new lesson. At least one EFFECTIVE trigger is REQUIRED — the add is rejected (UNRECALLABLE_LESSON, exit 2) when every trigger is dead on the mandatory file/command recall path (a stopword-only keyword whose needle loses all tokens to stopword filtering, or an invalid/ReDoS command regex). A lesson with a mix of live and dead triggers is NOT rejected. Prefer a precise `trigger_files` glob, the most reliable trigger. Deduplicates triggers against the graph. Idempotent on repeat (same rule + topic → same id, no duplicate triggers). Returns non-blocking `warnings` (trigger-hygiene nudges: oversized trigger set, broad globs, keyword-only, dead glob matching no file in the working tree [DEAD_GLOB], or rule closely paraphrasing an existing active lesson [NEAR_DUPLICATE_LESSON]) — heed them by preferring a few specific triggers.',
     inputSchema: LessonsAddInput,
+    projectOptional: true,
     handler: (ctx, i) => lessonsHandlers.add(ctx, i as never),
   },
   {
@@ -125,6 +127,7 @@ export const LESSONS_TOOL_DESCRIPTORS: ToolDescriptor[] = [
     description:
       'List every topic id and summary — call before lessons_add to choose a valid --topic instead of guessing (which would create an unintended new topic).',
     inputSchema: z.object({}).strict(),
+    projectOptional: true,
     handler: (ctx) => lessonsHandlers.topics(ctx),
   },
   {
@@ -134,6 +137,7 @@ export const LESSONS_TOOL_DESCRIPTORS: ToolDescriptor[] = [
     inputSchema: z
       .object({ topic: z.string().min(1).describe('Topic id to inspect (see lessons_topics).') })
       .strict(),
+    projectOptional: true,
     handler: (ctx, i) => lessonsHandlers.show(ctx, i as never),
   },
   {
@@ -150,6 +154,7 @@ export const LESSONS_TOOL_DESCRIPTORS: ToolDescriptor[] = [
           .describe('Replacement lesson id; omit for a plain deprecation.'),
       })
       .strict(),
+    projectOptional: true,
     handler: (ctx, i) => lessonsHandlers.deprecate(ctx, i as never),
   },
 ];

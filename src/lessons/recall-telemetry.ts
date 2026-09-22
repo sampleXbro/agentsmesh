@@ -2,6 +2,7 @@ import type { LessonsGraph } from './graph-schema.js';
 import { collectMatchedTriggersByKind, type LessonsQuery, type MatchedLesson } from './query.js';
 import { estTokens, type RankedLesson } from './ranking.js';
 import { appendRecallRecord, isTelemetryEnabled, sessionId } from './telemetry.js';
+import { contextKey } from './context-key.js';
 
 /**
  * Append one telemetry record for this recall — gated, so the hot path computes
@@ -39,6 +40,7 @@ export function recordRecallTelemetry(
     returnedCount: lessons.length,
     returnedTokens: lessons.reduce((sum, l) => sum + estTokens(l.lesson.rule), 0),
     truncated: matches.length > lessons.length,
+    contextKey: contextKey({ file: query.file, command: query.command }, projectRoot),
     matchedByKind: {
       file: countVia(byKind.file_glob),
       command: countVia(byKind.command_pattern),

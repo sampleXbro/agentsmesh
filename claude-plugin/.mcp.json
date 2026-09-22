@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "agentsmesh": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "agentsmesh@latest", "mcp"]
+    }
+  }
+}
