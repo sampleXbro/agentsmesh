@@ -239,12 +239,14 @@ describe('rewriteFileLinks', () => {
     expect(rewritten.missing).toEqual([]);
   });
 
-  it('preserves .agentsmesh/ anchor and rewrites /dir to project-root-relative', () => {
+  it('preserves .agentsmesh/ anchor and rewrites /dir/ to project-root-relative', () => {
     // .agentsmesh  (no trailing slash) — bare name, stays unchanged
     // .agentsmesh/ (with slash)        — well-known anchor, preserved as-is (not collapsed to ./)
-    // /test                            — absolute-looking token, rewritten to project-root-relative `test`
+    // /test/                           — a path (trailing slash), rewritten to project-root-relative `test`
+    //                                    Bare `/test` is a slash command and is left alone; see
+    //                                    link-rebaser-slash-commands.test.ts
     const rewritten = rewriteFileLinks({
-      content: 'Mention `.agentsmesh` and `test`, but keep `.agentsmesh/` and `/test` as links.',
+      content: 'Mention `.agentsmesh` and `test`, but keep `.agentsmesh/` and `/test/` as links.',
       projectRoot: '/proj',
       sourceFile: '/proj/.agentsmesh/rules/_root.md',
       destinationFile: '/proj/CLAUDE.md',
@@ -262,7 +264,7 @@ describe('rewriteFileLinks', () => {
     expect(rewritten.content).toContain('`.agentsmesh`'); // bare name unchanged
     expect(rewritten.content).toContain('`test`'); // bare name unchanged
     expect(rewritten.content).toContain('`.agentsmesh/`'); // anchor preserved (was incorrectly ./  before)
-    expect(rewritten.content).not.toContain('`/test`'); // absolute /test → project-root-relative test
+    expect(rewritten.content).not.toContain('`/test/`'); // absolute /test/ → project-root-relative test
   });
 
   it('rewrites absolute in-project paths to project-root-relative target paths', () => {

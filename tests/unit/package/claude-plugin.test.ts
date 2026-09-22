@@ -13,9 +13,9 @@ import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
 const ROOT = process.cwd();
-// Deliberately not `plugin/`: a root directory by that name makes the reference
-// rewriter treat the `/plugin` slash command in skill prose as a path and strip
-// its leading slash, corrupting generated skills.
+// Named for what it is. It also used to matter that this was not `plugin/`,
+// because the rewriter read the `/plugin` slash command in skill prose as a
+// path; that is fixed in link-rebaser-slash-commands.test.ts.
 const PLUGIN = join(ROOT, 'claude-plugin');
 
 function readJson(rel: string): Record<string, unknown> {

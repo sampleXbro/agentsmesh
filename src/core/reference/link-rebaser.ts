@@ -42,6 +42,15 @@ export interface RewriteFileLinksResult {
   missing: string[];
 }
 
+/**
+ * True for `/word` — one segment, no extension, no trailing slash. Written that
+ * way it is a command in prose, not a path. `/docs/`, `/src/app.ts` and
+ * `/AGENTS.md` all remain paths.
+ */
+function isSlashCommandToken(normalizedToken: string): boolean {
+  return /^\/[A-Za-z][A-Za-z0-9-]*$/.test(normalizedToken);
+}
+
 export function rewriteFileLinks(input: RewriteFileLinksInput): RewriteFileLinksResult {
   const missing = new Set<string>();
   const protectedRefRanges = protectedRanges(input.content);
@@ -100,9 +109,15 @@ export function rewriteFileLinks(input: RewriteFileLinksInput): RewriteFileLinks
       !normalizedCandidate.includes('\\')
     ) {
       // Bare folder names (e.g. `test`, `.agentsmesh`) should not be interpreted as links.
-      // Keep handling for explicit path forms like `.agentsmesh/` or `/test`.
+      // Keep handling for explicit path forms like `.agentsmesh/` or `/docs/`.
       return match;
     }
+    // A slash command (`/plugin`, `/config`, `/memory`) is indistinguishable from
+    // a one-segment root-absolute path, and resolution is existence-gated, so the
+    // moment a repo grows a directory of that name every mention in prose would be
+    // silently rewritten. Require a path to look like one: a further segment, an
+    // extension, or a trailing slash.
+    if (isSlashCommandToken(normalizedCandidate)) return match;
 
     if (resolvedBeforeTranslate === null) {
       let normTok = normalizeSeparators(punctStripped);
