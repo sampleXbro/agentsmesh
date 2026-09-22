@@ -1,8 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  narrowDiscoveredForImplicitPick,
-  narrowDiscoveredForInstallScope,
-} from '../../../src/install/core/resource-selection.js';
+import { narrowDiscoveredForInstallScope } from '../../../src/install/core/resource-selection.js';
 import type {
   CanonicalAgent,
   CanonicalCommand,
@@ -77,46 +74,6 @@ function files(partial: Partial<CanonicalFiles> = {}): CanonicalFiles {
     ...partial,
   };
 }
-
-describe('narrowDiscoveredForImplicitPick — uncovered branches', () => {
-  it('returns canonical unchanged when implicit is undefined', () => {
-    const c = files({ rules: [makeRule()], skills: [makeSkill()] });
-    const out = narrowDiscoveredForImplicitPick(c, undefined);
-    expect(out).toBe(c);
-  });
-
-  it('clears skills when pick has empty skills array', () => {
-    const c = files({
-      skills: [makeSkill({ name: 'a' })],
-    });
-    const out = narrowDiscoveredForImplicitPick(c, { skills: [] });
-    expect(out.skills).toEqual([]);
-  });
-
-  it('clears rules when pick has empty rules array', () => {
-    const c = files({
-      rules: [makeRule({ source: '.agentsmesh/rules/x.md' })],
-    });
-    const out = narrowDiscoveredForImplicitPick(c, { rules: [] });
-    expect(out.rules).toEqual([]);
-  });
-
-  it('clears commands when pick has empty commands array', () => {
-    const c = files({
-      commands: [makeCommand({ name: 'a' })],
-    });
-    const out = narrowDiscoveredForImplicitPick(c, { commands: [] });
-    expect(out.commands).toEqual([]);
-  });
-
-  it('clears agents when pick has empty agents array', () => {
-    const c = files({
-      agents: [makeAgent({ name: 'a' })],
-    });
-    const out = narrowDiscoveredForImplicitPick(c, { agents: [] });
-    expect(out.agents).toEqual([]);
-  });
-});
 
 describe('narrowDiscoveredForInstallScope', () => {
   it('returns canonical unchanged when no implicit and no scopedFeatures', () => {

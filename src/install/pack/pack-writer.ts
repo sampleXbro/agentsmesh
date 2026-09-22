@@ -1,6 +1,7 @@
 /** Materialize canonical files, then atomically swap the staged pack into place. */
 
-import { join, basename, dirname } from 'node:path';
+import { copyEntitiesInto } from './copy-entities.js';
+import { join, dirname } from 'node:path';
 import { copyFile } from 'node:fs/promises';
 import { stringify as yamlStringify } from 'yaml';
 import type { CanonicalFiles } from '../../core/types.js';
@@ -24,39 +25,6 @@ export interface InstallManifestExtras {
   readonly extends_id?: string | null;
   /** Classifier verdict that drove this install (e.g. `anthropic-skill-pack`). */
   readonly source_type?: string | null;
-}
-
-/** Write rules to packDir/rules/ by copying source files. */
-async function writeRules(canonical: CanonicalFiles, packDir: string): Promise<void> {
-  if (canonical.rules.length === 0) return;
-  const rulesDir = join(packDir, 'rules');
-  await mkdirp(rulesDir);
-  for (const rule of canonical.rules) {
-    const dest = join(rulesDir, basename(rule.source));
-    await copyFile(rule.source, dest);
-  }
-}
-
-/** Write commands to packDir/commands/ by copying source files. */
-async function writeCommands(canonical: CanonicalFiles, packDir: string): Promise<void> {
-  if (canonical.commands.length === 0) return;
-  const dir = join(packDir, 'commands');
-  await mkdirp(dir);
-  for (const cmd of canonical.commands) {
-    const dest = join(dir, basename(cmd.source));
-    await copyFile(cmd.source, dest);
-  }
-}
-
-/** Write agents to packDir/agents/ by copying source files. */
-async function writeAgents(canonical: CanonicalFiles, packDir: string): Promise<void> {
-  if (canonical.agents.length === 0) return;
-  const dir = join(packDir, 'agents');
-  await mkdirp(dir);
-  for (const agent of canonical.agents) {
-    const dest = join(dir, basename(agent.source));
-    await copyFile(agent.source, dest);
-  }
 }
 
 /** Write skills to packDir/skills/{name}/ with SKILL.md and supporting files. */
@@ -165,9 +133,9 @@ export async function materializePack(
 ): Promise<PackMetadata> {
   validatePackName(packName);
   return swapPackDirectory(packsDir, packName, async (tmpDir) => {
-    await writeRules(canonical, tmpDir);
-    await writeCommands(canonical, tmpDir);
-    await writeAgents(canonical, tmpDir);
+    await copyEntitiesInto(tmpDir, 'rules', canonical.rules);
+    await copyEntitiesInto(tmpDir, 'commands', canonical.commands);
+    await copyEntitiesInto(tmpDir, 'agents', canonical.agents);
     await writeSkills(canonical, tmpDir);
     await writeSettings(canonical, tmpDir);
     // Preserved root files (README/LICENSE/…) before hash so the bytes

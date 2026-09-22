@@ -3,7 +3,7 @@ import type { CanonicalFiles } from '../../core/types.js';
 import { readFileSafe } from '../../utils/filesystem/fs.js';
 import { COPILOT_HOOKS_DIR } from './constants.js';
 import type { RulesOutput } from './generator.js';
-import { hasHookCommand } from './hook-entry.js';
+import { hasHookCommand } from '../../core/hook-command.js';
 
 const SCRIPT_PREFIX_RE =
   /^(?<prefix>\s*(?:(?:bash|sh|zsh)\s+)?)["']?(?<path>(?:\.\.\/|\.\/|[^/\s"'`]+\/)[^\s"'`]+)["']?(?<suffix>(?:\s.*)?)$/;

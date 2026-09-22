@@ -31,6 +31,7 @@ import {
   CODEBUFF_MCP_FILE,
   CODEBUFF_IGNORE_FILE,
 } from './constants.js';
+import { ignoreOutput } from '../catalog/ignore-output.js';
 
 export type CodebuffOutput = FeatureGeneratorOutput;
 
@@ -87,10 +88,7 @@ export function generateMcp(canonical: CanonicalFiles): CodebuffOutput[] {
 }
 
 /** `PROJECT_IGNORE_FILES` (common/src/util/project-ignore.ts) parses gitignore syntax. */
-export function generateIgnore(canonical: CanonicalFiles): CodebuffOutput[] {
-  if (canonical.ignore.length === 0) return [];
-  return [{ path: CODEBUFF_IGNORE_FILE, content: canonical.ignore.join('\n') }];
-}
+export const generateIgnore = ignoreOutput(CODEBUFF_IGNORE_FILE);
 
 export const generateAgents = NO_OUTPUTS;
 

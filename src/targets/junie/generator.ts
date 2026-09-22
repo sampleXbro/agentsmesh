@@ -13,6 +13,7 @@ import {
   JUNIE_MCP_FILE,
   JUNIE_SKILLS_DIR,
 } from './constants.js';
+import { ignoreOutput } from '../catalog/ignore-output.js';
 
 export type { JunieOutput } from './global-config.js';
 export { generatePermissions, emitJunieScopedSettings, mergeJunieConfig } from './global-config.js';
@@ -103,12 +104,7 @@ export function generateAgents(
   });
 }
 
-export function generateIgnore(
-  canonical: CanonicalFiles,
-): Array<{ path: string; content: string }> {
-  if (canonical.ignore.length === 0) return [];
-  return [{ path: JUNIE_IGNORE, content: canonical.ignore.join('\n') }];
-}
+export const generateIgnore = ignoreOutput(JUNIE_IGNORE);
 
 export function generateSkills(
   canonical: CanonicalFiles,

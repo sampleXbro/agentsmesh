@@ -7,7 +7,7 @@
 
 import type { CanonicalFiles } from '../../core/types.js';
 import { COPILOT_HOOKS_DIR } from './constants.js';
-import { hasHookCommand } from './hook-entry.js';
+import { hasHookCommand } from '../../core/hook-command.js';
 import type { RulesOutput } from './generator.js';
 
 function mapHookEvent(event: string): string | null {

@@ -21,6 +21,7 @@ import {
 } from '../projection/projected-agent-skill.js';
 import { commandSkillDirName, serializeCommandSkill } from '../codex-cli/command-skill.js';
 import { AIDER_TARGET, AIDER_CONVENTIONS, AIDER_SKILLS_DIR, AIDER_IGNORE } from './constants.js';
+import { ignoreOutput } from '../catalog/ignore-output.js';
 
 export type AiderOutput = FeatureGeneratorOutput;
 
@@ -63,10 +64,7 @@ export function generateAgents(canonical: CanonicalFiles): AiderOutput[] {
   }));
 }
 
-export function generateIgnore(canonical: CanonicalFiles): AiderOutput[] {
-  if (canonical.ignore.length === 0) return [];
-  return [{ path: AIDER_IGNORE, content: canonical.ignore.join('\n') }];
-}
+export const generateIgnore = ignoreOutput(AIDER_IGNORE);
 
 export const generateMcp = NO_OUTPUTS;
 

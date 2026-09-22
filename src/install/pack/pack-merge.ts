@@ -2,7 +2,8 @@
  * Incrementally merge new canonical resources into an existing pack.
  */
 
-import { join, basename, dirname } from 'node:path';
+import { copyEntitiesInto } from './copy-entities.js';
+import { join, dirname } from 'node:path';
 import { copyFile } from 'node:fs/promises';
 import { stringify as yamlStringify } from 'yaml';
 import type { CanonicalFiles } from '../../core/types.js';
@@ -68,36 +69,6 @@ function mergePick(
     (result.commands?.length ?? 0) > 0 ||
     (result.agents?.length ?? 0) > 0;
   return hasAny ? result : undefined;
-}
-
-/** Copy new rules into packDir/rules/. */
-async function mergeRules(canonical: CanonicalFiles, packDir: string): Promise<void> {
-  if (canonical.rules.length === 0) return;
-  const dir = join(packDir, 'rules');
-  await mkdirp(dir);
-  for (const rule of canonical.rules) {
-    await copyFile(rule.source, join(dir, basename(rule.source)));
-  }
-}
-
-/** Copy new commands into packDir/commands/. */
-async function mergeCommands(canonical: CanonicalFiles, packDir: string): Promise<void> {
-  if (canonical.commands.length === 0) return;
-  const dir = join(packDir, 'commands');
-  await mkdirp(dir);
-  for (const cmd of canonical.commands) {
-    await copyFile(cmd.source, join(dir, basename(cmd.source)));
-  }
-}
-
-/** Copy new agents into packDir/agents/. */
-async function mergeAgents(canonical: CanonicalFiles, packDir: string): Promise<void> {
-  if (canonical.agents.length === 0) return;
-  const dir = join(packDir, 'agents');
-  await mkdirp(dir);
-  for (const agent of canonical.agents) {
-    await copyFile(agent.source, join(dir, basename(agent.source)));
-  }
 }
 
 /** Copy new skills into packDir/skills/. */
@@ -167,9 +138,9 @@ export async function mergeIntoPack(
   preservedRootFiles: readonly PreservedRootFile[] = [],
 ): Promise<PackMetadata> {
   // Write new resources
-  await mergeRules(newCanonical, packDir);
-  await mergeCommands(newCanonical, packDir);
-  await mergeAgents(newCanonical, packDir);
+  await copyEntitiesInto(packDir, 'rules', newCanonical.rules);
+  await copyEntitiesInto(packDir, 'commands', newCanonical.commands);
+  await copyEntitiesInto(packDir, 'agents', newCanonical.agents);
   await mergeSkills(newCanonical, packDir);
   await mergeSettings(newCanonical, packDir);
   await mergePreservedRootFiles(preservedRootFiles, packDir);

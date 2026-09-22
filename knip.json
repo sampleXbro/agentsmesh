@@ -10,17 +10,17 @@
     "scripts/**/*.ts",
     "tests/**/*.test.ts",
     "tests/e2e/**/*.ts",
-    "tests/import-generate-roundtrip.ts",
     "tests/agents-folder-structure-research.test.ts",
     "tests/harness/**/*.ts",
-    "tests/fixtures/**/*.ts",
     "vitest.config.ts",
     "vitest.e2e.config.ts",
-    "vitest.e2e-skill-fixtures.config.ts",
-    "tsup.config.ts",
-    "eslint.config.mjs"
+    "tsup.config.ts"
   ],
-  "project": ["src/**/*.ts", "tests/**/*.ts", "scripts/**/*.ts"],
+  "project": [
+    "src/**/*.ts",
+    "tests/**/*.ts",
+    "scripts/**/*.ts"
+  ],
   "ignore": [
     "dist/**",
     "coverage/**",

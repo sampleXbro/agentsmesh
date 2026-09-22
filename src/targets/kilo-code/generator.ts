@@ -22,6 +22,7 @@ import {
   KILO_CODE_IGNORE,
   KILO_CONFIG_FILE,
 } from './constants.js';
+import { ignoreOutput } from '../catalog/ignore-output.js';
 
 export type KiloCodeOutput = FeatureGeneratorOutput;
 
@@ -99,10 +100,7 @@ export function generateMcp(canonical: CanonicalFiles): KiloCodeOutput[] {
   ];
 }
 
-export function generateIgnore(canonical: CanonicalFiles): KiloCodeOutput[] {
-  if (canonical.ignore.length === 0) return [];
-  return [{ path: KILO_CODE_IGNORE, content: canonical.ignore.join('\n') }];
-}
+export const generateIgnore = ignoreOutput(KILO_CODE_IGNORE);
 
 export function generatePermissions(canonical: CanonicalFiles): KiloCodeOutput[] {
   if (!canonical.permissions) return [];

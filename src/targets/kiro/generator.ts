@@ -17,6 +17,7 @@ import {
   KIRO_HOOKS_DIR,
   KIRO_IGNORE,
 } from './constants.js';
+import { ignoreOutput } from '../catalog/ignore-output.js';
 
 export type KiroOutput = FeatureGeneratorOutput;
 
@@ -114,9 +115,6 @@ export function generateAgents(canonical: CanonicalFiles): KiroOutput[] {
   return buildKiroAgentOutputs(canonical);
 }
 
-export function generateIgnore(canonical: CanonicalFiles): KiroOutput[] {
-  if (canonical.ignore.length === 0) return [];
-  return [{ path: KIRO_IGNORE, content: canonical.ignore.join('\n') }];
-}
+export const generateIgnore = ignoreOutput(KIRO_IGNORE);
 
 export const generatePermissions = NO_OUTPUTS;

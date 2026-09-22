@@ -30,6 +30,7 @@ import {
   GOOSE_IGNORE,
   GOOSE_HOOKS_FILE,
 } from './constants.js';
+import { ignoreOutput } from '../catalog/ignore-output.js';
 
 export type GooseOutput = FeatureGeneratorOutput;
 
@@ -54,10 +55,7 @@ export function generateAgents(canonical: CanonicalFiles): GooseOutput[] {
   }));
 }
 
-export function generateIgnore(canonical: CanonicalFiles): GooseOutput[] {
-  if (canonical.ignore.length === 0) return [];
-  return [{ path: GOOSE_IGNORE, content: canonical.ignore.join('\n') }];
-}
+export const generateIgnore = ignoreOutput(GOOSE_IGNORE);
 
 export function generateHooks(canonical: CanonicalFiles): GooseOutput[] {
   return buildWrappedCommandHooks(canonical, GOOSE_HOOKS_FILE);
