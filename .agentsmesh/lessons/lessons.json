@@ -3915,6 +3915,21 @@
         "t-kw-abe95c07"
       ]
     },
+    "lessons-system-a-plugin-only-distribution-silently": {
+      "createdAt": "2026-09-22",
+      "evidence": [
+        "e01e4955"
+      ],
+      "rationale": "The plugin path drops both the root paragraph and the hooks, leaving recall entirely discretionary.",
+      "rule": "A plugin-only distribution silently loses the standing-instruction layer: a plugin cannot write CLAUDE.md/AGENTS.md, so the BLOCKING lessons paragraph that `init --lessons` puts in `.agentsmesh/rules/_root.md` never reaches the model, and a skill's name+description is only an advisory \"use when\" pointer. Carry the ritual in the MCP server's `instructions` field instead (`new Server({name,version},{capabilities},{instructions})` — optional in the SDK's InitializeResult, currently unset in src/mcp/server.ts). It reaches every MCP client at zero per-call cost, unlike hooks which pay a fresh npx resolution each invocation.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-cd014ff3"
+      ]
+    },
     "lessons-system-a-skill-meant-as-a": {
       "createdAt": "2026-06-18",
       "evidence": [],
@@ -11158,6 +11173,10 @@
     "t-glob-cc00a64d": {
       "kind": "file_glob",
       "pattern": "src/targets/factory-droid/generator.ts"
+    },
+    "t-glob-cd014ff3": {
+      "kind": "file_glob",
+      "pattern": "src/mcp/server.ts"
     },
     "t-glob-cd11277c": {
       "kind": "file_glob",
