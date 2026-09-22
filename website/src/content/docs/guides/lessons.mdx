@@ -4,7 +4,7 @@ title: Teach Your AI Agents with Lessons
 description: Give AI coding agents a shared memory that learns from your repo — capture a rule after every failure, recall it before every edit, in any AI tool.
 ---
 
-import { Steps, Aside } from '@astrojs/starlight/components';
+import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components';
 
 Lessons give an AI coding agent a **memory of past mistakes**. The agent reads that memory _before_ it touches anything, and writes to it _after_ something goes wrong — so the same mistake doesn't happen twice, in any tool.
 
@@ -81,6 +81,37 @@ A lesson that could never be recalled is rejected at capture time, and the error
   `init --lessons` is project-mode only — the memory belongs to a repo, not to your home directory —
   and entirely optional: skip the flag and AgentsMesh works exactly as before.
 </Aside>
+
+## Or install only the plugin
+
+If you want the memory without adopting the rest of AgentsMesh, install it as a plugin. The plugin
+carries the operating manual as a skill and starts the MCP server that reads and writes the graph,
+so it needs no global install and no `agentsmesh.yaml`.
+
+<Tabs>
+  <TabItem label="Claude Code">
+    ```bash
+    claude plugin marketplace add sampleXbro/agentsmesh
+    ```
+
+    ```bash
+    claude plugin install agentsmesh-lessons@agentsmesh
+    ```
+  </TabItem>
+  <TabItem label="Codex">
+    ```bash
+    codex plugin marketplace add sampleXbro/agentsmesh
+    ```
+
+    The bundle then appears in the Plugins directory, where you can enable it.
+  </TabItem>
+</Tabs>
+
+One bundle serves both. Claude Code reads its manifest from `.claude-plugin/`, while Codex reads the
+portable [Agent Plugins](https://agent-plugins.org) manifest at the bundle root, and both load the
+same skill file. The graph still lives in the repository at `.agentsmesh/lessons/lessons.json`, so
+lessons captured through the plugin are reviewed and shared exactly like lessons captured through the
+CLI.
 
 ## A 30-second example
 

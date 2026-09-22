@@ -1,0 +1,15 @@
+{
+  "name": "agentsmesh",
+  "owner": {
+    "name": "sampleXbro",
+    "url": "https://github.com/sampleXbro"
+  },
+  "description": "AgentsMesh plugins: a git-tracked memory an agent recalls before it edits and captures after a failure.",
+  "plugins": [
+    {
+      "name": "agentsmesh-lessons",
+      "source": "./plugins/agentsmesh-lessons",
+      "description": "A git-tracked memory for this repo: Claude recalls the rule before it edits a file or runs a command, and captures one after a failure. Reviewable in a pull request, shared with the team, and portable to every other AI coding tool."
+    }
+  ]
+}

@@ -10,5 +10,11 @@
   "homepage": "https://samplexbro.github.io/agentsmesh/guides/lessons/",
   "repository": "https://github.com/sampleXbro/agentsmesh",
   "license": "MIT",
-  "keywords": ["memory", "lessons", "agents-md", "config-sync", "mcp"]
+  "keywords": [
+    "memory",
+    "lessons",
+    "agents-md",
+    "config-sync",
+    "mcp"
+  ]
 }
