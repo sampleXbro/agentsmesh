@@ -6629,6 +6629,20 @@
         "t-glob-e9606afe"
       ]
     },
+    "source-verification-before-writing-or-acting-on": {
+      "createdAt": "2026-09-22",
+      "evidence": [
+        "6f43b7b0"
+      ],
+      "rule": "Before writing or acting on a \"submit this project to <list/registry>\" step, check whether a submission from the same author is already open, and read the validator source (e.g. .github/workflows/validate-new-issue.yml) rather than only the CONTRIBUTING prose — awesome-claude-code checks one-open-submission-per-author BEFORE the age/stars gate and auto-closes duplicates, so a generic rejection message can mean \"you already have one open\", not \"you were judged unworthy\".",
+      "status": "active",
+      "topics": [
+        "source-verification"
+      ],
+      "triggers": [
+        "t-glob-d6f354f2"
+      ]
+    },
     "source-verification-keep-web-search-calls-in": {
       "createdAt": "2026-07-12",
       "evidence": [
@@ -11094,6 +11108,10 @@
     "t-glob-d458a5b8": {
       "kind": "file_glob",
       "pattern": "src/targets/catalog/target-descriptor.ts"
+    },
+    "t-glob-d6f354f2": {
+      "kind": "file_glob",
+      "pattern": "docs/marketing/*.md"
     },
     "t-glob-d7206b5d": {
       "kind": "file_glob",
