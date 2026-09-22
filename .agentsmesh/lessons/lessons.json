@@ -6671,6 +6671,20 @@
         "t-glob-e1afdd1c"
       ]
     },
+    "source-verification-when-a-validator-reports-one": {
+      "createdAt": "2026-09-22",
+      "evidence": [
+        "26eb6400"
+      ],
+      "rule": "When a validator reports one error, do not assume it is the only one — check whether the checks are staged. awesome-claude-code parse_issue_form.py skips the sub-category check while the category is invalid, so fixing only the reported field surfaces a fresh failure on the next run. Read the validation source and fix every stale field in one edit.",
+      "status": "active",
+      "topics": [
+        "source-verification"
+      ],
+      "triggers": [
+        "t-glob-d6f354f2"
+      ]
+    },
     "stale-cleanup-do-not-pass-the-lock": {
       "createdAt": "2026-09-04",
       "evidence": [],
