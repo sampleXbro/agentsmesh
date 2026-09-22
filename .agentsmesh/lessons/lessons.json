@@ -6773,6 +6773,20 @@
         "t-kw-3a0adbef"
       ]
     },
+    "subagent-delegation-never-relay-an-audit-subagent": {
+      "createdAt": "2026-09-22",
+      "evidence": [
+        "2cb8b48e"
+      ],
+      "rule": "Never relay an audit subagent's \"byte-identical / verified via diff\" duplication claim without re-checking it yourself: in the pack-writer vs pack-merge audit the bodies were semantically identical but cosmetically different (a `dest` temp var, a differently-named dir const), which my normalized hash caught and the agent's diff claim did not. The distinction changes the fix — cosmetically-different twins parameterize into ONE helper, whereas truly identical ones just move to a shared module. Read both bodies before reporting.",
+      "status": "active",
+      "topics": [
+        "subagent-delegation"
+      ],
+      "triggers": [
+        "t-kw-4b851069"
+      ]
+    },
     "subagent-delegation-validate-schema-d-subagent-results": {
       "createdAt": "2026-07-21",
       "evidence": [
@@ -11716,6 +11730,10 @@
     "t-kw-492df4f9": {
       "kind": "keyword",
       "pattern": "web search parser failure"
+    },
+    "t-kw-4b851069": {
+      "kind": "keyword",
+      "pattern": "over-engineering audit duplication"
     },
     "t-kw-4c23a772": {
       "kind": "keyword",
