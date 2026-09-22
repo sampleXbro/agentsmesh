@@ -7673,6 +7673,20 @@
         "t-glob-8ac72756"
       ]
     },
+    "targets-codex-marketplace-catalogs-reject-policy": {
+      "createdAt": "2026-09-22",
+      "evidence": [
+        "4043bfde"
+      ],
+      "rule": "Codex marketplace catalogs reject `policy.authentication: \"NONE\"` — the only variants are ON_INSTALL and ON_USE, and the field is optional, so omit it for a plugin that authenticates nothing. Validate a catalog by actually running `codex plugin marketplace add <path>`; JSON-schema checks and `claude plugin validate` both pass a catalog Codex refuses. Verify a plugin end to end in an isolated CODEX_HOME=$(mktemp -d): `codex mcp list` there shows only the plugin-contributed server, and `codex exec` lists the bundled skill namespaced as `<plugin>:<skill>`.",
+      "status": "active",
+      "topics": [
+        "targets"
+      ],
+      "triggers": [
+        "t-glob-0c53fb31"
+      ]
+    },
     "targets-import-into-a-shared-canonical": {
       "createdAt": "2026-09-01",
       "evidence": [],
@@ -10139,6 +10153,10 @@
     "t-glob-0b5c0a21": {
       "kind": "file_glob",
       "pattern": "src/cli/commands/lessons*.ts"
+    },
+    "t-glob-0c53fb31": {
+      "kind": "file_glob",
+      "pattern": ".agents/plugins/*.json"
     },
     "t-glob-0c69c521": {
       "kind": "file_glob",
