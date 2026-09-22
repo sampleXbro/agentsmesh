@@ -4831,6 +4831,20 @@
         "t-glob-0b5c0a21"
       ]
     },
+    "lessons-system-standing-text-a-server-injects": {
+      "createdAt": "2026-09-22",
+      "evidence": [
+        "5f9e443a"
+      ],
+      "rule": "Standing text a server injects into EVERY client session (MCP `instructions`, and any equivalent always-on block) must be state-aware: gate the binding/mandating form on the feature actually existing on disk, and ship a short truthful description otherwise. An unconditional mandate named a graph and a skill absent from most projects and required a query before every edit that could only return empty — and obeying its capture half scaffolds files into a repo that never opted in. Check both states on the wire, not just the constant.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-805035af"
+      ]
+    },
     "lessons-system-the-canonical-agentsmesh-skills-lessons": {
       "createdAt": "2026-06-18",
       "evidence": [],
@@ -10844,6 +10858,10 @@
     "t-glob-7fd56163": {
       "kind": "file_glob",
       "pattern": "tests/e2e/**/*.ts"
+    },
+    "t-glob-805035af": {
+      "kind": "file_glob",
+      "pattern": "src/mcp/instructions.ts"
     },
     "t-glob-8148e382": {
       "kind": "file_glob",
