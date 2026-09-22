@@ -113,6 +113,16 @@ same skill file. The graph still lives in the repository at `.agentsmesh/lessons
 lessons captured through the plugin are reviewed and shared exactly like lessons captured through the
 CLI.
 
+<Aside type="caution" title="The plugin asks; the full setup insists">
+  `init --lessons` writes a blocking recall/capture rule into your instruction file and wires a
+  pre-edit hook, so recall runs whether or not the agent thinks to ask for it. A plugin can ship
+  skills and servers but never your instruction file, and this one ships no hooks. It carries the
+  same contract in the MCP server's startup instructions instead, which every client shows the
+  model. That is a standing instruction rather than a guarantee: an instruction is followed by
+  choice, where a hook simply fires. Reach for the full setup when you want recall enforced, and the
+  plugin when you want the memory without adopting the rest.
+</Aside>
+
 ## A 30-second example
 
 ```bash

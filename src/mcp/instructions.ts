@@ -1,0 +1,24 @@
+/**
+ * Standing instructions handed to every MCP client at initialize.
+ *
+ * `init --lessons` puts the recall/capture contract into
+ * `.agentsmesh/rules/_root.md`, so it reaches each tool as a root rule. A
+ * plugin has no such reach: it ships skills, hooks and servers, never the
+ * user's instruction file. This field is the one channel left, and unlike a
+ * hook it costs nothing per tool call.
+ *
+ * Same three obligations as `LESSONS_PROCEDURAL_RULE`, in tool vocabulary
+ * rather than shell — a client reading this may have no shell at all. Kept
+ * compact because it is always-on context; the argument for the rules lives in
+ * the `lessons` skill.
+ */
+
+export const MCP_SERVER_INSTRUCTIONS = `## Lessons (BLOCKING)
+
+Graph \`.agentsmesh/lessons/lessons.json\` is canonical; never hand-edit it. Full manual: the \`lessons\` skill.
+
+**Recall:** before every file edit or state-changing command, MUST call \`lessons_query\` with \`file\`/\`command\` and obey every match; at task start ALSO call it with \`keyword\` plus \`always: true\` for conceptual and universal rules. Pure-read commands and recall itself are exempt.
+
+**Capture:** after any failure, user correction, regression, wrong assumption, useful surprise, repeated friction, or non-obvious fix, MUST self-critique and call \`lessons_add\` with an imperative rule, a topic, and a trigger.
+
+**Before final:** report \`Lesson: captured <id>\` or \`Lesson: none\`. No recall/capture gate = task incomplete.`;
