@@ -340,6 +340,20 @@
         "t-glob-1120a27d"
       ]
     },
+    "ci-and-release-security-before-submitting-to-the-mcp": {
+      "createdAt": "2026-09-22",
+      "evidence": [
+        "ead5625a"
+      ],
+      "rule": "Before submitting to the MCP registry, confirm `mcpName` in the PUBLISHED package.json equals server.json `name` — the registry verifies npm ownership by reading the npm tarball, not this repo, so the field only counts once a release ships. Also keep server.json referenced by a test: nothing imported it, so its hand-copied versions drifted unnoticed.",
+      "status": "active",
+      "topics": [
+        "ci-and-release-security"
+      ],
+      "triggers": [
+        "t-glob-21f9729c"
+      ]
+    },
     "ci-and-release-security-rule-1": {
       "createdAt": "2026-06-05",
       "evidence": [
@@ -6107,6 +6121,20 @@
         "t-kw-32512568"
       ]
     },
+    "release-changesets-to-make-a-step-run": {
+      "createdAt": "2026-09-22",
+      "evidence": [
+        "ead5625a"
+      ],
+      "rule": "To make a step run during `changeset version`, pass `version: pnpm run version` to changesets/action@v1 — it defaults to a bare `changeset version` and never invokes the package.json script. Input names differ by major: v1 uses publish/version/title/commit, the current README documents publish-script/version-script.",
+      "status": "active",
+      "topics": [
+        "release-changesets"
+      ],
+      "triggers": [
+        "t-glob-6349b050"
+      ]
+    },
     "release-changesets-when-auditing-which-changes-since": {
       "createdAt": "2026-06-23",
       "evidence": [],
@@ -10183,6 +10211,10 @@
       "kind": "file_glob",
       "pattern": "src/targets/amazon-q/**"
     },
+    "t-glob-21f9729c": {
+      "kind": "file_glob",
+      "pattern": "server.json"
+    },
     "t-glob-257fb095": {
       "kind": "file_glob",
       "pattern": "tests/harness/**"
@@ -10482,6 +10514,10 @@
     "t-glob-633537fc": {
       "kind": "file_glob",
       "pattern": "src/lessons/regex-linear/nfa.ts"
+    },
+    "t-glob-6349b050": {
+      "kind": "file_glob",
+      "pattern": ".github/workflows/publish.yml"
     },
     "t-glob-648edf5a": {
       "kind": "file_glob",
