@@ -2,7 +2,7 @@
   "name": "agentsmesh-lessons",
   "displayName": "AgentsMesh Lessons",
   "description": "A git-tracked memory for this repo: Claude recalls the rule before it edits a file or runs a command, and captures one after a failure. Reviewable in a pull request, shared with the team, and portable to every other AI coding tool.",
-  "version": "0.39.0",
+  "version": "0.40.0",
   "author": {
     "name": "sampleXbro",
     "url": "https://github.com/sampleXbro"
