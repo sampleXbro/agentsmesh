@@ -7729,6 +7729,21 @@
         "t-glob-a9a4fad0"
       ]
     },
+    "targets-the-plugin-bundle-serves-two": {
+      "createdAt": "2026-09-22",
+      "evidence": [
+        "53f0411d"
+      ],
+      "rule": "The plugin bundle serves two clients from one directory: Codex reads the portable Agent Plugins pair `plugin.json` + `mcp.json` at the bundle root (schemas at agent-plugins.org/schemas/1.0.0, both set additionalProperties:false, so presentation must nest under `extensions.com.openai`), Claude Code reads `.claude-plugin/plugin.json` + `.mcp.json`. Keep ONE `skills/` copy. Marketplace catalogs live at repo root — `.claude-plugin/marketplace.json` and `.agents/plugins/marketplace.json` — and both resolve `./plugins/<name>` from the REPO root, not from the catalog directory (verified against openai/plugins). `claude plugin validate . --strict` additionally rejects a catalog with no top-level `description`, which the documented schema does not list as required.",
+      "status": "active",
+      "topics": [
+        "targets"
+      ],
+      "triggers": [
+        "t-glob-2fd04f55",
+        "t-glob-2511e880"
+      ]
+    },
     "targets-when-a-target-reads-several": {
       "createdAt": "2026-09-01",
       "evidence": [],
@@ -7896,6 +7911,20 @@
         "commit:025018bf44db90aa2fae70d1b17b92f608404cda"
       ],
       "rule": "Stop an active full test run before starting a replacement run; fixed temporary directories shared by test files can race across concurrent suite processes. If sandbox IPC prevents tsx tests, rerun with the needed permission after the first run exits.",
+      "status": "active",
+      "topics": [
+        "test-execution"
+      ],
+      "triggers": [
+        "t-cmd-0905ac21"
+      ]
+    },
+    "test-execution-tests-integration-generate-symlink-conta": {
+      "createdAt": "2026-09-22",
+      "evidence": [
+        "53f0411d"
+      ],
+      "rule": "tests/integration/generate-symlink-containment.integration.test.ts can surface its expected \"Unsafe filesystem path\" rejection as a Vitest UNHANDLED ERROR under full-suite parallel pressure, making the run exit 1 while every test reports passed and coverage is above threshold. Before treating an exit-1 full run as a regression, grep the log for \"Unhandled Errors\": if no test FAILED, rerun the file in isolation and rerun the full suite — do not bisect your own change.",
       "status": "active",
       "topics": [
         "test-execution"
@@ -10243,6 +10272,10 @@
       "kind": "file_glob",
       "pattern": "server.json"
     },
+    "t-glob-2511e880": {
+      "kind": "file_glob",
+      "pattern": ".claude-plugin/**"
+    },
     "t-glob-257fb095": {
       "kind": "file_glob",
       "pattern": "tests/harness/**"
@@ -10286,6 +10319,10 @@
     "t-glob-2f2abaf1": {
       "kind": "file_glob",
       "pattern": "src/mcp/writers/*.ts"
+    },
+    "t-glob-2fd04f55": {
+      "kind": "file_glob",
+      "pattern": "plugins/**"
     },
     "t-glob-300bbdba": {
       "kind": "file_glob",
