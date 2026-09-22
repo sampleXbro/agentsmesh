@@ -6328,6 +6328,20 @@
         "t-kw-67b582a5"
       ]
     },
+    "shell-quoting-never-delete-a-ts-function": {
+      "createdAt": "2026-09-22",
+      "evidence": [
+        "b7ab200f"
+      ],
+      "rule": "Never delete a TS function with a regex whose optional leading doc-comment group is `(/\\*\\*[\\s\\S]*?\\*/\\n)?` — the lazy inner match still spans MULTIPLE comments, so the engine extends group 1 from the file-header comment all the way down to the comment above the target function and deletes every import in between. It fails loudly only if a later step reads the imports; otherwise it silently guts the file. Delete code blocks line-based instead: find the line starting `async function <name>(`, walk back over an immediately-preceding comment block, walk forward to a column-0 `}`.",
+      "status": "active",
+      "topics": [
+        "shell-quoting"
+      ],
+      "triggers": [
+        "t-cmd-536ac058"
+      ]
+    },
     "shell-quoting-never-insert-zero-width-or": {
       "createdAt": "2026-06-05",
       "evidence": [],
@@ -9866,6 +9880,10 @@
     "t-cmd-4f9ca035": {
       "kind": "command_pattern",
       "pattern": "^rg "
+    },
+    "t-cmd-536ac058": {
+      "kind": "command_pattern",
+      "pattern": "python3 - <<"
     },
     "t-cmd-541fec4c": {
       "kind": "command_pattern",
