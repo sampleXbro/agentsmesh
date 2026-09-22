@@ -3922,6 +3922,21 @@
       ],
       "rationale": "The plugin path drops both the root paragraph and the hooks, leaving recall entirely discretionary.",
       "rule": "A plugin-only distribution silently loses the standing-instruction layer: a plugin cannot write CLAUDE.md/AGENTS.md, so the BLOCKING lessons paragraph that `init --lessons` puts in `.agentsmesh/rules/_root.md` never reaches the model, and a skill's name+description is only an advisory \"use when\" pointer. Carry the ritual in the MCP server's `instructions` field instead (`new Server({name,version},{capabilities},{instructions})` — optional in the SDK's InitializeResult, currently unset in src/mcp/server.ts). It reaches every MCP client at zero per-call cost, unlike hooks which pay a fresh npx resolution each invocation.",
+      "status": "superseded",
+      "supersededBy": "lessons-system-a-plugin-only-distribution-silently-2",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-cd014ff3"
+      ]
+    },
+    "lessons-system-a-plugin-only-distribution-silently-2": {
+      "createdAt": "2026-09-22",
+      "evidence": [
+        "2cb8b48e"
+      ],
+      "rule": "A plugin-only distribution silently loses the standing-instruction layer: a plugin ships skills, hooks and servers but never the user CLAUDE.md/AGENTS.md, so the BLOCKING lessons paragraph `init --lessons` writes into `.agentsmesh/rules/_root.md` never reaches the model, and a skill name+description is only an advisory \"use when\" pointer. Carry the ritual in the MCP server `instructions` field: it belongs in the SAME second options object as `capabilities` (`new Server({name,version},{capabilities,instructions})`), NOT a third argument. Assert it on the wire from the initialize result, not just on the constant, since the value is useless if the SDK does not serialize it.",
       "status": "active",
       "topics": [
         "lessons-system"
