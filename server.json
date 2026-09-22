@@ -14,7 +14,6 @@
       "registryType": "npm",
       "registryBaseUrl": "https://registry.npmjs.org",
       "identifier": "agentsmesh",
-      "version": "0.39.0",
       "transport": {
         "type": "stdio"
       },

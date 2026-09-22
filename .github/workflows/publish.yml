@@ -50,6 +50,9 @@ jobs:
         uses: changesets/action@v1
         with:
           publish: pnpm release
+          # Without this the action runs a bare `changeset version` and skips the
+          # npm script, which is what keeps server.json's version in step.
+          version: pnpm run version
           title: "chore: version packages"
           commit: "chore: version packages"
           createGithubReleases: false
