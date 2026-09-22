@@ -1111,6 +1111,20 @@
         "t-kw-4683ab67"
       ]
     },
+    "docs-lock-format-the-reference-rewriter-resolves-root": {
+      "createdAt": "2026-09-22",
+      "evidence": [
+        "4fbf6a61"
+      ],
+      "rule": "The reference rewriter resolves root-absolute tokens against the project root and is EXISTENCE-GATED, so a slash command in prose (/plugin, /config, /memory) is corrupted into a bare path the moment a directory of that name appears at the repo root — silently, on the next generate, across every target. isSlashCommandToken in src/core/reference/link-rebaser.ts now exempts single-segment /word with no extension and no trailing slash; keep that guard when touching token classification, and write /dir/ or dir/ when a directory is genuinely meant.",
+      "status": "active",
+      "topics": [
+        "docs-lock-format"
+      ],
+      "triggers": [
+        "t-glob-17fde70d"
+      ]
+    },
     "docs-lock-format-to-regenerate-a-social-card": {
       "createdAt": "2026-09-19",
       "evidence": [
@@ -8659,7 +8673,6 @@
         "t-glob-aacd9271",
         "t-glob-20330f9b",
         "t-glob-19a73bc2",
-        "t-glob-41b0a32c",
         "t-cmd-18d320e9",
         "t-cmd-0cf3ec87"
       ]
@@ -10110,6 +10123,10 @@
       "kind": "file_glob",
       "pattern": "src/config/core/lock.ts"
     },
+    "t-glob-17fde70d": {
+      "kind": "file_glob",
+      "pattern": "src/core/reference/link-*.ts"
+    },
     "t-glob-19a73bc2": {
       "kind": "file_glob",
       "pattern": "src/cli/commands/watch.ts"
@@ -10301,10 +10318,6 @@
     "t-glob-414c9b17": {
       "kind": "file_glob",
       "pattern": "website/package.json"
-    },
-    "t-glob-41b0a32c": {
-      "kind": "file_glob",
-      "pattern": "vitest.config*"
     },
     "t-glob-4669d772": {
       "kind": "file_glob",
