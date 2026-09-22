@@ -16,7 +16,11 @@
 import { describe, it, expect } from 'vitest';
 import { rewriteFileLinks } from '../../../src/core/reference/link-rebaser.js';
 
-function rewrite(content: string, existing: readonly string[], dirs: readonly string[] = []) {
+function rewrite(
+  content: string,
+  existing: readonly string[],
+  dirs: readonly string[] = [],
+): ReturnType<typeof rewriteFileLinks> {
   return rewriteFileLinks({
     content,
     projectRoot: '/proj',
@@ -50,7 +54,11 @@ describe('slash commands are left alone', () => {
   );
 
   it('still rewrites a root-absolute path with a trailing slash', () => {
-    const out = rewrite('See `/test/` for fixtures.', ['/proj/test', '/proj/test/'], ['/proj/test']);
+    const out = rewrite(
+      'See `/test/` for fixtures.',
+      ['/proj/test', '/proj/test/'],
+      ['/proj/test'],
+    );
     expect(out.content).not.toContain('`/test/`');
   });
 
