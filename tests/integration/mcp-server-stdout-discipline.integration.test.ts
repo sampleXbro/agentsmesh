@@ -11,8 +11,10 @@
 
 import { describe, it, expect } from 'vitest';
 import { spawn } from 'node:child_process';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { MCP_SERVER_INSTRUCTIONS } from '../../src/mcp/instructions.js';
+import { mcpServerInstructions } from '../../src/mcp/instructions.js';
 
 const CLI_PATH = join(process.cwd(), 'dist', 'cli.js');
 
@@ -122,6 +124,34 @@ describe('mcp-server-stdout-discipline', () => {
       | Record<string, unknown>
       | undefined;
 
-    expect(result?.['instructions']).toBe(MCP_SERVER_INSTRUCTIONS);
+    expect(result?.['instructions']).toBe(mcpServerInstructions(process.cwd()));
+  }, 8000);
+
+  it('does not hand a lessons mandate to a project that never opted in', async () => {
+    // The server also carries the config tools, and most people who wire it up
+    // never ran `init --lessons`. Sending them a blocking recall contract named
+    // a graph they do not have and required a query before every edit that
+    // could only return nothing.
+    const dir = mkdtempSync(join(tmpdir(), 'amesh-mcp-nolessons-'));
+    try {
+      const { stdout } = await sendInitialize(dir);
+      if (stdout.length === 0) return;
+
+      const messages = stdout
+        .split('\n')
+        .filter(Boolean)
+        .map((l) => JSON.parse(l) as Record<string, unknown>);
+      const result = messages.find((m) => m['id'] === 1)?.['result'] as
+        | Record<string, unknown>
+        | undefined;
+      const instructions = result?.['instructions'] as string | undefined;
+
+      expect(instructions).toBeDefined();
+      expect(instructions).not.toContain('BLOCKING');
+      expect(instructions).not.toContain('MUST');
+      expect(instructions).toContain('agentsmesh init --lessons');
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   }, 8000);
 });

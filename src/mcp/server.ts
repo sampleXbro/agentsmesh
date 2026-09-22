@@ -12,7 +12,7 @@ import { resolveContext } from './context.js';
 import { readResource, toMcpError } from './resources.js';
 import { McpError } from './errors.js';
 import { enrichValidationIssues } from './validation-errors.js';
-import { MCP_SERVER_INSTRUCTIONS } from './instructions.js';
+import { mcpServerInstructions } from './instructions.js';
 
 export async function startServer(): Promise<void> {
   const server = new Server(
@@ -22,7 +22,7 @@ export async function startServer(): Promise<void> {
       // The only standing text a server can put in front of the model. A
       // plugin cannot write the user's instruction file, so without this the
       // lessons contract reaches a plugin-only install nowhere.
-      instructions: MCP_SERVER_INSTRUCTIONS,
+      instructions: mcpServerInstructions(process.cwd()),
     },
   );
 

@@ -1,68 +1,119 @@
 /**
- * The MCP server must carry the lessons ritual in its `instructions`.
+ * The MCP server hands every client standing text at initialize, because a
+ * plugin can ship skills and servers but never the user's instruction file.
+ * That is the only channel a plugin-only install has for the lessons contract.
  *
- * `init --lessons` writes a BLOCKING recall/capture paragraph into
- * `.agentsmesh/rules/_root.md`, which reaches every tool as a root rule. A
- * plugin cannot do that: it may ship skills, hooks and servers, but never the
- * user's instruction file. Without the paragraph the only standing signal is a
- * skill's one-line description, which is an advisory "use when" pointer — so
- * recall becomes discretionary and the completion receipt is never demanded.
+ * But the server also carries ~50 config tools, and the README advertises it on
+ * its own. Most people who wire it up never opted into lessons. Sending them a
+ * blocking recall mandate made three false promises at once: it named a graph
+ * file they do not have, pointed at a skill they never installed, and required
+ * a query before every edit that could only ever return nothing. Obeying the
+ * capture half would have written a graph into a repository that never asked
+ * for one.
  *
- * `instructions` is the one channel a server has for standing text: the client
- * receives it at initialize and puts it in front of the model, at no per-call
- * cost. Hooks would also work for Claude Code, but each invocation pays a fresh
- * npx resolution, which is why the bundle ships none.
+ * So the text is state-aware. Where lessons exist, the contract is binding.
+ * Where they do not, the server says what it offers and how to start, and
+ * claims nothing that is not on disk.
  */
 
-import { describe, it, expect } from 'vitest';
-import { MCP_SERVER_INSTRUCTIONS } from '../../../src/mcp/instructions.js';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { mkdtempSync, rmSync, mkdirSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { mcpServerInstructions } from '../../../src/mcp/instructions.js';
 import { LESSONS_PROCEDURAL_RULE } from '../../../src/lessons/paths.js';
 
-describe('MCP server instructions', () => {
-  it('demands recall before a mutation', () => {
-    expect(MCP_SERVER_INSTRUCTIONS).toMatch(/before (every|any) .*(edit|state-changing)/i);
-    expect(MCP_SERVER_INSTRUCTIONS).toContain('lessons_query');
+let dir: string;
+beforeEach(() => {
+  dir = mkdtempSync(join(tmpdir(), 'amesh-instructions-'));
+});
+afterEach(() => rmSync(dir, { recursive: true, force: true }));
+
+function withLessons(options: { graph?: boolean; config?: boolean }): string {
+  const base = join(dir, '.agentsmesh', 'lessons');
+  mkdirSync(base, { recursive: true });
+  if (options.graph) writeFileSync(join(base, 'lessons.json'), '{"topics":{},"lessons":{}}');
+  if (options.config) writeFileSync(join(base, 'config.json'), '{}');
+  return dir;
+}
+
+describe('where lessons are set up', () => {
+  it('binds the agent to recall before a mutation', () => {
+    const text = mcpServerInstructions(withLessons({ graph: true, config: true }));
+    expect(text).toMatch(/before (every|any) .*(edit|state-changing)/i);
+    expect(text).toContain('lessons_query');
   });
 
-  it('demands capture after a failure', () => {
-    expect(MCP_SERVER_INSTRUCTIONS).toMatch(/after any failure/i);
-    expect(MCP_SERVER_INSTRUCTIONS).toContain('lessons_add');
+  it('binds the agent to capture after a failure, and to report a receipt', () => {
+    const text = mcpServerInstructions(withLessons({ graph: true, config: true }));
+    expect(text).toMatch(/after any failure/i);
+    expect(text).toContain('lessons_add');
+    expect(text).toContain('Lesson: captured');
+    expect(text).toContain('Lesson: none');
   });
 
-  it('demands the completion receipt, which nothing else asks for', () => {
-    expect(MCP_SERVER_INSTRUCTIONS).toContain('Lesson: captured');
-    expect(MCP_SERVER_INSTRUCTIONS).toContain('Lesson: none');
+  it('applies to a graph captured without the full setup, which writes no config', () => {
+    // A bare `lessons_add` bootstraps the graph but never config.json. Those
+    // lessons are real and must still be recalled.
+    expect(mcpServerInstructions(withLessons({ graph: true }))).toContain('BLOCKING');
   });
 
-  it('exempts pure reads, so recall cannot regress into infinite regress', () => {
-    // The CLI contract carves this out deliberately; an instructions string
-    // that omitted it would reintroduce "recall before the recall".
-    expect(MCP_SERVER_INSTRUCTIONS).toMatch(/pure[- ]read/i);
+  it('applies to a wired project whose graph has not been created yet', () => {
+    expect(mcpServerInstructions(withLessons({ config: true }))).toContain('BLOCKING');
   });
 
-  it('names the canonical graph and forbids hand-editing it', () => {
-    expect(MCP_SERVER_INSTRUCTIONS).toContain('.agentsmesh/lessons/lessons.json');
-    expect(MCP_SERVER_INSTRUCTIONS).toMatch(/never hand-edit/i);
-  });
-
-  it('points at the skill for the full manual rather than inlining it', () => {
-    expect(MCP_SERVER_INSTRUCTIONS).toContain('lessons');
-    // Compact on purpose: this is always-on context in every session. The
-    // rebuttal pedagogy lives in the skill, not here.
-    expect(MCP_SERVER_INSTRUCTIONS.length).toBeLessThanOrEqual(1200);
-  });
-
-  it('speaks in tools, not shell, because a client using it may have no shell', () => {
-    expect(MCP_SERVER_INSTRUCTIONS).not.toContain('agentsmesh lessons query');
-    expect(MCP_SERVER_INSTRUCTIONS).not.toContain('agentsmesh lessons add');
-  });
-
-  it('carries the same three obligations as the CLI contract', () => {
-    // Two vocabularies, one contract. If the CLI paragraph gains or loses an
-    // obligation, this test is where the divergence should be noticed.
+  it('carries the same anchors as the CLI contract', () => {
+    const text = mcpServerInstructions(withLessons({ graph: true, config: true }));
     for (const anchor of ['Lesson: captured', 'Lesson: none', '.agentsmesh/lessons/lessons.json']) {
       expect(LESSONS_PROCEDURAL_RULE).toContain(anchor);
-      expect(MCP_SERVER_INSTRUCTIONS).toContain(anchor);
+      expect(text).toContain(anchor);
     }
+  });
+});
+
+describe('where lessons are not set up', () => {
+  it('mandates nothing, so no edit pays for a query that returns nothing', () => {
+    const text = mcpServerInstructions(dir);
+    expect(text).not.toContain('BLOCKING');
+    expect(text).not.toMatch(/\bMUST\b/);
+    expect(text).not.toContain('Lesson: captured');
+  });
+
+  it('claims no file and no skill that is not on disk', () => {
+    const text = mcpServerInstructions(dir);
+    expect(text).not.toMatch(/is canonical/);
+    expect(text).not.toMatch(/Full manual/);
+  });
+
+  it('still says what the server offers and how to start, so the plugin is not mute', () => {
+    const text = mcpServerInstructions(dir);
+    expect(text).toContain('lessons_add');
+    expect(text).toContain('agentsmesh init --lessons');
+  });
+
+  it('names the fields a first capture needs, since an empty graph has no topic yet', () => {
+    const text = mcpServerInstructions(dir);
+    expect(text).toContain('new_topic');
+    expect(text).toContain('topic_summary');
+  });
+
+  it('stays short, since it is context every session pays for', () => {
+    expect(mcpServerInstructions(dir).length).toBeLessThanOrEqual(600);
+  });
+});
+
+describe('both forms', () => {
+  it('speak in tools, not shell, because a client here may have no shell', () => {
+    for (const root of [dir, withLessons({ graph: true, config: true })]) {
+      const text = mcpServerInstructions(root);
+      expect(text).not.toContain('agentsmesh lessons query');
+      expect(text).not.toContain('agentsmesh lessons add');
+    }
+  });
+
+  it('stay within a sane always-on budget', () => {
+    expect(
+      mcpServerInstructions(withLessons({ graph: true, config: true })).length,
+    ).toBeLessThanOrEqual(1200);
   });
 });
