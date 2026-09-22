@@ -6105,6 +6105,20 @@
         "t-kw-8791c1d5"
       ]
     },
+    "release-changesets-after-merging-master-into-develop": {
+      "createdAt": "2026-09-22",
+      "evidence": [
+        "2684c0cb"
+      ],
+      "rule": "After merging master into develop following a release, run `tsx scripts/sync-release-versions.ts` and commit before anything else: the version PR bumps package.json and server.json on master, but plugins/agentsmesh-lessons/*.json exist only on develop and keep the old version, so tests/unit/package/plugin-bundle.test.ts fails until the sync runs. The failure is the guard working, not a regression.",
+      "status": "active",
+      "topics": [
+        "release-changesets"
+      ],
+      "triggers": [
+        "t-glob-581b70ac"
+      ]
+    },
     "release-changesets-during-release-prep-run-pnpm": {
       "createdAt": "2026-08-30",
       "evidence": [
@@ -10509,6 +10523,10 @@
     "t-glob-570abc49": {
       "kind": "file_glob",
       "pattern": "src/targets/continue/index.ts"
+    },
+    "t-glob-581b70ac": {
+      "kind": "file_glob",
+      "pattern": "plugins/agentsmesh-lessons/*.json"
     },
     "t-glob-592c65a4": {
       "kind": "file_glob",
