@@ -1,14 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { McpContext } from '../../../../src/mcp/context.js';
 import type { GenerateResult, ImportResult } from '../../../../src/core/types.js';
-import type { LockSyncReport } from '../../../../src/core/check/lock-sync.js';
 import type { ComputeDiffResult } from '../../../../src/core/differ.js';
 
 // ─── mock public API ───────────────────────────────────────────────────────────
 
 const mockGenerate = vi.fn<[unknown], Promise<GenerateResult[]>>();
 const mockLint = vi.fn();
-const mockCheck = vi.fn<[unknown], Promise<LockSyncReport>>();
 const mockDiff = vi.fn<[unknown], Promise<ComputeDiffResult & { results: GenerateResult[] }>>();
 const mockImportFrom = vi.fn<[string, unknown], Promise<ImportResult[]>>();
 const mockLoadProjectContext = vi.fn();
@@ -16,7 +14,6 @@ const mockLoadProjectContext = vi.fn();
 vi.mock('../../../../src/public/index.js', () => ({
   generate: mockGenerate,
   lint: mockLint,
-  check: mockCheck,
   diff: mockDiff,
   importFrom: mockImportFrom,
   loadProjectContext: mockLoadProjectContext,
@@ -71,8 +68,9 @@ const baseProjectContext = {
 function makeRunResult(
   files: Array<{ path: string; target: string; status: 'created' | 'updated' | 'unchanged' }>,
   summary: { created: number; updated: number; unchanged: number },
-): { exitCode: number; data: unknown } {
-  return { exitCode: 0, data: { scope: 'project', mode: 'generate', files, summary } };
+  lockWritten = true,
+): { exitCode: number; data: unknown; lockWritten: boolean } {
+  return { exitCode: 0, data: { scope: 'project', mode: 'generate', files, summary }, lockWritten };
 }
 
 beforeEach(() => {
@@ -109,8 +107,10 @@ describe('orchestrateHandlers.generate', () => {
     expect('files' in out).toBe(false);
   });
 
-  it('reports lockfileUpdated=false for a dry_run', async () => {
-    mockRunGenerate.mockResolvedValue(makeRunResult([], { created: 0, updated: 0, unchanged: 0 }));
+  it('reports lockfileUpdated=false for a dry_run, which writes no lock', async () => {
+    mockRunGenerate.mockResolvedValue(
+      makeRunResult([], { created: 0, updated: 0, unchanged: 0 }, false),
+    );
 
     const out = await orchestrateHandlers.generate(ctx, { dry_run: true });
 
@@ -224,77 +224,6 @@ describe('orchestrateHandlers.lint', () => {
   it('wraps engine error via wrapEngineError', async () => {
     mockLint.mockRejectedValue(new Error('lint engine boom'));
     await expect(orchestrateHandlers.lint(ctx, {})).rejects.toMatchObject({ code: 'IO_ERROR' });
-  });
-});
-
-describe('orchestrateHandlers.check', () => {
-  beforeEach(() => {
-    mockLoadProjectContext.mockResolvedValue({
-      config: {},
-      configDir: '/project',
-      canonicalDir: '/project/.agentsmesh',
-      projectRoot: '/project',
-    });
-  });
-
-  it('returns drift/missing/extra/modified plus output drift from LockSyncReport', async () => {
-    mockCheck.mockResolvedValue({
-      inSync: false,
-      hasLock: true,
-      lockConflict: false,
-      canonicalDrift: true,
-      outputDrift: true,
-      modified: ['rules/foo.md'],
-      added: ['rules/new.md'],
-      removed: ['rules/old.md'],
-      extendsModified: [],
-      lockedViolations: [],
-      outputsModified: ['AGENTS.md'],
-      outputsRemoved: ['.claude/CLAUDE.md'],
-      outputsStale: ['.cursor/rules/orphaned.mdc'],
-      outputsChecked: true,
-    } satisfies LockSyncReport);
-
-    const out = await orchestrateHandlers.check(ctx);
-
-    expect(out.drift).toBe(true);
-    expect(out.missing).toEqual(['rules/old.md']);
-    expect(out.extra).toEqual(['rules/new.md']);
-    expect(out.modified).toEqual(['rules/foo.md']);
-    expect(out.canonicalDrift).toBe(true);
-    expect(out.outputDrift).toBe(true);
-    expect(out.outputsModified).toEqual(['AGENTS.md']);
-    expect(out.outputsRemoved).toEqual(['.claude/CLAUDE.md']);
-    expect(out.outputsStale).toEqual(['.cursor/rules/orphaned.mdc']);
-    expect(out.outputsChecked).toBe(true);
-  });
-
-  it('passes projectRoot as rootBase so output verification runs', async () => {
-    mockCheck.mockResolvedValue({
-      inSync: true,
-      hasLock: true,
-      lockConflict: false,
-      canonicalDrift: false,
-      outputDrift: false,
-      modified: [],
-      added: [],
-      removed: [],
-      extendsModified: [],
-      lockedViolations: [],
-      outputsModified: [],
-      outputsRemoved: [],
-      outputsStale: [],
-      outputsChecked: true,
-    } satisfies LockSyncReport);
-
-    await orchestrateHandlers.check(ctx);
-
-    expect(mockCheck).toHaveBeenCalledWith(expect.objectContaining({ rootBase: '/project' }));
-  });
-
-  it('wraps engine error via wrapEngineError', async () => {
-    mockCheck.mockRejectedValue(new Error('check boom'));
-    await expect(orchestrateHandlers.check(ctx)).rejects.toMatchObject({ code: 'IO_ERROR' });
   });
 });
 

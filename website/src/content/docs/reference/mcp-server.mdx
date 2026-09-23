@@ -125,9 +125,9 @@ The server exposes **50 tools** grouped by category. All tool errors return a st
 
 | Tool | Description |
 |------|-------------|
-| `generate` | Generate target-native config from canonical |
+| `generate` | Generate target-native config from canonical (`lockfileUpdated` is true only when the run rewrote `.agentsmesh/.lock`; a run that changes nothing leaves it alone) |
 | `lint` | Lint canonical files |
-| `check` | Detect canonical-source and generated-output drift against the lock (result includes `canonicalDrift`/`outputDrift`, per-path output arrays, `outputsChecked`, and `lockConflict` for a lock with git conflict markers) |
+| `check` | Detect canonical-source and generated-output drift against the lock (result includes `canonicalDrift`/`outputDrift`, per-path output arrays, `outputsChecked`, `lockConflict` for a lock with git conflict markers, and `lessonsGraphError` when `.agentsmesh/lessons/lessons.json` cannot be read) |
 | `diff` | Preview generation changes |
 | `import` | Import another tool's config into canonical |
 | `convert` | Convert directly from one tool to another |

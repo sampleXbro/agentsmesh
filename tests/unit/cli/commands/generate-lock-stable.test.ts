@@ -1,6 +1,6 @@
 /**
  * `writeLockFile` rewrites `.agentsmesh/.lock` only when its content changes
- * (`checksums`, `extends`, `packs`, `outputs`). A run that changes nothing used
+ * (`checksums`, `extends`, `packs`, `outputs`), and says whether it did. A run that changes nothing used
  * to rewrite `generated_at` anyway, leaving the git tree dirty after every
  * `generate` and a lock diff in every teammate's clone.
  */
@@ -19,7 +19,7 @@ let canonicalDir = '';
 const outputs = { 'AGENTS.md': 'sha256:aaa', '.claude/rules/_root.md': 'sha256:bbb' };
 
 const lockText = (): string => readFileSync(join(canonicalDir, '.lock'), 'utf-8');
-const write = (runOutputs: Record<string, string>, filtered = false): Promise<void> =>
+const write = (runOutputs: Record<string, string>, filtered = false): Promise<boolean> =>
   writeLockFile({ canonicalDir, configDir }, [], runOutputs, filtered);
 
 beforeEach(() => {
@@ -40,11 +40,11 @@ afterEach(() => {
 
 describe('writeLockFile — unchanged content', () => {
   it('leaves the lock byte-identical on a later run with the same content', async () => {
-    await write(outputs);
+    expect(await write(outputs)).toBe(true);
     const first = lockText();
     vi.setSystemTime(new Date('2026-02-02T00:00:00.000Z'));
 
-    await write({ ...outputs });
+    expect(await write({ ...outputs })).toBe(false);
 
     expect(lockText()).toBe(first);
     expect((await readLock(canonicalDir))?.generatedAt).toBe('2026-01-01T00:00:00.000Z');
@@ -95,7 +95,7 @@ describe('writeLockFile — changed content', () => {
     await write(outputs);
     vi.setSystemTime(later);
 
-    await write({ ...outputs, 'AGENTS.md': 'sha256:ccc' });
+    expect(await write({ ...outputs, 'AGENTS.md': 'sha256:ccc' })).toBe(true);
 
     const lock = await readLock(canonicalDir);
     expect(lock?.generatedAt).toBe(later.toISOString());
@@ -148,7 +148,7 @@ describe('writeLockFile — changed content', () => {
   it('rewrites a lock it cannot read', async () => {
     writeFileSync(join(canonicalDir, '.lock'), 'checksums: [unclosed\n');
 
-    await write(outputs);
+    expect(await write(outputs)).toBe(true);
 
     expect((await readLock(canonicalDir))?.outputs).toEqual(outputs);
   });

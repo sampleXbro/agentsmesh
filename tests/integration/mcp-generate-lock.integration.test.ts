@@ -34,6 +34,7 @@ describe('mcp generate — lockfile persistence', () => {
     expect(check).toEqual({
       drift: false,
       lockConflict: false,
+      lessonsGraphError: null,
       canonicalDrift: false,
       outputDrift: false,
       missing: [],

@@ -108,7 +108,7 @@ jobs:
 | `0` | Canonical sources and recorded generated outputs both match the lock. |
 | `1` | Drift detected — canonical sources or generated outputs are out of sync — or the project's lessons graph cannot be read. |
 
-The MCP `check` tool mirrors this in its result payload, exposing `canonicalDrift`, `outputDrift`, `outputsModified`, `outputsRemoved`, `outputsStale`, `outputsChecked`, and `lockConflict` (true when the lock has git conflict markers; run `agentsmesh merge`).
+The MCP `check` tool mirrors this in its result payload, exposing `canonicalDrift`, `outputDrift`, `outputsModified`, `outputsRemoved`, `outputsStale`, `outputsChecked`, `lockConflict` (true when the lock has git conflict markers; run `agentsmesh merge`), and `lessonsGraphError`. That field holds the same text as the CLI JSON `error` when `.agentsmesh/lessons/lessons.json` cannot be read, so the MCP tool and `agentsmesh check` fail on the same things; it is `null` otherwise.
 
 ## Difference between `check` and `generate --check`
 

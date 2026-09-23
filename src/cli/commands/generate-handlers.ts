@@ -31,7 +31,8 @@ export function buildCheckResult(
     status: r.status as 'created' | 'updated' | 'unchanged',
   }));
   const exitCode = drifted.length === 0 ? 0 : 1;
-  return { exitCode, data: { scope, mode: 'check', files, summary: buildSummary(actionable) } };
+  const data: GenerateData = { scope, mode: 'check', files, summary: buildSummary(actionable) };
+  return { exitCode, data, lockWritten: false };
 }
 
 export interface GenerateOrDryRunArgs {
@@ -74,6 +75,7 @@ export async function handleGenerateOrDryRun(
     inactiveTargets,
   });
 
+  let lockWritten = false;
   const release = dryRun
     ? null
     : await acquireProcessLock(join(context.canonicalDir, '.generate.lock'), {
@@ -102,7 +104,7 @@ export async function handleGenerateOrDryRun(
         generatedOutputs: Object.keys(previousLock?.outputs ?? {}),
         inactiveTargets,
       });
-      await writeLockFile(
+      lockWritten = await writeLockFile(
         context,
         resolvedExtends,
         buildOutputChecksums(results),
@@ -126,7 +128,8 @@ export async function handleGenerateOrDryRun(
     target: r.target,
     status: r.status as 'created' | 'updated' | 'unchanged',
   }));
-  return { exitCode: 0, data: { scope, mode, files, summary: buildSummary(actionable) } };
+  const data: GenerateData = { scope, mode, files, summary: buildSummary(actionable) };
+  return { exitCode: 0, data, lockWritten };
 }
 
 export function buildSummary(results: Array<{ status: string }>): GenerateData['summary'] {

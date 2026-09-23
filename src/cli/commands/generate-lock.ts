@@ -37,12 +37,13 @@ function sameContent(previous: LockFile, next: LockContent): boolean {
   );
 }
 
+/** Write `.agentsmesh/.lock` when its content changed; returns whether it did. */
 export async function writeLockFile(
   context: { canonicalDir: string; configDir: string },
   resolvedExtends: ResolvedExtend[],
   runOutputs: Record<string, string>,
   filtered: boolean,
-): Promise<void> {
+): Promise<boolean> {
   const checksums = await buildChecksums(context.canonicalDir);
   const extendChecksums =
     resolvedExtends.length > 0 ? await buildExtendChecksums(resolvedExtends) : {};
@@ -55,7 +56,8 @@ export async function writeLockFile(
   const content = { checksums, extends: extendChecksums, packs: packChecksums, outputs };
   // Time, user and version describe the last run that changed the content.
   // Rewriting them on a no-op run dirtied the git tree after every generate.
-  if (previous === null || !sameContent(previous, content)) {
+  const changed = previous === null || !sameContent(previous, content);
+  if (changed) {
     await writeLock(context.canonicalDir, {
       generatedAt: new Date().toISOString(),
       generatedBy: process.env['USER'] ?? process.env['USERNAME'] ?? 'unknown',
@@ -70,4 +72,5 @@ export async function writeLockFile(
       `Could not create .agentsmeshcache symlink: ${err instanceof Error ? err.message : String(err)}`,
     );
   }
+  return changed;
 }

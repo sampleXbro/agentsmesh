@@ -20,6 +20,8 @@ import { runLessonsMaintenance } from './generate-lessons.js';
 export interface GenerateCommandResult {
   exitCode: number;
   data: GenerateData;
+  /** True when this run rewrote `.agentsmesh/.lock`; false for check, dry-run and no-op runs. */
+  lockWritten: boolean;
 }
 
 export interface RunGenerateOptions {
