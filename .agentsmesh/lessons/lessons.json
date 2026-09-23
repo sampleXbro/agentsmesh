@@ -6896,6 +6896,23 @@
         "t-glob-581b70ac"
       ]
     },
+    "release-changesets-before-a-release-audit-v": {
+      "createdAt": "2026-09-23",
+      "evidence": [
+        "30e1edb0"
+      ],
+      "rule": "Before a release, audit v<last-tag>..HEAD for SILENT breaks, not only what the changesets say, and prove each with an old-vs-new run. The v0.40.0..HEAD audit found undocumented ones: the safe glob subset stops matching file_glob shapes picomatch accepted (src/**.ts, +(a|b), {1..3}) with no recall warning while lessons validate and agentsmesh lint now fail on them; Gemini hook matchers became anchored (a plain 'shell' matches nothing) and UserPromptSubmit now maps to BeforeAgent; the outcome log turned on regardless of telemetry. Put such items in an upgrade-notes changeset.",
+      "status": "active",
+      "topics": [
+        "release-changesets"
+      ],
+      "triggers": [
+        "t-glob-42105935",
+        "t-glob-4004e38e",
+        "t-kw-b8f19a54",
+        "t-kw-0182f2d9"
+      ]
+    },
     "release-changesets-during-release-prep-run-pnpm": {
       "createdAt": "2026-08-30",
       "evidence": [
@@ -11621,6 +11638,10 @@
       "kind": "file_glob",
       "pattern": "website/package.json"
     },
+    "t-glob-42105935": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/glob-parse.ts"
+    },
     "t-glob-4669d772": {
       "kind": "file_glob",
       "pattern": "src/mcp/handlers/lessons-query.ts"
@@ -12749,6 +12770,10 @@
       "kind": "keyword",
       "pattern": "fix wave"
     },
+    "t-kw-0182f2d9": {
+      "kind": "keyword",
+      "pattern": "release audit"
+    },
     "t-kw-01a1d77f": {
       "kind": "keyword",
       "pattern": "capability finding source verification"
@@ -13372,6 +13397,10 @@
     "t-kw-b8d4ca2e": {
       "kind": "keyword",
       "pattern": "seen store shape"
+    },
+    "t-kw-b8f19a54": {
+      "kind": "keyword",
+      "pattern": "breaking changes"
     },
     "t-kw-b975b1b2": {
       "kind": "keyword",
