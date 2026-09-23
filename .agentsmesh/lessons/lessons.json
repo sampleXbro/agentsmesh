@@ -125,6 +125,18 @@
         "t-kw-ab6ac577"
       ]
     },
+    "agent-orchestration-when-you-change-what-a": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "When you change what a shared helper does (lessonsGraphProblem gained a git check), tell every parallel fixer that calls it right away and name the side-effect-free alternative; two fixers had already wired the heavier helper into hot paths.",
+      "status": "active",
+      "topics": [
+        "agent-orchestration"
+      ],
+      "triggers": [
+        "t-kw-52e20172"
+      ]
+    },
     "canonical-skills-read-skill-supporting-files-as": {
       "createdAt": "2026-09-13",
       "evidence": [
@@ -1970,6 +1982,20 @@
         "t-kw-90c0879d"
       ]
     },
+    "generate-hooks-merge-differently-per-layer": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "Hooks merge differently per layer: extends and the local .agentsmesh override per event (the documented precedence, pinned by tests/e2e/multi-extend-precedence.e2e.test.ts), while installed packs combine (combineHooks) and are re-added after the local layer, so init --lessons adding a local PreToolUse never drops a pack's hooks. Before changing a merge contract, grep the e2e tests for it; a unit-green change broke this one.",
+      "status": "active",
+      "topics": [
+        "generate"
+      ],
+      "triggers": [
+        "t-glob-3c315a53",
+        "t-glob-c21ba0b0",
+        "t-glob-681dc980"
+      ]
+    },
     "generate-never-insert-an-import-by": {
       "createdAt": "2026-09-03",
       "evidence": [],
@@ -3181,6 +3207,20 @@
         "427118c8"
       ],
       "rule": "Lessons hook recall has two distinct caps and they are not interchangeable: HOOK_INJECT_LIMIT (5, src/lessons/hook-emit.ts) overrides the configured recallLimit, and recallMaxTokens (default 1200) is the token budget applied after the count slice. On a large graph the COUNT cap almost always binds, so any truncation message must attribute which cap fired before naming a knob. Separately, the hook path has no read-only classifier by default: use isReadOnlyCommand (src/lessons/read-only-command.ts) before recordFailure and before recurrenceEscalation, or read-only classes like cmd:cat and cmd:grep dominate the failure log and trigger false RECURRENT FAILURE banners.",
+      "status": "superseded",
+      "supersededBy": "install-import-pickers-lessons-hook-recall-has-two-2",
+      "topics": [
+        "install-import-pickers"
+      ],
+      "triggers": [
+        "t-glob-72c19fb3",
+        "t-glob-eb1e5fce"
+      ]
+    },
+    "install-import-pickers-lessons-hook-recall-has-two-2": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "Lessons hook recall has two distinct caps and they are not interchangeable: HOOK_INJECT_LIMIT (5, src/lessons/hook-emit.ts) overrides the configured recallLimit, and recallMaxTokens (default 1200) is the token budget applied after the count slice; on a large graph the COUNT cap almost always binds, so a truncation message must name which cap fired. Failures of read-only TOOLS are action-less (isReadOnlyTool in src/lessons/hook-payload.ts: nothing recorded, no recurrence), but there is no read-only SHELL-command classifier: a failing cat or grep is still recorded under cmd:<class>.",
       "status": "active",
       "topics": [
         "install-import-pickers"
@@ -3919,6 +3959,20 @@
         "t-glob-8bbff52e"
       ]
     },
+    "lessons-system-a-command-pattern-that-is": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "A command_pattern that is invalid or that the linear engine cannot run is a dead trigger: the add gate drops it with a DEAD_COMMAND_PATTERN warning when another trigger is live, refuses the capture as UNRECALLABLE_LESSON (exit 2) when it is the only one, and validate/the write barrier flag stored ones (INVALID_/UNSAFE_TRIGGER_PATTERN). Never let a dead pattern reach the write barrier from add.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-8829ad1e",
+        "t-glob-e377391e",
+        "t-cmd-56d79bf7"
+      ]
+    },
     "lessons-system-a-command-pattern-trigger-s": {
       "createdAt": "2026-06-26",
       "evidence": [
@@ -4142,6 +4196,19 @@
         "t-kw-233ef987"
       ]
     },
+    "lessons-system-build-one-recurrence-warning-per": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "Build ONE recurrence warning per tool call: dedupe covering rule ids across all files of a patch, cap it at part of the payload budget, and pass its ids to collectRecall's exclude set. Running the gate once per file repeated rules 8 times (35,828 chars, over the 32,000 cap).",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-eb1e5fce",
+        "t-glob-71b4b110"
+      ]
+    },
     "lessons-system-call-a-lessons-file-glob": {
       "createdAt": "2026-09-23",
       "evidence": [],
@@ -4154,6 +4221,19 @@
         "t-glob-6df22239",
         "t-glob-23ebed0d",
         "t-glob-730e2b43"
+      ]
+    },
+    "lessons-system-classify-a-hook-failure-by": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "Classify a hook failure by tool_name before recording it: a failed Read of a file not created yet was recorded as file:<path> and showed a false RECURRENT FAILURE on the later Write. Failures of read-only tools (isReadOnlyTool, hook-payload.ts) are action-less: generic nudge, nothing recorded.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-f33ae390",
+        "t-glob-fa2e6273"
       ]
     },
     "lessons-system-claude-code-posttoolusefailure-carries-t": {
@@ -4189,13 +4269,26 @@
         "t-kw-3eb8fd73"
       ]
     },
+    "lessons-system-clean-agent-bound-rule-text": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "Clean agent-bound rule text by Unicode category: strip \\p{Cf} (zero-width, BOM, bidi) and detect tag look-alikes by folding a small window after each < (and full-width or small <) with NFKD. Never NFKC the whole rule: it rewrites real content (O(n²) becomes O(n2)).",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-ecaf0fce"
+      ]
+    },
     "lessons-system-compile-command-pattern-triggers-at": {
       "createdAt": "2026-06-06",
       "evidence": [
         "review:2026-06-06-invalid-regex-probe"
       ],
       "rule": "Compile command-pattern triggers at capture and validation boundaries; reject invalid regexes instead of silently making lessons unreachable.",
-      "status": "active",
+      "status": "superseded",
+      "supersededBy": "lessons-system-a-command-pattern-that-is",
       "topics": [
         "lessons-system"
       ],
@@ -4275,6 +4368,18 @@
       ],
       "triggers": [
         "t-glob-7fc51540"
+      ]
+    },
+    "lessons-system-do-not-flag-every-unmerged": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "Do not flag every unmerged lessons.json index entry as a conflict: lessons resolve leaves staging to the user and sends them to validate before git add. Flag only a file that lacks a lesson from the union of the index stages (or still equals one side when a side is unreadable).",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-ab70f670"
       ]
     },
     "lessons-system-do-not-silently-truncate-command": {
@@ -4410,6 +4515,19 @@
         "t-kw-a5e58b87"
       ]
     },
+    "lessons-system-explain-a-cli-or-mcp": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "Explain a CLI or MCP failure with the git-free problemFromLoad(root, loadLessonsGraphResilient(root)), only when the load failed; never with lessonsGraphProblem, which also runs git ls-files -u: during an unfinished merge it replaced unrelated errors (a bad flag) with the merge message, and spawned git on every MCP call.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-8bbff52e",
+        "t-glob-0c3930ae"
+      ]
+    },
     "lessons-system-export-stable-error-classes-thrown": {
       "createdAt": "2026-06-06",
       "evidence": [
@@ -4498,6 +4616,32 @@
       "triggers": [
         "t-glob-4eefad64",
         "t-cmd-541fec4c"
+      ]
+    },
+    "lessons-system-glob-breadth-has-two-rule": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "Glob breadth has two rule sets that must change together: the capture warning (isBroadGlob in capture-guardrails.ts) and validate plus ranking (glob-breadth.ts). A negated glob (!path) matches every other path, so it is the broadest glob (narrowness 0).",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-4b9b7045",
+        "t-glob-9d091cc6"
+      ]
+    },
+    "lessons-system-hook-notices-need-their-inputs": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "Hook notices need their inputs computed on every event that can carry them: graph health came only from a keyword recall, so sessionStart or UserPromptSubmit with no prompt (Cursor's only recall event) never reported a broken graph. Read the graph state directly when no recall ran.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-f084e574",
+        "t-glob-a8065af7"
       ]
     },
     "lessons-system-implement-nfa-epsilon-assertion-closure": {
@@ -4632,6 +4776,32 @@
         "t-glob-71b4b110",
         "t-glob-e3bd9564",
         "t-glob-d7206b5d"
+      ]
+    },
+    "lessons-system-lessons-logs-are-best-effort": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "Lessons logs are best-effort and must never break the hook: appendJsonl never throws, readJsonl takes a shape guard (JSON.parse accepts null and numbers, so one null line crashed hook, stats and validate), and doHook has a catch-all that returns empty output with exit 0. A throwing append after commitSeen used to exit 1 AND lose the lesson for the session, because dedup had already marked it shown.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-29cd251c",
+        "t-glob-4eefad64"
+      ]
+    },
+    "lessons-system-lessons-never-live-in-the": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "Lessons never live in the home folder: its .agentsmesh is the global config. Walk-ups (findUp in paths.ts) stop below home and compare home both as given and by realpath (HOME may be /tmp while cwd is /private/tmp); the hook does nothing outside a lessons project, the CLI refuses add/import-md in home, and MCP writes need a lessons folder, agentsmesh.yaml or a git repo root.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-db7e480d",
+        "t-glob-04ffddd8"
       ]
     },
     "lessons-system-lessons-split-by-reach-named": {
@@ -4792,7 +4962,8 @@
       "createdAt": "2026-09-23",
       "evidence": [],
       "rule": "Never configure a git merge driver whose program is not on PATH: git cannot start it, keeps %A as it is with no conflict markers, and the next git add silently drops the other branch's lessons. Check the launcher exists first and report the setup as failed.",
-      "status": "active",
+      "status": "superseded",
+      "supersededBy": "lessons-system-never-save-a-git-merge",
       "topics": [
         "lessons-system"
       ],
@@ -4827,6 +4998,19 @@
       "triggers": [
         "t-glob-73cdbf31",
         "t-cmd-386c44c4"
+      ]
+    },
+    "lessons-system-never-save-a-git-merge": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "Never save a git merge driver git cannot start later: git keeps %A with no conflict markers and the next git add drops the other branch's lessons. PATH folders that exist only while npx or a package script runs (_npx caches, node_modules/.bin) do not count, and the npx form must resolve agentsmesh from the git top level (git runs drivers there), so a monorepo package dependency is not enough. As a backstop, validate, check and generate --check flag an unmerged lessons.json that lacks the other side's lessons.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-96d1a399",
+        "t-glob-daed1f08"
       ]
     },
     "lessons-system-never-swap-merge-code-s": {
@@ -5657,6 +5841,19 @@
         "t-kw-6c171a08"
       ]
     },
+    "lessons-the-lessons-cli-s-allowed": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "The lessons CLI's allowed positional count and its repeatable flags come from the LESSONS_USAGE signatures (<placeholder> tokens and [--flag <v>]...). To change them, edit the usage (and the frozen API golden), not the handlers; an unquoted multi-word rule and a single-value flag given twice are exit-2 errors.",
+      "status": "active",
+      "topics": [
+        "lessons"
+      ],
+      "triggers": [
+        "t-glob-fbe4ce70",
+        "t-glob-74262634"
+      ]
+    },
     "lessons-the-lessons-graph-has-no": {
       "createdAt": "2026-07-03",
       "evidence": [
@@ -6363,6 +6560,20 @@
       "triggers": [
         "t-glob-9499d1a7",
         "t-cmd-b25b679a"
+      ]
+    },
+    "process-locks-before-saving-under-an-evictable": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "Before saving under an evictable process lock, check that you still own it (release.isHeld() / assertLessonsLockHeld): a holder paused past staleMs is evicted, and its later atomic rename silently erases the new holder's write. Check lock ages in both directions too: a start time or mtime more than the skew tolerance in the future is stale, or it can never be evicted.",
+      "status": "active",
+      "topics": [
+        "process-locks"
+      ],
+      "triggers": [
+        "t-glob-300bbdba",
+        "t-glob-aed91c26",
+        "t-glob-8b558978"
       ]
     },
     "process-locks-fail-on-stale-lock-eviction": {
@@ -8428,6 +8639,18 @@
         "t-glob-65f0c371"
       ]
     },
+    "test-execution-run-the-source-cli-as": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "Run the source CLI as node_modules/.bin/tsx src/cli/index.ts, never node node_modules/.bin/tsx ...: the .bin entry is a shell shim and node fails with a SyntaxError on it. Several fixer briefs had this wrong.",
+      "status": "active",
+      "topics": [
+        "test-execution"
+      ],
+      "triggers": [
+        "t-cmd-0c140be4"
+      ]
+    },
     "test-execution-set-ci-true-when-running": {
       "createdAt": "2026-06-17",
       "evidence": [
@@ -10296,6 +10519,10 @@
       "kind": "command_pattern",
       "pattern": "git\\s+(clone|ls-remote|fetch)"
     },
+    "t-cmd-0c140be4": {
+      "kind": "command_pattern",
+      "pattern": "node\\s+\\S*node_modules/\\.bin/tsx"
+    },
     "t-cmd-0cf3ec87": {
       "kind": "command_pattern",
       "pattern": "pnpm test:coverage"
@@ -10728,6 +10955,10 @@
       "kind": "file_glob",
       "pattern": ".agentsmesh/lessons/lessons.json"
     },
+    "t-glob-04ffddd8": {
+      "kind": "file_glob",
+      "pattern": "src/mcp/context.ts"
+    },
     "t-glob-052cbaea": {
       "kind": "file_glob",
       "pattern": "src/targets/*/import*.ts"
@@ -10775,6 +11006,10 @@
     "t-glob-0b5c0a21": {
       "kind": "file_glob",
       "pattern": "src/cli/commands/lessons*.ts"
+    },
+    "t-glob-0c3930ae": {
+      "kind": "file_glob",
+      "pattern": "src/mcp/handlers/lessons*.ts"
     },
     "t-glob-0c53fb31": {
       "kind": "file_glob",
@@ -10944,6 +11179,10 @@
       "kind": "file_glob",
       "pattern": "website/src/components/og/*.astro"
     },
+    "t-glob-29cd251c": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/jsonl-log.ts"
+    },
     "t-glob-2be00990": {
       "kind": "file_glob",
       "pattern": "src/cli/commands/init-wizard.ts"
@@ -11024,6 +11263,10 @@
       "kind": "file_glob",
       "pattern": "tests/unit/targets/*/recall-hooks.test.ts"
     },
+    "t-glob-3c315a53": {
+      "kind": "file_glob",
+      "pattern": "src/canonical/load/merge.ts"
+    },
     "t-glob-3ce2b476": {
       "kind": "file_glob",
       "pattern": "src/core/reference/pack-skill-artifact-paths.ts"
@@ -11095,6 +11338,10 @@
     "t-glob-4ac421f1": {
       "kind": "file_glob",
       "pattern": "src/cli/renderers/lessons-render-diagnostics.ts"
+    },
+    "t-glob-4b9b7045": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/glob-breadth.ts"
     },
     "t-glob-4ba3bf59": {
       "kind": "file_glob",
@@ -11271,6 +11518,10 @@
     "t-glob-65f0c371": {
       "kind": "file_glob",
       "pattern": "**/*.test.ts"
+    },
+    "t-glob-681dc980": {
+      "kind": "file_glob",
+      "pattern": "src/canonical/load/pack-load.ts"
     },
     "t-glob-689ed63b": {
       "kind": "file_glob",
@@ -11488,6 +11739,10 @@
       "kind": "file_glob",
       "pattern": "src/targets/deepagents-cli/**"
     },
+    "t-glob-8829ad1e": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/add-gates.ts"
+    },
     "t-glob-892c1e39": {
       "kind": "file_glob",
       "pattern": "tests/e2e/agents-last-run.md"
@@ -11511,6 +11766,10 @@
     "t-glob-8ade9a3e": {
       "kind": "file_glob",
       "pattern": "vitest.config.ts"
+    },
+    "t-glob-8b558978": {
+      "kind": "file_glob",
+      "pattern": "src/utils/filesystem/process-lock-state.ts"
     },
     "t-glob-8bbff52e": {
       "kind": "file_glob",
@@ -11648,6 +11907,10 @@
       "kind": "file_glob",
       "pattern": "src/cli/stdio-blocking.ts"
     },
+    "t-glob-a8065af7": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/hook-notices.ts"
+    },
     "t-glob-a86844dd": {
       "kind": "file_glob",
       "pattern": "src/targets/codex-cli/codex-rule-paths.ts"
@@ -11696,6 +11959,10 @@
       "kind": "file_glob",
       "pattern": "src/targets/copilot/capabilities.ts"
     },
+    "t-glob-ab70f670": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/graph-problem.ts"
+    },
     "t-glob-aceab730": {
       "kind": "file_glob",
       "pattern": "src/targets/**/generator/*.ts"
@@ -11707,6 +11974,10 @@
     "t-glob-ae40a94c": {
       "kind": "file_glob",
       "pattern": "tests/helpers/*git*.ts"
+    },
+    "t-glob-aed91c26": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/resolve-conflict.ts"
     },
     "t-glob-b06bb957": {
       "kind": "file_glob",
@@ -11783,6 +12054,10 @@
     "t-glob-c1deac29": {
       "kind": "file_glob",
       "pattern": "src/targets/projection/lessons-paragraph.ts"
+    },
+    "t-glob-c21ba0b0": {
+      "kind": "file_glob",
+      "pattern": "src/canonical/extends/extends.ts"
     },
     "t-glob-c225e5cc": {
       "kind": "file_glob",
@@ -11932,6 +12207,10 @@
       "kind": "file_glob",
       "pattern": "tests/contract/contracts/*.ts"
     },
+    "t-glob-daed1f08": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/launcher.ts"
+    },
     "t-glob-db59ec0a": {
       "kind": "file_glob",
       "pattern": "src/cli/error-handler.ts"
@@ -11988,6 +12267,10 @@
       "kind": "file_glob",
       "pattern": "src/canonical/extends/**/*.ts"
     },
+    "t-glob-e377391e": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/validate-quality.ts"
+    },
     "t-glob-e3bd9564": {
       "kind": "file_glob",
       "pattern": "src/lessons/validate-health.ts"
@@ -12024,6 +12307,10 @@
       "kind": "file_glob",
       "pattern": "src/cli/commands/generate*.ts"
     },
+    "t-glob-ecaf0fce": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/rule-line.ts"
+    },
     "t-glob-ed0be781": {
       "kind": "file_glob",
       "pattern": "src/lessons/skill.ts"
@@ -12052,6 +12339,10 @@
       "kind": "file_glob",
       "pattern": "src/lessons/regex-linear/**"
     },
+    "t-glob-f33ae390": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/hook-failure.ts"
+    },
     "t-glob-f394f32c": {
       "kind": "file_glob",
       "pattern": "src/targets/cline/mcp-mapper.ts"
@@ -12079,6 +12370,10 @@
     "t-glob-f9f526aa": {
       "kind": "file_glob",
       "pattern": "src/cli/commands/generate-lock.ts"
+    },
+    "t-glob-fa2e6273": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/hook-payload.ts"
     },
     "t-glob-fb5c7dc9": {
       "kind": "file_glob",
@@ -12419,6 +12714,10 @@
     "t-kw-519df655": {
       "kind": "keyword",
       "pattern": "recall telemetry stats parity"
+    },
+    "t-kw-52e20172": {
+      "kind": "keyword",
+      "pattern": "parallel fixers"
     },
     "t-kw-53259aa5": {
       "kind": "keyword",
