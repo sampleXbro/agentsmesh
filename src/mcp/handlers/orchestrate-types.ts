@@ -16,6 +16,8 @@ export interface LintHandlerResult {
 
 export interface CheckHandlerResult {
   drift: boolean;
+  /** True when the lock file has git conflict markers; `agentsmesh merge` rebuilds it. */
+  lockConflict: boolean;
   canonicalDrift: boolean;
   outputDrift: boolean;
   missing: string[];

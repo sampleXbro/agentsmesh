@@ -54,7 +54,7 @@ export const ORCHESTRATE_TOOL_DESCRIPTORS: ToolDescriptor[] = [
   {
     name: 'check',
     description:
-      'Detect canonical and generated-output drift, including hand-edits and stale files in managed output locations (outputsChecked is false for old-format locks without an outputs map)',
+      'Detect canonical and generated-output drift, including hand-edits and stale files in managed output locations (outputsChecked is false for old-format locks without an outputs map; lockConflict is true when the lock has git conflict markers, fixed by agentsmesh merge)',
     inputSchema: NoInput,
     handler: (ctx) => orchestrateHandlers.check(ctx),
   },

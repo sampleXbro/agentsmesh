@@ -6,6 +6,7 @@ import {
   diff as engineDiff,
 } from '../../public/index.js';
 import { runGenerate } from '../../cli/commands/generate.js';
+import { lockHasConflictMarkers } from '../../core/check/lock-conflict.js';
 import {
   type CheckHandlerResult,
   type DiffHandlerResult,
@@ -104,6 +105,7 @@ async function check(ctx: McpContext): Promise<CheckHandlerResult> {
     });
     return {
       drift: !report.inSync,
+      lockConflict: !report.hasLock && lockHasConflictMarkers(pctx.canonicalDir),
       canonicalDrift: report.canonicalDrift,
       outputDrift: report.outputDrift,
       missing: [...report.removed],

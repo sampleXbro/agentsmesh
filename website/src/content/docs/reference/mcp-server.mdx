@@ -127,7 +127,7 @@ The server exposes **50 tools** grouped by category. All tool errors return a st
 |------|-------------|
 | `generate` | Generate target-native config from canonical |
 | `lint` | Lint canonical files |
-| `check` | Detect canonical-source and generated-output drift against the lock (result includes `canonicalDrift`/`outputDrift`, per-path output arrays, and `outputsChecked`) |
+| `check` | Detect canonical-source and generated-output drift against the lock (result includes `canonicalDrift`/`outputDrift`, per-path output arrays, `outputsChecked`, and `lockConflict` for a lock with git conflict markers) |
 | `diff` | Preview generation changes |
 | `import` | Import another tool's config into canonical |
 | `convert` | Convert directly from one tool to another |

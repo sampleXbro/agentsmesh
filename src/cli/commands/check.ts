@@ -3,11 +3,9 @@
  * Verifies canonical files match the lock file.
  */
 
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import { loadScopedConfig } from '../../config/core/scope.js';
+import { lockHasConflictMarkers } from '../../core/check/lock-conflict.js';
 import { checkLockSync } from '../../core/check/lock-sync.js';
-import { hasConflictMarkers } from '../../lessons/conflict-markers.js';
 import { lessonsGraphProblem } from '../../lessons/graph-problem.js';
 import { bootstrapPlugins } from '../../plugins/bootstrap-plugins.js';
 import type { CheckData } from '../command-result.js';
@@ -52,15 +50,6 @@ export async function runCheck(
   const problem = scope === 'project' ? lessonsGraphProblem(context.configDir) : null;
   if (problem === null) return result;
   return { ...result, exitCode: 1, error: `Lessons graph unreadable: ${problem.message}` };
-}
-
-/** A lock git left conflicted cannot be read, but it is not a missing one. */
-function lockHasConflictMarkers(canonicalDir: string): boolean {
-  try {
-    return hasConflictMarkers(readFileSync(join(canonicalDir, '.lock'), 'utf8'));
-  } catch {
-    return false;
-  }
 }
 
 function lockResult(
