@@ -9733,6 +9733,23 @@
         "t-glob-6e7640eb"
       ]
     },
+    "verification-workflow-when-adding-a-field-to": {
+      "createdAt": "2026-09-23",
+      "evidence": [
+        "c6a6f38a"
+      ],
+      "rule": "When adding a field to a public result type (e.g. LockSyncReport), read it in tests/consumer-smoke/src/smoke.ts so the packed .d.ts is checked. scripts/consumer-smoke.sh calls pnpm; without pnpm run the same steps by hand: node_modules/.bin/tsup, npm pack --pack-destination <tmp>, copy tests/consumer-smoke to <tmp>/app, npm install <tarball> typescript@5 there, then ./node_modules/.bin/tsc --noEmit.",
+      "status": "active",
+      "topics": [
+        "verification-workflow"
+      ],
+      "triggers": [
+        "t-glob-36d72b33",
+        "t-glob-84b6c902",
+        "t-glob-85da531e",
+        "t-glob-22b2fc25"
+      ]
+    },
     "verification-workflow-when-locating-a-globally-installed": {
       "createdAt": "2026-06-06",
       "evidence": [
@@ -11432,6 +11449,10 @@
       "kind": "file_glob",
       "pattern": "src/targets/copilot/hook-format.ts"
     },
+    "t-glob-22b2fc25": {
+      "kind": "file_glob",
+      "pattern": "src/core/check/lock-sync-types.ts"
+    },
     "t-glob-23ebed0d": {
       "kind": "file_glob",
       "pattern": "src/lessons/auto-prune.ts"
@@ -12019,6 +12040,10 @@
     "t-glob-84949cce": {
       "kind": "file_glob",
       "pattern": "src/cli/json-handler.ts"
+    },
+    "t-glob-84b6c902": {
+      "kind": "file_glob",
+      "pattern": "src/public/engine.ts"
     },
     "t-glob-84c63f4c": {
       "kind": "file_glob",
