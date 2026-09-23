@@ -241,6 +241,7 @@ describe('orchestrateHandlers.check', () => {
     mockCheck.mockResolvedValue({
       inSync: false,
       hasLock: true,
+      lockConflict: false,
       canonicalDrift: true,
       outputDrift: true,
       modified: ['rules/foo.md'],
@@ -272,6 +273,7 @@ describe('orchestrateHandlers.check', () => {
     mockCheck.mockResolvedValue({
       inSync: true,
       hasLock: true,
+      lockConflict: false,
       canonicalDrift: false,
       outputDrift: false,
       modified: [],

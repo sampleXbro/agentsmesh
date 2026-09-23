@@ -217,6 +217,11 @@ const report: LockSyncReport = await check({
   canonicalDir: `${process.cwd()}/.agentsmesh`,
 });
 
+if (report.lockConflict) {
+  console.error('The lock file has git conflict markers — run agentsmesh merge.');
+  process.exit(1);
+}
+
 if (!report.hasLock) {
   console.error('Not initialized — run agentsmesh generate first.');
   process.exit(1);
@@ -233,6 +238,8 @@ if (!report.inSync) {
 ```
 
 `LockSyncReport.lockedViolations` is the subset of changes that violate `collaboration.lock_features` — useful for distinguishing "drift the team allows" from "drift that should fail CI".
+
+`LockSyncReport.lockConflict` is `true` when `.lock` still has git conflict markers. Such a lock cannot be read, so `hasLock` is `false` too. Check `lockConflict` first: the fix is `agentsmesh merge`, not `generate`.
 
 ## Plugin registration
 

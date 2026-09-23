@@ -4,7 +4,6 @@
  */
 
 import { loadScopedConfig } from '../../config/core/scope.js';
-import { lockHasConflictMarkers } from '../../core/check/lock-conflict.js';
 import { checkLockSync } from '../../core/check/lock-sync.js';
 import { lessonsGraphProblem } from '../../lessons/graph-problem.js';
 import { bootstrapPlugins } from '../../plugins/bootstrap-plugins.js';
@@ -46,22 +45,19 @@ export async function runCheck(
     scope,
   });
 
-  const result = lockResult(report, context.canonicalDir);
+  const result = lockResult(report);
   const problem = scope === 'project' ? lessonsGraphProblem(context.configDir) : null;
   if (problem === null) return result;
   return { ...result, exitCode: 1, error: `Lessons graph unreadable: ${problem.message}` };
 }
 
-function lockResult(
-  report: Awaited<ReturnType<typeof checkLockSync>>,
-  canonicalDir: string,
-): CheckCommandResult {
+function lockResult(report: Awaited<ReturnType<typeof checkLockSync>>): CheckCommandResult {
   if (!report.hasLock) {
     return {
       exitCode: 1,
       data: {
         hasLock: false,
-        lockConflict: lockHasConflictMarkers(canonicalDir),
+        lockConflict: report.lockConflict,
         canonicalDrift: false,
         outputDrift: false,
         inSync: false,
