@@ -116,6 +116,17 @@ describe('ensureLessonsMergeDriver — a launcher git can find later', () => {
     expect(driverConfig()).toBe(LOCAL_FIRST);
   });
 
+  it('saves the bare driver when npx is missing but agentsmesh is on PATH (standalone pnpm or bun)', () => {
+    writeFile(root, '.gitattributes', ATTRIBUTE);
+    writeFile(root, 'package.json', DEPENDS);
+    const global = binDir(join(tools, 'global'), ['agentsmesh', 'agentsmesh.cmd']);
+    expect(ensureLessonsMergeDriver(root, { env: pathOf(global) })).toEqual({
+      status: 'configured',
+      command: BARE,
+    });
+    expect(driverConfig()).toBe(BARE);
+  });
+
   it('refuses the npx driver when npx itself is missing', () => {
     writeFile(root, '.gitattributes', ATTRIBUTE);
     writeFile(root, 'package.json', DEPENDS);

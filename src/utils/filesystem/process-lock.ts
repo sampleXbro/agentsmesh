@@ -54,6 +54,9 @@ export interface LockOptions {
   staleMs?: number;
   /** Human-readable lock name surfaced in LockAcquisitionError, e.g. "lessons lock". */
   label?: string;
+  /** Called once, with the holder, when a wait lasts `waitNoticeMs` (default 2000). */
+  onWait?: (holder: string) => void;
+  waitNoticeMs?: number;
 }
 
 export type LockRelease = () => Promise<void>;
@@ -89,6 +92,8 @@ export async function acquireProcessLock(
 
   let attempt = 0;
   let immediate = 0;
+  const waitingSince = Date.now();
+  let noticed = false;
   while (true) {
     const holder = newHolder(procStart);
     if (await tryAcquire(lockPath, holder)) return holdLock(lockPath, holder.token);
@@ -105,6 +110,10 @@ export async function acquireProcessLock(
     }
     attempt++;
     immediate = 0;
+    if (!noticed && opts.onWait && Date.now() - waitingSince >= (opts.waitNoticeMs ?? 2000)) {
+      noticed = true;
+      opts.onWait(describeHolder(state));
+    }
     await sleep(lockRetryDelayMs(attempt, opts));
   }
 }

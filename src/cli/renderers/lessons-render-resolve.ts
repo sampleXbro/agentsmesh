@@ -20,7 +20,20 @@ export function renderResolve(data: LessonsResolveData): void {
         'Review them with `agentsmesh lessons validate` before staging.',
     );
   }
-  logger.info(
-    `  Next: git add ${path}, then finish the merge (git commit, or git rebase --continue).`,
-  );
+  if (!data.baseKnown) {
+    logger.warn(
+      'The conflict markers carry no merge base, so a trigger or topic that one branch deleted ' +
+        'may be back. Check with `agentsmesh lessons validate`; set `git config ' +
+        'merge.conflictStyle diff3` so later conflicts keep the base.',
+    );
+  }
+  if (data.nextStep !== null) logger.info(`  Next: git add ${path}${NEXT[data.nextStep]}`);
 }
+
+const NEXT: Record<NonNullable<LessonsResolveData['nextStep']>, string> = {
+  merge: ', then finish the merge (git commit).',
+  rebase: ', then git rebase --continue.',
+  'cherry-pick': ', then git cherry-pick --continue.',
+  revert: ', then git revert --continue.',
+  none: ' and commit the fix.',
+};

@@ -9,7 +9,7 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach, vi } from 'vitest';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { runLessonsMaintenance } from '../../../../src/cli/commands/generate-lessons.js';
@@ -21,6 +21,7 @@ import {
   mergeLessonsBranches,
   TWO_CAPTURES,
 } from '../../../helpers/lessons-merge-repo.js';
+import { git } from '../../../helpers/temp-git-repo.js';
 
 let root: string;
 let restoreEnv: () => void;
@@ -61,6 +62,18 @@ describe('runLessonsMaintenance', () => {
     expect(error.mock.calls.flat().join(' ')).toContain('BEFORE `git add');
     expect(runLessonsMaintenance(root, 'generate')).toBe(0);
     expect(warn.mock.calls.flat().join(' ')).toContain('BEFORE `git add');
+  });
+
+  it('stays quiet about a merge driver the user set up themselves', () => {
+    git(root, ['init', '--quiet']);
+    writeFileSync(
+      join(root, '.gitattributes'),
+      '.agentsmesh/lessons/lessons.json merge=agentsmesh-lessons\n',
+    );
+    git(root, ['config', 'merge.agentsmesh-lessons.driver', 'my-own-driver %O %A %B']);
+    const info = vi.spyOn(logger, 'info').mockImplementation(() => {});
+    expect(runLessonsMaintenance(root, 'generate')).toBe(0);
+    expect(info.mock.calls.flat().join(' ')).not.toContain('Kept your own');
   });
 
   it('leaves a project without lessons untouched', () => {

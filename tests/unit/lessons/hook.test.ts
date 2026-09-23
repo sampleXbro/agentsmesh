@@ -110,15 +110,17 @@ describe('buildRecallHookOutput', () => {
     expect(parsed.hookSpecificOutput.additionalContext).toContain('Rule A.');
   });
 
-  it('defaults to PostToolUse for an absent or unrecognized event name (backward compatible)', async () => {
-    const raw = JSON.stringify({
-      hook_event_name: 'SomethingElse',
-      tool_input: { file_path: 'src/x.ts' },
-    });
-    const parsed = JSON.parse((await buildRecallHookOutput(raw, root)).output) as {
+  it('defaults to PostToolUse for an absent event name, and does nothing for an unknown one', async () => {
+    const absent = JSON.stringify({ tool_input: { file_path: 'src/x.ts' } });
+    const parsed = JSON.parse((await buildRecallHookOutput(absent, root)).output) as {
       hookSpecificOutput: { hookEventName: string };
     };
     expect(parsed.hookSpecificOutput.hookEventName).toBe('PostToolUse');
+    const unknown = JSON.stringify({
+      hook_event_name: 'SomethingElse',
+      tool_input: { file_path: 'src/x.ts' },
+    });
+    expect((await buildRecallHookOutput(unknown, root)).output).toBe('');
   });
 
   it('recalls against a command for a Bash tool call', async () => {

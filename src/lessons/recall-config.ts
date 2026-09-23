@@ -1,4 +1,5 @@
 import { existsSync, readFileSync } from 'node:fs';
+import { stripBom } from '../utils/filesystem/fs-text-encoding.js';
 import { lessonsPaths } from './paths.js';
 import { DEFAULT_RECALL_LIMIT, DEFAULT_RECALL_MAX_TOKENS } from './ranking.js';
 
@@ -93,7 +94,7 @@ export function lessonsConfigWarning(projectRoot: string): string | null {
   if (!existsSync(path)) return null;
   let parsed: unknown;
   try {
-    parsed = JSON.parse(readFileSync(path, 'utf8'));
+    parsed = JSON.parse(stripBom(readFileSync(path, 'utf8')));
   } catch {
     return `lessons config.json is not valid JSON — using built-in recall defaults. Fix or delete .agentsmesh/lessons/config.json.`;
   }
@@ -132,7 +133,7 @@ export function loadRecallConfig(projectRoot: string): RecallConfig {
   const path = lessonsPaths(projectRoot).config;
   if (!existsSync(path)) return fallback;
   try {
-    const parsed: unknown = JSON.parse(readFileSync(path, 'utf8'));
+    const parsed: unknown = JSON.parse(stripBom(readFileSync(path, 'utf8')));
     if (typeof parsed !== 'object' || parsed === null) return fallback;
     const cfg = parsed as Record<string, unknown>;
     return {

@@ -14,9 +14,16 @@ describe('readBoundedStream', () => {
     expect(await readBoundedStream(chunks('{"a":', '1}'))).toBe('{"a":1}');
   });
 
-  it('abandons the read and returns "" once the byte cap is exceeded', async () => {
-    // Two chunks whose combined length crosses the (tiny, injected) cap.
-    expect(await readBoundedStream(chunks('aaaa', 'bbbb'), 6)).toBe('');
+  it('returns "" past the byte cap but keeps reading to the end, so the sender gets no broken pipe', async () => {
+    let pulled = 0;
+    async function* counted(): AsyncIterable<Buffer> {
+      for (const p of ['aaaa', 'bbbb', 'cccc', 'dddd']) {
+        pulled += 1;
+        yield Buffer.from(p, 'utf8');
+      }
+    }
+    expect(await readBoundedStream(counted(), 6)).toBe('');
+    expect(pulled).toBe(4);
   });
 
   it('uses a 1 MB default cap', () => {

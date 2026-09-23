@@ -28,6 +28,7 @@ function hooks(yaml: string): void {
 }
 const RECALL =
   'PreToolUse:\n  - matcher: Edit\n    type: command\n    command: agentsmesh lessons hook\n';
+const NPX_RECALL = 'npx --no --offline agentsmesh lessons hook';
 
 describe('recallHookTeamHint', () => {
   it('returns the hint when recall is wired and agentsmesh is not a project dependency', () => {
@@ -39,15 +40,27 @@ describe('recallHookTeamHint', () => {
     );
   });
 
-  it('still returns the hint for an npx-launched entry once the dependency is gone', () => {
+  it('asks to update an npx-launched entry once the dependency is gone', () => {
     pkg({});
-    hooks(RECALL.replace('agentsmesh lessons hook', 'npx --no --offline agentsmesh lessons hook'));
-    expect(recallHookTeamHint(root)).toBe(RECALL_HOOK_TEAM_HINT);
+    hooks(RECALL.replace('agentsmesh lessons hook', NPX_RECALL));
+    expect(recallHookTeamHint(root)).toBe(
+      `Lessons recall hooks run \`${NPX_RECALL}\`, but this project now calls ` +
+        "`agentsmesh lessons hook`; re-run 'agentsmesh init --lessons' to update them.",
+    );
   });
 
-  it('returns null when agentsmesh is a project dependency', () => {
+  it('asks to update a bare entry once agentsmesh is a project dependency', () => {
     pkg({ devDependencies: { agentsmesh: '^0.41.0' } });
     hooks(RECALL);
+    expect(recallHookTeamHint(root)).toBe(
+      'Lessons recall hooks run `agentsmesh lessons hook`, but this project now calls ' +
+        `\`${NPX_RECALL}\`; re-run 'agentsmesh init --lessons' to update them.`,
+    );
+  });
+
+  it('returns null when the entry already matches the dependency', () => {
+    pkg({ devDependencies: { agentsmesh: '^0.41.0' } });
+    hooks(RECALL.replace('agentsmesh lessons hook', NPX_RECALL));
     expect(recallHookTeamHint(root)).toBeNull();
   });
 

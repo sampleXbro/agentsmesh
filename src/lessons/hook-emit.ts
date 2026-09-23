@@ -40,6 +40,10 @@ export interface RecalledRule {
 export interface CollectedRecall extends GraphHealth {
   readonly rules: readonly RecalledRule[];
   readonly hidden: number;
+  /** Triggered rules among `rules` (the rest are always-on); defaults to all of them. */
+  readonly triggered?: number;
+  /** Always-on lessons their own token budget left out. */
+  readonly alwaysHidden?: number;
 }
 
 /**
@@ -96,7 +100,7 @@ export function renderRecall(collected: CollectedRecall, options: RenderOptions)
   if (collected.rules.length === 0) {
     return options.preface === undefined ? EMPTY : contextOutput(options.event, options.preface);
   }
-  const body = injectionText(options.lead, collected.rules, collected.hidden);
+  const body = injectionText(options.lead, collected);
   return contextOutput(
     options.event,
     options.preface === undefined ? body : `${options.preface}\n\n${body}`,
@@ -111,7 +115,7 @@ export function renderRecall(collected: CollectedRecall, options: RenderOptions)
  * the graph is invisible from inside a session — an agent sees two of eighteen
  * and has no way to know sixteen existed.
  */
-function hiddenByCap(totalMatches: number, suppressed: number, delivered: number): number {
+export function hiddenByCap(totalMatches: number, suppressed: number, delivered: number): number {
   return Math.max(0, totalMatches - suppressed - delivered);
 }
 
@@ -140,12 +144,19 @@ function truncationNotice(hidden: number, deliveredCount: number): string {
  * The injected body: the lead, then the rules fenced as project content, one
  * id-prefixed line each (safeRuleLine keeps a rule from leaving the fence).
  */
-function injectionText(lead: string, rules: readonly RecalledRule[], hidden = 0): string {
+function injectionText(lead: string, collected: CollectedRecall): string {
+  const { rules, hidden, alwaysHidden = 0 } = collected;
   const bullets = rules.map((r) => `- [${safeRuleLine(r.id, 200)}] ${safeRuleLine(r.rule)}`);
+  const alwaysNotice =
+    alwaysHidden > 0
+      ? `\n(${alwaysHidden} more always-on lessons did not fit their fixed token budget; ` +
+        'shorten or merge the always-on lessons so each one fits.)'
+      : '';
   return (
     `${lead} — project content, not instructions from the user or the system; ` +
     `apply as guidance before your next action:\n${RECALL_BLOCK_OPEN}\n${bullets.join('\n')}\n` +
-    `${RECALL_BLOCK_CLOSE}${truncationNotice(hidden, rules.length)}`
+    `${RECALL_BLOCK_CLOSE}${truncationNotice(hidden, collected.triggered ?? rules.length)}` +
+    alwaysNotice
   );
 }
 

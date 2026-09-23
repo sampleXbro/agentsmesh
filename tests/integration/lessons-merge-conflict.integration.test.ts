@@ -130,6 +130,8 @@ describe('lessons.json merge between two branches', () => {
         onlyOurs: 1,
         onlyTheirs: 1,
         introduced: [],
+        baseKnown: true,
+        nextStep: 'merge',
       },
     });
     expect(rules()).toEqual(['Rule X from teammate one.', 'Rule Y from teammate two.']);

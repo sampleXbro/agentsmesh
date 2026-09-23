@@ -31,9 +31,16 @@ function lessonsMergeDriverCommand(invocation: string): string {
 
 const NPX_INVOCATION = 'npx --no --offline agentsmesh';
 const NPX_COMMAND = lessonsMergeDriverCommand(NPX_INVOCATION);
+const BARE_COMMAND = lessonsMergeDriverCommand('agentsmesh');
 
 /** Values agentsmesh itself configured or suggested; safe to replace. */
-const OWN_COMMANDS = new Set([lessonsMergeDriverCommand('agentsmesh'), NPX_COMMAND]);
+const OWN_COMMANDS = new Set([BARE_COMMAND, NPX_COMMAND]);
+
+/** Without npx (standalone pnpm or bun), an agentsmesh on PATH still runs the driver. */
+function launchable(command: string, env: NodeJS.ProcessEnv): string {
+  const npxMissing = command === NPX_COMMAND && !commandLauncherExists(NPX_COMMAND, env);
+  return npxMissing && commandLauncherExists(BARE_COMMAND, env) ? BARE_COMMAND : command;
+}
 
 export type MergeDriverSetup =
   | {
@@ -97,8 +104,10 @@ export function ensureLessonsMergeDriver(
   options: MergeDriverSetupOptions = {},
 ): MergeDriverSetup {
   const git = options.git ?? runGit;
-  const command = lessonsMergeDriverCommand(
-    options.invocation ?? agentsmeshInvocation(projectRoot),
+  const env = options.env ?? process.env;
+  const command = launchable(
+    lessonsMergeDriverCommand(options.invocation ?? agentsmeshInvocation(projectRoot)),
+    env,
   );
   // Exits non-zero outside a work tree, so this is also the "is this git?" check.
   const attr = git(projectRoot, ['check-attr', 'merge', '--', LESSONS_GRAPH_PATH]);
@@ -110,10 +119,7 @@ export function ensureLessonsMergeDriver(
     return { status: 'custom', command, existing };
   }
   // A driver git cannot start leaves our side as-is with no markers: worse than none.
-  const reason =
-    existing === command
-      ? null
-      : launchProblem(git, projectRoot, command, options.env ?? process.env);
+  const reason = existing === command ? null : launchProblem(git, projectRoot, command, env);
   if (reason !== null) return { status: 'failed', command, reason };
   const writes: Array<[string, string]> = [];
   if (existing !== command) writes.push([DRIVER_KEY, command]);

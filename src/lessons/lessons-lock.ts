@@ -14,6 +14,7 @@ import {
   type HeldLock,
   type LockOptions,
 } from '../utils/filesystem/process-lock.js';
+import { logger } from '../utils/output/logger.js';
 
 export const LESSONS_LOCK_FILENAME = '.lessons.lock';
 
@@ -46,6 +47,14 @@ export async function acquireLessonsLock(
     jitter: opts.jitter ?? LESSONS_LOCK_OPTIONS.jitter,
     staleMs: opts.staleMs ?? LESSONS_LOCK_OPTIONS.staleMs,
     label: 'lessons lock',
+    waitNoticeMs: opts.waitNoticeMs,
+    onWait:
+      opts.onWait ??
+      ((holder) =>
+        logger.warn(
+          `Waiting for the lessons lock, held by ${holder}; a lock older than ` +
+            `${LESSONS_LOCK_OPTIONS.staleMs / 1000} s is taken over.`,
+        )),
   });
 }
 

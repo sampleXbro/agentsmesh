@@ -84,6 +84,8 @@ describe('lessons resolve — from the git index stages', () => {
       onlyOurs: 1,
       onlyTheirs: 1,
       introduced: [],
+      baseKnown: true,
+      nextStep: 'merge',
     });
     expect(rules(repo)).toEqual(['Base.', 'Ours A.', 'Theirs B.']);
     expect(git(repo, ['ls-files', '-u', '--', GRAPH]).trim()).not.toBe('');

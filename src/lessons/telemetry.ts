@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { stripBom } from '../utils/filesystem/fs-text-encoding.js';
 import { appendJsonl, logExists, readJsonl } from './jsonl-log.js';
 import { isRecallRecord } from './log-record-guards.js';
 import { lessonsPaths } from './paths.js';
@@ -111,7 +112,7 @@ export function configFlag(projectRoot: string, key: string): boolean | undefine
   const path = lessonsPaths(projectRoot).config;
   if (!existsSync(path)) return undefined;
   try {
-    const parsed: unknown = JSON.parse(readFileSync(path, 'utf8'));
+    const parsed: unknown = JSON.parse(stripBom(readFileSync(path, 'utf8')));
     if (typeof parsed !== 'object' || parsed === null) return undefined;
     const value = (parsed as Record<string, unknown>)[key];
     return typeof value === 'boolean' ? value : undefined;
@@ -184,5 +185,7 @@ export function recallLogExists(projectRoot: string): boolean {
 
 /** Read every well-formed recall record. Returns [] when absent or unreadable. */
 export function readRecallLog(projectRoot: string): RecallTelemetryRecord[] {
-  return readJsonl(recallLogPath(projectRoot), isRecallRecord);
+  return readJsonl(recallLogPath(projectRoot), isRecallRecord, {
+    maxBytes: RECALL_LOG_TRIM_TRIGGER_BYTES,
+  });
 }

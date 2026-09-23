@@ -1,5 +1,11 @@
 import type { MatchedLesson } from './query.js';
-import { readSeenStore, removeSeenStore, seenStorePath, writeSeenStore } from './seen-store.js';
+import {
+  readSeenStore,
+  removeSeenStore,
+  seenStorePath,
+  updateSeenStore,
+  type StoredSeen,
+} from './seen-store.js';
 import { autoSessionId, dayBucketId, isIdleSession, stampAgeMs } from './session-window.js';
 import { sessionId as envSessionId } from './telemetry.js';
 
@@ -30,6 +36,8 @@ export interface SessionDedup {
   readonly stamps: ReadonlyMap<string, number> | null;
   /** Set for TTL sessions: an entry suppresses only within this window. */
   readonly ttlMs?: number;
+  /** When an idle session dropped its old set on open; commits keep only newer writes. */
+  readonly resetAt?: number;
 }
 
 export interface OpenDedupOptions {
@@ -79,6 +87,7 @@ export function openSessionDedup(options: OpenDedupOptions = {}): SessionDedup |
     path,
     stamps,
     ...(options.ttlMs !== undefined ? { ttlMs: options.ttlMs } : {}),
+    ...(stale ? { resetAt: Date.now() } : {}),
   };
 }
 
@@ -157,29 +166,30 @@ export function filterUnseen(
  * must still be able to read what this one writes).
  */
 export function commitSeen(dedup: SessionDedup, returnedIds: readonly string[]): void {
-  // A recall that delivered nothing still proves the session is ALIVE. Record
-  // that (cheaply, and only for stamped sessions, which are the ones whose idle
-  // gap can reset them) so steady work is not mistaken for an abandoned chat.
-  if (returnedIds.length === 0) {
-    if (dedup.ttlMs !== undefined && dedup.stamps !== null) {
-      writeSeenStore(dedup.path, dedup.stamps);
+  updateSeenStore(dedup.path, (latest) => {
+    const store =
+      dedup.resetAt !== undefined && (latest.lastAt ?? 0) <= dedup.resetAt ? EMPTY : latest;
+    // A recall that delivered nothing still proves the session is ALIVE. Record
+    // that (cheaply, and only for stamped sessions, which are the ones whose idle
+    // gap can reset them) so steady work is not mistaken for an abandoned chat.
+    if (returnedIds.length === 0) {
+      return dedup.ttlMs !== undefined && store.stamps !== null ? { data: store.stamps } : null;
     }
-    return;
-  }
-  if (dedup.ttlMs !== undefined || dedup.stamps !== null) {
-    const now = Date.now();
-    const merged = new Map<string, number>();
-    // Prune expired siblings only when this session actually has a TTL; an
-    // untimed session preserves every stamp it read.
-    for (const [id, ms] of dedup.stamps ?? []) {
-      if (dedup.ttlMs === undefined || now - ms <= dedup.ttlMs) merged.set(id, ms);
+    if (dedup.ttlMs !== undefined || store.stamps !== null) {
+      const now = Date.now();
+      const merged = new Map<string, number>();
+      // Prune expired siblings only when this session actually has a TTL; an
+      // untimed session preserves every stamp it read.
+      for (const [id, ms] of store.stamps ?? []) {
+        if (dedup.ttlMs === undefined || now - ms <= dedup.ttlMs) merged.set(id, ms);
+      }
+      for (const id of returnedIds) merged.set(id, now);
+      return { data: merged };
     }
-    for (const id of returnedIds) merged.set(id, now);
-    writeSeenStore(dedup.path, merged);
-    return;
-  }
-  const union = new Set(dedup.seen);
-  for (const id of returnedIds) union.add(id);
-  if (union.size === dedup.seen.size) return;
-  writeSeenStore(dedup.path, [...union]);
+    const union = new Set(store.ids);
+    for (const id of returnedIds) union.add(id);
+    return union.size === store.ids.size ? null : { data: [...union] };
+  });
 }
+
+const EMPTY: StoredSeen = { ids: new Set(), stamps: null };

@@ -1,6 +1,7 @@
 import { maybeAutoMigrateLessons } from './auto-migrate.js';
 import { CURRENT_GRAPH_VERSION, emptyGraph, type LessonsGraph } from './graph-schema.js';
 import { saveLessonsGraph, tryLoadLessonsGraph } from './graph-store.js';
+import { sweepLessonsLeftovers } from './leftovers.js';
 import { acquireLessonsLock, assertLessonsLockHeld } from './lessons-lock.js';
 import { validateLessonsGraph, type ValidationFinding, type ValidationReport } from './validate.js';
 
@@ -54,6 +55,7 @@ export async function mutateLessonsGraphLocked<T>(
 ): Promise<Awaited<T>> {
   const release = await acquireLessonsLock(projectRoot, { retries: options.retries });
   try {
+    sweepLessonsLeftovers(projectRoot);
     const graph = tryLoadLessonsGraph(projectRoot) ?? emptyGraph();
     // Snapshot pre-existing error findings BEFORE applying the mutation. We only
     // block on errors this mutation INTRODUCES — a single pre-existing invalid

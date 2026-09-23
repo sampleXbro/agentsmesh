@@ -1,3 +1,23 @@
+# Lessons hook, merge driver and log papercuts (2026-09-23)
+
+All items confirmed in code at 05fc2e7e; none already fixed.
+
+- [x] A hook input: stdin drained past the 1 MB cap; BOM stripped; an unknown present event name
+  does nothing (a missing one stays a tool call); Copilot VS Code SessionStart gets task recall;
+  root from the touched file first; NFD paths match NFC globs
+- [x] B hook output: prompt recall names what the 5-rule cap and the always-on budget hid;
+  recurrence counts the last 24 hours; Cursor permission_denied not recorded; command nudge
+  without the file-glob hint; dedup commit re-reads under a short lock (20 parallel: 0 lost)
+- [x] C logs/files: newline before an append after a cut line; byte cap to half the trigger and
+  bounded tail reads; read-only lessons.json refused, mode kept; lock-as-file message; BOM in
+  lessons.json/config.json; one lock-wait notice; old *.tmp / *.stale swept on write
+- [x] D merge: one-side deletions of unused triggers/topics kept; resolve from markers refuses a
+  result with errors and warns without a base; counts after renames; next step per operation;
+  bare driver without npx; hint compares the wired recall command; generate quiet on custom
+- [x] docs (cli/lessons.mdx, reference/lessons.mdx), changeset, gate (13888 + 658 e2e, floor,
+  lint, typecheck incl. tests, knip, build, astro, generate --check, check), manual repros
+---
+
 # Lessons CLI low-severity papercuts (2026-09-23)
 
 All repros confirmed against the build at 6b8bf1e3 (none already fixed). Exit 2 = bad input.

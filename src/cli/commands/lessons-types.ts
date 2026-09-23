@@ -106,6 +106,10 @@ export interface LessonsResolveData {
   readonly onlyTheirs: number;
   /** Validation errors the merge created that neither side had. */
   readonly introduced: readonly string[];
+  /** False when the markers had no diff3 base, so one branch's deletions could not be seen. */
+  readonly baseKnown: boolean;
+  /** The git operation to finish next; null outside git. */
+  readonly nextStep: 'merge' | 'rebase' | 'cherry-pick' | 'revert' | 'none' | null;
 }
 
 export interface LessonsImportMdData {

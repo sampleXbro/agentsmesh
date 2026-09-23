@@ -9,6 +9,8 @@ const EMPTY: LessonsResolveData = {
   onlyOurs: 0,
   onlyTheirs: 0,
   introduced: [],
+  baseKnown: true,
+  nextStep: null,
 };
 
 /** `agentsmesh lessons resolve` — union a conflicted lessons.json; staging stays with the user. */

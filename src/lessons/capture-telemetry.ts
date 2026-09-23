@@ -80,7 +80,9 @@ export function captureLogExists(projectRoot: string): boolean {
 
 /** Read every well-formed capture record. Returns [] when absent or unreadable. */
 export function readCaptureLog(projectRoot: string): CaptureTelemetryRecord[] {
-  return readJsonl(captureLogPath(projectRoot), isCaptureRecord);
+  return readJsonl(captureLogPath(projectRoot), isCaptureRecord, {
+    maxBytes: CAPTURE_LOG_TRIM_TRIGGER_BYTES,
+  });
 }
 
 /**

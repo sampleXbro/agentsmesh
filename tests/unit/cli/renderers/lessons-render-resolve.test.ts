@@ -11,6 +11,8 @@ const data = (over: Partial<LessonsResolveData> = {}): LessonsResolveData => ({
   onlyOurs: 1,
   onlyTheirs: 2,
   introduced: [],
+  baseKnown: true,
+  nextStep: 'merge',
   ...over,
 });
 
@@ -36,6 +38,37 @@ describe('renderResolve', () => {
     expect(all).toContain('from the conflict markers in the file: 1 lesson (0 only on');
     expect(all).toContain('E: x');
     expect(all).toContain('agentsmesh lessons validate');
+  });
+
+  it.each([
+    [
+      'merge',
+      '  Next: git add .agentsmesh/lessons/lessons.json, then finish the merge (git commit).',
+    ],
+    ['rebase', '  Next: git add .agentsmesh/lessons/lessons.json, then git rebase --continue.'],
+    [
+      'cherry-pick',
+      '  Next: git add .agentsmesh/lessons/lessons.json, then git cherry-pick --continue.',
+    ],
+    ['revert', '  Next: git add .agentsmesh/lessons/lessons.json, then git revert --continue.'],
+    ['none', '  Next: git add .agentsmesh/lessons/lessons.json and commit the fix.'],
+  ] as const)('names the next git step for %s', (nextStep, line) => {
+    renderResolve(data({ nextStep }));
+    expect(output.stdout()).toContain(`${line}\n`);
+  });
+
+  it('prints no git step outside a git repository', () => {
+    renderResolve(data({ nextStep: null }));
+    expect(output.stdout() + output.stderr()).not.toContain('Next:');
+  });
+
+  it('warns that a deletion may come back when the markers had no base', () => {
+    renderResolve(data({ source: 'markers', baseKnown: false }));
+    expect(output.stderr()).toContain(
+      'The conflict markers carry no merge base, so a trigger or topic that one branch deleted ' +
+        'may be back. Check with `agentsmesh lessons validate`; set `git config ' +
+        'merge.conflictStyle diff3` so later conflicts keep the base.',
+    );
   });
 
   it('is what `agentsmesh lessons resolve` prints', () => {

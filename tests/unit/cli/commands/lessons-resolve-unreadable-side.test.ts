@@ -78,6 +78,9 @@ describe('lessons resolve — a side that is not valid JSON', () => {
       onlyOurs: 1,
       onlyTheirs: 1,
       introduced: [],
+      // Default conflict style: the markers carry no base.
+      baseKnown: false,
+      nextStep: 'merge',
     });
     expect(rules()).toEqual(['Base.', 'Ours A.', 'Theirs B.']);
     expect(lessonsGraphProblem(repo)).toBeNull();

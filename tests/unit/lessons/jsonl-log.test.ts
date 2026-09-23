@@ -44,11 +44,12 @@ describe('appendJsonl', () => {
   });
 
   it('truncates to the last maxRecords once the byte trigger is crossed', () => {
-    // A tiny byte trigger forces a trim check on every append.
-    const tight = { maxRecords: 3, trimTriggerBytes: 1 };
-    for (let i = 0; i < 10; i++) appendJsonl(path, { n: i }, tight);
+    // Eight 8-byte records (64 bytes) cross the 60-byte trigger; half of it (30
+    // bytes) still holds 3 records, so the record cap decides what stays.
+    const tight = { maxRecords: 3, trimTriggerBytes: 60 };
+    for (let i = 0; i < 8; i++) appendJsonl(path, { n: i }, tight);
     const rows = readJsonl(path, isN);
-    expect(rows.map((r) => r.n)).toEqual([7, 8, 9]);
+    expect(rows.map((r) => r.n)).toEqual([5, 6, 7]);
   });
 
   it.skipIf(noChmod)('never throws when the log file is read-only', () => {

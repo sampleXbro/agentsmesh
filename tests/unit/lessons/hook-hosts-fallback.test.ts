@@ -35,9 +35,19 @@ describe('unrecognized shapes keep the Claude Code behaviour', () => {
     expect(result).toEqual({ output: '' });
   });
 
-  it('answers an unknown hook_event_name in the Claude shape, defaulting to PostToolUse', async () => {
+  it.each([['SomethingElse'], [42], ['BeforeTool']])(
+    'does nothing for an event name it does not know (%j)',
+    async (event) => {
+      const result = await run({
+        hook_event_name: event,
+        tool_input: { file_path: 'a.ts', new_string: 'avoid redos here' },
+      });
+      expect(result).toEqual({ output: '' });
+    },
+  );
+
+  it('treats a payload with no event name as a tool call (PostToolUse), for hosts that send none', async () => {
     const { output } = await run({
-      hook_event_name: 'SomethingElse',
       tool_input: { file_path: 'a.ts', new_string: 'avoid redos here' },
     });
     const out = JSON.parse(output) as { hookSpecificOutput: Record<string, string> };

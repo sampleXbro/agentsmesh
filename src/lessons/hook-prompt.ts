@@ -1,4 +1,10 @@
-import { HOOK_INJECT_LIMIT, paragraphs, renderRecall, type RecallHookResult } from './hook-emit.js';
+import {
+  HOOK_INJECT_LIMIT,
+  hiddenByCap,
+  paragraphs,
+  renderRecall,
+  type RecallHookResult,
+} from './hook-emit.js';
 import { graphHealth, sessionNotices } from './hook-notices.js';
 import { recallAlwaysLessons } from './recall-always.js';
 import { recallLessons } from './recall.js';
@@ -29,12 +35,15 @@ export async function taskRecall(
   // unreadable graph is still reported on a prompt-less session start.
   const health = keyword ?? graphHealth(projectRoot);
   const notices = await sessionNotices(projectRoot, sessionId, health);
-  const rules = [
-    ...always.lessons,
-    ...(keyword?.lessons ?? []).map((l) => ({ id: l.id, rule: l.lesson.rule })),
-  ];
+  // Two caps: the triggered rules (HOOK_INJECT_LIMIT) and the always-on budget.
+  const triggered = (keyword?.lessons ?? []).map((l) => ({ id: l.id, rule: l.lesson.rule }));
+  const hidden =
+    keyword === undefined
+      ? 0
+      : hiddenByCap(keyword.totalMatches, keyword.suppressed, keyword.lessons.length);
+  const alwaysHidden = Math.max(0, always.total - always.suppressed - always.lessons.length);
   return renderRecall(
-    { rules, hidden: 0 },
+    { rules: [...always.lessons, ...triggered], hidden, triggered: triggered.length, alwaysHidden },
     {
       event: 'UserPromptSubmit',
       lead: 'Recalled agentsmesh lessons for this task',

@@ -1,8 +1,8 @@
-import { isAbsolute, resolve } from 'node:path';
+import { dirname, isAbsolute, resolve } from 'node:path';
 import { diffTerms } from './diff-terms.js';
 import { normalizeRecallFile } from './normalize-query-file.js';
 import { patchFromToolInput } from './patch-paths.js';
-import { resolveLessonsRoot } from './paths.js';
+import { findLessonsRoot, resolveLessonsRoot } from './paths.js';
 
 /**
  * Reading a harness hook payload: which agent context it belongs to, which
@@ -70,10 +70,22 @@ export interface HookLocation {
   readonly root: string;
 }
 
-/** Start from the payload cwd, else CLAUDE_PROJECT_DIR, else the process cwd. */
+/**
+ * Paths start from the payload cwd, else CLAUDE_PROJECT_DIR, else the process
+ * cwd. The project is the nearest lessons root of the touched file, else of
+ * that start: a monorepo package's own lessons apply to its files.
+ */
 export function hookLocation(parsed: HookStdin, processCwd: string): HookLocation {
   const start = resolve(processCwd, str(parsed.cwd) ?? str(process.env.CLAUDE_PROJECT_DIR) ?? '.');
-  return { start, root: resolveLessonsRoot(start) };
+  const file = firstFile(parsed);
+  const fileRoot = file === undefined ? null : findLessonsRoot(dirname(resolve(start, file)));
+  return { start, root: fileRoot ?? resolveLessonsRoot(start) };
+}
+
+function firstFile(parsed: HookStdin): string | undefined {
+  const input = parsed.tool_input ?? undefined;
+  const patched = patchFromToolInput(parsed.tool_name, input)?.paths[0];
+  return str(patched) ?? str(input?.file_path) ?? str(input?.notebook_path);
 }
 
 export interface HookAction {

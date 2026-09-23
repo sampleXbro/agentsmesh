@@ -53,7 +53,7 @@ describe('recurrenceEscalation — same error, not just same program', () => {
     recordFailure(root, key, 'hook rejected the commit', ON, 's1');
 
     const out = escalate();
-    expect(out).toContain('failed 2× with the same error');
+    expect(out).toContain('failed 2× in the last 24 hours with the same error');
     expect(out).toContain('commit with care');
   });
 

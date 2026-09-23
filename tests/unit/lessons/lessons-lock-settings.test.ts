@@ -36,6 +36,8 @@ const EXPECTED = {
   jitter: true,
   staleMs: 60_000,
   label: 'lessons lock',
+  // One notice while waiting on a live holder (default delay).
+  onWait: expect.any(Function),
 };
 
 function writeRemoteHolder(ageMs: number): void {

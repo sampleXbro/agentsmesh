@@ -67,7 +67,10 @@ const RULE_SHAPE_HINT = '  Rule shape: cite the symptom, and say why the obvious
 
 /** The pre-filled `lessons add` command + authoring hints, shared by both tiers. */
 function addCommandBlock(input: CaptureNudgeInput): string {
-  return `  agentsmesh lessons add "<imperative rule>" --topic <id> ${triggerHint(input)}\n${RECURRENCE_SURFACE_HINT}\n${RULE_SHAPE_HINT}`;
+  // The file-class advice is about globs; a failed command gets a command trigger.
+  const fileClass = input.file !== undefined || input.command === undefined;
+  const surface = fileClass ? `\n${RECURRENCE_SURFACE_HINT}` : '';
+  return `  agentsmesh lessons add "<imperative rule>" --topic <id> ${triggerHint(input)}${surface}\n${RULE_SHAPE_HINT}`;
 }
 
 function genericNudge(input: CaptureNudgeInput): string {
@@ -82,7 +85,8 @@ function recurrenceNudge(input: CaptureNudgeInput): string {
   const errNote =
     input.lastErrorClass !== undefined ? ` The recurring error: «${input.lastErrorClass}».` : '';
   return (
-    `This action has failed ${input.failures}× and no lesson covers it — capture the rule now so ` +
+    `This action has failed ${input.failures}× in the last 24 hours and no lesson covers it — ` +
+    'capture the rule now so ' +
     `recall can prevent the next repeat:${errNote}\n${addCommandBlock(input)}`
   );
 }

@@ -13,6 +13,7 @@ import type { HookStdin } from './hook-payload.js';
  *   top-level `additional_context` output.
  * - Copilot camelCase config (docs.github.com/en/copilot/reference/hooks-configuration):
  *   no event name, `sessionId`/`toolName`/`toolArgs`, flat `additionalContext`.
+ * - Copilot's VS Code compatible format: PascalCase events, snake_case fields.
  */
 
 export interface HookHost {
@@ -90,6 +91,8 @@ const cursor = (raw: Raw, event: string): HookHost => ({
     tool_input: toolInput(raw.tool_input) ?? null,
     ...(event === 'SessionStart' ? { source: 'startup' } : {}),
     ...(raw.error === undefined ? { error: raw.error_message } : {}),
+    // A denied permission is the user's call, like an interrupt: nudged, not recorded.
+    ...(raw.failure_type === 'permission_denied' ? { is_interrupt: true } : {}),
   },
   recallOnSessionStart: true,
   wrap: (result) => rewrap(result, (additional_context) => ({ additional_context })),
@@ -105,6 +108,23 @@ const copilotStart = (raw: Raw): HookHost => ({
   },
   recallOnSessionStart: true,
   wrap: (result) => rewrap(result, (additionalContext) => ({ additionalContext })),
+});
+
+/**
+ * Copilot's VS Code compatible format: a PascalCase SessionStart with snake_case
+ * fields, `initial_prompt` and a string `timestamp` (Claude Code sends neither).
+ */
+const isCopilotVsCodeStart = (raw: Raw): boolean =>
+  raw.initial_prompt !== undefined ||
+  (typeof raw.timestamp === 'string' && raw.transcript_path === undefined);
+
+const copilotVsCodeStart = (raw: Raw): HookHost => ({
+  payload: { ...raw, prompt: raw.initial_prompt },
+  recallOnSessionStart: true,
+  wrap: (result) =>
+    rewrap(result, (additionalContext) => ({
+      hookSpecificOutput: { hookEventName: 'SessionStart', additionalContext },
+    })),
 });
 
 /** Copilot reads a command hook's postToolUseFailure stdout on exit code 2. */
@@ -125,6 +145,7 @@ const copilotFailure = (raw: Raw): HookHost => ({
 export function detectHookHost(raw: Raw): HookHost {
   const event = raw.hook_event_name;
   if (event === 'BeforeAgent') return gemini(raw);
+  if (event === 'SessionStart' && isCopilotVsCodeStart(raw)) return copilotVsCodeStart(raw);
   if (typeof event === 'string') {
     const cursorEvent = CURSOR_EVENTS.get(event);
     return cursorEvent === undefined ? claude(raw) : cursor(raw, cursorEvent);

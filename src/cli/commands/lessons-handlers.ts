@@ -147,13 +147,13 @@ export async function readBoundedStream(
 ): Promise<string> {
   const chunks: Buffer[] = [];
   let total = 0;
+  // Past the cap keep reading and drop the bytes: stopping early would give the
+  // sender a broken pipe (EPIPE) instead of a quiet no-op.
   for await (const chunk of source) {
-    const buf = chunk as Buffer;
-    total += buf.length;
-    if (total > maxBytes) return '';
-    chunks.push(buf);
+    total += chunk.length;
+    if (total <= maxBytes) chunks.push(chunk);
   }
-  return Buffer.concat(chunks).toString('utf8');
+  return total > maxBytes ? '' : Buffer.concat(chunks).toString('utf8');
 }
 
 async function readStdin(): Promise<string> {

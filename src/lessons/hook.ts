@@ -26,6 +26,7 @@ import type { LessonsQuery } from './query.js';
 import { recurrenceEscalation } from './recurrence-gate.js';
 import { safeRuleLine } from './rule-line.js';
 import { clearSeenForSessionStart } from './seen-cache.js';
+import { stripBom } from '../utils/filesystem/fs-text-encoding.js';
 
 /**
  * Hook-mode recall: the runtime engine behind a generated tool-call hook.
@@ -60,7 +61,7 @@ export async function buildRecallHookOutput(
 ): Promise<RecallHookResult> {
   let raw: unknown;
   try {
-    raw = JSON.parse(rawStdin);
+    raw = JSON.parse(stripBom(rawStdin));
   } catch {
     return EMPTY;
   }
@@ -73,7 +74,7 @@ async function recallFor(host: HookHost, processCwd: string): Promise<RecallHook
   const parsed = host.payload;
   const location = hookLocation(parsed, processCwd);
   // No lessons project here (e.g. the home folder): no recall, nudge or log.
-  if (findLessonsRoot(location.start) === null) return EMPTY;
+  if (findLessonsRoot(location.root) === null) return EMPTY;
   const projectRoot = location.root;
   const sessionId = contextSessionId(parsed);
 
@@ -119,6 +120,12 @@ async function recallFor(host: HookHost, processCwd: string): Promise<RecallHook
   }
 
   if (file === undefined && command === undefined) return EMPTY;
+  // A missing event name is a tool call from a host that sends none; an event
+  // name we do not know does nothing, so its output is never mislabelled.
+  const eventName = parsed.hook_event_name;
+  if (eventName !== undefined && eventName !== 'PreToolUse' && eventName !== 'PostToolUse') {
+    return EMPTY;
+  }
   return toolRecall(parsed, projectRoot, sessionId, action);
 }
 
@@ -134,8 +141,8 @@ async function toolRecall(
   action: HookAction,
 ): Promise<RecallHookResult> {
   // Echo the harness's event so the SAME command serves as a PreToolUse first-touch
-  // guard (injects BEFORE the edit) or a PostToolUse reactive hook; default to
-  // PostToolUse for back-compat and unrecognized events.
+  // guard (injects BEFORE the edit) or a PostToolUse reactive hook; a payload
+  // without an event name defaults to PostToolUse.
   const event = parsed.hook_event_name === 'PreToolUse' ? 'PreToolUse' : 'PostToolUse';
   const { command, keyword } = action;
   const queries: LessonsQuery[] = (action.files.length > 0 ? action.files : [undefined]).map(

@@ -1,6 +1,6 @@
 import { CURRENT_GRAPH_VERSION, LessonsGraphSchema, type LessonsGraph } from './graph-schema.js';
 import { LESSONS_GRAPH_PATH } from './graph-store.js';
-import { mergeGraphs } from './merge-graph.js';
+import { mergeGraphs, renameIdCollisions } from './merge-graph.js';
 import { validateLessonsGraph } from './validate.js';
 
 /**
@@ -31,6 +31,8 @@ export interface MergedSides {
   readonly ok: true;
   readonly merged: LessonsGraph;
   readonly sides: Readonly<Record<SideName, LessonsGraph>>;
+  /** Each side's lesson ids after same-id lessons were renamed apart. */
+  readonly lessonIds: Readonly<Record<SideName, readonly string[]>>;
   readonly introduced: readonly string[];
 }
 
@@ -89,7 +91,9 @@ export function unionGraphTexts(
   const merged = mergeGraphs(baseGraph, sides.ours, sides.theirs);
   const preExisting = new Set([...errorKeys(sides.ours), ...errorKeys(sides.theirs)]);
   const introduced = [...errorKeys(merged)].filter((k) => !preExisting.has(k));
-  return { ok: true, merged, sides, introduced };
+  const [o, t] = renameIdCollisions(baseGraph.lessons, sides.ours.lessons, sides.theirs.lessons);
+  const lessonIds = { ours: Object.keys(o), theirs: Object.keys(t) };
+  return { ok: true, merged, sides, lessonIds, introduced };
 }
 
 /** One sentence naming lessons.json, the side, and why it cannot be merged. */

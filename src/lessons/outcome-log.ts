@@ -65,7 +65,9 @@ export function appendOutcomeEvent(
 
 /** Read every well-formed outcome event. Returns [] when absent or unreadable. */
 export function readOutcomeLog(projectRoot: string): OutcomeEvent[] {
-  return readJsonl(outcomeLogPath(projectRoot), isOutcomeEvent);
+  return readJsonl(outcomeLogPath(projectRoot), isOutcomeEvent, {
+    maxBytes: OUTCOME_LOG_TRIM_TRIGGER_BYTES,
+  });
 }
 
 /** True when the outcome log file exists — distinguishes "never recorded" from "empty". */
@@ -128,7 +130,10 @@ export function recordFailure(
   );
 }
 
-/** The latest error class for an action, and how many times THAT error recurred. */
+/** Failures older than this do not count as a recurrence. */
+export const RECURRENCE_WINDOW_MS = 24 * 60 * 60 * 1000;
+
+/** The latest error class for an action, and how many times THAT error recurred in the window. */
 export interface RecurringFailure {
   /** Undefined when the harness reported no error text for any failure. */
   readonly errorClass?: string;
@@ -143,12 +148,19 @@ export interface RecurringFailure {
  * six unrelated errors under one class look identical to the same error six
  * times. Counting per class is what makes "this failed before" mean something.
  */
-export function recurringFailure(projectRoot: string, contextKey: string): RecurringFailure {
+export function recurringFailure(
+  projectRoot: string,
+  contextKey: string,
+  now: number = Date.now(),
+): RecurringFailure {
   const perClass = new Map<string, number>();
   let errorClass: string | undefined;
   for (const ev of readOutcomeLog(projectRoot)) {
     if (ev.kind !== 'failure' || ev.contextKey !== contextKey) continue;
     if (ev.errorClass === undefined) continue;
+    // Old failures say nothing about a retry now; counting them all inflated the count.
+    const at = Date.parse(ev.ts);
+    if (!Number.isFinite(at) || now - at > RECURRENCE_WINDOW_MS) continue;
     errorClass = ev.errorClass;
     perClass.set(ev.errorClass, (perClass.get(ev.errorClass) ?? 0) + 1);
   }

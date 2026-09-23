@@ -12,8 +12,10 @@ import { mergeLesson, mergeScalar } from './merge-lesson.js';
  * cleanly, and a lesson edited on both branches is merged field by field
  * (see merge-lesson.ts).
  *
- * Bias: never drop an entry that exists on either side. For a failure-memory
+ * Bias: never drop a lesson that exists on either side. For a failure-memory
  * graph, keeping a stale lesson is safer than silently losing a captured one.
+ * A trigger or topic is different: one that a branch deleted (untrigger,
+ * prune) stays deleted, like in a line merge, unless a lesson still uses it.
  */
 
 type Rec<T> = Record<string, T>;
@@ -40,6 +42,26 @@ function mergeRecord<T>(
     out[k] = o !== undefined && t !== undefined ? merge(base[k], o, t) : (o ?? t)!;
   }
   return out;
+}
+
+/**
+ * Remove the nodes one side deleted while the other kept them exactly as in the
+ * base, unless a merged lesson still references them. A node the other side
+ * changed is kept: a change beats a deletion.
+ */
+function dropDeleted<T>(
+  merged: Rec<T>,
+  sides: { readonly base: Rec<T>; readonly ours: Rec<T>; readonly theirs: Rec<T> },
+  used: ReadonlySet<string>,
+): Rec<T> {
+  for (const k of Object.keys(merged)) {
+    const before = sides.base[k];
+    const o = sides.ours[k];
+    const t = sides.theirs[k];
+    if (before === undefined || used.has(k) || (o !== undefined && t !== undefined)) continue;
+    if (stableStringify(o ?? t) === stableStringify(before)) delete merged[k];
+  }
+  return merged;
 }
 
 /**
@@ -102,7 +124,11 @@ function rekey(side: Lessons, renames: ReadonlyMap<string, string>): Lessons {
  * union. Nothing else references lesson ids except `supersededBy`, which is
  * remapped on the same side.
  */
-function resolveIdCollisions(base: Lessons, ours: Lessons, theirs: Lessons): [Lessons, Lessons] {
+export function renameIdCollisions(
+  base: Lessons,
+  ours: Lessons,
+  theirs: Lessons,
+): [Lessons, Lessons] {
   const taken = new Set([...Object.keys(base), ...Object.keys(ours), ...Object.keys(theirs)]);
   const oursRenames = new Map<string, string>();
   const theirsRenames = new Map<string, string>();
@@ -122,13 +148,25 @@ export function mergeGraphs(
   ours: LessonsGraph,
   theirs: LessonsGraph,
 ): LessonsGraph {
-  const [o, t] = resolveIdCollisions(base.lessons, ours.lessons, theirs.lessons);
+  const [o, t] = renameIdCollisions(base.lessons, ours.lessons, theirs.lessons);
   const lessons = mergeRecord(base.lessons, o, t, mergeLesson);
   carryToSuccessor(base.lessons, [o, t], lessons);
+  const used = (field: 'topics' | 'triggers'): Set<string> =>
+    new Set(Object.values(lessons).flatMap((lesson) => lesson[field]));
+  const topics = { base: base.topics, ours: ours.topics, theirs: theirs.topics };
+  const triggers = { base: base.triggers, ours: ours.triggers, theirs: theirs.triggers };
   return {
     version: ours.version >= theirs.version ? ours.version : theirs.version,
     lessons,
-    topics: mergeRecord(base.topics, ours.topics, theirs.topics),
-    triggers: mergeRecord(base.triggers, ours.triggers, theirs.triggers),
+    topics: dropDeleted(
+      mergeRecord(topics.base, topics.ours, topics.theirs),
+      topics,
+      used('topics'),
+    ),
+    triggers: dropDeleted(
+      mergeRecord(triggers.base, triggers.ours, triggers.theirs),
+      triggers,
+      used('triggers'),
+    ),
   };
 }

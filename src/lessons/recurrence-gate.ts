@@ -113,14 +113,15 @@ function recurringAction(projectRoot: string, action: RecurrenceAction): Recurri
 function header(warned: readonly RecurringAction[]): string {
   if (warned.length === 1) {
     return (
-      `RECURRENT FAILURE: this action has failed ${warned[0]!.count}× with the same error ` +
+      `RECURRENT FAILURE: this action has failed ${warned[0]!.count}× in the last 24 hours with the same error ` +
       `and a captured lesson covers it — apply the rule before retrying:`
     );
   }
   const most = Math.max(...warned.map((r) => r.count));
   return (
     `RECURRENT FAILURE: ${warned.length} of the files in this change have failed up to ` +
-    `${most}× with the same error and captured lessons cover them — apply the rules before retrying:`
+    `${most}× in the last 24 hours with the same error and captured lessons cover them — apply ` +
+    'the rules before retrying:'
   );
 }
 

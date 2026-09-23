@@ -53,6 +53,17 @@ export function errorCode(err: unknown): string | undefined {
   return (err as NodeJS.ErrnoException | null)?.code;
 }
 
+/** The lock path holds a file, where agentsmesh keeps a lock folder. */
+export class LockPathNotFolderError extends Error {
+  constructor(lockPath: string) {
+    super(
+      `${lockPath.replaceAll('\\', '/')} is a file, but agentsmesh keeps its lock there as a ` +
+        'folder. Delete it and run the command again.',
+    );
+    this.name = 'LockPathNotFolderError';
+  }
+}
+
 /** Owner tokens inside `dir`, or null when `dir` does not exist. */
 export async function ownerTokens(dir: string): Promise<string[] | null> {
   try {
@@ -62,6 +73,7 @@ export async function ownerTokens(dir: string): Promise<string[] | null> {
       .map((e) => e.slice(OWNER_PREFIX.length));
   } catch (err) {
     if (errorCode(err) === 'ENOENT') return null;
+    if (errorCode(err) === 'ENOTDIR') throw new LockPathNotFolderError(dir);
     throw err;
   }
 }

@@ -65,10 +65,13 @@ export function isRecallHookCommand(command: unknown): boolean {
   return typeof command === 'string' && command.includes(RECALL_HOOK_COMMAND);
 }
 
-function isManaged(item: unknown): item is YAMLMap {
-  if (!(item instanceof YAMLMap)) return false;
-  const command = item.get('command');
+/** True for a recall hook command the scaffold wrote: bare or npx-launched, no extra args. */
+export function isManagedRecallCommand(command: unknown): command is string {
   return typeof command === 'string' && MANAGED_COMMAND.test(command.trim());
+}
+
+function isManaged(item: unknown): item is YAMLMap {
+  return item instanceof YAMLMap && isManagedRecallCommand(item.get('command'));
 }
 
 /**

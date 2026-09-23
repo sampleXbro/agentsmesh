@@ -26,7 +26,9 @@ export function runLessonsMaintenance(root: string, mode: GenerateData['mode']):
     logger.warn(problem.message);
   }
   if (mode !== 'generate') return 0;
-  const line = mergeDriverSetupLine(ensureLessonsMergeDriver(root));
+  const setup = ensureLessonsMergeDriver(root);
+  // The user's own driver was their choice; `init --lessons` reports it, every run need not.
+  const line = setup.status === 'custom' ? null : mergeDriverSetupLine(setup);
   if (line !== null) logger.info(line);
   const hint = recallHookTeamHint(root);
   if (hint !== null) logger.warn(hint);

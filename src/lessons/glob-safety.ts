@@ -48,8 +48,10 @@ export function getGlobMatcher(pattern: string): GlobMatcher | null {
   const hit = cache.get(pattern);
   if (hit !== undefined) return hit;
   if (cache.size >= CACHE_LIMIT) cache.clear();
-  const parsed = parseGlob(pattern);
-  const matcher = typeof parsed === 'string' ? null : build(pattern, parsed);
+  // Compare composed (NFC) forms: macOS can hand over decomposed (NFD) paths.
+  const composed = pattern.normalize('NFC');
+  const parsed = parseGlob(composed);
+  const matcher = typeof parsed === 'string' ? null : build(composed, parsed);
   cache.set(pattern, matcher);
   return matcher;
 }
@@ -57,7 +59,8 @@ export function getGlobMatcher(pattern: string): GlobMatcher | null {
 function build(pattern: string, parsed: ParsedGlob): GlobMatcher {
   const alts = parsed.alternatives.map(prepare);
   return {
-    test(path: string, budget?: WorkBudget): boolean {
+    test(rawPath: string, budget?: WorkBudget): boolean {
+      const path = rawPath.normalize('NFC');
       if (path === pattern) return true; // picomatch's literal-equality shortcut
       if (path === '' || path.length > MAX_GLOB_PATH_LENGTH) return false;
       const live = alts.filter((a) => mayMatch(a, path));
