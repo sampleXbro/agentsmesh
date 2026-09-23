@@ -6768,6 +6768,20 @@
         "t-glob-611b8b3a"
       ]
     },
+    "process-locks-on-windows-rmdir-or-rename": {
+      "createdAt": "2026-09-23",
+      "evidence": [
+        "cab70b64"
+      ],
+      "rule": "On Windows, rmdir or rename of a dir another process is removing at the same moment fails with EPERM, EACCES or EBUSY for a short time, not ENOENT. Lock and cleanup code that races other processes must retry those codes with a short bounded backoff (like renameWithRetry and removeOwner), treat ENOENT as already gone, and still throw an error that does not clear.",
+      "status": "active",
+      "topics": [
+        "process-locks"
+      ],
+      "triggers": [
+        "t-glob-611b8b3a"
+      ]
+    },
     "process-locks-when-wiring-any-process-lock": {
       "createdAt": "2026-06-10",
       "evidence": [],
@@ -6911,6 +6925,21 @@
         "t-glob-4004e38e",
         "t-kw-b8f19a54",
         "t-kw-0182f2d9"
+      ]
+    },
+    "release-changesets-before-cutting-a-release-from": {
+      "createdAt": "2026-09-23",
+      "evidence": [
+        "cab70b64"
+      ],
+      "rule": "Before cutting a release from many local-only commits, push to develop early so CI runs on Linux and Windows: this repo is developed on macOS with a global git identity, so CI-only failures (no git identity, Windows paths and file races) show up only on the runners. And before trusting a slow or timing-out local run, check the load (sysctl -n vm.loadavg) and free disk (df -h): a 99% full disk pushed load to 67 and turned the 4-minute suite into 28 minutes of random timeouts.",
+      "status": "active",
+      "topics": [
+        "release-changesets"
+      ],
+      "triggers": [
+        "t-kw-50918cd2",
+        "t-kw-a00afdda"
       ]
     },
     "release-changesets-during-release-prep-run-pnpm": {
@@ -8960,6 +8989,22 @@
         "t-kw-f2699760"
       ]
     },
+    "testing-a-test-that-runs-git": {
+      "createdAt": "2026-09-23",
+      "evidence": [
+        "bb1d46bb"
+      ],
+      "rule": "A test that runs git merge/commit/rebase directly must use the fixed test identity (tryGit or git from tests/helpers/temp-git-repo.ts), never a raw spawnSync('git', ...). A CI runner has no git identity, so git merge exits 128 before merging (no markers, nothing unmerged) while the developer's global user.email hides it locally; a 'status !== 0' check then passes the wrong failure, so assert 'CONFLICT (content)' instead. Reproduce locally with HOME=<dir whose .gitconfig sets user.useConfigOnly=true> (GIT_CONFIG_COUNT is already taken by vitest.config env).",
+      "status": "active",
+      "topics": [
+        "testing"
+      ],
+      "triggers": [
+        "t-glob-3bfccedc",
+        "t-kw-1b7816cd",
+        "t-kw-720a0c14"
+      ]
+    },
     "testing-a-vitest-coverage-run-wipes": {
       "createdAt": "2026-09-04",
       "evidence": [],
@@ -10217,6 +10262,22 @@
       "triggers": [
         "t-glob-db7e480d",
         "t-glob-86844292"
+      ]
+    },
+    "windows-paths-in-tests-that-must-pass": {
+      "createdAt": "2026-09-23",
+      "evidence": [
+        "bb1d46bb"
+      ],
+      "rule": "In tests that must pass on Windows CI: join PATH with path.delimiter and pass the host platform (a C: path has a colon), run TypeScript workers with 'node --import tsx' (process.execPath) instead of node_modules/.bin/tsx (Windows has only tsx.cmd), and import an absolute path in generated ESM through pathToFileURL(path).href (a raw C:\\ path is not a specifier).",
+      "status": "active",
+      "topics": [
+        "windows-paths"
+      ],
+      "triggers": [
+        "t-glob-f584f4d1",
+        "t-kw-711614e4",
+        "t-kw-f1f2d7f9"
       ]
     },
     "windows-paths-integration-tests-that-drive-a": {
@@ -11602,6 +11663,10 @@
       "kind": "file_glob",
       "pattern": "tests/unit/targets/*/recall-hooks.test.ts"
     },
+    "t-glob-3bfccedc": {
+      "kind": "file_glob",
+      "pattern": "tests/helpers/temp-git-repo.ts"
+    },
     "t-glob-3c315a53": {
       "kind": "file_glob",
       "pattern": "src/canonical/load/merge.ts"
@@ -12734,6 +12799,10 @@
       "kind": "file_glob",
       "pattern": "pnpm-workspace.yaml"
     },
+    "t-glob-f584f4d1": {
+      "kind": "file_glob",
+      "pattern": "tests/unit/lessons/launcher.test.ts"
+    },
     "t-glob-f6905ae6": {
       "kind": "file_glob",
       "pattern": "src/lessons/graph-schema.ts"
@@ -12889,6 +12958,10 @@
     "t-kw-1b41258f": {
       "kind": "keyword",
       "pattern": "exploratory qa"
+    },
+    "t-kw-1b7816cd": {
+      "kind": "keyword",
+      "pattern": "git merge test"
     },
     "t-kw-1d0e5147": {
       "kind": "keyword",
@@ -13106,6 +13179,10 @@
       "kind": "keyword",
       "pattern": "recurrence harness"
     },
+    "t-kw-50918cd2": {
+      "kind": "keyword",
+      "pattern": "cut the release"
+    },
     "t-kw-5197b195": {
       "kind": "keyword",
       "pattern": "lock outputs"
@@ -13194,9 +13271,17 @@
       "kind": "keyword",
       "pattern": "stranded lessons"
     },
+    "t-kw-711614e4": {
+      "kind": "keyword",
+      "pattern": "tsx spawn"
+    },
     "t-kw-719d8353": {
       "kind": "keyword",
       "pattern": "parseArgs boolean flag"
+    },
+    "t-kw-720a0c14": {
+      "kind": "keyword",
+      "pattern": "spawnSync git"
     },
     "t-kw-725f99c9": {
       "kind": "keyword",
@@ -13345,6 +13430,10 @@
     "t-kw-9a36f4fd": {
       "kind": "keyword",
       "pattern": "topLevelKeys fingerprint ledger"
+    },
+    "t-kw-a00afdda": {
+      "kind": "keyword",
+      "pattern": "tests timed out"
     },
     "t-kw-a03e44b6": {
       "kind": "keyword",
@@ -13613,6 +13702,10 @@
     "t-kw-ef1e743a": {
       "kind": "keyword",
       "pattern": "stale cleanup provenance supersededFiles"
+    },
+    "t-kw-f1f2d7f9": {
+      "kind": "keyword",
+      "pattern": "PATH delimiter"
     },
     "t-kw-f2699760": {
       "kind": "keyword",
