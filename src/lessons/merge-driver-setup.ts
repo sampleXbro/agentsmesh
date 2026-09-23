@@ -13,7 +13,7 @@
 import { agentsmeshInvocation } from './cli-invocation.js';
 import { runGit, type GitRunner } from './git-exec.js';
 import { commandLauncherExists, commandProgram } from './launcher.js';
-import { LESSONS_GRAPH_PATH } from './merge-sides.js';
+import { LESSONS_GRAPH_PATH } from './graph-store.js';
 
 export const LESSONS_MERGE_DRIVER = 'agentsmesh-lessons';
 

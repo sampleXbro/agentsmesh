@@ -1,3 +1,27 @@
+# Ponytail cleanup of the unpushed lessons work (2026-09-23)
+
+Source: ponytail review of origin/develop..HEAD (6 reviewers, claims verified; -862 lines possible).
+Behavior must not change except the unreadable-graph recall wording (now the graph-problem message).
+Gate: focused tests per fixer; then build, full suite + coverage floor, e2e, lint, typecheck, knip,
+generate --check; differential run of old vs new dist on the same scenario; commit locally (no push).
+
+## Foundation (me, before fan-out)
+- [x] one `LESSONS_GRAPH_PATH` (graph-store.ts); every copy imports it
+- [x] one sync "read text or empty" helper; one `emptyGraph()`; `graphHasConflictMarkers(root)` in graph-problem.ts
+
+## Fixers (disjoint files)
+- [ ] lock: exists->existsSync, releaseOwned->evictOwners, fold backoff module, lessons-lock mkdir/alias, 2 test dups
+- [ ] globs: glob-safety inline/deletes, deadFileGlobIds inline, project-files, MatchBudgets, test helpers
+- [ ] hook: semver->isOlderVersion, emitRecall/optionalPreface/env param/cliVersion, hook-notices dedup, findUp, cli-invocation, basename/stripVT, test helpers
+- [ ] merge/effectiveness: git runner, pick->mergeScalar, failuresForContext, loadEffectiveness graph, validate-health, configFlag, flat memo, add.ts projectRoot, export keywords, test dups
+- [ ] cli/mcp/install: pack-merge dedup, query degraded+guards collapse, generate/check inline, isCaptureRejection, boundedShow, init renderer, scripts, knip, test helpers
+- [ ] targets: single recall projection, reverse maps, lint supported lists, recall-hook-hint, hook-assets, stale JSDoc, test builders
+
+## Integration (me)
+- [ ] full gate, differential old/new run, commit locally
+
+---
+
 # Lessons critical-gap fixes (2026-09-22)
 
 Source: Staff audit of the lessons subsystem (5 parallel reviewers, findings reproduced).

@@ -1,4 +1,5 @@
 import { CURRENT_GRAPH_VERSION, LessonsGraphSchema, type LessonsGraph } from './graph-schema.js';
+import { LESSONS_GRAPH_PATH } from './graph-store.js';
 import { mergeGraphs } from './merge-graph.js';
 import { validateLessonsGraph } from './validate.js';
 
@@ -7,8 +8,6 @@ import { validateLessonsGraph } from './validate.js';
  * by the git merge driver and `lessons resolve` so both merge the same way and
  * explain an unreadable side the same way.
  */
-
-export const LESSONS_GRAPH_PATH = '.agentsmesh/lessons/lessons.json';
 
 export type SideName = 'ours' | 'theirs';
 

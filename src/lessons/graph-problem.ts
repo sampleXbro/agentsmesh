@@ -1,12 +1,12 @@
-import { readFileSync } from 'node:fs';
+import { readTextOrEmpty } from '../utils/filesystem/fs.js';
 import { hasConflictMarkers } from './conflict-markers.js';
 import { CURRENT_GRAPH_VERSION } from './graph-schema.js';
 import {
   graphFilePath,
+  LESSONS_GRAPH_PATH,
   loadLessonsGraphResilient,
   type ResilientGraphLoad,
 } from './graph-store.js';
-import { LESSONS_GRAPH_PATH } from './merge-sides.js';
 
 /**
  * Why an existing lessons graph cannot be read, with the one safe next step.
@@ -22,17 +22,14 @@ export interface GraphProblem {
   readonly message: string;
 }
 
-function readRaw(projectRoot: string): string {
-  try {
-    return readFileSync(graphFilePath(projectRoot), 'utf8');
-  } catch {
-    return '';
-  }
+/** True when the graph file holds unresolved git merge conflict markers. */
+export function graphHasConflictMarkers(projectRoot: string): boolean {
+  return hasConflictMarkers(readTextOrEmpty(graphFilePath(projectRoot)));
 }
 
 /** Diagnose a graph that failed to parse: an unresolved merge, or real corruption. */
 export function describeCorruptGraph(projectRoot: string, error: Error): GraphProblem {
-  if (hasConflictMarkers(readRaw(projectRoot))) {
+  if (graphHasConflictMarkers(projectRoot)) {
     return {
       kind: 'conflict',
       message:

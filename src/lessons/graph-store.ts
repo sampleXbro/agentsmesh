@@ -2,10 +2,11 @@ import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from '
 import { dirname, resolve } from 'node:path';
 import { CURRENT_GRAPH_VERSION, parseGraph, type LessonsGraph } from './graph-schema.js';
 
-const GRAPH_REL_PATH = '.agentsmesh/lessons/lessons.json';
+/** Project-relative path of the lessons graph, forward slashes. */
+export const LESSONS_GRAPH_PATH = '.agentsmesh/lessons/lessons.json';
 
 export function graphFilePath(projectRoot: string): string {
-  return resolve(projectRoot, GRAPH_REL_PATH);
+  return resolve(projectRoot, LESSONS_GRAPH_PATH);
 }
 
 export function loadLessonsGraph(projectRoot: string): LessonsGraph {

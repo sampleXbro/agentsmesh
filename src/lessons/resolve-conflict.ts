@@ -1,14 +1,9 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { hasConflictMarkers, splitConflictSides } from './conflict-markers.js';
 import { runGit } from './git-exec.js';
-import { graphFilePath, saveLessonsGraph } from './graph-store.js';
+import { graphFilePath, LESSONS_GRAPH_PATH, saveLessonsGraph } from './graph-store.js';
 import { acquireLessonsLock } from './lessons-lock.js';
-import {
-  LESSONS_GRAPH_PATH,
-  describeUnreadableSide,
-  unionGraphTexts,
-  type MergedSides,
-} from './merge-sides.js';
+import { describeUnreadableSide, unionGraphTexts, type MergedSides } from './merge-sides.js';
 
 /**
  * `agentsmesh lessons resolve`: finish a git merge that left lessons.json

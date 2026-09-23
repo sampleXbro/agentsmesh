@@ -1,4 +1,4 @@
-import { LESSONS_GRAPH_PATH } from '../../lessons/merge-sides.js';
+import { LESSONS_GRAPH_PATH } from '../../lessons/graph-store.js';
 import { resolveLessonsConflict } from '../../lessons/resolve-conflict.js';
 import type { LessonsCommandResult, LessonsResolveData } from './lessons-types.js';
 

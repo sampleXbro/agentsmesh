@@ -63,10 +63,6 @@ export function queryFromFlags(flags: LessonsFlags): {
   return out;
 }
 
-export function emptyGraph(): LessonsGraph {
-  return { version: 1, lessons: {}, topics: {}, triggers: {} };
-}
-
 export { todayIso };
 
 export function renderTopicMarkdown(

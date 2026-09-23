@@ -1,4 +1,5 @@
 import { captureLogExists, readCaptureLog } from '../../lessons/capture-telemetry.js';
+import { emptyGraph } from '../../lessons/graph-schema.js';
 import { tryLoadLessonsGraph } from '../../lessons/graph-store.js';
 import { buildRecallHookOutput } from '../../lessons/hook.js';
 import { lessonsActivated, lessonsSetupHint } from '../../lessons/paths.js';
@@ -9,7 +10,6 @@ import { statsAdvice } from '../../lessons/stats-advice.js';
 import { summarizeRecall } from '../../lessons/stats.js';
 import { isTelemetryEnabled, readRecallLog, recallLogExists } from '../../lessons/telemetry.js';
 import {
-  emptyGraph,
   errorResult,
   renderLessonMarkdown,
   renderTopicMarkdown,

@@ -1,15 +1,11 @@
 import { maybeAutoMigrateLessons } from './auto-migrate.js';
-import { CURRENT_GRAPH_VERSION, type LessonsGraph } from './graph-schema.js';
+import { CURRENT_GRAPH_VERSION, emptyGraph, type LessonsGraph } from './graph-schema.js';
 import { saveLessonsGraph, tryLoadLessonsGraph } from './graph-store.js';
 import { acquireLessonsLock } from './lessons-lock.js';
 import { validateLessonsGraph, type ValidationFinding, type ValidationReport } from './validate.js';
 
 export interface MutateOptions {
   readonly retries?: number;
-}
-
-function emptyGraph(): LessonsGraph {
-  return { version: CURRENT_GRAPH_VERSION, lessons: {}, topics: {}, triggers: {} };
 }
 
 /**

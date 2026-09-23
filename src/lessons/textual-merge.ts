@@ -1,17 +1,10 @@
-import { readFileSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
+import { readTextOrEmpty as readText } from '../utils/filesystem/fs.js';
 import { runGit, type GitRunner } from './git-exec.js';
 
 const OURS_LABEL = 'this branch';
 const BASE_LABEL = 'common ancestor';
 const THEIRS_LABEL = 'incoming branch';
-
-function readText(path: string): string {
-  try {
-    return readFileSync(path, 'utf8');
-  } catch {
-    return '';
-  }
-}
 
 const withNewline = (text: string): string =>
   text === '' || text.endsWith('\n') ? text : `${text}\n`;

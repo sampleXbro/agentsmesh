@@ -7,7 +7,7 @@
 import { readFile, open, access, mkdir, rm, lstat, type FileHandle } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
 import { dirname } from 'node:path';
-import { constants } from 'node:fs';
+import { constants, readFileSync } from 'node:fs';
 import { FileSystemError } from '../../core/errors.js';
 import {
   UTF8_BOM,
@@ -117,6 +117,15 @@ export async function writeFileAtomic(
       `Failed to write ${path}: ${e.message}. Check permissions and disk space.`,
       { cause: err, errnoCode: e.code },
     );
+  }
+}
+
+/** Read a UTF-8 file synchronously; '' when it cannot be read. */
+export function readTextOrEmpty(path: string): string {
+  try {
+    return readFileSync(path, 'utf8');
+  } catch {
+    return '';
   }
 }
 

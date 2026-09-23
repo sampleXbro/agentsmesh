@@ -87,3 +87,8 @@ export type LessonStatus = z.infer<typeof LessonStatusSchema>;
 export function parseGraph(raw: unknown): LessonsGraph {
   return LessonsGraphSchema.parse(raw);
 }
+
+/** A graph with no lessons, topics or triggers, at the current schema version. */
+export function emptyGraph(): LessonsGraph {
+  return { version: CURRENT_GRAPH_VERSION, lessons: {}, topics: {}, triggers: {} };
+}

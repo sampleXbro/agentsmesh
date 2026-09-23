@@ -10,7 +10,7 @@
 
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { loadLessonsGraph } from '../../../lessons/graph-store.js';
+import { LESSONS_GRAPH_PATH, loadLessonsGraph } from '../../../lessons/graph-store.js';
 import { lessonsPaths } from '../../../lessons/paths.js';
 import { listProjectFiles } from '../../../lessons/project-files.js';
 import { validateLessonsGraph } from '../../../lessons/validate.js';
@@ -18,7 +18,6 @@ import type { TargetLayoutScope } from '../../../targets/catalog/target-descript
 import type { LintDiagnostic } from '../../types.js';
 
 const LESSONS_TARGET = 'lessons';
-const GRAPH_REL = '.agentsmesh/lessons/lessons.json';
 const ROOT_RULE_REL = '.agentsmesh/rules/_root.md';
 const LESSONS_HEADING = /^## Lessons \(/m;
 
@@ -40,7 +39,7 @@ export function lintLessonsSubsystem(
     return [
       diag(
         'error',
-        GRAPH_REL,
+        LESSONS_GRAPH_PATH,
         `lessons.json failed to load: ${err instanceof Error ? err.message : String(err)}`,
       ),
     ];
@@ -49,7 +48,7 @@ export function lintLessonsSubsystem(
   const knownPaths = listProjectFiles(projectRoot) ?? undefined;
   const report = validateLessonsGraph(graph, { knownPaths });
   for (const finding of report.findings) {
-    out.push(diag(finding.level, GRAPH_REL, `[${finding.code}] ${finding.message}`));
+    out.push(diag(finding.level, LESSONS_GRAPH_PATH, `[${finding.code}] ${finding.message}`));
   }
 
   const rootRuleAbs = join(projectRoot, ROOT_RULE_REL);

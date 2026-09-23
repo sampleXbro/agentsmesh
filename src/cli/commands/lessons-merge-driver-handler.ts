@@ -1,20 +1,9 @@
-import { readFileSync, writeFileSync } from 'node:fs';
-import { serializeGraph } from '../../lessons/graph-store.js';
-import {
-  LESSONS_GRAPH_PATH,
-  describeUnreadableSide,
-  unionGraphTexts,
-} from '../../lessons/merge-sides.js';
+import { writeFileSync } from 'node:fs';
+import { LESSONS_GRAPH_PATH, serializeGraph } from '../../lessons/graph-store.js';
+import { describeUnreadableSide, unionGraphTexts } from '../../lessons/merge-sides.js';
 import { writeTextualMerge } from '../../lessons/textual-merge.js';
+import { readTextOrEmpty as readText } from '../../utils/filesystem/fs.js';
 import type { LessonsCommandResult } from './lessons-types.js';
-
-function readText(path: string): string {
-  try {
-    return readFileSync(path, 'utf8');
-  } catch {
-    return '';
-  }
-}
 
 function result(exitCode: 0 | 1, merged: boolean, error?: string): LessonsCommandResult {
   return { subcommand: 'merge-driver', exitCode, data: { merged }, ...(error ? { error } : {}) };
