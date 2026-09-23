@@ -6544,6 +6544,22 @@
         "t-glob-40333e0c"
       ]
     },
+    "lock-file-format-readlock-returns-null-for-a": {
+      "createdAt": "2026-09-23",
+      "evidence": [
+        "579a6c5e"
+      ],
+      "rule": "readLock returns null for a .agentsmesh/.lock with git conflict markers, so code that branches on 'no lock' must check hasConflictMarkers first — else check says 'Not initialized' instead of 'run agentsmesh merge'. In check hints, send canonical and output drift to plain 'agentsmesh generate' (merge only rewrites checksums and would hide the drift); keep '--force' for locked features only.",
+      "status": "active",
+      "topics": [
+        "lock-file-format"
+      ],
+      "triggers": [
+        "t-glob-7159dc4e",
+        "t-glob-780c3ec8",
+        "t-glob-e6cc94f4"
+      ]
+    },
     "lock-file-format-src-config-core-lock-ts": {
       "createdAt": "2026-07-18",
       "evidence": [
@@ -11840,6 +11856,10 @@
       "kind": "file_glob",
       "pattern": "src/targets/*/nested-rules.ts"
     },
+    "t-glob-7159dc4e": {
+      "kind": "file_glob",
+      "pattern": "src/cli/commands/check.ts"
+    },
     "t-glob-71b4b110": {
       "kind": "file_glob",
       "pattern": "src/lessons/hook.ts"
@@ -11907,6 +11927,10 @@
     "t-glob-771c5cde": {
       "kind": "file_glob",
       "pattern": "tests/helpers/posix-path.ts"
+    },
+    "t-glob-780c3ec8": {
+      "kind": "file_glob",
+      "pattern": "src/cli/renderers/check.ts"
     },
     "t-glob-78449aa1": {
       "kind": "file_glob",
