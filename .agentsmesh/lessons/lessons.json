@@ -2677,6 +2677,20 @@
         "t-glob-96d1a399"
       ]
     },
+    "git-commit-hygiene-a-git-add-with-explicit": {
+      "createdAt": "2026-09-23",
+      "evidence": [
+        "e2f4219f"
+      ],
+      "rule": "A git add with explicit paths under the gitignored docs/ or tasks/ folders exits 1 and prints 'paths are ignored', but TRACKED files there (docs/architecture/*.md, tasks/todo.md) are still staged along with every other listed path. Do not re-run with -f or assume nothing was staged: read git diff --cached --stat, which is the real result.",
+      "status": "active",
+      "topics": [
+        "git-commit-hygiene"
+      ],
+      "triggers": [
+        "t-cmd-844719e1"
+      ]
+    },
     "git-commit-hygiene-before-creating-a-new-standalone": {
       "createdAt": "2026-06-24",
       "evidence": [
@@ -3914,6 +3928,22 @@
         "t-cmd-b66a9431",
         "t-cmd-2c6e7fc6",
         "t-cmd-e097d363"
+      ]
+    },
+    "install-import-pickers-when-fixing-how-a-re": {
+      "createdAt": "2026-09-23",
+      "evidence": [
+        "e2f4219f"
+      ],
+      "rule": "When fixing how a re-install finds its existing pack, write a runInstall integration test for EVERY branch the same user action can hit (feature set changed vs unchanged, with and without --name, --dry-run), not only the reported repro. The reported case (features changed) passed while the unchanged-features branch still ran an old auto-rename (renameExistingPack) that renamed a user's --name pack to the auto name, and --dry-run printed a different pack name than a real run used. Only a manual CLI repro caught it.",
+      "status": "active",
+      "topics": [
+        "install-import-pickers"
+      ],
+      "triggers": [
+        "t-glob-c424af85",
+        "t-glob-6c742b74",
+        "t-glob-a1c12fe6"
       ]
     },
     "kilo-code-config-surface-for-kilo-code-current-kilo": {
@@ -8792,6 +8822,23 @@
         "t-kw-4859e2d1"
       ]
     },
+    "testing-in-manual-cli-repros-on": {
+      "createdAt": "2026-09-23",
+      "evidence": [
+        "e2f4219f"
+      ],
+      "rule": "In manual CLI repros on macOS, never create sibling folders whose names differ only by case (skills/s1 and skills/S1): APFS ignores case, so both paths are the same folder, the second write silently overwrites the first, and the missing entry looks like a product bug. Use names that differ in more than case, or test the uppercase name in its own temp source.",
+      "status": "active",
+      "topics": [
+        "testing"
+      ],
+      "triggers": [
+        "t-kw-3da2b937",
+        "t-kw-95e9e95c",
+        "t-kw-9010dba8",
+        "t-cmd-b60fb427"
+      ]
+    },
     "testing-never-probe-a-directory-path": {
       "createdAt": "2026-09-04",
       "evidence": [],
@@ -10695,6 +10742,10 @@
       "kind": "command_pattern",
       "pattern": "<<'EOF'"
     },
+    "t-cmd-844719e1": {
+      "kind": "command_pattern",
+      "pattern": "\\bgit add\\b"
+    },
     "t-cmd-852dbc34": {
       "kind": "command_pattern",
       "pattern": "spawnSync"
@@ -10782,6 +10833,10 @@
     "t-cmd-b5d550c1": {
       "kind": "command_pattern",
       "pattern": "eslint"
+    },
+    "t-cmd-b60fb427": {
+      "kind": "command_pattern",
+      "pattern": "\\bmkdir\\b.*skills/"
     },
     "t-cmd-b66a9431": {
       "kind": "command_pattern",
@@ -11535,6 +11590,10 @@
       "kind": "file_glob",
       "pattern": "src/cli/commands/init-apply.ts"
     },
+    "t-glob-6c742b74": {
+      "kind": "file_glob",
+      "pattern": "src/install/run/run-install-pack.ts"
+    },
     "t-glob-6c89621d": {
       "kind": "file_glob",
       "pattern": "src/lessons/trigger-effectiveness.ts"
@@ -11870,6 +11929,10 @@
     "t-glob-9f0a5990": {
       "kind": "file_glob",
       "pattern": "src/targets/*/index.ts"
+    },
+    "t-glob-a1c12fe6": {
+      "kind": "file_glob",
+      "pattern": "src/install/run/install-pack-target.ts"
     },
     "t-glob-a23d7b79": {
       "kind": "file_glob",
@@ -12643,6 +12706,10 @@
       "kind": "keyword",
       "pattern": "mergeGeneratedOutputContent"
     },
+    "t-kw-3da2b937": {
+      "kind": "keyword",
+      "pattern": "manual qa"
+    },
     "t-kw-3e99909c": {
       "kind": "keyword",
       "pattern": "instrumented entry point"
@@ -12887,6 +12954,10 @@
       "kind": "keyword",
       "pattern": "consolidation proposal"
     },
+    "t-kw-9010dba8": {
+      "kind": "keyword",
+      "pattern": "case-insensitive"
+    },
     "t-kw-90b1f143": {
       "kind": "keyword",
       "pattern": "lessons efficiency"
@@ -12926,6 +12997,10 @@
     "t-kw-9520fa61": {
       "kind": "keyword",
       "pattern": "recallLessons"
+    },
+    "t-kw-95e9e95c": {
+      "kind": "keyword",
+      "pattern": "manual repro"
     },
     "t-kw-963ac4f6": {
       "kind": "keyword",
