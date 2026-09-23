@@ -9,6 +9,13 @@ export function renderCheck(result: CheckCommandResult): void {
   const { data } = result;
   if (result.error !== undefined) ui.error(result.error);
 
+  if (data.lockConflict) {
+    ui.error(
+      "The lock file has unresolved git merge conflicts. Run 'agentsmesh merge' to rebuild it, " +
+        "then 'agentsmesh generate'.",
+    );
+    return;
+  }
   if (!data.hasLock) {
     ui.error("Not initialized for collaboration. Run 'agentsmesh generate' first.");
     return;
@@ -49,9 +56,7 @@ export function renderCheck(result: CheckCommandResult): void {
     ui.error(`  generated output "${fwd(p)}" is stale`);
   }
   ui.note('Generated files are out of sync.', 'Check');
-  ui.info(
-    "Run 'agentsmesh merge' to resolve, or 'agentsmesh generate --force' to accept current state.",
-  );
+  ui.info(driftHint(data));
   renderUntracked(data);
   renderSkippedNote(data);
 }
@@ -67,6 +72,28 @@ function renderUntracked(data: CheckCommandResult['data']): void {
     `${data.outputsUntracked.length} file(s) in managed directories were not written by agentsmesh (left untouched):`,
   );
   for (const p of data.outputsUntracked) ui.info(`  ${fwd(p)}`);
+}
+
+/**
+ * The fix for this drift. Plain `generate` fixes canonical and output drift;
+ * only locked features need `--force`. `merge` would hide canonical drift (it
+ * rewrites the checksums without regenerating), so it is never suggested here.
+ */
+function driftHint(data: CheckCommandResult['data']): string {
+  if (data.lockedViolations.length > 0) {
+    return (
+      'Locked features changed (collaboration.strategy: lock). Revert them, or run ' +
+      "'agentsmesh generate --force' to accept the change."
+    );
+  }
+  if (data.canonicalDrift) {
+    return "Run 'agentsmesh generate' to apply the .agentsmesh/ changes and update the lock.";
+  }
+  return (
+    "Run 'agentsmesh generate' to rewrite the generated files from .agentsmesh/ and record " +
+    'their checksums. It replaces hand edits to generated files, so put lasting changes in ' +
+    '.agentsmesh/.'
+  );
 }
 
 /** Normalize a displayed path to forward slashes (CLI paths rule). */

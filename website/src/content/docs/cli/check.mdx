@@ -40,6 +40,14 @@ A generated file (`.claude/`, `.cursor/`, `AGENTS.md`, etc.) was hand-edited, de
 
 JSON output exposes the two drift classes directly as `canonicalDrift` and `outputDrift`; the per-path arrays remain available for actionable diagnostics.
 
+### Fixing drift
+
+`check` prints the fix that matches what it found:
+
+- **Canonical or generated-output drift:** run `agentsmesh generate`. It regenerates from `.agentsmesh/` and records fresh checksums in the lock. It also replaces hand edits to generated files, so put lasting changes in `.agentsmesh/`.
+- **Locked features changed** (`collaboration.strategy: lock`): plain `generate` refuses them, so revert the change, or run `agentsmesh generate --force` to accept it.
+- **The lock has git conflict markers:** run `agentsmesh merge` to rebuild it, then `agentsmesh generate`. JSON output reports this as `lockConflict: true`.
+
 ### Old-format locks
 
 Locks written before generated-output tracking existed have no `outputs` map. For those, output verification is skipped and `check` prints:

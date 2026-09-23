@@ -10,6 +10,7 @@ describe('renderCheck', () => {
       exitCode: 1,
       data: {
         hasLock: false,
+        lockConflict: false,
         canonicalDrift: false,
         outputDrift: false,
         inSync: false,
@@ -34,6 +35,7 @@ describe('renderCheck', () => {
       exitCode: 0,
       data: {
         hasLock: true,
+        lockConflict: false,
         canonicalDrift: false,
         outputDrift: false,
         inSync: true,
@@ -58,6 +60,7 @@ describe('renderCheck', () => {
       exitCode: 1,
       data: {
         hasLock: true,
+        lockConflict: false,
         canonicalDrift: true,
         outputDrift: false,
         inSync: false,
@@ -83,7 +86,7 @@ describe('renderCheck', () => {
     expect(errors).toContain('commands/open.md was added\n');
     expect(errors).toContain('skills/old/SKILL.md was removed [LOCKED]');
     expect(errors).toContain('skills/open/SKILL.md was removed\n');
-    expect(output.stdout()).toContain("Run 'agentsmesh merge' to resolve");
+    expect(output.stdout()).toContain("run 'agentsmesh generate --force' to accept the change");
   });
 
   it('renders generated-output drift with forward-slash paths', () => {
@@ -91,6 +94,7 @@ describe('renderCheck', () => {
       exitCode: 1,
       data: {
         hasLock: true,
+        lockConflict: false,
         canonicalDrift: false,
         outputDrift: true,
         inSync: false,
@@ -122,6 +126,7 @@ describe('renderCheck', () => {
       exitCode: 0,
       data: {
         hasLock: true,
+        lockConflict: false,
         canonicalDrift: false,
         outputDrift: false,
         inSync: true,
@@ -147,6 +152,7 @@ describe('renderCheck', () => {
       exitCode: 0,
       data: {
         hasLock: true,
+        lockConflict: false,
         canonicalDrift: false,
         outputDrift: false,
         inSync: true,
@@ -172,6 +178,7 @@ describe('renderCheck', () => {
       error: 'Lessons graph unreadable: lessons.json has an unresolved git merge conflict.',
       data: {
         hasLock: true,
+        lockConflict: false,
         canonicalDrift: false,
         outputDrift: false,
         inSync: true,

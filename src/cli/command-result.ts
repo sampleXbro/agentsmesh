@@ -73,6 +73,8 @@ export interface LintData {
 
 export interface CheckData {
   hasLock: boolean;
+  /** True when the lock file has git conflict markers; `agentsmesh merge` rebuilds it. */
+  lockConflict: boolean;
   /** True when canonical files or extends differ from the lock. */
   canonicalDrift: boolean;
   /** True when a generated output is modified, removed, or stale. */
