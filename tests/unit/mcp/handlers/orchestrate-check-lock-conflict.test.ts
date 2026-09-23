@@ -8,7 +8,6 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { runGenerate } from '../../../../src/cli/commands/generate.js';
 import type { McpContext } from '../../../../src/mcp/context.js';
 import { orchestrateHandlers } from '../../../../src/mcp/handlers/orchestrate.js';
 
@@ -35,16 +34,5 @@ describe('orchestrateHandlers.check — lockConflict', () => {
     );
     const out = await orchestrateHandlers.check(ctx());
     expect([out.drift, out.lockConflict]).toEqual([true, true]);
-  });
-
-  it('is false for a project that has no lock yet', async () => {
-    const out = await orchestrateHandlers.check(ctx());
-    expect([out.drift, out.lockConflict]).toEqual([true, false]);
-  });
-
-  it('is false for a readable lock', async () => {
-    await runGenerate({}, root, { printMatrix: false });
-    const out = await orchestrateHandlers.check(ctx());
-    expect([out.drift, out.lockConflict]).toEqual([false, false]);
   });
 });

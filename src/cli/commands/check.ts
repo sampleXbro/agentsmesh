@@ -52,34 +52,11 @@ export async function runCheck(
 }
 
 function lockResult(report: Awaited<ReturnType<typeof checkLockSync>>): CheckCommandResult {
-  if (!report.hasLock) {
-    return {
-      exitCode: 1,
-      data: {
-        hasLock: false,
-        lockConflict: report.lockConflict,
-        canonicalDrift: false,
-        outputDrift: false,
-        inSync: false,
-        modified: [],
-        added: [],
-        removed: [],
-        extendsModified: [],
-        lockedViolations: [],
-        outputsModified: [],
-        outputsRemoved: [],
-        outputsStale: [],
-        outputsUntracked: [],
-        outputsChecked: false,
-      },
-    };
-  }
-
   return {
     exitCode: report.inSync ? 0 : 1,
     data: {
-      hasLock: true,
-      lockConflict: false,
+      hasLock: report.hasLock,
+      lockConflict: report.lockConflict,
       canonicalDrift: report.canonicalDrift,
       outputDrift: report.outputDrift,
       inSync: report.inSync,

@@ -4,6 +4,7 @@
  * returns a structured report.
  */
 
+import { join } from 'node:path';
 import {
   buildChecksums,
   buildExtendChecksums,
@@ -16,7 +17,8 @@ import {
   findStaleGeneratedOutputs,
   findUntrackedManagedDirFiles,
 } from '../generate/stale-cleanup.js';
-import { lockHasConflictMarkers } from './lock-conflict.js';
+import { hasConflictMarkers } from '../../lessons/conflict-markers.js';
+import { readFileSafe } from '../../utils/filesystem/fs.js';
 import type { CheckLockSyncOptions, LockSyncReport } from './lock-sync-types.js';
 
 export type { CheckLockSyncOptions, LockSyncReport } from './lock-sync-types.js';
@@ -34,10 +36,12 @@ export async function checkLockSync(opts: CheckLockSyncOptions): Promise<LockSyn
 
   const lock = await readLock(canonicalDir);
   if (lock === null) {
+    // A lock git left conflicted cannot be read, but it is not a missing one.
+    const text = await readFileSafe(join(canonicalDir, '.lock'));
     return {
       inSync: false,
       hasLock: false,
-      lockConflict: lockHasConflictMarkers(canonicalDir),
+      lockConflict: text !== null && hasConflictMarkers(text),
       canonicalDrift: false,
       outputDrift: false,
       modified: [],

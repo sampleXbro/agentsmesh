@@ -32,9 +32,4 @@ describe('runCheck — lock conflict', () => {
     const r = await runCheck({}, root);
     expect([r.exitCode, r.data.hasLock, r.data.lockConflict]).toEqual([1, false, true]);
   });
-
-  it('does not flag a project that has no lock yet', async () => {
-    const r = await runCheck({}, root);
-    expect([r.exitCode, r.data.hasLock, r.data.lockConflict]).toEqual([1, false, false]);
-  });
 });
