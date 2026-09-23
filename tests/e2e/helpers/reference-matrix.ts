@@ -1,6 +1,6 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-export { expectedRefs, outputPaths, type TargetName } from './reference-targets.ts';
+export { expectedRefs, outputPaths, type TargetName } from './reference-targets.js';
 
 export function appendGenerateReferenceMatrix(dir: string): void {
   const abs = (...parts: string[]): string => join(dir, ...parts);

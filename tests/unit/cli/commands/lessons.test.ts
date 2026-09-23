@@ -1171,7 +1171,7 @@ describe('runLessons show / query edge branches', () => {
     seedSimpleGraph();
     const graph = loadLessonsGraph(root);
     graph.triggers['t-cmd'] = { kind: 'command_pattern', pattern: '^pnpm test' };
-    graph.lessons['topic-x-rule-1'].triggers = ['t-cmd'];
+    graph.lessons['topic-x-rule-1']!.triggers = ['t-cmd'];
     saveLessonsGraph(root, graph);
     const r = await runLessons({ command: 'pnpm test' }, ['query'], root);
     if (r.subcommand !== 'query') return;
@@ -1191,7 +1191,7 @@ describe('runLessons validate', () => {
   it('returns non-zero exit code when errors are found', async () => {
     seedSimpleGraph();
     const graph = loadLessonsGraph(root);
-    graph.lessons['topic-x-rule-1'].topics = ['ghost'];
+    graph.lessons['topic-x-rule-1']!.topics = ['ghost'];
     saveLessonsGraph(root, graph);
     const r = await runLessons({}, ['validate'], root);
     expect(r.exitCode).toBe(1);

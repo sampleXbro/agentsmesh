@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { renderLessons } from '../../../../src/cli/renderers/lessons.js';
+import type { EffectivenessStatsReport } from '../../../../src/lessons/stats-effectiveness.js';
 import { useCapturedOutput } from './renderer-test-helpers.js';
 
 describe('renderLessons — query', () => {
@@ -358,7 +359,7 @@ describe('renderLessons — topics / show / journal / validate / import-md / hel
     renderLessons({
       subcommand: 'show',
       exitCode: 0,
-      data: { topic: 't1', markdown: '# t1\n\nbody\n' },
+      data: { subject: 't1', markdown: '# t1\n\nbody\n' },
     });
     expect(output.stdout()).toContain('# t1');
     expect(output.stdout()).toContain('body');
@@ -529,7 +530,7 @@ describe('renderLessons — topics / show / journal / validate / import-md / hel
   });
 
   it('help prints usage and known subcommands', () => {
-    renderLessons({ subcommand: 'help', exitCode: 0 });
+    renderLessons({ subcommand: 'help', exitCode: 0, data: null });
     const out = output.stdout();
     expect(out).toMatch(/usage/i);
     expect(out).toContain('query');
@@ -664,6 +665,17 @@ describe('renderLessons — stats', () => {
     byTriggerKind: { file: 0, command: 0, keyword: 0 },
   };
 
+  /** No outcome log yet: the effectiveness block stays hidden. */
+  const noEffectiveness: EffectivenessStatsReport = {
+    deliveries: 0,
+    lessonsDelivered: 0,
+    failuresObserved: 0,
+    misses: 0,
+    failingActions: 0,
+    heldRate: 1,
+    ineffectiveLessons: 0,
+  };
+
   it('renders the recall:capture ratio as "—" when no captures were logged', () => {
     renderLessons({
       subcommand: 'stats',
@@ -673,8 +685,10 @@ describe('renderLessons — stats', () => {
         report,
         advice: [],
         captureReport: emptyCapture,
+        effectiveness: noEffectiveness,
         hasLog: true,
         hasCaptureLog: true,
+        hasOutcomeLog: false,
         telemetryEnabled: true,
       },
     });
@@ -690,8 +704,10 @@ describe('renderLessons — stats', () => {
         report,
         advice: [],
         captureReport: emptyCapture,
+        effectiveness: noEffectiveness,
         hasLog: true,
         hasCaptureLog: false,
+        hasOutcomeLog: false,
         telemetryEnabled: true,
       },
     });
@@ -718,6 +734,8 @@ describe('renderLessons — stats', () => {
           deliveries: 10,
           lessonsDelivered: 4,
           failuresObserved: 3,
+          misses: 2,
+          failingActions: 1,
           heldRate: 0.7,
           ineffectiveLessons: 1,
         },
@@ -731,6 +749,7 @@ describe('renderLessons — stats', () => {
     expect(out).toContain('effectiveness (coarse)');
     expect(out).toContain('10 deliveries of 4 lessons');
     expect(out).toContain('held 70.0%');
+    expect(out).toContain('2 misses from 1 distinct failing action ');
     expect(out).toContain('not proof'); // never overclaims prevention
     expect(out).toContain('1 ineffective');
     expect(out).toContain('lessons validate'); // pointer to the actionable list
@@ -745,8 +764,10 @@ describe('renderLessons — stats', () => {
         report,
         advice: [],
         captureReport: emptyCapture,
+        effectiveness: noEffectiveness,
         hasLog: false,
         hasCaptureLog: false,
+        hasOutcomeLog: false,
         telemetryEnabled: false,
       },
     });
@@ -766,8 +787,10 @@ describe('renderLessons — stats', () => {
         report,
         advice: [],
         captureReport: emptyCapture,
+        effectiveness: noEffectiveness,
         hasLog: false,
         hasCaptureLog: false,
+        hasOutcomeLog: false,
         telemetryEnabled: true,
       },
     });
@@ -795,8 +818,10 @@ describe('renderLessons — stats', () => {
         report: heavy,
         advice: [],
         captureReport: emptyCapture,
+        effectiveness: noEffectiveness,
         hasLog: true,
         hasCaptureLog: false,
+        hasOutcomeLog: false,
         telemetryEnabled: true,
       },
     });
@@ -812,8 +837,10 @@ describe('renderLessons — stats', () => {
         report,
         advice: [],
         captureReport: { ...emptyCapture, total: 2, blocked: 1, newLessons: 1 },
+        effectiveness: noEffectiveness,
         hasLog: true,
         hasCaptureLog: true,
+        hasOutcomeLog: false,
         telemetryEnabled: true,
       },
     });
@@ -822,6 +849,7 @@ describe('renderLessons — stats', () => {
     expect(parsed.preloadBreakEven.ratio).toBe(7.5);
     expect(parsed.redundancy.rate).toBe(0.4);
     expect(parsed.capture).toMatchObject({ total: 2, blocked: 1, newLessons: 1 });
+    expect(parsed.effectiveness).toEqual(noEffectiveness);
   });
 
   it('prints advice lines after the stat blocks (text format, stderr)', () => {
@@ -833,8 +861,10 @@ describe('renderLessons — stats', () => {
         report,
         advice: ['advice: session dedup is inert — pass --session auto'],
         captureReport: emptyCapture,
+        effectiveness: noEffectiveness,
         hasLog: true,
         hasCaptureLog: false,
+        hasOutcomeLog: false,
         telemetryEnabled: true,
       },
     });
@@ -850,8 +880,10 @@ describe('renderLessons — stats', () => {
         report,
         advice: ['advice: x'],
         captureReport: emptyCapture,
+        effectiveness: noEffectiveness,
         hasLog: true,
         hasCaptureLog: false,
+        hasOutcomeLog: false,
         telemetryEnabled: true,
       },
     });
@@ -867,8 +899,10 @@ describe('renderLessons — stats', () => {
         report,
         advice: [],
         captureReport: emptyCapture,
+        effectiveness: noEffectiveness,
         hasLog: true,
         hasCaptureLog: false,
+        hasOutcomeLog: false,
         telemetryEnabled: true,
       },
     });
@@ -892,8 +926,10 @@ describe('renderLessons — stats', () => {
           withWarnings: 1,
           byTriggerKind: { file: 3, command: 1, keyword: 2 },
         },
+        effectiveness: noEffectiveness,
         hasLog: true,
         hasCaptureLog: true,
+        hasOutcomeLog: false,
         telemetryEnabled: true,
       },
     });
@@ -916,8 +952,10 @@ describe('renderLessons — stats', () => {
         report,
         advice: [],
         captureReport: { ...emptyCapture, total: 1, newLessons: 1 },
+        effectiveness: noEffectiveness,
         hasLog: false,
         hasCaptureLog: true,
+        hasOutcomeLog: false,
         telemetryEnabled: true,
       },
     });

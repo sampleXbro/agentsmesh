@@ -50,6 +50,7 @@ export function lessonsInit(lessons: Partial<ScaffoldLessonsResult> = {}): InitC
       detectedConfigs: [],
       imported: [],
       importedToolCount: 0,
+      rootRuleMerged: false,
       targets: [],
       targetSource: 'explicit',
       scaffoldType: 'none',
@@ -63,8 +64,11 @@ export function lessonsInit(lessons: Partial<ScaffoldLessonsResult> = {}): InitC
         gitignoreUpdated: false,
         gitattributesUpdated: false,
         recallHookInjected: true,
+        // 'unchanged' and null print nothing, like a retrofit that changed neither.
+        mergeDriver: { status: 'unchanged', command: 'agentsmesh lessons merge-driver' },
+        recallHookTeamHint: null,
         ...lessons,
       },
     },
-  } as InitCommandResult;
+  };
 }

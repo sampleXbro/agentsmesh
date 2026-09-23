@@ -72,6 +72,7 @@
     "format:check": "prettier --check src/",
     "prepare": "husky",
     "typecheck": "tsc --noEmit",
+    "typecheck:tests": "tsc -p tsconfig.tests.json",
     "schemas:generate": "tsx scripts/generate-schemas.ts",
     "capabilities:audit": "tsx scripts/capabilities-audit.ts",
     "capabilities:merge": "tsx scripts/merge-capability-ledger.ts",

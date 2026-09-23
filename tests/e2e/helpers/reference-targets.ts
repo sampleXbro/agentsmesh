@@ -1,37 +1,9 @@
 import { commandSkillDirName } from '../../../src/targets/codex-cli/command-skill.js';
 import { projectedAgentSkillDirName } from '../../../src/targets/projection/projected-agent-skill.js';
+import type { BuiltinTargetId } from '../../../src/targets/catalog/target-ids.js';
 
-export type TargetName =
-  | 'aider'
-  | 'amazon-q'
-  | 'amp'
-  | 'antigravity'
-  | 'augment-code'
-  | 'claude-code'
-  | 'cline'
-  | 'codex-cli'
-  | 'continue'
-  | 'copilot'
-  | 'crush'
-  | 'cursor'
-  | 'deepagents-cli'
-  | 'factory-droid'
-  | 'gemini-cli'
-  | 'goose'
-  | 'jules'
-  | 'junie'
-  | 'kilo-code'
-  | 'kiro'
-  | 'opencode'
-  | 'pi-agent'
-  | 'qwen-code'
-  | 'replit-agent'
-  | 'roo-code'
-  | 'rovodev'
-  | 'trae'
-  | 'warp'
-  | 'windsurf'
-  | 'zed';
+/** Every built-in target, from the catalog (the one source of target ids). */
+export type TargetName = BuiltinTargetId;
 
 interface OutputPathGroups {
   root: string[];

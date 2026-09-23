@@ -13,11 +13,11 @@ export function readToml(path: string): Record<string, unknown> {
 
 export function markdownFrontmatter(path: string): Record<string, unknown> {
   const content = readText(path);
-  const match = /^---\n([\s\S]*?)\n---\n/.exec(content);
-  if (!match) {
+  const body = /^---\n([\s\S]*?)\n---\n/.exec(content)?.[1];
+  if (body === undefined) {
     throw new Error(`Expected YAML frontmatter in ${path}`);
   }
-  const parsed = parseYaml(match[1]) as unknown;
+  const parsed = parseYaml(body) as unknown;
   if (!isRecord(parsed)) {
     throw new Error(`Expected frontmatter object in ${path}`);
   }
