@@ -41,8 +41,7 @@ export const COMMANDS: HelpCommand[] = [
       },
       {
         name: '--targets <csv>',
-        description:
-          'Enable exactly these target IDs (comma-separated), instead of detecting them',
+        description: 'Enable exactly these target IDs (comma-separated), instead of detecting them',
       },
       {
         name: '--all-targets',
@@ -334,7 +333,7 @@ export const COMMANDS: HelpCommand[] = [
         name: '--no-dedup',
         description: 'query: re-show lessons the session dedup would suppress',
       },
-      { name: '--ids', description: 'query: print only the matching lesson ids' },
+      { name: '--ids', description: 'query: prefix each printed rule with its lesson id' },
       { name: '--rule "<text>"', description: 'add: imperative rule (required)' },
       { name: '--topic <id>', description: 'add: topic id (required; use --new-topic for new)' },
       {

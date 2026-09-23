@@ -85,6 +85,8 @@ export interface LessonsJournalData {
     readonly rule: string;
     readonly createdAt: string;
     readonly topics: string[];
+    readonly status: 'active' | 'deprecated' | 'superseded';
+    readonly supersededBy?: string;
   }>;
   /** Set when lessons is not fully set up here (no `init --lessons`) — shown on stderr. */
   readonly setupHint?: string;
@@ -154,7 +156,7 @@ export interface LessonsStatsData {
 }
 
 export type LessonsCommandResult =
-  | { subcommand: 'help'; exitCode: number; error?: string; data: null }
+  | { subcommand: 'help'; exitCode: number; error?: string; data: null; topic?: string }
   | {
       subcommand: 'query';
       exitCode: number;

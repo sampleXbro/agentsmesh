@@ -148,7 +148,7 @@ function renderUnreachable(ids: readonly string[]): void {
   );
 }
 
-export function renderValidate(data: LessonsValidateData): void {
+export function renderValidate(data: LessonsValidateData, summary?: string): void {
   // Findings (errors + advisory warnings) go to stderr; the stdout verdict tracks
   // the EXIT semantics — `ok` means "no error-level findings". Warnings (e.g. a
   // DEAD_FILE_GLOB) are advisories that don't fail validation, so they're shown
@@ -159,4 +159,5 @@ export function renderValidate(data: LessonsValidateData): void {
     else logger.warn(line);
   }
   if (data.ok) logger.success('Lessons graph: ok.');
+  else if (summary !== undefined) logger.error(summary);
 }

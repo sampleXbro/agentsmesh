@@ -13,16 +13,33 @@ const PROBLEM_CODE: Record<GraphProblemKind, string> = {
   'newer-version': 'NEWER_GRAPH_VERSION',
 };
 
+/** One-line failure summary; the `--json` envelope reports it as the error. */
+function errorSummary(findings: LessonsValidateData['findings']): string | undefined {
+  const errors = findings.filter((f) => f.level === 'error');
+  if (errors.length === 0) return undefined;
+  const codes = [...new Set(errors.map((f) => f.code))].join(', ');
+  return `Lessons graph has ${errors.length} error${errors.length === 1 ? '' : 's'} (${codes}).`;
+}
+
+function validateResult(data: LessonsValidateData): LessonsCommandResult {
+  const error = errorSummary(data.findings);
+  return {
+    subcommand: 'validate',
+    exitCode: data.ok ? 0 : 1,
+    ...(error === undefined ? {} : { error }),
+    data,
+  };
+}
+
 export function doValidate(projectRoot: string): LessonsCommandResult {
   // Name the cause (merge conflict, bad JSON or schema, newer schema) and the safe next step.
   const load = loadLessonsGraphResilient(projectRoot);
   const problem = problemFromLoadAndGit(projectRoot, load);
   if (problem !== null) {
-    const data: LessonsValidateData = {
+    return validateResult({
       ok: false,
       findings: [{ level: 'error', code: PROBLEM_CODE[problem.kind], message: problem.message }],
-    };
-    return { subcommand: 'validate', exitCode: 1, data };
+    });
   }
   const graph = load.graph ?? emptyGraph();
   // Supply the working-tree file list so dead-`file_glob` triggers surface; null
@@ -33,6 +50,5 @@ export function doValidate(projectRoot: string): LessonsCommandResult {
   // Log-derived health findings are WARNING level and computed here, never in
   // validateLessonsGraph (also the write barrier), so they cannot gate a write.
   const findings = [...report.findings, ...collectHealthFindings(projectRoot, graph)];
-  const data: LessonsValidateData = { ok: report.ok, findings };
-  return { subcommand: 'validate', exitCode: report.ok ? 0 : 1, data };
+  return validateResult({ ok: report.ok, findings });
 }

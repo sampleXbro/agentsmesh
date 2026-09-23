@@ -8,13 +8,13 @@ import {
   union,
   upsertLesson,
 } from './add-helpers.js';
-import { UnknownTopicError } from './add-errors.js';
 import {
   assertRecallable,
   assertRuleShape,
   assertTriggerInputs,
   deadCommandWarning,
   dropDeadCommandTriggers,
+  ensureTopic,
   skipsTriggerGates,
   type DeadCommandWarning,
 } from './add-gates.js';
@@ -29,8 +29,10 @@ import { mutateLessonsGraph } from './mutate.js';
 export {
   BroadCommandPatternError,
   EmptyRuleError,
+  InvalidTopicIdError,
   NoTriggerError,
   RuleTooLongError,
+  TopicSummaryRequiredError,
   UnknownTopicError,
   UnrecallableLessonError,
 } from './add-errors.js';
@@ -131,17 +133,7 @@ export function addLessonInto(
   const trimmedRule = assertRuleShape(input.rule);
   const existingId = findExistingLessonByRule(graph, ruleKey);
 
-  // Topic validity is checked first so an unknown-topic / missing-summary error
-  // takes precedence over the trigger gates below (clearer, and stable for the
-  // documented exit codes).
-  const isNewTopic = graph.topics[input.topic] === undefined;
-  if (isNewTopic) {
-    if (options.allowNewTopic !== true) throw new UnknownTopicError(input.topic);
-    if (options.topicSummary === undefined || options.topicSummary.length === 0) {
-      throw new Error(`addLesson: new topic "${input.topic}" requires topicSummary.`);
-    }
-    graph.topics[input.topic] = { summary: options.topicSummary };
-  }
+  const isNewTopic = ensureTopic(graph, input.topic, options);
 
   // Gates (see add-gates.ts): a throw aborts the transactional write.
   const existing = existingId !== null ? graph.lessons[existingId] : undefined;
@@ -177,7 +169,7 @@ export function addLessonInto(
     rule: trimmedRule,
     topics: [input.topic],
     triggers: triggerIds,
-    evidence: input.evidence === undefined ? [] : [...input.evidence],
+    evidence: [...new Set(input.evidence ?? [])],
     status: 'active',
     createdAt: input.createdAt ?? todayIso(),
     ...(input.rationale === undefined ? {} : { rationale: input.rationale }),

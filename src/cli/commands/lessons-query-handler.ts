@@ -45,6 +45,7 @@ export function doQuery(
   flags: LessonsFlags,
   projectRoot: string,
   autoMigrated: boolean,
+  migrationError?: string,
 ): LessonsCommandResult {
   const topErr = validatePositiveIntFlag(flags, 'top');
   if (topErr !== null) return errorResult('query', topErr, 2);
@@ -87,7 +88,9 @@ export function doQuery(
   const configWarning = lessonsConfigWarning(projectRoot) ?? undefined;
   const load = loadLessonsGraphResilient(projectRoot);
   if (load.status !== 'ok') {
-    const warning = degradedRecallWarning(load, projectRoot, keywordOnlyWarning, configWarning);
+    const warning = degradedRecallWarning(load, projectRoot, keywordOnlyWarning, configWarning, {
+      migrationError,
+    });
     const data = { query, autoMigrated, lessons: [], totalMatches: 0, warning };
     return { subcommand: 'query', exitCode: 0, format, data };
   }

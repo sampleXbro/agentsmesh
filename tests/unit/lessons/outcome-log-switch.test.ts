@@ -16,6 +16,7 @@ import {
 } from '../../../src/lessons/outcome-log.js';
 import {
   isOutcomeLogEnabled,
+  isTelemetryEnabled,
   OUTCOME_LOG_ENV,
   TELEMETRY_ENV,
 } from '../../../src/lessons/telemetry.js';
@@ -59,6 +60,35 @@ describe('isOutcomeLogEnabled', () => {
     expect(isOutcomeLogEnabled({ [OUTCOME_LOG_ENV]: '1' }, root)).toBe(true);
     writeConfig('{ "outcomeLog": true }');
     expect(isOutcomeLogEnabled({ [OUTCOME_LOG_ENV]: '0' }, root)).toBe(false);
+  });
+
+  it.each(['0', 'false', 'FALSE', 'no', 'off', ' off '])('env %j turns it off', (value) => {
+    writeConfig('{ "outcomeLog": true }');
+    expect(isOutcomeLogEnabled({ [OUTCOME_LOG_ENV]: value }, root)).toBe(false);
+  });
+
+  it.each(['1', 'true', 'Yes', 'on'])('env %j turns it on', (value) => {
+    writeConfig('{ "outcomeLog": false }');
+    expect(isOutcomeLogEnabled({ [OUTCOME_LOG_ENV]: value }, root)).toBe(true);
+  });
+
+  it.each(['', 'maybe', '2'])('env %j defers to the config', (value) => {
+    writeConfig('{ "outcomeLog": false }');
+    expect(isOutcomeLogEnabled({ [OUTCOME_LOG_ENV]: value }, root)).toBe(false);
+  });
+});
+
+describe('isTelemetryEnabled — env words', () => {
+  it.each([
+    ['false', false],
+    ['no', false],
+    ['off', false],
+    ['true', true],
+    ['yes', true],
+    ['on', true],
+  ])('env %j → %s, whatever the config says', (value, expected) => {
+    writeConfig(`{ "telemetry": ${String(!expected)} }`);
+    expect(isTelemetryEnabled({ [TELEMETRY_ENV]: value }, root)).toBe(expected);
   });
 });
 

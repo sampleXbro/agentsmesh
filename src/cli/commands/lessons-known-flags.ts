@@ -73,6 +73,34 @@ export function repeatableLessonsFlags(subcommand: string): readonly string[] {
   return names.filter((name): name is string => name !== undefined);
 }
 
+/** Value flags a handler reads that the usage signature does not list. */
+const VALUE_FLAG_ALIASES: Record<string, readonly string[]> = { query: ['command'], add: ['rule'] };
+
+/** Flags that take a value: `--flag <v>` in the usage signature, plus aliases. */
+export function lessonsValueFlags(subcommand: string): readonly string[] {
+  const usage = LESSONS_USAGE[subcommand]?.usage ?? '';
+  const names = [...usage.matchAll(/--([a-z-]+) (?!-)[^\s\]]/g)].map((m) => m[1]);
+  return [
+    ...names.filter((name): name is string => name !== undefined),
+    ...(VALUE_FLAG_ALIASES[subcommand] ?? []),
+  ];
+}
+
+function missingValue(value: string | boolean | string[]): boolean {
+  const values = Array.isArray(value) ? value : [value];
+  // Blank text is a value (a " " trigger gets its own "too broad" error).
+  return values.some((v) => v === true || v === '');
+}
+
+function unknownFlag(subcommand: string, name: string): string {
+  // `add "--no-verify is forbidden"` parses as a flag; say how to pass it.
+  const joined = subcommand === 'add' ? 'rule' : '<flag>';
+  const hint = /\s/.test(name)
+    ? ` To pass text that starts with --, join it to its flag with =, e.g. --${joined}="--${name}".`
+    : '';
+  return `Unknown flag --${name} for \`lessons ${subcommand}\`.${hint}\n${usageLine(subcommand)}`;
+}
+
 /**
  * Positional arguments `subcommand` takes: the `<placeholder>` tokens before the
  * first flag in its usage signature. Undefined for internal subcommands.
@@ -104,9 +132,14 @@ export function validateLessonsFlags(subcommand: string, flags: LessonsFlags): s
   if (known === undefined) return null;
   const allowed = new Set<string>([...known, ...GLOBAL_FLAGS]);
   const repeatable = new Set(repeatableLessonsFlags(subcommand));
+  const valueFlags = new Set(lessonsValueFlags(subcommand));
   for (const [name, value] of Object.entries(flags)) {
-    if (!allowed.has(name)) {
-      return `Unknown flag --${name} for \`lessons ${subcommand}\`.\n${usageLine(subcommand)}`;
+    if (!allowed.has(name)) return unknownFlag(subcommand, name);
+    if (valueFlags.has(name) && missingValue(value)) {
+      return (
+        `--${name} needs a value. To pass a value that starts with --, write --${name}=<value>.` +
+        `\n${usageLine(subcommand)}`
+      );
     }
     if (Array.isArray(value) && !repeatable.has(name)) {
       return `--${name} was given ${value.length} times; pass it once.\n${usageLine(subcommand)}`;

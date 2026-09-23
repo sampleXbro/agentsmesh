@@ -1,13 +1,17 @@
 import {
   BroadCommandPatternError,
   EmptyRuleError,
+  InvalidTopicIdError,
   NoTriggerError,
   RuleTooLongError,
+  TopicSummaryRequiredError,
+  UnknownTopicError,
   UnrecallableLessonError,
 } from './add-errors.js';
 import type { AddLessonInput, AddLessonOptions } from './add.js';
 import { isBroadCommandPattern } from './command-pattern-breadth.js';
 import { MAX_RULE_LENGTH, type LessonsGraph } from './graph-schema.js';
+import { codePointLength } from './rule-line.js';
 import {
   blockingDeadTriggers,
   ineffectiveTriggers,
@@ -28,8 +32,27 @@ export function assertRuleShape(rule: string): string {
   // A rule far longer than one sentence is a malformed capture; block it before
   // it can bloat every recall that surfaces it (the hook also truncates as a
   // last-resort defense for already-stored / hostile graphs).
-  if (trimmed.length > MAX_RULE_LENGTH) throw new RuleTooLongError(trimmed.length, MAX_RULE_LENGTH);
+  const length = codePointLength(trimmed);
+  if (length > MAX_RULE_LENGTH) throw new RuleTooLongError(length, MAX_RULE_LENGTH);
   return trimmed;
+}
+
+/**
+ * Check the topic id and create a new topic when allowed. Returns whether the
+ * topic is new. Runs before the trigger gates, so a topic error wins.
+ */
+export function ensureTopic(
+  graph: LessonsGraph,
+  topic: string,
+  options: AddLessonOptions,
+): boolean {
+  if (!/^[a-z0-9-]+$/.test(topic)) throw new InvalidTopicIdError(topic);
+  if (graph.topics[topic] !== undefined) return false;
+  if (options.allowNewTopic !== true) throw new UnknownTopicError(topic);
+  const summary = options.topicSummary?.trim() ?? '';
+  if (summary.length === 0) throw new TopicSummaryRequiredError(topic);
+  graph.topics[topic] = { summary };
+  return true;
 }
 
 /**

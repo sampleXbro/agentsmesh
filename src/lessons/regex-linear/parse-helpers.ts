@@ -47,10 +47,14 @@ const HEX4 = /^[0-9a-fA-F]{4}$/;
  * (`x` or `u`); returns the decoded char and how many EXTRA chars to consume.
  * Falls back to the literal letter (len 0) when the hex form is malformed — this
  * matches `new RegExp` WITHOUT the `u` flag (how lessons compile patterns), where
- * `\x`/`\u` not followed by valid hex is the literal `x`/`u`. `\u{…}` is left
- * undecoded for the same reason (it only means a code point under the `u` flag).
+ * `\x`/`\u` not followed by valid hex is the literal `x`/`u`. `\u{…}` is
+ * rejected (fail closed): it reads as a code point but, without the `u` flag,
+ * matches the literal text `u{…}`.
  */
 export function readUnicodeEscape(src: string, i: number, c: string): { ch: string; len: number } {
+  if (c === 'u' && src[i] === '{') {
+    throw new UnsupportedRegexError('\\u{…} code point escapes are not supported; use \\uHHHH');
+  }
   if (c === 'x') {
     const hex = src.slice(i, i + 2);
     return HEX2.test(hex)

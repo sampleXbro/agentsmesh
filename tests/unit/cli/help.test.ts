@@ -120,6 +120,8 @@ describe('printCommandHelp — lessons subcommand focus', () => {
     expect(out).toContain('Example:');
     expect(out).not.toContain('--rule');
     expect(out).not.toContain('--migrated-at');
+    // --ids adds an id to each printed rule; it does not print ids alone.
+    expect(out).toMatch(/--ids +prefix each printed rule with its lesson id\n/);
   });
 
   it('falls back to the combined lessons help when no subcommand is given', () => {

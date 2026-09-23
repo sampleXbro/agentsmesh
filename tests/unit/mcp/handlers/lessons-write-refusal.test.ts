@@ -78,11 +78,17 @@ function expectRefused(err: McpError, codes: string[]): void {
 const add = (triggers: { trigger_files?: string; trigger_commands?: string }): Promise<unknown> =>
   lessonsHandlers.add(ctx, { rule: 'Never run the thing unguarded.', topic: 't', ...triggers });
 
-describe('lessons_add refused by the write barrier', () => {
-  it('an over-expanding brace glob is UNSAFE_GLOB_PATTERN', async () => {
-    const err = await refusal(add({ trigger_files: `src/${'{a,b}'.repeat(20)}` }));
-    expectRefused(err, ['UNSAFE_GLOB_PATTERN']);
-    expect(err.message).toMatch(/^lessons_add: /);
+describe('lessons_add refuses an unsafe glob before the write barrier', () => {
+  it('an over-expanding brace glob is UNSAFE_GLOB_PATTERN and names the glob, not a trigger id', async () => {
+    const glob = `src/${'{a,b}'.repeat(20)}`;
+    const err = await refusal(add({ trigger_files: glob }));
+    expect(err.code).toBe('VALIDATION_FAILED');
+    expect(err.details).toEqual({ code: 'UNSAFE_GLOB_PATTERN' });
+    expect(
+      err.message.startsWith(`lessons_add: --trigger-file ${JSON.stringify(glob)} is outside`),
+    ).toBe(true);
+    expect(err.message).not.toMatch(/t-glob-/);
+    expect(readFileSync(graphFilePath(root), 'utf8')).toBe(before);
   });
 });
 

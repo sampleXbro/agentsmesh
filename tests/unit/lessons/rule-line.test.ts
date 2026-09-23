@@ -37,9 +37,15 @@ describe('safeRuleLine', () => {
     expect(out).not.toContain('\n');
   });
 
-  it('never splits a surrogate pair at the clamp boundary', () => {
-    const out = clampText('😀'.repeat(MAX_RULE_LENGTH));
-    expect(out.length).toBeLessThanOrEqual(MAX_RULE_LENGTH);
+  it('counts characters, not UTF-16 units: a rule at the limit is kept whole', () => {
+    const atLimit = '😀'.repeat(MAX_RULE_LENGTH);
+    expect(clampText(atLimit)).toBe(atLimit);
+  });
+
+  it('cuts an over-long rule to the limit in characters, never inside a surrogate pair', () => {
+    const out = clampText('😀'.repeat(MAX_RULE_LENGTH + 1));
+    expect([...out].length).toBe(MAX_RULE_LENGTH);
+    expect(out.endsWith('…[truncated]')).toBe(true);
     expect(() => encodeURIComponent(out)).not.toThrow();
   });
 

@@ -12,7 +12,8 @@ import type { LessonsFlags } from './lessons-helpers.js';
 export function validatePositiveIntFlag(flags: LessonsFlags, name: string): string | null {
   const v = flags[name];
   if (v === undefined || v === false) return null;
-  const n = typeof v === 'string' ? Number(v) : NaN;
+  // Digits only: Number() would read "0x10" or "1e1" as a number.
+  const n = typeof v === 'string' && /^\s*\d+\s*$/.test(v) ? Number(v) : NaN;
   if (!Number.isInteger(n) || n < 1) return `Invalid --${name}: expected a positive integer.`;
   return null;
 }
@@ -40,11 +41,20 @@ export function degradedRecallWarning(
   projectRoot: string,
   keywordOnlyWarning: string | undefined,
   configWarning: string | undefined,
+  { migrationError }: { migrationError?: string } = {},
 ): string | undefined {
   const problem = problemFromLoad(projectRoot, load);
-  const cause =
-    problem !== null
-      ? `recall returned no lessons: ${problem.message}`
-      : mergeWarnings(lessonsSetupHint(), keywordOnlyWarning);
+  let cause: string | undefined;
+  if (problem !== null) cause = `recall returned no lessons: ${problem.message}`;
+  else if (migrationError !== undefined) cause = migrationFailure(migrationError);
+  else cause = mergeWarnings(lessonsSetupHint(), keywordOnlyWarning);
   return mergeWarnings(cause, configWarning);
+}
+
+function migrationFailure(error: string): string {
+  return (
+    'recall returned no lessons: the legacy lessons store (.agentsmesh/lessons/index.yaml) ' +
+    `could not be migrated: ${error.replace(/\s+$/, '')} Fix it, then run ` +
+    '`agentsmesh lessons import-md`.'
+  );
 }

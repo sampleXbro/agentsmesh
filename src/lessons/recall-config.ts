@@ -73,6 +73,13 @@ function overCeiling(value: unknown, ceiling: number): boolean {
   return n !== null && n > ceiling;
 }
 
+function invalidFields(fields: readonly string[], expected: string): string {
+  return (
+    `lessons config.json has invalid ${fields.join(' and ')} (expected ${expected}) — using the ` +
+    `default for ${fields.length === 1 ? 'it' : 'them'}.`
+  );
+}
+
 /**
  * Diagnose a present-but-broken `config.json` for a user-facing warning, WITHOUT
  * changing the silent hot-path fallback in {@link loadRecallConfig}. Returns a
@@ -90,18 +97,21 @@ export function lessonsConfigWarning(projectRoot: string): string | null {
   } catch {
     return `lessons config.json is not valid JSON — using built-in recall defaults. Fix or delete .agentsmesh/lessons/config.json.`;
   }
-  if (typeof parsed !== 'object' || parsed === null) {
+  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
     return `lessons config.json is not a JSON object — using built-in recall defaults.`;
   }
   const cfg = parsed as Record<string, unknown>;
-  const bad: string[] = [];
-  if ('recallLimit' in cfg && positiveInt(cfg.recallLimit) === null) bad.push('recallLimit');
-  if ('recallMaxTokens' in cfg && positiveInt(cfg.recallMaxTokens) === null) {
-    bad.push('recallMaxTokens');
-  }
-  if (bad.length > 0) {
-    return `lessons config.json has invalid ${bad.join(' and ')} (expected a positive integer) — using the default for ${bad.length === 1 ? 'it' : 'them'}.`;
-  }
+  const badInts = ['recallLimit', 'recallMaxTokens'].filter(
+    (key) => key in cfg && positiveInt(cfg[key]) === null,
+  );
+  const badSwitches = ['autoPrune', 'telemetry', 'outcomeLog'].filter(
+    (key) => key in cfg && typeof cfg[key] !== 'boolean',
+  );
+  const invalid = [
+    ...(badInts.length > 0 ? [invalidFields(badInts, 'a positive integer')] : []),
+    ...(badSwitches.length > 0 ? [invalidFields(badSwitches, 'true or false')] : []),
+  ];
+  if (invalid.length > 0) return invalid.join(' ');
   const over: string[] = [];
   if (overCeiling(cfg.recallLimit, MAX_RECALL_LIMIT))
     over.push(`recallLimit above ${MAX_RECALL_LIMIT}`);

@@ -26,7 +26,7 @@ export function untriggerLesson(
   triggerId: string,
 ): UntriggerResult {
   const lesson = graph.lessons[lessonId];
-  if (lesson === undefined) throw new Error(`Unknown lesson: ${lessonId}`);
+  if (lesson === undefined) throw new Error(`Unknown lesson: ${lessonId}.`);
   if (!lesson.triggers.includes(triggerId)) {
     throw new Error(`Lesson "${lessonId}" does not reference trigger "${triggerId}".`);
   }

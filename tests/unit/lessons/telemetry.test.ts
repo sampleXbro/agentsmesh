@@ -82,10 +82,11 @@ describe('isTelemetryEnabled: project config', () => {
 });
 
 describe('isTelemetryEnabled', () => {
-  it('is true only when the env flag is exactly "1"', () => {
+  it('reads the env flag as a yes/no word, else falls back to off', () => {
     expect(isTelemetryEnabled({ [TELEMETRY_ENV]: '1' })).toBe(true);
-    expect(isTelemetryEnabled({ [TELEMETRY_ENV]: 'true' })).toBe(false);
+    expect(isTelemetryEnabled({ [TELEMETRY_ENV]: 'true' })).toBe(true);
     expect(isTelemetryEnabled({ [TELEMETRY_ENV]: '0' })).toBe(false);
+    expect(isTelemetryEnabled({ [TELEMETRY_ENV]: 'maybe' })).toBe(false);
     expect(isTelemetryEnabled({})).toBe(false);
   });
 });

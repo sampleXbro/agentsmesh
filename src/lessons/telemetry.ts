@@ -120,10 +120,11 @@ export function configFlag(projectRoot: string, key: string): boolean | undefine
   }
 }
 
-/** `1` forces on, `0` forces off, anything else defers to the config. */
+/** `1`/`true`/`yes`/`on` force on, `0`/`false`/`no`/`off` force off; else the config decides. */
 function envOverride(raw: string | undefined): boolean | undefined {
-  if (raw === '1') return true;
-  if (raw === '0') return false;
+  const value = raw?.trim().toLowerCase();
+  if (value === '1' || value === 'true' || value === 'yes' || value === 'on') return true;
+  if (value === '0' || value === 'false' || value === 'no' || value === 'off') return false;
   return undefined;
 }
 

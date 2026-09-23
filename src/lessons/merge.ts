@@ -33,20 +33,18 @@ export async function mergeLessons(
 
 function mergeInto(graph: LessonsGraph, loserId: string, keeperId: string): MergeLessonsResult {
   if (loserId === keeperId) {
-    throw new Error(`mergeLessons: cannot merge lesson "${loserId}" into itself.`);
+    throw new Error(`Cannot merge lesson "${loserId}" into itself.`);
   }
   const loser = graph.lessons[loserId];
-  if (loser === undefined) throw new Error(`mergeLessons: unknown lesson "${loserId}".`);
+  if (loser === undefined) throw new Error(`Unknown lesson "${loserId}".`);
   const keeper = graph.lessons[keeperId];
-  if (keeper === undefined) throw new Error(`mergeLessons: unknown lesson "${keeperId}".`);
+  if (keeper === undefined) throw new Error(`Unknown lesson "${keeperId}".`);
 
   if (keeper.status !== 'active') {
-    throw new Error(`mergeLessons: keeper "${keeperId}" is not active (status: ${keeper.status}).`);
+    throw new Error(`Keeper "${keeperId}" is not active (status: ${keeper.status}).`);
   }
   if (loser.status !== 'active') {
-    throw new Error(
-      `mergeLessons: loser "${loserId}" is already ${loser.status}; nothing to merge.`,
-    );
+    throw new Error(`Loser "${loserId}" is already ${loser.status}; nothing to merge.`);
   }
 
   graph.lessons[keeperId] = {

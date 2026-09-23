@@ -69,7 +69,14 @@ export function doShow(arg: string | undefined, projectRoot: string): LessonsCom
 export function doJournal(projectRoot: string): LessonsCommandResult {
   const graph = tryLoadLessonsGraph(projectRoot) ?? emptyGraph();
   const entries = Object.entries(graph.lessons)
-    .map(([id, l]) => ({ id, rule: l.rule, createdAt: l.createdAt, topics: [...l.topics] }))
+    .map(([id, l]) => ({
+      id,
+      rule: l.rule,
+      createdAt: l.createdAt,
+      topics: [...l.topics],
+      status: l.status,
+      ...(l.supersededBy === undefined ? {} : { supersededBy: l.supersededBy }),
+    }))
     .sort((a, b) => {
       if (a.createdAt !== b.createdAt) return a.createdAt < b.createdAt ? -1 : 1;
       return a.id < b.id ? -1 : 1;

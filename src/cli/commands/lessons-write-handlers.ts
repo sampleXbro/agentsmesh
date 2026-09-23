@@ -2,6 +2,7 @@ import { UnknownTopicError } from '../../lessons/add.js';
 import { captureLesson } from '../../lessons/capture.js';
 import { isCaptureRejection } from '../../lessons/capture-rejection.js';
 import { deprecateLesson } from '../../lessons/deprecate.js';
+import { LessonsWriteRefusedError } from '../../lessons/mutate.js';
 import { lessonsActivated } from '../../lessons/paths.js';
 import {
   errorResult,
@@ -13,13 +14,13 @@ import {
 import { lessonsAddHint } from './lessons-usage.js';
 import type { LessonsAddData, LessonsCommandResult } from './lessons-types.js';
 
-/**
- * Strip internal function-name prefixes (the transactional write path tags its
- * errors) so the agent sees a clean, actionable message.
- */
 export function errMessage(err: unknown): string {
-  const raw = err instanceof Error ? err.message : String(err);
-  return raw.replace(/^(mutateLessonsGraph|mergeLessons):\s*/, '');
+  return err instanceof Error ? err.message : String(err);
+}
+
+/** A write the validator refused is bad input (2); any other failure is 1. */
+export function errExitCode(err: unknown): 1 | 2 {
+  return err instanceof LessonsWriteRefusedError ? 2 : 1;
 }
 
 export async function doAdd(
@@ -58,11 +59,11 @@ export async function doAdd(
   // `--scope always` captures a universal always-on lesson (no trigger needed).
   const scopeFlag = stringFlag(flags, 'scope') ?? undefined;
 
+  if (scopeFlag !== undefined && scopeFlag !== 'always') {
+    const error = `--scope must be "always" (got ${JSON.stringify(scopeFlag)}).${lessonsAddHint()}`;
+    return errorResult('add', error, 2);
+  }
   try {
-    // Any other --scope value is a mistake worth surfacing (caught below → exit 1).
-    if (scopeFlag !== undefined && scopeFlag !== 'always') {
-      throw new Error(`lessons add: --scope must be "always" (got "${scopeFlag}").`);
-    }
     // Route through captureLesson (not addLesson directly) so capture telemetry
     // records EVERY shell-driven add — the MCP path already routes here, and a
     // direct addLesson call would leave CLI captures invisible to `lessons stats`.
@@ -98,7 +99,7 @@ export async function doAdd(
     if (isCaptureRejection(err)) {
       return errorResult('add', `${err.message}${lessonsAddHint()}`, 2);
     }
-    return errorResult('add', errMessage(err), 1);
+    return errorResult('add', errMessage(err), errExitCode(err));
   }
 }
 
@@ -124,6 +125,6 @@ export async function doDeprecate(
     const hint = message.startsWith('Unknown lesson')
       ? ' Run `agentsmesh lessons journal` to list lesson ids (or `lessons query --ids` to see what recalled).'
       : '';
-    return errorResult('deprecate', `${message}${hint}`, 1);
+    return errorResult('deprecate', `${message}${hint}`, errExitCode(err));
   }
 }

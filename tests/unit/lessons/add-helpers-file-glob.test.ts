@@ -43,6 +43,12 @@ describe('mergeTriggers — file globs are stored project-relative', () => {
     expect(storedPatterns(graph)).toEqual([]);
   });
 
+  it('rejects a Windows-shaped path on another drive', () => {
+    expect(() => mergeTriggers(emptyGraph(), { files: ['D:\\other\\x.ts'] }, 'C:/proj')).toThrow(
+      TriggerFileGlobError,
+    );
+  });
+
   it('rejects the project root itself (an empty relative glob)', () => {
     expect(() => mergeTriggers(emptyGraph(), { files: ['/proj'] }, '/proj')).toThrow(
       TriggerFileGlobError,

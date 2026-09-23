@@ -94,6 +94,7 @@ export function renderLessonMarkdown(
     '',
     lesson.rule,
     '',
+    ...(lesson.rationale === undefined ? [] : [`**rationale:** ${lesson.rationale}`, '']),
     `**topics:** ${lesson.topics.length > 0 ? lesson.topics.join(', ') : '(none)'}`,
     '',
     '**triggers:**',

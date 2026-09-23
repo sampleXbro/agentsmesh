@@ -443,17 +443,6 @@ describe('lessonsHandlers.add', () => {
     expect(loadLessonsGraph(projectRoot).lessons[r.id]?.triggers.length).toBe(3);
   });
 
-  it('rethrows non-UnknownTopicError failures (e.g. new_topic without topic_summary)', async () => {
-    await expect(
-      lessonsHandlers.add(ctx, {
-        rule: 'X.',
-        topic: 'brand-new',
-        new_topic: true,
-        trigger_files: ['src/**'],
-      }),
-    ).rejects.toThrow(/topicSummary/i);
-  });
-
   it('is idempotent on repeat with same rule + topic', async () => {
     const a = await lessonsHandlers.add(ctx, {
       rule: 'Idempotent rule.',
@@ -675,15 +664,47 @@ describe('lessonsHandlers — error codes (no IO_ERROR mislabel)', () => {
     expect((err.details as { code?: string }).code).toBe('OVERSIZED_RULE');
   });
 
-  it('add with new_topic but no topic_summary rethrows the underlying error (not swallowed)', async () => {
-    await expect(
+  it('add with new_topic but no topic_summary is VALIDATION_FAILED naming topic_summary', async () => {
+    const err = await captureMcpError(
       lessonsHandlers.add(ctx, {
         rule: 'missing summary.',
         topic: 'brand-new',
         new_topic: true,
         trigger_files: ['src/**/*.ts'],
       }),
-    ).rejects.toThrow(/topicSummary/i);
+    );
+    expect(err.code).toBe('VALIDATION_FAILED');
+    expect((err.details as { code?: string }).code).toBe('TOPIC_SUMMARY_REQUIRED');
+    expect(err.message).toContain('topic_summary over MCP');
+  });
+
+  it.each([
+    ['../x.ts', 'TRIGGER_FILE_OUTSIDE_PROJECT'],
+    ['src/+(a|b).ts', 'UNSAFE_GLOB_PATTERN'],
+  ])('add with trigger_files %j is VALIDATION_FAILED (%s)', async (file, code) => {
+    const err = await captureMcpError(
+      lessonsHandlers.add(ctx, {
+        rule: 'file rule here.',
+        topic: 'topic-x',
+        trigger_files: [file],
+      }),
+    );
+    expect(err.code).toBe('VALIDATION_FAILED');
+    expect((err.details as { code?: string }).code).toBe(code);
+  });
+
+  it('add with a topic id that is not kebab-case is VALIDATION_FAILED (INVALID_TOPIC_ID)', async () => {
+    const err = await captureMcpError(
+      lessonsHandlers.add(ctx, {
+        rule: 'bad topic id.',
+        topic: 'Build',
+        new_topic: true,
+        topic_summary: 'B.',
+        trigger_files: ['src/**/*.ts'],
+      }),
+    );
+    expect(err.code).toBe('VALIDATION_FAILED');
+    expect((err.details as { code?: string }).code).toBe('INVALID_TOPIC_ID');
   });
 
   it('show of an unknown topic is NOT_FOUND', async () => {

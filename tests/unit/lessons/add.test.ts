@@ -99,9 +99,9 @@ describe('addLesson', () => {
     );
   });
 
-  it('requires topicSummary when allowNewTopic adds a topic', async () => {
+  it('requires a topic summary when allowNewTopic adds a topic', async () => {
     await expect(addLesson(root, baseInput, { allowNewTopic: true })).rejects.toThrow(
-      /topicSummary/,
+      /needs a one-line summary/,
     );
   });
 

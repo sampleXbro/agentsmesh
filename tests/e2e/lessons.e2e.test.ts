@@ -113,10 +113,10 @@ describe('lessons CLI — add validation', () => {
     expect(r.stderr).toContain('Unknown topic: nope');
   });
 
-  it('--new-topic without --topic-summary exits 1', async () => {
+  it('--new-topic without --topic-summary exits 2 and names the flag', async () => {
     const r = await runCliArgs(['lessons', 'add', 'a rule', '--topic', 'nt', '--new-topic'], dir);
-    expect(r.exitCode).toBe(1);
-    expect(r.stderr).toContain('topicSummary');
+    expect(r.exitCode).toBe(2);
+    expect(r.stderr).toContain('needs a one-line summary (--topic-summary on the CLI');
   });
 
   it('a lone invalid regex trigger is refused as unrecallable and leaves a valid graph', async () => {

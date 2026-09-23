@@ -403,8 +403,8 @@ describe('renderLessons — topics / show / journal / validate / import-md / hel
       exitCode: 0,
       data: {
         entries: [
-          { id: 'a', rule: 'A.', createdAt: '2026-06-01', topics: ['t'] },
-          { id: 'b', rule: 'B.', createdAt: '2026-06-02', topics: ['t'] },
+          { id: 'a', rule: 'A.', createdAt: '2026-06-01', topics: ['t'], status: 'active' },
+          { id: 'b', rule: 'B.', createdAt: '2026-06-02', topics: ['t'], status: 'active' },
         ],
       },
     });
@@ -412,6 +412,32 @@ describe('renderLessons — topics / show / journal / validate / import-md / hel
     expect(out.indexOf('2026-06-01')).toBeGreaterThan(-1);
     expect(out.indexOf('A.')).toBeGreaterThan(-1);
     expect(out.indexOf('2026-06-02')).toBeGreaterThan(out.indexOf('2026-06-01'));
+  });
+
+  it('journal marks deprecated and superseded lessons on their line', () => {
+    renderLessons({
+      subcommand: 'journal',
+      exitCode: 0,
+      data: {
+        entries: [
+          { id: 'a', rule: 'A.', createdAt: '2026-06-01', topics: ['t'], status: 'active' },
+          { id: 'b', rule: 'B.', createdAt: '2026-06-01', topics: ['t'], status: 'deprecated' },
+          {
+            id: 'c',
+            rule: 'C.',
+            createdAt: '2026-06-01',
+            topics: ['t'],
+            status: 'superseded',
+            supersededBy: 'a',
+          },
+        ],
+      },
+    });
+    expect(output.stdout().trim().split('\n')).toEqual([
+      '2026-06-01  a  A.',
+      '2026-06-01  b  [deprecated] B.',
+      '2026-06-01  c  [superseded by a] C.',
+    ]);
   });
 
   it('topics prints a placeholder when there are no topics', () => {
@@ -467,10 +493,11 @@ describe('renderLessons — topics / show / journal / validate / import-md / hel
     expect(output.stdout()).toMatch(/ok/i);
   });
 
-  it('validate findings print to stderr with level prefix', () => {
+  it('validate findings print to stderr with level prefix, then the summary', () => {
     renderLessons({
       subcommand: 'validate',
       exitCode: 1,
+      error: 'Lessons graph has 1 error (DANGLING_TOPIC).',
       data: {
         ok: false,
         findings: [
@@ -478,8 +505,9 @@ describe('renderLessons — topics / show / journal / validate / import-md / hel
         ],
       },
     });
-    expect(output.stderr()).toMatch(/error/i);
-    expect(output.stderr()).toContain('DANGLING_TOPIC');
+    const err = output.stderr();
+    expect(err).toContain('ERROR DANGLING_TOPIC: Lesson x → topic y missing.');
+    expect(err.indexOf('DANGLING_TOPIC:')).toBeLessThan(err.indexOf('Lessons graph has 1 error'));
   });
 
   it('import-md prints migration counts', () => {

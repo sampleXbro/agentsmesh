@@ -28,8 +28,10 @@ afterEach(() => {
 
 describe('lessons CLI — untrigger', () => {
   const graphPath = (): string => join(dir, '.agentsmesh/lessons/lessons.json');
-  const readGraph = (): { lessons: Record<string, { triggers: string[] }>; triggers: Record<string, { kind: string; pattern: string }> } =>
-    JSON.parse(readFileSync(graphPath(), 'utf8'));
+  const readGraph = (): {
+    lessons: Record<string, { triggers: string[] }>;
+    triggers: Record<string, { kind: string; pattern: string }>;
+  } => JSON.parse(readFileSync(graphPath(), 'utf8'));
 
   it('detaches a trigger and garbage-collects the now-unused node, leaving a valid graph', async () => {
     const id = await addLessonCli(dir, 'Untrigger me', {
@@ -152,7 +154,7 @@ describe('lessons CLI — merge', () => {
   it('unknown ids exit 1', async () => {
     const r = await runCli('lessons merge a b', dir);
     expect(r.exitCode).toBe(1);
-    expect(r.stderr).toContain('unknown lesson');
+    expect(r.stderr).toContain('Unknown lesson "a".');
   });
 
   it('missing second id exits 2', async () => {

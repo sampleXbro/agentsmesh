@@ -1,3 +1,28 @@
+# Lessons CLI low-severity papercuts (2026-09-23)
+
+All repros confirmed against the build at 6b8bf1e3 (none already fixed). Exit 2 = bad input.
+
+- [x] A flags: a value flag with no value → exit 2 "--x needs a value" (+ `--x=<value>` hint); an
+  unknown "flag" with a space → `--rule="--..."` hint; `lessons help [sub]`
+- [x] B `prune --cap abc` / `0x10` → exit 2 (shared strict positive-int check with query)
+- [x] C add input errors → exit 2 with flag names (--scope, INVALID_TOPIC_ID with a suggestion,
+  TOPIC_SUMMARY_REQUIRED incl. blank, unsafe --trigger-file glob gated before write); write
+  refusals → exit 2 "Refused to save the lessons graph: … Nothing was written."; internal
+  prefixes removed at the source; --evidence deduped; rule length and recall clamp in characters
+- [x] D --trigger-file: trim, strip ./, posix-normalize; ../ outside, folder (suggest dir/**),
+  project root (also via a symlink such as macOS /tmp) all rejected, CLI + MCP
+- [x] E --trigger-cmd "\u{...}" rejected by the linear engine (UNSAFE_TRIGGER_PATTERN)
+- [x] F query names a failed legacy migration instead of the init hint
+- [x] G import-md --migrated-at must be a real calendar date (exit 2)
+- [x] H env true/false/yes/no/on/off; config warns on non-boolean switches and non-object files
+- [x] I show rationale; journal [deprecated]/[superseded by x] + status in JSON; periods;
+  validate summary error (JSON envelope); --ids help text; docs keyword example
+- [x] docs (cli/lessons.mdx, reference/lessons.mdx, reference/mcp-server.mdx), changeset, gate
+  (13836 unit+integration, 658 e2e, coverage floor, lint, typecheck incl. tests, knip, build,
+  astro, generate --check, check), all repro scripts re-run on the build, commit
+- Unknown topic stays exit 1 (NOT_FOUND over MCP), like other unknown ids
+---
+
 # Stable lock on no-op generate (2026-09-23)
 
 Bug: `generate` with nothing changed still rewrites `generated_at` in `.agentsmesh/.lock`, so the

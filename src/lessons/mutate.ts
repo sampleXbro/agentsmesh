@@ -8,11 +8,9 @@ import { validateLessonsGraph, type ValidationFinding, type ValidationReport } f
 export class LessonsWriteRefusedError extends Error {
   readonly findings: readonly ValidationFinding[];
   constructor(findings: readonly ValidationFinding[]) {
-    const errors = findings.map((f) => `${f.code}: ${f.message.replace(/\.+$/, '')}`).join('; ');
+    const errors = findings.map((f) => `${f.code}: ${f.message.replace(/[.\s]+$/, '')}`).join('; ');
     super(
-      `mutateLessonsGraph: refusing to write — this change introduces ${errors}. ` +
-        '(Pre-existing graph issues are not blocking; run `agentsmesh lessons validate` to ' +
-        'review and `lessons untrigger`/`prune` to repair them.)',
+      `Refused to save the lessons graph: this change would add ${errors}. Nothing was written.`,
     );
     this.name = 'LessonsWriteRefusedError';
     this.findings = findings;

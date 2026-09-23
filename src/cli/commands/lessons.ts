@@ -24,6 +24,7 @@ import {
   type LessonsFlags,
 } from './lessons-handlers.js';
 import { validateLessonsFlags, validateLessonsPositionals } from './lessons-known-flags.js';
+import { LESSONS_USAGE } from './lessons-usage.js';
 import { doResolve } from './lessons-resolve-handler.js';
 import type { LessonsCommandResult } from './lessons-types.js';
 import { doValidate } from './lessons-validate-handler.js';
@@ -38,20 +39,24 @@ export type { LessonsCommandResult } from './lessons-types.js';
  * other subcommand keeps the throw: failing a write loudly prevents a fresh
  * empty graph from permanently stranding an unmigrated legacy store.
  */
-async function migrateForSubcommand(subcommand: string, projectRoot: string): Promise<boolean> {
+async function migrateForSubcommand(
+  subcommand: string,
+  projectRoot: string,
+): Promise<{ migrated: boolean; error?: string }> {
   // `resolve` and the git merge driver work on a conflicted graph mid-merge;
   // migrating first could write over it or fail the merge.
   if (subcommand === 'import-md' || subcommand === 'resolve' || subcommand === 'merge-driver') {
-    return false;
+    return { migrated: false };
   }
   if (subcommand === 'query' || subcommand === 'hook') {
     try {
-      return await maybeAutoMigrateLessons(projectRoot);
-    } catch {
-      return false;
+      return { migrated: await maybeAutoMigrateLessons(projectRoot) };
+    } catch (err) {
+      // `query` reports it; the hook stays silent.
+      return { migrated: false, error: err instanceof Error ? err.message : String(err) };
     }
   }
-  return maybeAutoMigrateLessons(projectRoot);
+  return { migrated: await maybeAutoMigrateLessons(projectRoot) };
 }
 
 /** Internal subcommands locate their own files: the hook payload cwd, git's merge paths. */
@@ -75,6 +80,7 @@ export async function runLessons(
   if (subcommand === undefined || subcommand === '') {
     return { subcommand: 'help', exitCode: 0, data: null };
   }
+  if (subcommand === 'help') return helpFor(args[1]);
 
   // Reject typoed/unknown or repeated flags and extra positionals before any
   // side effect: the parser is permissive, so a silently-ignored `--trigger-flie`
@@ -107,6 +113,16 @@ export async function runLessons(
   }
 }
 
+/** `lessons help [subcommand]`: the overview, or one subcommand's help. */
+function helpFor(topic: string | undefined): LessonsCommandResult {
+  if (topic === undefined) return { subcommand: 'help', exitCode: 0, data: null };
+  if (LESSONS_USAGE[topic] === undefined) {
+    const error = `Unknown lessons subcommand: ${topic}`;
+    return { subcommand: 'help', exitCode: 2, error, data: null };
+  }
+  return { subcommand: 'help', exitCode: 0, data: null, topic };
+}
+
 /** Why the graph fails to load, else null. No git check: a mid-merge graph that loads is not the cause. */
 function graphProblem(projectRoot: string): string | null {
   return problemFromLoad(projectRoot, loadLessonsGraphResilient(projectRoot))?.message ?? null;
@@ -118,11 +134,11 @@ async function dispatch(
   args: string[],
   projectRoot: string,
 ): Promise<LessonsCommandResult> {
-  const autoMigrated = await migrateForSubcommand(subcommand, projectRoot);
+  const migration = await migrateForSubcommand(subcommand, projectRoot);
 
   switch (subcommand) {
     case 'query':
-      return doQuery(flags, projectRoot, autoMigrated);
+      return doQuery(flags, projectRoot, migration.migrated, migration.error);
     case 'add':
       return doAdd(flags, args[1], projectRoot);
     case 'topics':

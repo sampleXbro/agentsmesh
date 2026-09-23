@@ -40,6 +40,34 @@ export class UnknownTopicError extends Error {
   }
 }
 
+/** Thrown when a topic id is not kebab-case, so the graph schema would reject it. */
+export class InvalidTopicIdError extends Error {
+  readonly code = 'INVALID_TOPIC_ID';
+  constructor(public readonly topic: string) {
+    const slug = topic
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+    super(
+      `Topic id ${JSON.stringify(topic)} must be kebab-case (lowercase letters, digits and -)` +
+        (slug.length > 0 ? `, e.g. ${JSON.stringify(slug)}.` : '.'),
+    );
+    this.name = 'InvalidTopicIdError';
+  }
+}
+
+/** Thrown when a capture creates a topic without a (non-blank) summary. */
+export class TopicSummaryRequiredError extends Error {
+  readonly code = 'TOPIC_SUMMARY_REQUIRED';
+  constructor(public readonly topic: string) {
+    super(
+      `New topic ${JSON.stringify(topic)} needs a one-line summary (--topic-summary on the CLI, ` +
+        'topic_summary over MCP).',
+    );
+    this.name = 'TopicSummaryRequiredError';
+  }
+}
+
 /**
  * Thrown when a capture's rule text exceeds {@link MAX_RULE_LENGTH}. A rule is
  * one imperative sentence; a far longer one is a malformed capture (a pasted log,

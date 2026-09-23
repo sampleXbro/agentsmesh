@@ -162,7 +162,7 @@ describe('lessonsDeprecate', () => {
   it('maps an unknown lesson id to NOT_FOUND', async () => {
     await expect(lessonsDeprecate(ctx, { id: 'nope' })).rejects.toMatchObject({
       code: 'NOT_FOUND',
-      message: 'lessons_deprecate: Unknown lesson: nope',
+      message: 'lessons_deprecate: Unknown lesson: nope.',
     });
   });
 
@@ -171,7 +171,7 @@ describe('lessonsDeprecate', () => {
       lessonsDeprecate(ctx, { id: 'topic-z-first', superseded_by: 'nope' }),
     ).rejects.toMatchObject({
       code: 'NOT_FOUND',
-      message: 'lessons_deprecate: Unknown superseder: nope',
+      message: 'lessons_deprecate: Unknown superseder: nope.',
     });
   });
 

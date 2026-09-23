@@ -24,7 +24,7 @@ export class LegacyTopicPathError extends Error {
   readonly code = 'LEGACY_TOPIC_PATH_OUTSIDE';
   constructor(file: string) {
     super(
-      `importLegacyLessons: topic file path is outside .agentsmesh/lessons/: ${file}. Refusing to migrate (legacy artifacts left intact).`,
+      `Legacy topic file path is outside .agentsmesh/lessons/: ${file}. Refusing to migrate (legacy artifacts left intact).`,
     );
     this.name = 'LegacyTopicPathError';
   }
@@ -88,7 +88,7 @@ export async function readLegacySource(
     if (!existsSync(topicFile)) {
       // Fail closed: migrating an incomplete graph would then delete the source.
       throw new Error(
-        `importLegacyLessons: declared topic file is missing: ${cluster.file}. Refusing to migrate (legacy artifacts left intact).`,
+        `Legacy topic file is missing: ${cluster.file}. Refusing to migrate (legacy artifacts left intact).`,
       );
     }
 

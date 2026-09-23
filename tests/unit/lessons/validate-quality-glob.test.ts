@@ -67,7 +67,7 @@ describe('collectInvalidTriggerPatterns — file_glob safety', () => {
   });
 });
 
-describe('capture rejects an unsafe file_glob (transactional write barrier)', () => {
+describe('capture rejects an unsafe file_glob before any write', () => {
   let root: string;
   beforeEach(() => {
     root = mkdtempSync(join(tmpdir(), 'amesh-glob-safety-'));
@@ -89,7 +89,7 @@ describe('capture rejects an unsafe file_glob (transactional write barrier)', ()
         topic: 't',
         triggers: { files: [HOSTILE_EXTGLOB] },
       }),
-    ).rejects.toThrow(/UNSAFE_GLOB_PATTERN/);
+    ).rejects.toMatchObject({ code: 'UNSAFE_GLOB_PATTERN' });
     expect(loadLessonsGraph(root).lessons).toEqual({});
     expect(loadLessonsGraph(root).triggers).toEqual({});
   });
@@ -103,7 +103,7 @@ describe('capture rejects an unsafe file_glob (transactional write barrier)', ()
         { rule: 'Never do the thing.', topic: 't', triggers: { files: [HOSTILE_EXTGLOB] } },
         { knownPaths },
       ),
-    ).rejects.toThrow(/UNSAFE_GLOB_PATTERN/);
+    ).rejects.toMatchObject({ code: 'UNSAFE_GLOB_PATTERN' });
     expect(performance.now() - start).toBeLessThan(500);
   });
 });

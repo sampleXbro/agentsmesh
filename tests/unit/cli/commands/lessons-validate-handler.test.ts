@@ -95,3 +95,42 @@ describe('lessons validate — unreadable graph', () => {
     expect(r.data.ok).toBe(true);
   });
 });
+
+describe('lessons validate — the failure summary (the --json envelope error)', () => {
+  it('names the error codes instead of "Command \'lessons\' failed"', async () => {
+    writeGraphText(root, '{bad');
+    const r = await runLessons({}, ['validate'], root);
+    expect(r.exitCode).toBe(1);
+    expect(r.error).toBe('Lessons graph has 1 error (CORRUPT_GRAPH).');
+  });
+
+  it('counts every error and lists each code once', async () => {
+    writeGraphText(
+      root,
+      JSON.stringify({
+        version: 2,
+        topics: {},
+        triggers: {},
+        lessons: {
+          a: {
+            rule: 'A.',
+            topics: ['x'],
+            triggers: ['t1'],
+            evidence: [],
+            status: 'active',
+            createdAt: '2026-01-01',
+          },
+        },
+      }),
+    );
+    const r = await runLessons({}, ['validate'], root);
+    expect(r.exitCode).toBe(1);
+    expect(r.error).toMatch(/^Lessons graph has 2 errors \([A-Z_]+, [A-Z_]+\)\.$/);
+  });
+
+  it('has no error when the graph is valid', async () => {
+    const r = await runLessons({}, ['validate'], root);
+    expect(r.exitCode).toBe(0);
+    expect(r.error).toBeUndefined();
+  });
+});

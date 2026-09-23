@@ -24,9 +24,9 @@ export async function deprecateLesson(
 ): Promise<DeprecateResult> {
   return mutateLessonsGraph(projectRoot, (graph) => {
     const target = graph.lessons[lessonId];
-    if (target === undefined) throw new Error(`Unknown lesson: ${lessonId}`);
+    if (target === undefined) throw new Error(`Unknown lesson: ${lessonId}.`);
     if (supersededBy !== null && graph.lessons[supersededBy] === undefined) {
-      throw new Error(`Unknown superseder: ${supersededBy}`);
+      throw new Error(`Unknown superseder: ${supersededBy}.`);
     }
     const status = supersededBy === null ? 'deprecated' : 'superseded';
     graph.lessons[lessonId] = {

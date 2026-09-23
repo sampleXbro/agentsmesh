@@ -42,7 +42,9 @@ export interface ImportLegacyOptions {
 export class LessonsGraphExistsError extends Error {
   readonly code = 'LESSONS_GRAPH_EXISTS';
   constructor() {
-    super('importLegacyLessons: a non-empty lessons.json already exists; pass force to overwrite.');
+    super(
+      'A non-empty lessons.json already exists. Pass --force to overwrite it, or --merge to add the legacy lessons to it.',
+    );
     this.name = 'LessonsGraphExistsError';
   }
 }

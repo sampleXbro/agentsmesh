@@ -26,12 +26,26 @@ const TAG_NAME = /^recalled[-\u2010-\u2015\u2212]lessons/iu;
 /** Room for the tag name even when each letter takes two UTF-16 units. */
 const TAG_WINDOW = 64;
 
-/** Cut `rule` to at most `max` characters, never inside a surrogate pair. */
+/** UTF-16 index just past the first `count` characters (code points) of `text`. */
+function codePointIndex(text: string, count: number): number {
+  let index = 0;
+  for (let seen = 0; seen < count && index < text.length; seen++) {
+    const unit = text.charCodeAt(index);
+    const next = text.charCodeAt(index + 1);
+    index += unit >= 0xd800 && unit <= 0xdbff && next >= 0xdc00 && next <= 0xdfff ? 2 : 1;
+  }
+  return index;
+}
+
+/** Length in characters (code points), so an emoji counts once, not twice. */
+export function codePointLength(text: string): number {
+  return [...text].length;
+}
+
+/** Cut `rule` to at most `max` characters (code points), never inside a surrogate pair. */
 export function clampText(rule: string, max: number = MAX_RULE_LENGTH): string {
-  if (rule.length <= max) return rule;
-  let end = Math.max(0, max - TRUNCATION_MARK.length);
-  const last = rule.charCodeAt(end - 1);
-  if (last >= 0xd800 && last <= 0xdbff) end -= 1;
+  if (codePointIndex(rule, max) === rule.length) return rule;
+  const end = codePointIndex(rule, Math.max(0, max - TRUNCATION_MARK.length));
   return rule.slice(0, end) + TRUNCATION_MARK;
 }
 

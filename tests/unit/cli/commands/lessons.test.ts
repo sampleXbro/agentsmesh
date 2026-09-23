@@ -612,6 +612,36 @@ describe('runLessons journal', () => {
     if (r.subcommand !== 'journal') return;
     expect(r.data.entries.map((e) => e.id)).toEqual(['a-one', 'b-two']);
   });
+
+  it('marks deprecated and superseded lessons', async () => {
+    const lesson = (rule: string): LessonsGraph['lessons'][string] => ({
+      rule,
+      topics: ['t'],
+      triggers: [],
+      evidence: [],
+      status: 'active',
+      createdAt: '2026-06-01',
+    });
+    saveLessonsGraph(root, {
+      version: 2,
+      lessons: {
+        'a-live': lesson('A.'),
+        'b-gone': { ...lesson('B.'), status: 'deprecated' },
+        'c-old': { ...lesson('C.'), status: 'superseded', supersededBy: 'a-live' },
+      },
+      topics: { t: { summary: '.' } },
+      triggers: {},
+    });
+    const r = await runLessons({}, ['journal'], root);
+    if (r.subcommand !== 'journal') throw new Error('expected journal');
+    expect(
+      r.data.entries.map(({ id, status, supersededBy }) => ({ id, status, supersededBy })),
+    ).toEqual([
+      { id: 'a-live', status: 'active', supersededBy: undefined },
+      { id: 'b-gone', status: 'deprecated', supersededBy: undefined },
+      { id: 'c-old', status: 'superseded', supersededBy: 'a-live' },
+    ]);
+  });
 });
 
 describe('runLessons show — multiple lessons', () => {
@@ -1419,12 +1449,17 @@ describe('runLessons prune', () => {
     expect(loadLessonsGraph(root).lessons.big?.triggers.length).toBe(3);
   });
 
-  it('rejects an invalid --cap with a usage error (exit 2)', async () => {
-    seedOverCap();
-    const r = await runLessons({ cap: '0' }, ['prune'], root);
-    expect(r.exitCode).toBe(2);
-    expect(r.error).toMatch(/--cap/);
-  });
+  it.each(['0', '-1', '1.5', 'abc', '0x10', '3 apples'])(
+    'rejects --cap %j with a usage error (exit 2) and writes nothing, even with --apply',
+    async (cap) => {
+      seedOverCap();
+      const before = readFileSync(graphFilePath(root), 'utf8');
+      const r = await runLessons({ apply: true, cap }, ['prune'], root);
+      expect(r.exitCode).toBe(2);
+      expect(r.error).toBe('Invalid --cap: expected a positive integer.');
+      expect(readFileSync(graphFilePath(root), 'utf8')).toBe(before);
+    },
+  );
 
   it('reports an empty plan on a project with no graph (dry-run and apply)', async () => {
     const dry = await runLessons({}, ['prune'], root);
@@ -1487,15 +1522,18 @@ describe('runLessons — cross-cutting hardening', () => {
 
   it('a rejected add surfaces a clean message without the internal function prefix', async () => {
     seedSimpleGraph();
+    const glob = `src/${'{a,b}'.repeat(20)}`;
     const r = await runLessons(
-      // Too many brace expansions: refused by the write barrier.
-      { topic: 'topic-x', 'trigger-file': `src/${'{a,b}'.repeat(20)}` },
+      // Too many brace expansions: refused before any write.
+      { topic: 'topic-x', 'trigger-file': glob },
       ['add', 'Unsafe glob rule.'],
       root,
     );
-    expect(r.exitCode).not.toBe(0);
-    expect(r.error).toBeDefined();
-    expect(r.error).not.toContain('mutateLessonsGraph:');
-    expect(r.error).toMatch(/UNSAFE_GLOB_PATTERN/);
+    expect(r.exitCode).toBe(2);
+    expect(r.error).toMatch(
+      new RegExp(
+        `^--trigger-file ${JSON.stringify(glob).replace(/[{}]/g, '\\$&')} is outside the safe glob subset: `,
+      ),
+    );
   });
 });
