@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { afterEach, beforeEach, vi } from 'vitest';
 import type { LessonsGraph } from '../../../src/lessons/graph-schema.js';
 import { saveLessonsGraph } from '../../../src/lessons/graph-store.js';
+import { buildRecallHookOutput } from '../../../src/lessons/hook.js';
 
 type Lesson = LessonsGraph['lessons'][string];
 type Trigger = LessonsGraph['triggers'][string];
@@ -26,6 +27,19 @@ export function graphOf(entries: Record<string, { rule: string; trigger: Trigger
   return { version: 2, lessons, topics: { t: { summary: 'T.' } }, triggers };
 }
 
+/** A trigger-less `scope: 'always'` lesson for a `graphOf` graph. */
+export function alwaysLesson(rule: string): Lesson {
+  return {
+    rule,
+    topics: ['t'],
+    triggers: [],
+    evidence: [],
+    status: 'active',
+    scope: 'always',
+    createdAt: '2026-06-05',
+  };
+}
+
 /** The injected additionalContext, or '' when the hook emitted nothing. */
 export function contextOf(output: string): string {
   if (output === '') return '';
@@ -33,10 +47,15 @@ export function contextOf(output: string): string {
   return parsed.hookSpecificOutput.additionalContext;
 }
 
+/** How many times `needle` occurs in `text`. */
+export const count = (text: string, needle: string): number => text.split(needle).length - 1;
+
 /** Temp project root per test, seeded with `graph`; env isolated from the host session. */
 export function useHookProject(graph: () => LessonsGraph): {
   root: () => string;
   session: (label: string) => string;
+  /** Run the hook on `payload` from the project root; the injected context or ''. */
+  recall: (payload: Record<string, unknown>) => Promise<string>;
 } {
   let root = '';
   let n = 0;
@@ -54,5 +73,7 @@ export function useHookProject(graph: () => LessonsGraph): {
   return {
     root: () => root,
     session: (label) => `hookfix-${label}-${process.pid}-${Date.now()}-${n++}`,
+    recall: async (payload) =>
+      contextOf((await buildRecallHookOutput(JSON.stringify(payload), root)).output),
   };
 }

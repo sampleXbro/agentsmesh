@@ -181,7 +181,5 @@ export function generateHooks(canonical: CanonicalFiles): RulesOutput[] {
 /**
  * Generate .claudeignore from canonical ignore patterns.
  * Uses gitignore-style syntax (one pattern per line).
- * @param canonical - Loaded canonical files
- * @returns Array with single .claudeignore output, or [] if no patterns
  */
 export const generateIgnore = ignoreOutput(CLAUDE_IGNORE);

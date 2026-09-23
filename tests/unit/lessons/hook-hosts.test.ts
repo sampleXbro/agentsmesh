@@ -1,41 +1,24 @@
 import { realpathSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import type { LessonsGraph } from '../../../src/lessons/graph-schema.js';
 import { buildRecallHookOutput } from '../../../src/lessons/hook.js';
 import { RECALL_BLOCK_OPEN } from '../../../src/lessons/rule-line.js';
-import { contextOf, graphOf, useHookProject } from './hook-test-helpers.js';
+import { alwaysLesson, contextOf, graphOf, useHookProject } from './hook-test-helpers.js';
 
 const ALWAYS = 'Universal rule.';
 const KEYWORD = 'Guard every regex against redos.';
 
-function hostGraph(): LessonsGraph {
+const project = useHookProject(() => {
   const g = graphOf({ kw: { rule: KEYWORD, trigger: { kind: 'keyword', pattern: 'redos' } } });
-  return {
-    ...g,
-    lessons: {
-      ...g.lessons,
-      aw: {
-        rule: ALWAYS,
-        topics: ['t'],
-        triggers: [],
-        evidence: [],
-        status: 'active',
-        scope: 'always',
-        createdAt: '2026-06-05',
-      },
-    },
-  };
-}
-
-const project = useHookProject(hostGraph);
+  return { ...g, lessons: { ...g.lessons, aw: alwaysLesson(ALWAYS) } };
+});
 
 /** Run the hook from a directory outside the project, so the root must come from the payload. */
 async function run(
   payload: Record<string, unknown>,
 ): Promise<{ output: string; exitCode?: number }> {
   const elsewhere = realpathSync(join(project.root(), '..'));
-  return buildRecallHookOutput(JSON.stringify(payload), elsewhere, {});
+  return buildRecallHookOutput(JSON.stringify(payload), elsewhere);
 }
 
 const parse = (output: string): Record<string, unknown> =>

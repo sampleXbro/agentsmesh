@@ -1,15 +1,8 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import {
-  BroadCommandPatternError,
-  EmptyRuleError,
-  NoTriggerError,
-  RuleTooLongError,
-  TriggerFileGlobError,
-  UnknownTopicError,
-  UnrecallableLessonError,
-} from '../../lessons/add.js';
+import { UnknownTopicError } from '../../lessons/add.js';
 import { captureLesson } from '../../lessons/capture.js';
+import { isCaptureRejection } from '../../lessons/capture-rejection.js';
 import { deprecateLesson } from '../../lessons/deprecate.js';
 import { ancestorLessonsProjectDir, lessonsActivated } from '../../lessons/paths.js';
 import {
@@ -117,14 +110,7 @@ export async function doAdd(
         1,
       );
     }
-    if (
-      err instanceof EmptyRuleError ||
-      err instanceof NoTriggerError ||
-      err instanceof UnrecallableLessonError ||
-      err instanceof RuleTooLongError ||
-      err instanceof BroadCommandPatternError ||
-      err instanceof TriggerFileGlobError
-    ) {
+    if (isCaptureRejection(err)) {
       return errorResult('add', `${err.message}${lessonsAddHint()}`, 2);
     }
     return errorResult('add', errMessage(err), 1);

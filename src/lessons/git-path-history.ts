@@ -1,4 +1,4 @@
-import { execFileSync } from 'node:child_process';
+import { runGit } from './git-exec.js';
 
 /**
  * What git knows about project paths, for `file_glob` liveness. All paths are
@@ -14,8 +14,7 @@ export interface GitPathHistory {
 }
 
 /** Bound per git call. A slower scan reads as unknown, never as dead. */
-export const GIT_SCAN_TIMEOUT_MS = 3_000;
-const MAX_OUTPUT_BYTES = 64 * 1024 * 1024;
+const GIT_SCAN_TIMEOUT_MS = 3_000;
 
 const cache = new Map<string, GitPathHistory | null>();
 
@@ -51,10 +50,13 @@ export function scanGitPathHistory(
   timeoutMs: number = GIT_SCAN_TIMEOUT_MS,
 ): GitPathHistory | null {
   const tracked = runGit(projectRoot, ['ls-files', '-z'], timeoutMs);
-  if (tracked === null) return null;
+  if (tracked.status !== 0) return null;
   const log = runGit(projectRoot, LOG_ARGS, timeoutMs);
-  if (log === null) return null;
-  return { tracked: new Set(tracked.split('\0').filter(Boolean)), ...parseRemovals(log) };
+  if (log.status !== 0) return null;
+  return {
+    tracked: new Set(tracked.stdout.split('\0').filter(Boolean)),
+    ...parseRemovals(log.stdout),
+  };
 }
 
 // `-z` name-status output: a status token, then one path (D) or old + new (R).
@@ -74,19 +76,4 @@ function parseRemovals(out: string): Pick<GitPathHistory, 'deleted' | 'renamedAw
     }
   }
   return { deleted, renamedAway };
-}
-
-function runGit(cwd: string, args: readonly string[], timeoutMs: number): string | null {
-  try {
-    return execFileSync('git', args, {
-      cwd,
-      encoding: 'utf8',
-      timeout: timeoutMs,
-      maxBuffer: MAX_OUTPUT_BYTES,
-      stdio: ['ignore', 'pipe', 'ignore'],
-      windowsHide: true,
-    });
-  } catch {
-    return null;
-  }
 }

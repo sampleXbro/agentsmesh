@@ -1,6 +1,6 @@
 /**
- * Gemini CLI format helpers — flexible frontmatter parsing, hook event mapping,
- * and settings processing (MCP, ignore, hooks).
+ * Gemini CLI format helpers — flexible frontmatter parsing and settings
+ * processing (MCP, ignore, hooks).
  */
 
 import { AB_IGNORE } from '../../core/canonical-paths.js';
@@ -9,7 +9,7 @@ import type { ImportResult } from '../../core/types.js';
 import { readFileSafe, writeFileAtomic, mkdirp } from '../../utils/filesystem/fs.js';
 import { GEMINI_IGNORE } from './constants.js';
 
-export { mapGeminiHookEvent, parseFlexibleFrontmatter } from './format-helpers-shared.js';
+export { parseFlexibleFrontmatter } from './format-helpers-shared.js';
 export { importGeminiSettings } from './format-helpers-settings.js';
 
 export async function importGeminiIgnore(

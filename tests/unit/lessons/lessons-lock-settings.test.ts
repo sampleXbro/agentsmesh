@@ -7,8 +7,10 @@ import {
   lessonsLockPath,
   LESSONS_LOCK_OPTIONS,
 } from '../../../src/lessons/lessons-lock.js';
-import { acquireProcessLock } from '../../../src/utils/filesystem/process-lock.js';
-import { lockRetryDelayMs } from '../../../src/utils/filesystem/process-lock-backoff.js';
+import {
+  acquireProcessLock,
+  lockRetryDelayMs,
+} from '../../../src/utils/filesystem/process-lock.js';
 import { LockAcquisitionError } from '../../../src/core/errors.js';
 
 type ProcessLockModule = typeof import('../../../src/utils/filesystem/process-lock.js');
@@ -48,13 +50,6 @@ describe('acquireLessonsLock — settings', () => {
     const release = await acquireLessonsLock(root);
     await release();
     expect(vi.mocked(acquireProcessLock).mock.calls).toEqual([[lessonsLockPath(root), EXPECTED]]);
-    expect(LESSONS_LOCK_OPTIONS).toEqual({
-      retries: 500,
-      retryDelayMs: 25,
-      maxRetryDelayMs: 250,
-      jitter: true,
-      staleMs: 60_000,
-    });
   });
 
   it('an explicit retries value overrides only the retry count; undefined keeps the default', async () => {

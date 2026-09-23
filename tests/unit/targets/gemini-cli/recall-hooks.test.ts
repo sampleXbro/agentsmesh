@@ -15,28 +15,17 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { getBuiltinTargetDefinition } from '../../../../src/targets/catalog/builtin-targets.js';
 import { generateGeminiSettingsFiles } from '../../../../src/targets/gemini-cli/generator.js';
 import { importFromGemini } from '../../../../src/targets/gemini-cli/importer.js';
-import { lintHooks } from '../../../../src/targets/gemini-cli/lint.js';
 import { GEMINI_SETTINGS } from '../../../../src/targets/gemini-cli/constants.js';
-import type { CanonicalFiles, Hooks } from '../../../../src/core/types.js';
+import { withTargetRecallHooks } from '../../../../src/targets/catalog/recall-hook-targets.js';
+import type { Hooks } from '../../../../src/core/types.js';
+import { makeCanonical } from '../canonical-factory.js';
 
 const RECALL = 'agentsmesh lessons hook';
 const HOOKS_ONLY = new Set(['hooks']);
 
-function canonical(hooks: Hooks): CanonicalFiles {
-  return {
-    rules: [],
-    commands: [],
-    agents: [],
-    skills: [],
-    mcp: null,
-    permissions: null,
-    ignore: [],
-    hooks,
-  };
-}
-
 function settingsHooks(hooks: Hooks): unknown {
-  const [out] = generateGeminiSettingsFiles(canonical(hooks), HOOKS_ONLY);
+  const projected = withTargetRecallHooks(makeCanonical({ hooks }), 'gemini-cli');
+  const [out] = generateGeminiSettingsFiles(projected, HOOKS_ONLY);
   return (JSON.parse(out!.content) as { hooks: unknown }).hooks;
 }
 
@@ -94,12 +83,6 @@ describe('gemini-cli lessons recall hooks', () => {
         },
       ],
     });
-  });
-
-  it('no longer warns about a user UserPromptSubmit hook', () => {
-    expect(
-      lintHooks(canonical({ UserPromptSubmit: [{ matcher: '*', type: 'command', command: 'x' }] })),
-    ).toEqual([]);
   });
 });
 

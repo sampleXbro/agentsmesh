@@ -71,12 +71,8 @@ export interface HookLocation {
 }
 
 /** Start from the payload cwd, else CLAUDE_PROJECT_DIR, else the process cwd. */
-export function hookLocation(
-  parsed: HookStdin,
-  processCwd: string,
-  env: NodeJS.ProcessEnv,
-): HookLocation {
-  const start = resolve(processCwd, str(parsed.cwd) ?? str(env.CLAUDE_PROJECT_DIR) ?? '.');
+export function hookLocation(parsed: HookStdin, processCwd: string): HookLocation {
+  const start = resolve(processCwd, str(parsed.cwd) ?? str(process.env.CLAUDE_PROJECT_DIR) ?? '.');
   return { start, root: resolveLessonsRoot(start) };
 }
 

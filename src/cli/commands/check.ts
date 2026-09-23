@@ -16,17 +16,6 @@ export interface CheckCommandResult {
   error?: string;
 }
 
-/** Add an unreadable-lessons failure (project scope only) on top of the lock result. */
-function withLessonsCheck(
-  result: CheckCommandResult,
-  scope: string,
-  projectRoot: string,
-): CheckCommandResult {
-  const problem = scope === 'project' ? lessonsGraphProblem(projectRoot) : null;
-  if (problem === null) return result;
-  return { ...result, exitCode: 1, error: `Lessons graph unreadable: ${problem.message}` };
-}
-
 /**
  * Run the check command.
  * @param flags - CLI flags. `--global` targets `~/.agentsmesh`; `--no-outputs`
@@ -56,7 +45,10 @@ export async function runCheck(
     scope,
   });
 
-  return withLessonsCheck(lockResult(report), scope, context.configDir);
+  const result = lockResult(report);
+  const problem = scope === 'project' ? lessonsGraphProblem(context.configDir) : null;
+  if (problem === null) return result;
+  return { ...result, exitCode: 1, error: `Lessons graph unreadable: ${problem.message}` };
 }
 
 function lockResult(report: Awaited<ReturnType<typeof checkLockSync>>): CheckCommandResult {

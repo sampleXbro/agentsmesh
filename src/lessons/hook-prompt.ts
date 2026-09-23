@@ -1,9 +1,4 @@
-import {
-  HOOK_INJECT_LIMIT,
-  optionalPreface,
-  renderRecall,
-  type RecallHookResult,
-} from './hook-emit.js';
+import { HOOK_INJECT_LIMIT, paragraphs, renderRecall, type RecallHookResult } from './hook-emit.js';
 import { sessionNotices } from './hook-notices.js';
 import { recallAlwaysLessons } from './recall-always.js';
 import { recallLessons } from './recall.js';
@@ -40,7 +35,7 @@ export async function taskRecall(
     {
       event: 'UserPromptSubmit',
       lead: 'Recalled agentsmesh lessons for this task',
-      ...optionalPreface(notices),
+      preface: paragraphs(notices),
     },
   );
 }

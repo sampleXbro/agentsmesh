@@ -2,7 +2,7 @@ import { buildCaptureNudge, RECURRENCE_THRESHOLD } from './capture-nudge.js';
 import { contextKey } from './context-key.js';
 import { errorClass } from './error-class.js';
 import { contextOutput, EMPTY, type RecallHookResult } from './hook-emit.js';
-import { failuresForContext, recordFailure } from './outcome-log.js';
+import { recordFailure, recurringFailure } from './outcome-log.js';
 import { hasCoveringLesson } from './recurrence-gate.js';
 
 /** A failed tool call as the hook saw it. Split from hook.ts for the 200-line limit. */
@@ -33,9 +33,9 @@ export function failureNudge(f: HookFailure): RecallHookResult {
     // Record the failure so effectiveness can tell whether a lesson delivered for
     // this same action earlier actually prevented the repeat (EVALUATE).
     recordFailure(projectRoot, key, errorClass(f.errorText), process.env, sessionId);
-    const history = failuresForContext(projectRoot, key);
-    failures = history.count;
-    lastErrorClass = history.lastErrorClass;
+    const history = recurringFailure(projectRoot, key);
+    failures = history.sameClassCount;
+    lastErrorClass = history.errorClass;
     // STORE: coverage only changes the nudge once the failure RECURS, so probe the
     // graph (a cheap raw match, no ranker/telemetry) only past the threshold.
     covered = failures >= RECURRENCE_THRESHOLD && hasCoveringLesson(projectRoot, file, command);

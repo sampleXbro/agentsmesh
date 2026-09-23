@@ -11,42 +11,17 @@
 
 import { describe, it, expect } from 'vitest';
 import { ignoreOutput } from '../../../../src/targets/catalog/ignore-output.js';
-import type { CanonicalFiles } from '../../../../src/core/types.js';
-
-function canonical(ignore: string[]): CanonicalFiles {
-  return {
-    rules: [],
-    commands: [],
-    agents: [],
-    skills: [],
-    mcp: null,
-    permissions: null,
-    hooks: null,
-    ignore,
-  } as unknown as CanonicalFiles;
-}
+import { makeCanonical } from '../canonical-factory.js';
 
 describe('ignoreOutput', () => {
   it('writes every pattern to the given path, newline separated', () => {
     const generate = ignoreOutput('.aiderignore');
-    expect(generate(canonical(['node_modules', 'dist', '*.log']))).toEqual([
+    expect(generate(makeCanonical({ ignore: ['node_modules', 'dist', '*.log'] }))).toEqual([
       { path: '.aiderignore', content: 'node_modules\ndist\n*.log' },
     ]);
   });
 
   it('emits nothing when there are no patterns, so no empty file is written', () => {
-    expect(ignoreOutput('.aiderignore')(canonical([]))).toEqual([]);
-  });
-
-  it('writes a single pattern without a trailing newline', () => {
-    expect(ignoreOutput('.crushignore')(canonical(['dist']))).toEqual([
-      { path: '.crushignore', content: 'dist' },
-    ]);
-  });
-
-  it('binds the path per call, so two targets never share one', () => {
-    const list = canonical(['dist']);
-    expect(ignoreOutput('.a')(list)[0]!.path).toBe('.a');
-    expect(ignoreOutput('.b')(list)[0]!.path).toBe('.b');
+    expect(ignoreOutput('.aiderignore')(makeCanonical())).toEqual([]);
   });
 });

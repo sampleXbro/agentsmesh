@@ -8,8 +8,8 @@
  */
 
 import { randomUUID } from 'node:crypto';
-import { readFileSync, rmdirSync, unlinkSync } from 'node:fs';
-import { mkdir, rename, rm, rmdir, stat, unlink, writeFile } from 'node:fs/promises';
+import { existsSync, readFileSync, rmdirSync, unlinkSync } from 'node:fs';
+import { mkdir, rename, rm, rmdir, unlink, writeFile } from 'node:fs/promises';
 import { renameWithRetry } from './rename-retry.js';
 import {
   errorCode,
@@ -50,17 +50,12 @@ export async function tryAcquire(
     throw err;
   }
   // The marker can be evicted while this process stalls mid-claim; then the claim is lost.
-  if (await exists(owner)) return true;
+  if (existsSync(owner)) return true;
   await teardown(lockPath, [meta.token]);
   return false;
 }
 
-/** Gives up the hold of `token`; a no-op once the lock belongs to someone else. */
-export async function releaseOwned(lockPath: string, token: string): Promise<void> {
-  if (await removeOwner(lockPath, token)) await teardown(lockPath, [token]);
-}
-
-/** Sync `releaseOwned` for exit and signal handlers. */
+/** Sync `evictOwners(lockPath, [token])` for exit and signal handlers. */
 export function releaseOwnedSync(lockPath: string, token: string): void {
   try {
     rmdirSync(ownerPath(lockPath, token));
@@ -90,7 +85,8 @@ export async function evict(lockPath: string, state: LockState): Promise<void> {
   if (state.kind === 'legacy' || state.kind === 'orphan') return dropUnowned(lockPath, state.raw);
 }
 
-async function evictOwners(lockPath: string, tokens: readonly string[]): Promise<void> {
+/** Gives up the holds of `tokens`; a no-op for any token that no longer owns the lock. */
+export async function evictOwners(lockPath: string, tokens: readonly string[]): Promise<void> {
   const removed: string[] = [];
   for (const token of tokens) {
     if (await removeOwner(lockPath, token)) removed.push(token);
@@ -155,11 +151,4 @@ async function backOff(lockPath: string, owner: string): Promise<false> {
   // Removes the claim dir only if nothing else is in it.
   await rmdir(lockPath).catch(() => {});
   return false;
-}
-
-async function exists(path: string): Promise<boolean> {
-  return stat(path).then(
-    () => true,
-    () => false,
-  );
 }

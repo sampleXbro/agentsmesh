@@ -67,14 +67,6 @@ export function fileGlobLiveness(
   return { dead, pending };
 }
 
-/** Dead globs only. Shared by `validate` (warns), `prune` and auto-prune (detach). */
-export function deadFileGlobIds(
-  graph: LessonsGraph,
-  knownPaths: ReadonlySet<string>,
-): ReadonlySet<string> {
-  return fileGlobLiveness(graph, knownPaths).dead;
-}
-
 /**
  * Warn on each dead `file_glob`: the lesson is unreachable via that trigger
  * because git history moved or deleted its path. Pending globs are not reported
@@ -86,7 +78,7 @@ export function collectDeadFileGlobs(
   findings: ValidationFinding[],
   knownPaths: ReadonlySet<string>,
 ): void {
-  for (const triggerId of deadFileGlobIds(graph, knownPaths)) {
+  for (const triggerId of fileGlobLiveness(graph, knownPaths).dead) {
     findings.push({
       level: 'warning',
       code: 'DEAD_FILE_GLOB',
@@ -134,12 +126,6 @@ export function collectRunnerAnchoredPatterns(
 }
 
 /**
- * A `command_pattern` on an active lesson that matches the empty string or most
- * unrelated commands fires on every recall. `add` rejects a new one
- * (BROAD_COMMAND_PATTERN, exit 2); this is the `validate` counterpart for a
- * graph built before that guardrail existed (or a hand-edit). Warn-only.
- */
-/**
  * A `file_glob` that covers most of the tree fires on nearly every edit, so it
  * crowds out the rule written about the file actually being touched once the
  * recall token budget bites. Warn-only and never blocking: a deliberate
@@ -161,6 +147,12 @@ export function collectBroadFileGlobs(graph: LessonsGraph, findings: ValidationF
   }
 }
 
+/**
+ * A `command_pattern` on an active lesson that matches the empty string or most
+ * unrelated commands fires on every recall. `add` rejects a new one
+ * (BROAD_COMMAND_PATTERN, exit 2); this is the `validate` counterpart for a
+ * graph built before that guardrail existed (or a hand-edit). Warn-only.
+ */
 export function collectBroadCommandPatterns(
   graph: LessonsGraph,
   findings: ValidationFinding[],

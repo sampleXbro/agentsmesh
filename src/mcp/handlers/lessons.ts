@@ -1,24 +1,11 @@
 import type { McpContext } from '../context.js';
-import {
-  BroadCommandPatternError,
-  EmptyRuleError,
-  NoTriggerError,
-  RuleTooLongError,
-  UnknownTopicError,
-  UnrecallableLessonError,
-} from '../../lessons/add.js';
+import { UnknownTopicError } from '../../lessons/add.js';
 import { maybeAutoMigrateLessons } from '../../lessons/auto-migrate.js';
 import { tryLoadLessonsGraph } from '../../lessons/graph-store.js';
 import { captureLesson } from '../../lessons/capture.js';
-import { capRulePayload, clampText } from '../../lessons/rule-line.js';
-import { TriggerFileGlobError } from '../../lessons/trigger-file-glob.js';
+import { isCaptureRejection } from '../../lessons/capture-rejection.js';
 import { McpError } from '../errors.js';
-import {
-  lessonsDeprecate,
-  lessonsShow,
-  type LessonsShowInput,
-  type LessonsShowResult,
-} from './lessons-curation.js';
+import { lessonsDeprecate, lessonsShow } from './lessons-curation.js';
 import { lessonsQuery } from './lessons-query.js';
 
 /** A list input the agent may pass as a bare string or an array (CLI parity). */
@@ -70,25 +57,6 @@ function toEvidenceList(v: ListInput): string[] {
   return v.filter((s) => s.length > 0);
 }
 
-/**
- * `lessons_show` with each rule clamped and the topic's total rule text capped,
- * since the graph may come from a cloned repo. `omitted` counts the lessons cut.
- */
-async function boundedShow(
-  ctx: McpContext,
-  input: LessonsShowInput,
-): Promise<LessonsShowResult & { omitted?: number }> {
-  const full = await lessonsShow(ctx, input);
-  const clamped = full.lessons.map((l) => ({ ...l, rule: clampText(l.rule) }));
-  const { kept, dropped } = capRulePayload(clamped, (l) => l.rule.length);
-  return {
-    topic: full.topic,
-    summary: clampText(full.summary),
-    lessons: kept,
-    ...(dropped > 0 ? { omitted: dropped } : {}),
-  };
-}
-
 export const lessonsHandlers = {
   query: lessonsQuery,
 
@@ -103,7 +71,7 @@ export const lessonsHandlers = {
     };
   },
 
-  show: boundedShow,
+  show: lessonsShow,
 
   deprecate: lessonsDeprecate,
 
@@ -162,14 +130,7 @@ export const lessonsHandlers = {
           { code: err.code },
         );
       }
-      if (
-        err instanceof EmptyRuleError ||
-        err instanceof NoTriggerError ||
-        err instanceof UnrecallableLessonError ||
-        err instanceof RuleTooLongError ||
-        err instanceof BroadCommandPatternError ||
-        err instanceof TriggerFileGlobError
-      ) {
+      if (isCaptureRejection(err)) {
         throw new McpError('VALIDATION_FAILED', `lessons_add: ${err.message}`, { code: err.code });
       }
       throw err;

@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import type { LessonsGraph } from '../../../src/lessons/graph-schema.js';
-import { projectFilesOf } from '../../../src/lessons/project-files.js';
 import { applyPruneToGraph, isEmptyPrunePlan, planPrune } from '../../../src/lessons/prune.js';
 import { validateLessonsGraph } from '../../../src/lessons/validate.js';
+import { filesWith } from '../../helpers/lessons-liveness-fixture.js';
 
 function fileGlob(pattern: string): { kind: 'file_glob'; pattern: string } {
   return { kind: 'file_glob', pattern };
@@ -39,11 +39,7 @@ function deadGraph(): LessonsGraph {
 }
 
 /** On disk: one file. Git history: both `gone` directories were renamed away. */
-const known = projectFilesOf(['src/here/a.ts'], () => ({
-  tracked: new Set(['src/here/a.ts']),
-  deleted: new Set<string>(),
-  renamedAway: new Set(['src/gone/x.ts', 'also/gone/y.ts']),
-}));
+const known = filesWith(['src/here/a.ts'], ['src/gone/x.ts', 'also/gone/y.ts']);
 
 describe('planPrune — dead file_glob GC', () => {
   it('detaches a dead glob from a lesson that keeps another trigger', () => {
@@ -78,12 +74,10 @@ describe('planPrune — dead file_glob GC', () => {
   });
 
   it('never detaches a pending glob: git history never removed its path', () => {
-    const pending = projectFilesOf(['src/here/a.ts'], () => ({
-      tracked: new Set(['src/here/a.ts']),
-      deleted: new Set(['lib/old.ts']),
-      renamedAway: new Set<string>(),
-    }));
-    const plan = planPrune(deadGraph(), { knownPaths: pending, trimOverCap: false });
+    const plan = planPrune(deadGraph(), {
+      knownPaths: filesWith(['src/here/a.ts']),
+      trimOverCap: false,
+    });
     expect(plan.removedDeadGlobs).toEqual([]);
     expect(plan.unreachableLessons).toEqual([]);
     expect(isEmptyPrunePlan(plan)).toBe(true);

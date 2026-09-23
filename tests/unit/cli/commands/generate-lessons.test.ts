@@ -9,11 +9,12 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { runLessonsMaintenance } from '../../../../src/cli/commands/generate-lessons.js';
 import { logger } from '../../../../src/utils/output/logger.js';
+import { CONFLICTED_GRAPH_TEXT, writeGraphText } from '../../../helpers/lessons-graph-fixture.js';
 
 let root: string;
 beforeEach(() => {
@@ -24,24 +25,16 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-function conflictedGraph(): void {
-  mkdirSync(join(root, '.agentsmesh', 'lessons'), { recursive: true });
-  writeFileSync(
-    join(root, '.agentsmesh', 'lessons', 'lessons.json'),
-    '{\n<<<<<<< HEAD\n  "a": 1\n=======\n  "b": 2\n>>>>>>> theirs\n}\n',
-  );
-}
-
 describe('runLessonsMaintenance', () => {
   it('fails generate --check when the graph has a merge conflict', () => {
-    conflictedGraph();
+    writeGraphText(root, CONFLICTED_GRAPH_TEXT);
     const error = vi.spyOn(logger, 'error').mockImplementation(() => {});
     expect(runLessonsMaintenance(root, 'check')).toBe(1);
     expect(error.mock.calls.flat().join(' ')).toMatch(/conflict/i);
   });
 
   it('warns on a normal run instead of blocking unrelated work', () => {
-    conflictedGraph();
+    writeGraphText(root, CONFLICTED_GRAPH_TEXT);
     const warn = vi.spyOn(logger, 'warn').mockImplementation(() => {});
     expect(runLessonsMaintenance(root, 'generate')).toBe(0);
     expect(warn.mock.calls.flat().join(' ')).toMatch(/conflict/i);

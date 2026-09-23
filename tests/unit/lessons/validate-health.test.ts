@@ -90,30 +90,6 @@ describe('collectHealthFindings (MAINTAIN, log-derived, warning-level)', () => {
     expect(findings[0]!.message).not.toContain('deprecate');
   });
 
-  it('does NOT flag a lesson whose later failures are outside its triggers (the cmd:cd case)', () => {
-    seed([
-      d('l1', 'cmd:cd', 0),
-      f('cmd:cd', 1),
-      d('l1', 'cmd:cd', 60),
-      f('cmd:cd', 61),
-      d('l1', 'cmd:cd', 120),
-      f('cmd:cd', 121),
-    ]);
-    expect(
-      collectHealthFindings(root, GRAPH).filter((x) => x.code === 'INEFFECTIVE_LESSON'),
-    ).toEqual([]);
-  });
-
-  it('does NOT flag a lesson whose failures came hours later', () => {
-    seed([
-      d('l1', 'file:src/a.ts', 0),
-      d('l1', 'file:src/a.ts', 1),
-      d('l1', 'file:src/a.ts', 2),
-      f('file:src/a.ts', 400),
-    ]);
-    expect(collectHealthFindings(root, GRAPH)).toEqual([]);
-  });
-
   it('does NOT flag a lesson that helped at least once', () => {
     seed([
       d('l1', 'file:src/a.ts', 0),

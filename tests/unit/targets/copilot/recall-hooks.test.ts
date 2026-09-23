@@ -12,26 +12,21 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+// Catalog first: entering the circular target graph from a target index leaves
+// its BUILTIN_TARGETS slot undefined.
+import { withTargetRecallHooks } from '../../../../src/targets/catalog/recall-hook-targets.js';
 import { descriptor } from '../../../../src/targets/copilot/index.js';
 import { generateHooks } from '../../../../src/targets/copilot/generator.js';
 import { generateCopilotGlobalHooks } from '../../../../src/targets/copilot/global-hooks.js';
 import { mapCopilotHookEvent } from '../../../../src/targets/copilot/hook-parser.js';
 import { lintHooks } from '../../../../src/targets/copilot/lint.js';
 import type { CanonicalFiles, Hooks } from '../../../../src/core/types.js';
+import { makeCanonical } from '../canonical-factory.js';
 
 const RECALL = 'agentsmesh lessons hook';
 
 function canonical(hooks: Hooks): CanonicalFiles {
-  return {
-    rules: [],
-    commands: [],
-    agents: [],
-    skills: [],
-    mcp: null,
-    permissions: null,
-    ignore: [],
-    hooks,
-  };
+  return withTargetRecallHooks(makeCanonical({ hooks }), 'copilot');
 }
 
 const HOOKS: Hooks = {

@@ -13,24 +13,14 @@ import {
 } from '../../utils/filesystem/fs.js';
 import { stringify as yamlStringify } from 'yaml';
 import { COPILOT_TARGET, COPILOT_HOOKS_DIR, COPILOT_LEGACY_HOOKS_DIR } from './constants.js';
+import { CANONICAL_TO_COPILOT } from './hook-format.js';
+
+const COPILOT_TO_CANONICAL = new Map<string, string>(
+  [...CANONICAL_TO_COPILOT].map(([canonical, copilot]) => [copilot, canonical]),
+);
 
 export function mapCopilotHookEvent(event: string): string | null {
-  switch (event) {
-    case 'preToolUse':
-      return 'PreToolUse';
-    case 'postToolUse':
-      return 'PostToolUse';
-    case 'postToolUseFailure':
-      return 'PostToolUseFailure';
-    case 'notification':
-      return 'Notification';
-    case 'userPromptSubmitted':
-      return 'UserPromptSubmit';
-    case 'sessionStart':
-      return 'SessionStart';
-    default:
-      return null;
-  }
+  return COPILOT_TO_CANONICAL.get(event) ?? null;
 }
 
 export function extractMatcher(comment: unknown): string {

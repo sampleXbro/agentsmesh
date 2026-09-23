@@ -1,7 +1,7 @@
-import { performance } from 'node:perf_hooks';
 import { describe, expect, it } from 'vitest';
 import type { LessonsGraph, Trigger } from '../../../src/lessons/graph-schema.js';
 import { collectMatchedTriggersByKind, queryLessons } from '../../../src/lessons/query.js';
+import { timed } from '../../helpers/timing.js';
 
 const HOSTILE_EXTGLOB = '**/' + '+(*)'.repeat(12) + 'ZZZ';
 
@@ -20,25 +20,18 @@ function graphWith(triggers: Record<string, Trigger>): LessonsGraph {
   return { version: 2, lessons, topics: { t: { summary: 'T' } }, triggers };
 }
 
-function timeMs(fn: () => void): number {
-  const start = performance.now();
-  fn();
-  return performance.now() - start;
-}
-
 describe('queryLessons — file_glob matching cannot be slowed by a hostile graph', () => {
   it('treats the nested-extglob repro as a non-match and stays fast', () => {
     const graph = graphWith({
       't-hostile': { kind: 'file_glob', pattern: HOSTILE_EXTGLOB },
       't-legit': { kind: 'file_glob', pattern: 'src/**/*.ts' },
     });
-    let ids: string[] = [];
     // Before the fix this single call took ~5 s (exponential in the repeat count).
-    const elapsed = timeMs(() => {
-      ids = queryLessons(graph, { file: 'src/index.ts' }).map((m) => m.id);
-    });
+    const { value: ids, ms } = timed(() =>
+      queryLessons(graph, { file: 'src/index.ts' }).map((m) => m.id),
+    );
     expect(ids).toEqual(['lesson-t-legit']);
-    expect(elapsed).toBeLessThan(50);
+    expect(ms).toBeLessThan(50);
   });
 
   it('does not match a hostile glob even on a path that would satisfy it literally', () => {
@@ -57,11 +50,10 @@ describe('queryLessons — file_glob matching cannot be slowed by a hostile grap
       triggers[`t-star-${i}`] = { kind: 'file_glob', pattern: `${'*a'.repeat(40)}*z${i}*.md` };
     }
     const graph = graphWith(triggers);
-    let ids: string[] = [];
-    const elapsed = timeMs(() => {
-      ids = queryLessons(graph, { file: `docs/${'a'.repeat(3000)}.md` }).map((m) => m.id);
-    });
+    const { value: ids, ms } = timed(() =>
+      queryLessons(graph, { file: `docs/${'a'.repeat(3000)}.md` }).map((m) => m.id),
+    );
     expect(ids).toEqual(['lesson-t-legit']);
-    expect(elapsed).toBeLessThan(500);
+    expect(ms).toBeLessThan(500);
   });
 });

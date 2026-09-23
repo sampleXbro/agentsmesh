@@ -44,8 +44,7 @@ export async function generateHooksFeature(
       getDescriptor(target)?.generators.generateHooks;
     if (!gen) continue;
     const ctx = featureContext(target, 'hooks', scope);
-    // Builtins already project inside their generators; this keeps plugin
-    // descriptors honest. Applying it twice is harmless.
+    // The engine is the single place recall hooks are projected, for builtins and plugins.
     const projected = withTargetRecallHooks(canonical, target);
     let outputs = [...gen(projected, ctx)];
     const descriptor = getBuiltinTargetDefinition(target) ?? getDescriptor(target);

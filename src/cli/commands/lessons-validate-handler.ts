@@ -1,4 +1,4 @@
-import { CURRENT_GRAPH_VERSION } from '../../lessons/graph-schema.js';
+import { emptyGraph } from '../../lessons/graph-schema.js';
 import { problemFromLoad, type GraphProblemKind } from '../../lessons/graph-problem.js';
 import { loadLessonsGraphResilient } from '../../lessons/graph-store.js';
 import { listProjectFiles } from '../../lessons/project-files.js';
@@ -13,8 +13,7 @@ const PROBLEM_CODE: Record<GraphProblemKind, string> = {
 };
 
 export function doValidate(projectRoot: string): LessonsCommandResult {
-  // Recall's unreadable-graph warning routes users HERE, so validate must name
-  // the cause (merge conflict, corruption, newer schema) and the safe next step.
+  // Name the cause (merge conflict, corruption, newer schema) and the safe next step.
   const load = loadLessonsGraphResilient(projectRoot);
   const problem = problemFromLoad(projectRoot, load);
   if (problem !== null) {
@@ -24,12 +23,7 @@ export function doValidate(projectRoot: string): LessonsCommandResult {
     };
     return { subcommand: 'validate', exitCode: 1, data };
   }
-  const graph = load.graph ?? {
-    version: CURRENT_GRAPH_VERSION,
-    lessons: {},
-    topics: {},
-    triggers: {},
-  };
+  const graph = load.graph ?? emptyGraph();
   // Supply the working-tree file list so dead-`file_glob` triggers surface; null
   // (no git, walk failed) → undefined → the liveness check is skipped, never a
   // false "everything is dead".

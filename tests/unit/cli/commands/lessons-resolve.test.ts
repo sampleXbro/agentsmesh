@@ -7,20 +7,17 @@ import { runLessons } from '../../../../src/cli/commands/lessons.js';
 import type { LessonsResolveData } from '../../../../src/cli/commands/lessons-types.js';
 import type { Lesson, LessonsGraph } from '../../../../src/lessons/graph-schema.js';
 import { serializeGraph } from '../../../../src/lessons/graph-store.js';
-import { commitAll, git, initRepo, writeFile } from '../../../helpers/temp-git-repo.js';
+import { lesson } from '../../../helpers/lessons-graph-fixture.js';
+import {
+  clearEnv,
+  commitAll,
+  git,
+  GIT_HOOK_ENV,
+  initRepo,
+  writeFile,
+} from '../../../helpers/temp-git-repo.js';
 
 const GRAPH = '.agentsmesh/lessons/lessons.json';
-const HOOK_ENV = ['GIT_DIR', 'GIT_INDEX_FILE', 'GIT_WORK_TREE'] as const;
-const savedEnv: Record<string, string | undefined> = {};
-
-const lesson = (rule: string): Lesson => ({
-  rule,
-  topics: ['t'],
-  triggers: [],
-  evidence: [],
-  status: 'active',
-  createdAt: '2026-06-01',
-});
 const graph = (lessons: Record<string, Lesson>, version = 2): string =>
   serializeGraph({
     version,
@@ -62,15 +59,11 @@ const rules = (project: string): string[] =>
     .map((l) => l.rule)
     .sort();
 
+let restoreEnv: () => void;
 beforeAll(() => {
-  for (const k of HOOK_ENV) {
-    savedEnv[k] = process.env[k];
-    delete process.env[k];
-  }
+  restoreEnv = clearEnv(GIT_HOOK_ENV);
 });
-afterAll(() => {
-  for (const k of HOOK_ENV) if (savedEnv[k] !== undefined) process.env[k] = savedEnv[k];
-});
+afterAll(() => restoreEnv());
 beforeEach(() => {
   repo = mkdtempSync(join(tmpdir(), 'am-resolve-'));
 });

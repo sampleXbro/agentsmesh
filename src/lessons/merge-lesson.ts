@@ -12,7 +12,7 @@ import { stableStringify } from './graph-store.js';
 const same = (a: unknown, b: unknown): boolean => stableStringify(a) === stableStringify(b);
 
 /** Three-way set merge; output order does not depend on which side is "ours". */
-export function mergeList(
+function mergeList(
   base: readonly string[] | undefined,
   ours: readonly string[],
   theirs: readonly string[],
@@ -32,7 +32,7 @@ export function mergeList(
 }
 
 /** Three-way scalar merge; `tiebreak` decides only when both sides changed it differently. */
-function mergeScalar<T>(
+export function mergeScalar<T>(
   hasBase: boolean,
   base: T,
   ours: T,

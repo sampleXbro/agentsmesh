@@ -64,7 +64,7 @@ function parseOrThrow(pattern: string): ParsedGlob {
   if (body.startsWith('!') || body.startsWith('./')) fail('use a single leading ! and ./');
   if (body === '') fail('empty pattern');
   // picomatch's fast path for exactly `*.*` / `**/*.*` needs a char after the dot.
-  const fastPath = !pattern.startsWith('!') && (body === '*.*' || body === '**/*.*');
+  const fastPath = !negated && (body === '*.*' || body === '**/*.*');
   if (fastPath) body = `${body.slice(0, -1)}?*`;
   return { negated, alternatives: expandBraces(markLedStars(body)).map(parseAlternative) };
 }

@@ -2,24 +2,20 @@ import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { graphFilePath } from '../../../src/lessons/graph-store.js';
-import { buildRecallHookOutput } from '../../../src/lessons/hook.js';
-import { contextOf, graphOf, useHookProject } from './hook-test-helpers.js';
+import { isOlderVersion } from '../../../src/lessons/hook-notices.js';
+import { graphOf, useHookProject } from './hook-test-helpers.js';
 
 const RULE = 'Source rule.';
 const project = useHookProject(() =>
   graphOf({ s: { rule: RULE, trigger: { kind: 'file_glob', pattern: 'src/**' } } }),
 );
 
-const edit = (session?: string): string =>
-  JSON.stringify({
-    ...(session !== undefined ? { session_id: session } : {}),
-    hook_event_name: 'PreToolUse',
-    tool_input: { file_path: 'src/x.ts' },
-  });
-
-async function run(raw: string): Promise<string> {
-  return contextOf((await buildRecallHookOutput(raw, project.root(), {})).output);
-}
+const run = project.recall;
+const edit = (session?: string): Record<string, unknown> => ({
+  ...(session !== undefined ? { session_id: session } : {}),
+  hook_event_name: 'PreToolUse',
+  tool_input: { file_path: 'src/x.ts' },
+});
 
 function writeGraphText(text: string): void {
   writeFileSync(graphFilePath(project.root()), text, 'utf8');
@@ -67,12 +63,12 @@ describe('hook warns when the lessons graph cannot be read', () => {
 
   it('also warns on UserPromptSubmit', async () => {
     writeGraphText('{ not json');
-    const raw = JSON.stringify({
+    const prompt = {
       session_id: project.session('prompt'),
       hook_event_name: 'UserPromptSubmit',
       prompt: 'fix the bug',
-    });
-    expect(await run(raw)).toContain('lesson recall is off');
+    };
+    expect(await run(prompt)).toContain('lesson recall is off');
   });
 
   it('stays silent for a healthy graph', async () => {
@@ -105,10 +101,34 @@ describe('hook warns when the installed agentsmesh is older than the project', (
 
   it('warns even when the action itself matches no lesson', async () => {
     writeLock('999.0.0');
-    const raw = JSON.stringify({
-      session_id: project.session('skew-nomatch'),
-      tool_input: { command: 'ls -la' },
-    });
-    expect(await run(raw)).toContain('older');
+    const ls = { session_id: project.session('skew-nomatch'), tool_input: { command: 'ls -la' } };
+    expect(await run(ls)).toContain('older');
+  });
+});
+
+describe('isOlderVersion', () => {
+  it('orders by major, minor, then patch numerically', () => {
+    expect(isOlderVersion('0.40.0', '0.9.0')).toBe(false);
+    expect(isOlderVersion('0.9.0', '0.40.0')).toBe(true);
+    expect(isOlderVersion('1.2.3', '1.10.0')).toBe(true);
+    expect(isOlderVersion('2.0.0', '2.0.0')).toBe(false);
+  });
+
+  it('accepts a leading v and ignores build metadata', () => {
+    expect(isOlderVersion('v1.2.3', '1.2.3+build.7')).toBe(false);
+    expect(isOlderVersion('1.2.3+build.7', 'v1.2.3')).toBe(false);
+    expect(isOlderVersion('v1.2.2', '1.2.3+build.7')).toBe(true);
+  });
+
+  it('ranks a prerelease below its release', () => {
+    expect(isOlderVersion('1.0.0-beta.1', '1.0.0')).toBe(true);
+    expect(isOlderVersion('1.0.0', '1.0.0-rc.1')).toBe(false);
+  });
+
+  it('is false when either side is not a version', () => {
+    expect(isOlderVersion('unknown', '1.0.0')).toBe(false);
+    expect(isOlderVersion('1.0.0', '')).toBe(false);
+    expect(isOlderVersion('1.0', '2.0.0')).toBe(false);
+    expect(isOlderVersion('1.2.3.4', '2.0.0')).toBe(false);
   });
 });

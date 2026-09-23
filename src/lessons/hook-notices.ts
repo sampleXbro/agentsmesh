@@ -1,12 +1,11 @@
-import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { getVersion } from '../cli/version.js';
 import { readLock } from '../config/core/lock.js';
 import { agentsmeshInvocation } from './cli-invocation.js';
-import { graphFilePath } from './graph-store.js';
+import { graphHasConflictMarkers } from './graph-problem.js';
+import { LESSONS_GRAPH_PATH } from './graph-store.js';
 import { commitSeen, openSessionDedup } from './seen-cache.js';
 import { autoSessionId } from './session-window.js';
-import { compareSemver } from './semver-compare.js';
 
 /**
  * One-time visible warnings for the recall hook. Without them an unreadable
@@ -23,34 +22,38 @@ export interface GraphHealth {
 
 const GRAPH_SENTINEL = '__notice-graph-unreadable__';
 const VERSION_SENTINEL = '__notice-version-checked__';
-const GRAPH_REL = '.agentsmesh/lessons/lessons.json';
-const CONFLICT_MARKER = /^(?:<{7}|={7}|>{7})(?:\s|$)/m;
+const VERSION = /^v?(\d+)\.(\d+)\.(\d+)(-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/;
 
-function hasConflictMarkers(root: string): boolean {
-  try {
-    return CONFLICT_MARKER.test(readFileSync(graphFilePath(root), 'utf8'));
-  } catch {
-    return false;
+/** True when version `a` is older than `b`; false when either is not `x.y.z`. Two prereleases are never ordered. */
+export function isOlderVersion(a: string, b: string): boolean {
+  const x = VERSION.exec(a.trim());
+  const y = VERSION.exec(b.trim());
+  if (x === null || y === null) return false;
+  for (let i = 1; i <= 3; i += 1) {
+    const diff = Number(x[i]) - Number(y[i]);
+    if (diff !== 0) return diff < 0;
   }
+  return x[4] !== undefined && y[4] === undefined;
 }
 
 function graphNotice(root: string, health: GraphHealth): string | null {
   if (health.newerVersion !== undefined) {
     return (
-      `agentsmesh lessons: ${GRAPH_REL} is schema version ${health.newerVersion}, newer than ` +
+      `agentsmesh lessons: ${LESSONS_GRAPH_PATH} is schema version ${health.newerVersion}, newer than ` +
       'this agentsmesh can read, so lesson recall is off. Upgrade agentsmesh.'
     );
   }
   if (health.corrupt !== true) return null;
   const validate = `\`${agentsmeshInvocation(root)} lessons validate\``;
-  return hasConflictMarkers(root)
-    ? `agentsmesh lessons: ${GRAPH_REL} has an unresolved merge conflict, so lesson recall is off. Resolve it, then run ${validate}.`
-    : `agentsmesh lessons: ${GRAPH_REL} is unreadable (corrupt), so lesson recall is off. Run ${validate}.`;
+  return graphHasConflictMarkers(root)
+    ? `agentsmesh lessons: ${LESSONS_GRAPH_PATH} has an unresolved merge conflict, so lesson recall is off. Resolve it, then run ${validate}.`
+    : `agentsmesh lessons: ${LESSONS_GRAPH_PATH} is unreadable (corrupt), so lesson recall is off. Run ${validate}.`;
 }
 
-async function versionNotice(root: string, cliVersion: string): Promise<string | null> {
+async function versionNotice(root: string): Promise<string | null> {
   const lock = await readLock(join(root, '.agentsmesh'));
-  if (lock === null || compareSemver(cliVersion, lock.libVersion) !== -1) return null;
+  const cliVersion = getVersion();
+  if (lock === null || !isOlderVersion(cliVersion, lock.libVersion)) return null;
   return (
     `agentsmesh lessons: the installed agentsmesh (${cliVersion}) is older than the one this ` +
     `project was generated with (${lock.libVersion}), so lesson recall may be incomplete. ` +
@@ -66,7 +69,6 @@ export async function sessionNotices(
   root: string,
   sessionId: string | undefined,
   health: GraphHealth,
-  cliVersion: string = getVersion(),
 ): Promise<string[]> {
   const dedup = openSessionDedup({
     explicit: sessionId ?? `hook-notices-${autoSessionId()}`,
@@ -81,7 +83,7 @@ export async function sessionNotices(
     shown.push(GRAPH_SENTINEL);
   }
   if (!seen.has(VERSION_SENTINEL)) {
-    const version = await versionNotice(root, cliVersion);
+    const version = await versionNotice(root);
     if (version !== null) notices.push(version);
     shown.push(VERSION_SENTINEL);
   }

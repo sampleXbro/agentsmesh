@@ -3,7 +3,6 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { LessonsGraph } from '../../../src/lessons/graph-schema.js';
-import { saveLessonsGraph } from '../../../src/lessons/graph-store.js';
 import {
   appendOutcomeEvent,
   readOutcomeLog,
@@ -11,8 +10,9 @@ import {
   loadEffectiveness,
   recordDelivered,
   recordFailure,
-  failuresForContext,
+  recurringFailure,
   type OutcomeEvent,
+  type RecurringFailure,
 } from '../../../src/lessons/outcome-log.js';
 
 const ON = { AGENTSMESH_LESSONS_TELEMETRY: '1' } as NodeJS.ProcessEnv;
@@ -100,12 +100,6 @@ describe('loadEffectiveness (ranking scores from the written log)', () => {
     expect(scores.get('lX')).toBeUndefined();
   });
 
-  it('loads the graph itself when the caller has none', () => {
-    saveLessonsGraph(root, GRAPH);
-    seedThreeRounds();
-    expect(loadEffectiveness(root).get('l1')).toBe(0);
-  });
-
   it('is empty until the log holds both deliveries and failures', () => {
     appendOutcomeEvent(root, delivered('l1', 'file:src/x.ts', 's1'), ON);
     expect(loadEffectiveness(root, GRAPH).size).toBe(0);
@@ -183,25 +177,24 @@ describe('record helpers (stamp ts + session, gated on the outcome-log switch)',
   });
 });
 
-describe('failuresForContext (recurrence history, pure read)', () => {
-  const ON = { AGENTSMESH_LESSONS_TELEMETRY: '1' } as NodeJS.ProcessEnv;
-
+describe('recurringFailure (recurrence history, pure read)', () => {
   it('counts how often the LATEST error recurred on this action, not every failure', () => {
+    const build = (): RecurringFailure => recurringFailure(root, 'cmd:build');
     recordFailure(root, 'cmd:build', 'error a', ON);
     recordFailure(root, 'file:x', 'error b', ON);
     recordFailure(root, 'cmd:build', 'error b', ON);
-    expect(failuresForContext(root, 'cmd:build')).toEqual({ count: 1, lastErrorClass: 'error b' });
+    expect(build()).toEqual({ errorClass: 'error b', sameClassCount: 1 });
     recordFailure(root, 'cmd:build', 'error b', ON);
-    expect(failuresForContext(root, 'cmd:build')).toEqual({ count: 2, lastErrorClass: 'error b' });
+    expect(build()).toEqual({ errorClass: 'error b', sameClassCount: 2 });
   });
 
   it('never claims a recurrence without an error class', () => {
     recordFailure(root, 'cmd:build', undefined, ON);
     recordFailure(root, 'cmd:build', undefined, ON);
-    expect(failuresForContext(root, 'cmd:build')).toEqual({ count: 0 });
+    expect(recurringFailure(root, 'cmd:build')).toEqual({ sameClassCount: 0 });
   });
 
   it('is zero for an action that has never failed', () => {
-    expect(failuresForContext(root, 'cmd:never')).toEqual({ count: 0 });
+    expect(recurringFailure(root, 'cmd:never')).toEqual({ sameClassCount: 0 });
   });
 });

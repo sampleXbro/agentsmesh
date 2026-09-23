@@ -9,16 +9,20 @@
  * - A merge conflict must point at `lessons resolve`, not a generic "corrupt".
  */
 
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { runLessons } from '../../../../src/cli/commands/lessons.js';
 import type { LessonsQueryData } from '../../../../src/cli/commands/lessons-types.js';
-import type { LessonsGraph } from '../../../../src/lessons/graph-schema.js';
 import { saveLessonsGraph } from '../../../../src/lessons/graph-store.js';
 import { DEFAULT_ALWAYS_MAX_TOKENS } from '../../../../src/lessons/recall-always.js';
 import { MAX_RECALL_PAYLOAD_CHARS } from '../../../../src/lessons/rule-line.js';
+import {
+  bulkLessonsGraph,
+  CONFLICTED_GRAPH_TEXT,
+  writeGraphText,
+} from '../../../helpers/lessons-graph-fixture.js';
 
 let root: string;
 beforeEach(() => {
@@ -31,24 +35,7 @@ afterEach(() => {
 });
 
 function seed(count: number, ruleChars: number, scope?: 'always'): void {
-  const lessons: LessonsGraph['lessons'] = {};
-  for (let i = 0; i < count; i += 1) {
-    lessons[`l${String(i).padStart(2, '0')}`] = {
-      rule: `Rule ${i} `.padEnd(ruleChars, 'x'),
-      topics: ['t'],
-      triggers: scope === 'always' ? [] : ['g'],
-      evidence: [],
-      status: 'active',
-      createdAt: '2026-01-01',
-      ...(scope === 'always' ? { scope } : {}),
-    };
-  }
-  saveLessonsGraph(root, {
-    version: 2,
-    topics: { t: { summary: 'T' } },
-    triggers: { g: { kind: 'file_glob', pattern: 'src/**' } },
-    lessons,
-  });
+  saveLessonsGraph(root, bulkLessonsGraph(count, ruleChars, scope));
 }
 
 async function query(flags: Record<string, string | boolean>): Promise<LessonsQueryData> {
@@ -88,14 +75,10 @@ describe('lessons query payload cap', () => {
 
 describe('lessons query on a conflicted graph', () => {
   it('names the merge conflict and points at lessons resolve', async () => {
-    mkdirSync(join(root, '.agentsmesh', 'lessons'), { recursive: true });
-    writeFileSync(
-      join(root, '.agentsmesh', 'lessons', 'lessons.json'),
-      '{\n<<<<<<< HEAD\n  "a": 1\n=======\n  "b": 2\n>>>>>>> theirs\n}\n',
-    );
+    writeGraphText(root, CONFLICTED_GRAPH_TEXT);
     const data = await query({ file: 'src/x.ts' });
     expect(data.lessons).toEqual([]);
-    expect(data.warning).toMatch(/merge conflict/);
+    expect(data.warning).toMatch(/^recall returned no lessons: .*merge conflict/);
     expect(data.warning).toMatch(/lessons resolve/);
   });
 });

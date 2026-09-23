@@ -14,7 +14,7 @@ export const GEMINI_HOOK_CONTEXT_EVENTS: readonly string[] = [
   'PostToolUse',
 ];
 
-const CANONICAL_TO_GEMINI: ReadonlyMap<string, string> = new Map([
+export const CANONICAL_TO_GEMINI: ReadonlyMap<string, string> = new Map([
   ['PreToolUse', 'BeforeTool'],
   ['PostToolUse', 'AfterTool'],
   ['Notification', 'Notification'],
@@ -26,9 +26,24 @@ const CANONICAL_TO_GEMINI: ReadonlyMap<string, string> = new Map([
   ['SessionStart', 'SessionStart'],
 ]);
 
+const GEMINI_TO_CANONICAL: ReadonlyMap<string, string> = new Map<string, string>([
+  ...[...CANONICAL_TO_GEMINI].map(([canonical, gemini]): [string, string] => [gemini, canonical]),
+  // BeforeAgent is shared with SubagentStart; import it as the prompt event.
+  ['BeforeAgent', 'UserPromptSubmit'],
+  // Legacy lowercase names.
+  ['preToolUse', 'PreToolUse'],
+  ['postToolUse', 'PostToolUse'],
+  ['notification', 'Notification'],
+]);
+
 /** Gemini event for a canonical event, or null when Gemini has none. */
 export function geminiHookEvent(event: string): string | null {
   return CANONICAL_TO_GEMINI.get(event) ?? null;
+}
+
+/** Canonical event for a Gemini event, or null when it has none. */
+export function mapGeminiHookEvent(event: string): string | null {
+  return GEMINI_TO_CANONICAL.get(event) ?? null;
 }
 
 /** Events whose matcher is tested against a tool name. */

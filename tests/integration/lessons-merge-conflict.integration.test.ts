@@ -11,20 +11,14 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { ensureLessonsMergeDriver } from '../../src/lessons/merge-driver-setup.js';
+import { clearEnv, GIT_HOOK_ENV } from '../helpers/temp-git-repo.js';
 
 const REPO = process.cwd();
 const TSX_CLI = join(REPO, 'node_modules', 'tsx', 'dist', 'cli.mjs');
 const SRC_CLI = join(REPO, 'src', 'cli', 'index.ts');
 const GRAPH = '.agentsmesh/lessons/lessons.json';
 // Hook-exported git vars would aim git at another repo; host config could hold a driver.
-const ISOLATE = [
-  'GIT_DIR',
-  'GIT_INDEX_FILE',
-  'GIT_WORK_TREE',
-  'GIT_CONFIG_GLOBAL',
-  'GIT_CONFIG_NOSYSTEM',
-] as const;
-const savedEnv: Record<string, string | undefined> = {};
+let restoreEnv: () => void = () => {};
 
 let dir: string;
 
@@ -91,19 +85,11 @@ const rules = (): string[] =>
     .sort();
 
 beforeAll(() => {
-  for (const k of ISOLATE) {
-    savedEnv[k] = process.env[k];
-    delete process.env[k];
-  }
+  restoreEnv = clearEnv([...GIT_HOOK_ENV, 'GIT_CONFIG_GLOBAL', 'GIT_CONFIG_NOSYSTEM']);
   process.env.GIT_CONFIG_GLOBAL = join(tmpdir(), 'am-merge-conflict-no-global-gitconfig');
   process.env.GIT_CONFIG_NOSYSTEM = '1';
 });
-afterAll(() => {
-  for (const k of ISOLATE) {
-    if (savedEnv[k] === undefined) delete process.env[k];
-    else process.env[k] = savedEnv[k];
-  }
-});
+afterAll(() => restoreEnv());
 beforeEach(() => {
   dir = mkdtempSync(join(tmpdir(), 'am-merge-conflict-'));
   git('init', '-q', '--initial-branch=main');

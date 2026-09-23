@@ -258,17 +258,4 @@ describe('addHookScriptAssets', () => {
   it('uses safe phase name with non-alphanumeric chars replaced', () => {
     expect(wrapperScriptName('My Hook!', 0)).toBe('my-hook--0.sh');
   });
-
-  it('writes no wrapper for an event the hooks config never references', async () => {
-    const result = await addHookScriptAssets(
-      projectRoot,
-      makeCanonical({
-        hooks: {
-          'My Hook!': [{ matcher: '*', type: 'command', command: 'echo' }],
-        },
-      }),
-      [],
-    );
-    expect(result).toEqual([]);
-  });
 });

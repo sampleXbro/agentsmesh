@@ -9,6 +9,7 @@ import {
   createUnsupportedHookWarning,
   unsupportedHookEventNames,
 } from '../../core/lint/shared/helpers.js';
+import { CANONICAL_TO_COPILOT } from './hook-format.js';
 
 /**
  * Copilot CLI's `~/.copilot/permissions-config.json` only records saved
@@ -49,14 +50,7 @@ export function lintCommands(canonical: CanonicalFiles): LintDiagnostic[] {
 
 export function lintHooks(canonical: CanonicalFiles): LintDiagnostic[] {
   if (!canonical.hooks || Object.keys(canonical.hooks).length === 0) return [];
-  const supported = [
-    'PreToolUse',
-    'PostToolUse',
-    'PostToolUseFailure',
-    'Notification',
-    'UserPromptSubmit',
-    'SessionStart',
-  ] as const;
+  const supported = [...CANONICAL_TO_COPILOT.keys()];
   const diagnostics: LintDiagnostic[] = unsupportedHookEventNames(canonical.hooks, supported).map(
     (event) =>
       createUnsupportedHookWarning(event, 'copilot', supported, {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { lockRetryDelayMs } from '../../../../src/utils/filesystem/process-lock-backoff.js';
+import { lockRetryDelayMs } from '../../../../src/utils/filesystem/process-lock.js';
 
 describe('lockRetryDelayMs', () => {
   it('keeps the fixed 200ms delay when no backoff options are given', () => {

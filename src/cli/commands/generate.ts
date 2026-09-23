@@ -105,49 +105,33 @@ export async function runGenerate(
     targetFilter,
   });
 
-  if (results.length === 0) {
-    return withLessonsExit(
-      lessonsExit,
-      await handleEmptyResults({
-        mode,
-        scope,
-        dryRun,
-        context,
-        resolvedExtends,
-        flags,
-        root,
-        options,
-        activeTargets,
-      }),
-    );
-  }
-
-  if (checkOnly) {
-    return withLessonsExit(lessonsExit, buildCheckResult(results, scope));
-  }
-
-  return withLessonsExit(
-    lessonsExit,
-    await handleGenerateOrDryRun({
-      results,
-      dryRun,
-      scope,
-      mode,
-      context,
-      activeTargets,
-      configuredTargets: allTargets,
-      resolvedExtends,
-      flags,
-      root,
-      options,
-    }),
-  );
-}
-
-function withLessonsExit(
-  lessonsExit: number,
-  result: GenerateCommandResult,
-): GenerateCommandResult {
-  if (lessonsExit === 0) return result;
+  const result =
+    results.length === 0
+      ? await handleEmptyResults({
+          mode,
+          scope,
+          dryRun,
+          context,
+          resolvedExtends,
+          flags,
+          root,
+          options,
+          activeTargets,
+        })
+      : checkOnly
+        ? buildCheckResult(results, scope)
+        : await handleGenerateOrDryRun({
+            results,
+            dryRun,
+            scope,
+            mode,
+            context,
+            activeTargets,
+            configuredTargets: allTargets,
+            resolvedExtends,
+            flags,
+            root,
+            options,
+          });
   return { ...result, exitCode: Math.max(result.exitCode, lessonsExit) };
 }

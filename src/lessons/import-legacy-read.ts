@@ -35,7 +35,7 @@ export class LegacyTopicPathError extends Error {
  * or UNC paths (on any host OS), traversal after normalization, and symlinks
  * that resolve outside the lessons directory.
  */
-export async function resolveLegacyTopicPath(projectRoot: string, file: string): Promise<string> {
+async function resolveLegacyTopicPath(projectRoot: string, file: string): Promise<string> {
   const forward = file.replaceAll('\\', '/');
   const normalized = posix.normalize(forward);
   const relative =

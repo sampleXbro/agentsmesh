@@ -37,19 +37,29 @@ function withLessons(options: { graph?: boolean; config?: boolean }): string {
   return dir;
 }
 
+/** Shell commands a tools-only client may be unable to run. */
+function expectNoShell(text: string): void {
+  expect(text).not.toContain('agentsmesh lessons query');
+  expect(text).not.toContain('agentsmesh lessons add');
+}
+
 describe('where lessons are set up', () => {
-  it('binds the agent to recall before a mutation', () => {
+  it('binds recall and capture in tool terms, with the CLI anchors, within budget', () => {
     const text = mcpServerInstructions(withLessons({ graph: true, config: true }));
+    // Recall before a mutation.
     expect(text).toMatch(/before (every|any) .*(edit|state-changing)/i);
     expect(text).toContain('lessons_query');
-  });
-
-  it('binds the agent to capture after a failure, and to report a receipt', () => {
-    const text = mcpServerInstructions(withLessons({ graph: true, config: true }));
+    // Capture after a failure, and report a receipt.
     expect(text).toMatch(/after any failure/i);
     expect(text).toContain('lessons_add');
-    expect(text).toContain('Lesson: captured');
-    expect(text).toContain('Lesson: none');
+    // The same anchors as the CLI contract.
+    for (const anchor of ['Lesson: captured', 'Lesson: none', '.agentsmesh/lessons/lessons.json']) {
+      expect(LESSONS_PROCEDURAL_RULE).toContain(anchor);
+      expect(text).toContain(anchor);
+    }
+    // A client here may have no shell.
+    expectNoShell(text);
+    expect(text.length).toBeLessThanOrEqual(1200);
   });
 
   it('applies to a graph captured without the full setup, which writes no config', () => {
@@ -71,59 +81,26 @@ describe('where lessons are set up', () => {
     mkdirSync(pkg, { recursive: true });
     expect(mcpServerInstructions(pkg)).toContain('BLOCKING');
   });
-
-  it('carries the same anchors as the CLI contract', () => {
-    const text = mcpServerInstructions(withLessons({ graph: true, config: true }));
-    for (const anchor of ['Lesson: captured', 'Lesson: none', '.agentsmesh/lessons/lessons.json']) {
-      expect(LESSONS_PROCEDURAL_RULE).toContain(anchor);
-      expect(text).toContain(anchor);
-    }
-  });
 });
 
 describe('where lessons are not set up', () => {
-  it('mandates nothing, so no edit pays for a query that returns nothing', () => {
+  it('mandates nothing and claims nothing absent, but still says how to start, briefly', () => {
     const text = mcpServerInstructions(dir);
+    // No edit pays for a query that returns nothing.
     expect(text).not.toContain('BLOCKING');
     expect(text).not.toMatch(/\bMUST\b/);
     expect(text).not.toContain('Lesson: captured');
-  });
-
-  it('claims no file and no skill that is not on disk', () => {
-    const text = mcpServerInstructions(dir);
+    // No file and no skill that is not on disk.
     expect(text).not.toMatch(/is canonical/);
     expect(text).not.toMatch(/Full manual/);
-  });
-
-  it('still says what the server offers and how to start, so the plugin is not mute', () => {
-    const text = mcpServerInstructions(dir);
+    // What the server offers and how to start, so the plugin is not mute.
     expect(text).toContain('lessons_add');
     expect(text).toContain('agentsmesh init --lessons');
-  });
-
-  it('names the fields a first capture needs, since an empty graph has no topic yet', () => {
-    const text = mcpServerInstructions(dir);
+    // The fields a first capture needs, since an empty graph has no topic yet.
     expect(text).toContain('new_topic');
     expect(text).toContain('topic_summary');
-  });
-
-  it('stays short, since it is context every session pays for', () => {
-    expect(mcpServerInstructions(dir).length).toBeLessThanOrEqual(600);
-  });
-});
-
-describe('both forms', () => {
-  it('speak in tools, not shell, because a client here may have no shell', () => {
-    for (const root of [dir, withLessons({ graph: true, config: true })]) {
-      const text = mcpServerInstructions(root);
-      expect(text).not.toContain('agentsmesh lessons query');
-      expect(text).not.toContain('agentsmesh lessons add');
-    }
-  });
-
-  it('stay within a sane always-on budget', () => {
-    expect(
-      mcpServerInstructions(withLessons({ graph: true, config: true })).length,
-    ).toBeLessThanOrEqual(1200);
+    expectNoShell(text);
+    // Context every session pays for.
+    expect(text.length).toBeLessThanOrEqual(600);
   });
 });

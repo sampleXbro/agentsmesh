@@ -25,22 +25,17 @@ export function recallHookTeamHint(projectRoot: string): string | null {
 }
 
 function wiresRecallHook(projectRoot: string): boolean {
-  let hooks: unknown;
   try {
-    hooks = parseYaml(readFileSync(join(projectRoot, '.agentsmesh', 'hooks.yaml'), 'utf8'));
+    const hooks: unknown = parseYaml(
+      readFileSync(join(projectRoot, '.agentsmesh', 'hooks.yaml'), 'utf8'),
+    );
+    return Object.values(hooks ?? {})
+      .filter(Array.isArray)
+      .flat()
+      .some((entry: unknown) =>
+        isRecallHookCommand((entry as { command?: unknown } | null)?.command),
+      );
   } catch {
     return false;
   }
-  if (typeof hooks !== 'object' || hooks === null) return false;
-  return Object.values(hooks).some(
-    (entries) =>
-      Array.isArray(entries) &&
-      entries.some(
-        (entry: unknown) =>
-          typeof entry === 'object' &&
-          entry !== null &&
-          typeof (entry as { command?: unknown }).command === 'string' &&
-          isRecallHookCommand((entry as { command: string }).command),
-      ),
-  );
 }

@@ -1,4 +1,5 @@
 import type { McpContext } from '../context.js';
+import { lessonsGraphProblem } from '../../lessons/graph-problem.js';
 import { recallLessons } from '../../lessons/recall.js';
 import { recallAlwaysLessons } from '../../lessons/recall-always.js';
 import { loadRecallConfig } from '../../lessons/recall-config.js';
@@ -146,16 +147,13 @@ export async function lessonsQuery(
     // returning nothing. `no_dedup` is still the immediate escape.
     ttlMs: AUTO_SESSION_TTL_MS,
   });
-  if (corrupt === true) {
-    // Recall degrades to empty rather than throwing; surface the reason on
-    // stderr (stdout is the MCP protocol channel) so the server log shows it.
-    process.stderr.write(
-      'agentsmesh: lessons.json is unreadable (corrupt) — recall returned no lessons. Run `agentsmesh lessons validate`.\n',
-    );
-  } else if (newerVersion !== undefined) {
-    process.stderr.write(
-      `agentsmesh: lessons.json is version ${newerVersion}, newer than this build supports — recall returned no lessons. Upgrade agentsmesh to read it.\n`,
-    );
+  if (corrupt === true || newerVersion !== undefined) {
+    // Recall degrades to empty rather than throwing; the reason goes to stderr
+    // (stdout is the MCP protocol channel), worded like the CLI's warning.
+    const problem = lessonsGraphProblem(ctx.projectRoot);
+    if (problem !== null) {
+      process.stderr.write(`agentsmesh: recall returned no lessons: ${problem.message}\n`);
+    }
   }
   // Compact by default — return only id + rule to keep recall token-cheap.
   // Metadata (topics/triggers/evidence/score) is opt-in via `verbose`.

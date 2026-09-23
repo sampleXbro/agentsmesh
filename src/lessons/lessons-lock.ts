@@ -8,8 +8,7 @@
  * primitive as `.install.lock` / `.generate.lock`, with its own timing below.
  */
 
-import { mkdir } from 'node:fs/promises';
-import { dirname, resolve } from 'node:path';
+import { resolve } from 'node:path';
 import {
   acquireProcessLock,
   type LockOptions,
@@ -40,15 +39,12 @@ export async function acquireLessonsLock(
   projectRoot: string,
   opts: LockOptions = {},
 ): Promise<LockRelease> {
-  const lockPath = lessonsLockPath(projectRoot);
-  await mkdir(dirname(lockPath), { recursive: true });
-  const defaults = LESSONS_LOCK_OPTIONS;
-  return acquireProcessLock(lockPath, {
-    retries: opts.retries ?? defaults.retries,
-    retryDelayMs: opts.retryDelayMs ?? defaults.retryDelayMs,
-    maxRetryDelayMs: opts.maxRetryDelayMs ?? defaults.maxRetryDelayMs,
-    jitter: opts.jitter ?? defaults.jitter,
-    staleMs: opts.staleMs ?? defaults.staleMs,
+  return acquireProcessLock(lessonsLockPath(projectRoot), {
+    retries: opts.retries ?? LESSONS_LOCK_OPTIONS.retries,
+    retryDelayMs: opts.retryDelayMs ?? LESSONS_LOCK_OPTIONS.retryDelayMs,
+    maxRetryDelayMs: opts.maxRetryDelayMs ?? LESSONS_LOCK_OPTIONS.maxRetryDelayMs,
+    jitter: opts.jitter ?? LESSONS_LOCK_OPTIONS.jitter,
+    staleMs: opts.staleMs ?? LESSONS_LOCK_OPTIONS.staleMs,
     label: 'lessons lock',
   });
 }

@@ -1,7 +1,7 @@
 import { MAX_RECOMMENDED_TRIGGERS } from './capture-guardrails.js';
 import type { LessonsGraph } from './graph-schema.js';
 import { buildFanout } from './ranking-signals.js';
-import { deadFileGlobIds } from './validate-liveness.js';
+import { fileGlobLiveness } from './validate-liveness.js';
 
 /**
  * Graph curation. Two safe, deterministic operations, both reversible via git
@@ -96,7 +96,7 @@ export function planPrune(graph: LessonsGraph, options: PruneOptions = {}): Prun
   const removedDeadGlobs: LessonTrim[] = [];
   const unreachableLessons: string[] = [];
   if (options.knownPaths !== undefined) {
-    const dead = deadFileGlobIds(graph, options.knownPaths);
+    const { dead } = fileGlobLiveness(graph, options.knownPaths);
     if (dead.size > 0) {
       for (const [id, kept] of keptByLesson) {
         const deadInLesson = kept.filter((t) => dead.has(t));

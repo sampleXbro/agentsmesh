@@ -101,20 +101,6 @@ export function renderRecall(collected: CollectedRecall, options: RenderOptions)
   );
 }
 
-export interface EmitOptions extends RenderOptions {
-  /** Session correlator for per-session dedup. */
-  readonly sessionId: string | undefined;
-}
-
-/** Collect and render recall for one query. */
-export async function emitRecall(
-  projectRoot: string,
-  query: LessonsQuery,
-  options: EmitOptions,
-): Promise<RecallHookResult> {
-  return renderRecall(await collectRecall(projectRoot, [query], options.sessionId), options);
-}
-
 /**
  * Matches the caps hid, excluding the ones session dedup held back.
  *
@@ -173,10 +159,4 @@ export function contextOutput(event: string, additionalContext: string): RecallH
 export function paragraphs(parts: ReadonlyArray<string | null>): string | undefined {
   const present = parts.filter((p): p is string => p !== null && p.length > 0);
   return present.length === 0 ? undefined : present.join('\n\n');
-}
-
-/** `{ preface }` from the non-empty parts, or `{}` when there are none. */
-export function optionalPreface(parts: ReadonlyArray<string | null>): { preface?: string } {
-  const preface = paragraphs(parts);
-  return preface === undefined ? {} : { preface };
 }

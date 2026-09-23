@@ -1,4 +1,6 @@
 import { afterEach, beforeEach, vi } from 'vitest';
+import type { InitCommandResult } from '../../../../src/cli/commands/init.js';
+import type { ScaffoldLessonsResult } from '../../../../src/lessons/init.js';
 
 interface CapturedOutput {
   stdout: () => string;
@@ -35,4 +37,34 @@ export function useCapturedOutput(): CapturedOutput {
     stdout: () => stdout.join(''),
     stderr: () => stderr.join(''),
   };
+}
+
+/** An `init --lessons` retrofit result; `lessons` overrides the scaffold fields. */
+export function lessonsInit(lessons: Partial<ScaffoldLessonsResult> = {}): InitCommandResult {
+  return {
+    exitCode: 0,
+    data: {
+      scope: 'project',
+      configFile: 'agentsmesh.yaml',
+      localConfigFile: 'agentsmesh.local.yaml',
+      detectedConfigs: [],
+      imported: [],
+      importedToolCount: 0,
+      targets: [],
+      targetSource: 'explicit',
+      scaffoldType: 'none',
+      gitignoreUpdated: false,
+      lessonsOnly: true,
+      lessons: {
+        created: [],
+        updated: [],
+        skipped: [],
+        rootRuleUpdated: false,
+        gitignoreUpdated: false,
+        gitattributesUpdated: false,
+        recallHookInjected: true,
+        ...lessons,
+      },
+    },
+  } as InitCommandResult;
 }

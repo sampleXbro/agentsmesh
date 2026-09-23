@@ -1,7 +1,8 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { describeCorruptGraph } from '../../lessons/graph-problem.js';
-import { ancestorLessonsProjectDir } from '../../lessons/paths.js';
+import { problemFromLoad } from '../../lessons/graph-problem.js';
+import type { ResilientGraphLoad } from '../../lessons/graph-store.js';
+import { ancestorLessonsProjectDir, lessonsSetupHint } from '../../lessons/paths.js';
 import type { LessonsFlags } from './lessons-helpers.js';
 
 /**
@@ -33,21 +34,6 @@ export function mergeWarnings(...parts: Array<string | undefined>): string | und
 }
 
 /**
- * Recall warning for a graph that failed to parse. An unresolved git merge is
- * named as such (with the command that fixes it); anything else goes to
- * `lessons validate`, which carries the full, copy-first recovery advice.
- */
-export function unreadableGraphWarning(projectRoot: string, error: Error): string {
-  if (describeCorruptGraph(projectRoot, error).kind === 'conflict') {
-    return (
-      'lessons.json has an unresolved git merge conflict — recall returned no lessons. ' +
-      'Run `agentsmesh lessons resolve` to combine the lessons from both branches.'
-    );
-  }
-  return `lessons.json is unreadable (corrupt) — recall returned no lessons. Run \`agentsmesh lessons validate\`. (${error.message})`;
-}
-
-/**
  * Warn when recall finds no graph at the CWD but a `.agentsmesh` project exists
  * in an ancestor — the classic "invoked from a subdirectory" trap, which would
  * otherwise look like an empty (but valid) recall.
@@ -57,4 +43,22 @@ export function strayDirWarning(projectRoot: string): string | undefined {
   const ancestor = ancestorLessonsProjectDir(projectRoot);
   if (ancestor === null) return undefined;
   return `no lessons graph here — this directory has no .agentsmesh, but a lessons project exists at ${ancestor.replaceAll('\\', '/')}. Run lessons from there (cd into it) for recall to work.`;
+}
+
+/**
+ * Warning for recall with no usable graph. Recall degrades to no lessons
+ * (exit 0) with a warning that names the cause and the fix.
+ */
+export function degradedRecallWarning(
+  load: Exclude<ResilientGraphLoad, { status: 'ok' }>,
+  projectRoot: string,
+  keywordOnlyWarning: string | undefined,
+  configWarning: string | undefined,
+): string | undefined {
+  const problem = problemFromLoad(projectRoot, load);
+  const cause =
+    problem !== null
+      ? `recall returned no lessons: ${problem.message}`
+      : mergeWarnings(strayDirWarning(projectRoot) ?? lessonsSetupHint(), keywordOnlyWarning);
+  return mergeWarnings(cause, configWarning);
 }

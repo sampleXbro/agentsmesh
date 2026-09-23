@@ -5,6 +5,9 @@ const LOCAL_FIRST = 'npx --no --offline agentsmesh';
 const BARE = 'agentsmesh';
 const DEPENDENCY_FIELDS = ['dependencies', 'devDependencies', 'optionalDependencies'] as const;
 
+/** A parsed package.json; the JSON may not be an object at all. */
+type Manifest = Record<string, Record<string, unknown> | undefined> | null;
+
 /**
  * The command a generated hook or git merge driver uses to launch the CLI.
  *
@@ -20,16 +23,12 @@ export function agentsmeshInvocation(projectRoot: string): string {
 }
 
 function dependsOnAgentsmesh(projectRoot: string): boolean {
-  let manifest: unknown;
   try {
-    manifest = JSON.parse(readFileSync(join(projectRoot, 'package.json'), 'utf8'));
+    const manifest = JSON.parse(
+      readFileSync(join(projectRoot, 'package.json'), 'utf8'),
+    ) as Manifest;
+    return DEPENDENCY_FIELDS.some((field) => manifest?.[field]?.agentsmesh !== undefined);
   } catch {
     return false;
   }
-  if (typeof manifest !== 'object' || manifest === null) return false;
-  const record = manifest as Record<string, unknown>;
-  return DEPENDENCY_FIELDS.some((field) => {
-    const deps = record[field];
-    return typeof deps === 'object' && deps !== null && 'agentsmesh' in deps;
-  });
 }

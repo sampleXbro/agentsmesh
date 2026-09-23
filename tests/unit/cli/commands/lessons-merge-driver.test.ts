@@ -4,7 +4,8 @@ import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { runLessons } from '../../../../src/cli/commands/lessons.js';
 import { doMergeDriver } from '../../../../src/cli/commands/lessons-merge-driver-handler.js';
-import type { Lesson, LessonsGraph } from '../../../../src/lessons/graph-schema.js';
+import type { LessonsGraph } from '../../../../src/lessons/graph-schema.js';
+import { lesson } from '../../../helpers/lessons-graph-fixture.js';
 
 let dir: string;
 let base: string;
@@ -19,14 +20,6 @@ const graph = (over: Partial<LessonsGraph> = {}): LessonsGraph => ({
   ...over,
 });
 const pretty = (g: LessonsGraph): string => `${JSON.stringify(g, null, 2)}\n`;
-const lesson = (rule: string): Lesson => ({
-  rule,
-  topics: ['t'],
-  triggers: [],
-  evidence: [],
-  status: 'active',
-  createdAt: '2026-06-01',
-});
 
 beforeEach(() => {
   dir = mkdtempSync(join(tmpdir(), 'amesh-mergedriver-'));

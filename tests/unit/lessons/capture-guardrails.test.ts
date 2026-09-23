@@ -6,24 +6,7 @@ import {
 } from '../../../src/lessons/capture-guardrails.js';
 import { nearDuplicateWarning } from '../../../src/lessons/capture-near-duplicate.js';
 import type { Lesson, LessonsGraph, Trigger } from '../../../src/lessons/graph-schema.js';
-
-function graphWith(triggers: Record<string, Trigger>): LessonsGraph {
-  return {
-    version: 1,
-    lessons: {
-      L: {
-        rule: 'Some rule.',
-        topics: ['t'],
-        triggers: Object.keys(triggers),
-        evidence: [],
-        status: 'active',
-        createdAt: '2026-06-01',
-      },
-    },
-    topics: { t: { summary: 'T.' } },
-    triggers,
-  };
-}
+import { graphWith } from '../../helpers/lessons-liveness-fixture.js';
 
 function codes(g: LessonsGraph): string[] {
   return inspectCapturedLesson(g, 'L').map((w) => w.code);

@@ -8,7 +8,7 @@ const project = useHookProject(() =>
 );
 
 async function run(payload: Record<string, unknown>): Promise<{ output: string }> {
-  return buildRecallHookOutput(JSON.stringify(payload), project.root(), {});
+  return buildRecallHookOutput(JSON.stringify(payload), project.root());
 }
 
 describe('unrecognized shapes keep the Claude Code behaviour', () => {

@@ -25,7 +25,7 @@ import { mkdirSync, writeFileSync, rmSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { mapGeminiHookEvent } from '../../../../src/targets/gemini-cli/format-helpers-shared.js';
+import { mapGeminiHookEvent } from '../../../../src/targets/gemini-cli/hook-map.js';
 import { generateGeminiSettingsFiles } from '../../../../src/targets/gemini-cli/generator.js';
 import { lintHooks } from '../../../../src/targets/gemini-cli/lint.js';
 import { importFromGemini } from '../../../../src/targets/gemini-cli/importer.js';

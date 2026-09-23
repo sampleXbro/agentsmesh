@@ -23,8 +23,8 @@ import {
   type LessonsFlags,
 } from './lessons-helpers.js';
 import type { LessonsCommandResult, LessonsQueryData } from './lessons-types.js';
-import { degradedQueryData } from './lessons-query-degraded.js';
 import {
+  degradedRecallWarning,
   mergeWarnings,
   validateFormatFlag,
   validatePositiveIntFlag,
@@ -87,13 +87,8 @@ export function doQuery(
   const configWarning = lessonsConfigWarning(projectRoot) ?? undefined;
   const load = loadLessonsGraphResilient(projectRoot);
   if (load.status !== 'ok') {
-    const data = degradedQueryData(
-      load,
-      projectRoot,
-      { query, autoMigrated },
-      keywordOnlyWarning,
-      configWarning,
-    );
+    const warning = degradedRecallWarning(load, projectRoot, keywordOnlyWarning, configWarning);
+    const data = { query, autoMigrated, lessons: [], totalMatches: 0, warning };
     return { subcommand: 'query', exitCode: 0, format, data };
   }
   const graph = load.graph;

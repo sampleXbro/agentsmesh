@@ -7,12 +7,12 @@
  * non-match, never as proof that its file was removed.
  */
 
-import { performance } from 'node:perf_hooks';
 import { describe, expect, it } from 'vitest';
 import { createActionMatcher } from '../../../src/lessons/action-match.js';
 import { missingGlobState } from '../../../src/lessons/file-glob-liveness.js';
 import type { LessonsGraph } from '../../../src/lessons/graph-schema.js';
 import { fileGlobLiveness, fileGlobMatchCount } from '../../../src/lessons/validate-liveness.js';
+import { timed } from '../../helpers/timing.js';
 
 const HOSTILE = '**/' + '+(*)'.repeat(16) + 'ZZZ';
 const PATHS = new Set(Array.from({ length: 50 }, (_, i) => `src/dir${i}/file-${i}-aaaaaaaaaa.ts`));
@@ -33,12 +33,6 @@ function graph(pattern: string): LessonsGraph {
       },
     },
   };
-}
-
-function timed<T>(fn: () => T): { value: T; ms: number } {
-  const start = performance.now();
-  const value = fn();
-  return { value, ms: performance.now() - start };
 }
 
 describe('non-recall glob paths use the safe matcher', () => {

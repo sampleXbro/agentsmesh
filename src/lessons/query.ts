@@ -21,10 +21,7 @@ const COMMAND_MATCH_BUDGET = 5_000_000;
  */
 const GLOB_MATCH_BUDGET = 2_000_000;
 
-interface MatchBudgets {
-  readonly command: WorkBudget;
-  readonly glob: WorkBudget;
-}
+type MatchBudgets = Record<'command' | 'glob', WorkBudget>;
 
 export interface LessonsQuery {
   /** Project-relative path of the file about to be edited. */

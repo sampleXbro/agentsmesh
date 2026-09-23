@@ -138,12 +138,13 @@ describe('acquireProcessLock — ownership under interleaving', () => {
     expect(existsSync(lockPath)).toBe(false);
   });
 
-  it('release by a holder whose lock was taken over leaves the new holder lock in place', async () => {
+  it('release (even repeated) by a holder whose lock was taken over leaves the new holder lock in place', async () => {
     const releaseOld = await acquireProcessLock(lockPath);
     nextProbeSaysDead();
     const releaseNew = await acquireProcessLock(lockPath, { retries: 0 });
     const newHolder = readFileSync(join(lockPath, 'holder.json'), 'utf-8');
 
+    await releaseOld();
     await releaseOld();
 
     expect(readFileSync(join(lockPath, 'holder.json'), 'utf-8')).toBe(newHolder);
@@ -182,16 +183,5 @@ describe('acquireProcessLock — ownership under interleaving', () => {
     expect(kill).toHaveBeenCalledWith(process.pid, 'SIGINT');
     expect(readdirSync(lockPath).sort()).toEqual(['holder.json', 'owner-other']);
     expect(readFileSync(join(lockPath, 'holder.json'), 'utf-8')).toBe(other);
-  });
-
-  it('a second release after a takeover is still a no-op', async () => {
-    const releaseOld = await acquireProcessLock(lockPath);
-    nextProbeSaysDead();
-    const releaseNew = await acquireProcessLock(lockPath, { retries: 0 });
-    await releaseOld();
-    await releaseOld();
-    expect(existsSync(join(lockPath, 'holder.json'))).toBe(true);
-    await releaseNew();
-    expect(existsSync(lockPath)).toBe(false);
   });
 });

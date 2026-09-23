@@ -3,35 +3,7 @@ import {
   type GuardrailWarning,
   inspectCapturedLesson,
 } from '../../../src/lessons/capture-guardrails.js';
-import type { LessonsGraph, Trigger } from '../../../src/lessons/graph-schema.js';
-import { projectFilesOf } from '../../../src/lessons/project-files.js';
-
-function graphWith(triggers: Record<string, Trigger>): LessonsGraph {
-  return {
-    version: 1,
-    lessons: {
-      L: {
-        rule: 'Some rule.',
-        topics: ['t'],
-        triggers: Object.keys(triggers),
-        evidence: [],
-        status: 'active',
-        createdAt: '2026-06-01',
-      },
-    },
-    topics: { t: { summary: 'T.' } },
-    triggers,
-  };
-}
-
-/** On-disk paths whose git evidence says `renamed` paths were renamed away. */
-function filesWith(paths: string[], renamed: string[] = []): ReadonlySet<string> {
-  return projectFilesOf(paths, () => ({
-    tracked: new Set(paths),
-    deleted: new Set<string>(),
-    renamedAway: new Set(renamed),
-  }));
-}
+import { filesWith, graphWith } from '../../helpers/lessons-liveness-fixture.js';
 
 function liveness(warnings: GuardrailWarning[]): GuardrailWarning[] {
   return warnings.filter((w) => w.code === 'DEAD_GLOB' || w.code === 'PENDING_GLOB');

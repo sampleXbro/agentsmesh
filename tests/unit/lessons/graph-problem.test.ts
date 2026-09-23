@@ -1,15 +1,12 @@
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { graphFilePath } from '../../../src/lessons/graph-store.js';
 import { lessonsGraphProblem } from '../../../src/lessons/graph-problem.js';
+import { writeGraphText } from '../../helpers/lessons-graph-fixture.js';
 
 let root: string;
-const writeGraph = (text: string): void => {
-  mkdirSync(dirname(graphFilePath(root)), { recursive: true });
-  writeFileSync(graphFilePath(root), text, 'utf8');
-};
+const writeGraph = (text: string): void => writeGraphText(root, text);
 
 beforeEach(() => {
   root = mkdtempSync(join(tmpdir(), 'am-graph-problem-'));

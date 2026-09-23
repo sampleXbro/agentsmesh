@@ -7,6 +7,9 @@
  */
 
 import { describe, expect, it } from 'vitest';
+// Catalog first: entering the circular target graph from a target index leaves
+// its BUILTIN_TARGETS slot undefined.
+import { withTargetRecallHooks } from '../../../../src/targets/catalog/recall-hook-targets.js';
 import { descriptor } from '../../../../src/targets/cursor/index.js';
 import { generateHooks } from '../../../../src/targets/cursor/generator.js';
 import {
@@ -15,20 +18,12 @@ import {
 } from '../../../../src/targets/cursor/hook-format.js';
 import { CURSOR_HOOKS } from '../../../../src/targets/cursor/constants.js';
 import type { CanonicalFiles, Hooks } from '../../../../src/core/types.js';
+import { makeCanonical } from '../canonical-factory.js';
 
 const RECALL = 'npx --no --offline agentsmesh lessons hook';
 
 function canonical(hooks: Hooks): CanonicalFiles {
-  return {
-    rules: [],
-    commands: [],
-    agents: [],
-    skills: [],
-    mcp: null,
-    permissions: null,
-    ignore: [],
-    hooks,
-  };
+  return withTargetRecallHooks(makeCanonical({ hooks }), 'cursor');
 }
 
 describe('cursor lessons recall hooks', () => {

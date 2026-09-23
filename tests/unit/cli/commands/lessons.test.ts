@@ -314,7 +314,7 @@ describe('runLessons query', () => {
     if (r.subcommand !== 'query') return;
     expect(r.exitCode).toBe(0);
     expect(r.data.lessons).toEqual([]);
-    expect(r.data.warning).toMatch(/corrupt|unreadable/i);
+    expect(r.data.warning).toMatch(/^recall returned no lessons: .* could not be parsed/);
   });
 
   it('degrades with an upgrade hint (not "corrupt") when lessons.json is a newer version', async () => {
@@ -329,7 +329,7 @@ describe('runLessons query', () => {
     if (r.subcommand !== 'query') return;
     expect(r.exitCode).toBe(0);
     expect(r.data.lessons).toEqual([]);
-    expect(r.data.warning).toMatch(/newer|upgrade/i);
+    expect(r.data.warning).toMatch(/^recall returned no lessons: .* is version 99, newer/);
     expect(r.data.warning ?? '').not.toMatch(/corrupt/i);
   });
 });

@@ -68,14 +68,7 @@ export function lessonsSetupHint(): string {
  * false "a project exists above" on every directory under the home folder.
  */
 export function ancestorLessonsProjectDir(projectRoot: string): string | null {
-  let dir = dirname(resolve(projectRoot));
-  let prev = '';
-  while (dir !== prev) {
-    if (existsSync(lessonsPaths(dir).graph)) return dir;
-    prev = dir;
-    dir = dirname(dir);
-  }
-  return null;
+  return findUp(dirname(resolve(projectRoot)), (dir) => existsSync(lessonsPaths(dir).graph));
 }
 
 /**
@@ -92,15 +85,23 @@ export function ancestorLessonsProjectDir(projectRoot: string): string | null {
  */
 export function resolveLessonsRoot(start: string): string {
   const origin = resolve(start);
-  let dir = origin;
+  const hasLessons = (dir: string): boolean => {
+    const paths = lessonsPaths(dir);
+    return existsSync(paths.graph) || existsSync(paths.config);
+  };
+  return findUp(origin, hasLessons) ?? origin;
+}
+
+/** The first of `start` and its ancestors where `hit` holds, or null. */
+function findUp(start: string, hit: (dir: string) => boolean): string | null {
+  let dir = start;
   let prev = '';
   while (dir !== prev) {
-    const paths = lessonsPaths(dir);
-    if (existsSync(paths.graph) || existsSync(paths.config)) return dir;
+    if (hit(dir)) return dir;
     prev = dir;
     dir = dirname(dir);
   }
-  return origin;
+  return null;
 }
 
 /**

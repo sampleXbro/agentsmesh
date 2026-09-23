@@ -1,6 +1,6 @@
 import { mkdirSync, realpathSync } from 'node:fs';
 import { join } from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { buildRecallHookOutput } from '../../../src/lessons/hook.js';
 import { contextOf, graphOf, useHookProject } from './hook-test-helpers.js';
 
@@ -15,12 +15,8 @@ function subdir(): string {
   return sub;
 }
 
-async function run(
-  payload: Record<string, unknown>,
-  cwd: string,
-  env: NodeJS.ProcessEnv = {},
-): Promise<string> {
-  return contextOf((await buildRecallHookOutput(JSON.stringify(payload), cwd, env)).output);
+async function run(payload: Record<string, unknown>, cwd: string): Promise<string> {
+  return contextOf((await buildRecallHookOutput(JSON.stringify(payload), cwd)).output);
 }
 
 describe('hook resolves the lessons root when started in a subdirectory', () => {
@@ -48,9 +44,8 @@ describe('hook resolves the lessons root when started in a subdirectory', () => 
   it('falls back to CLAUDE_PROJECT_DIR when the payload has no cwd', async () => {
     const sub = subdir();
     const elsewhere = realpathSync(join(project.root(), '..'));
-    const ctx = await run({ tool_input: { file_path: 'src/x.ts' } }, elsewhere, {
-      CLAUDE_PROJECT_DIR: sub,
-    });
+    vi.stubEnv('CLAUDE_PROJECT_DIR', sub);
+    const ctx = await run({ tool_input: { file_path: 'src/x.ts' } }, elsewhere);
     expect(ctx).toContain(RULE);
   });
 
@@ -58,9 +53,8 @@ describe('hook resolves the lessons root when started in a subdirectory', () => 
     const sub = subdir();
     const other = join(project.root(), 'packages', 'other');
     mkdirSync(other, { recursive: true });
-    const ctx = await run({ cwd: sub, tool_input: { file_path: 'src/x.ts' } }, sub, {
-      CLAUDE_PROJECT_DIR: other,
-    });
+    vi.stubEnv('CLAUDE_PROJECT_DIR', other);
+    const ctx = await run({ cwd: sub, tool_input: { file_path: 'src/x.ts' } }, sub);
     expect(ctx).toContain(RULE);
   });
 

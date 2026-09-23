@@ -1,13 +1,11 @@
-import { effectiveness, INEFFECTIVE_MIN_DELIVERIES, MISS_WINDOW_MS } from './effectiveness.js';
+import { queryFromContextKey } from './action-match.js';
+import { effectiveness, isIneffective, MISS_WINDOW_MS } from './effectiveness.js';
 import type { LessonsGraph } from './graph-schema.js';
 import { readOutcomeLog, type OutcomeEvent } from './outcome-log.js';
-import { queryLessons, type LessonsQuery } from './query.js';
+import { queryLessons } from './query.js';
 import { readRecallLog } from './telemetry.js';
 import type { ValidationFinding } from './validate.js';
 import { collectNeverRecalled } from './validate-never-recalled.js';
-
-export { INEFFECTIVE_MIN_DELIVERIES } from './effectiveness.js';
-export { UNUSED_MIN_RECALLS } from './validate-never-recalled.js';
 
 /**
  * Log-derived health findings for `validate` (MAINTAIN). These read the outcome
@@ -47,10 +45,7 @@ function collectIneffective(
   const minutes = MISS_WINDOW_MS / 60_000;
   for (const lessonId of [...eff.keys()].sort()) {
     const outcome = eff.get(lessonId)!;
-    // Delivered enough to judge, and every single delivery was a miss.
-    if (outcome.delivered < INEFFECTIVE_MIN_DELIVERIES || outcome.missed < outcome.delivered)
-      continue;
-    if (graph.lessons[lessonId]?.status !== 'active') continue; // already retired → nothing to do
+    if (!isIneffective(outcome, graph.lessons[lessonId])) continue;
     const actions = outcome.failingActions.length;
     findings.push({
       level: 'warning',
@@ -65,15 +60,6 @@ function collectIneffective(
   }
 }
 
-function queryFromFileKey(key: string): LessonsQuery | null {
-  // Only file: keys are lossless. A cmd: key holds the normalized command CLASS
-  // (flags/args stripped), which a command_pattern trigger matching the full command
-  // cannot be re-checked against — so we never claim a command action is uncovered
-  // here (the failure hook, which still has the raw command, judges those precisely).
-  if (key.startsWith('file:')) return { file: key.slice('file:'.length) };
-  return null;
-}
-
 function collectUncovered(
   events: readonly OutcomeEvent[],
   graph: LessonsGraph,
@@ -86,8 +72,13 @@ function collectUncovered(
   for (const key of [...failures.keys()].sort()) {
     const count = failures.get(key)!;
     if (count < UNCOVERED_MIN_FAILURES) continue;
-    const query = queryFromFileKey(key);
-    if (query === null || queryLessons(graph, query).length > 0) continue; // covered → skip
+    // Only file: keys are lossless. A cmd: key holds the normalized command CLASS
+    // (flags/args stripped), which a command_pattern trigger matching the full command
+    // cannot be re-checked against — so we never claim a command action is uncovered
+    // here (the failure hook, which still has the raw command, judges those precisely).
+    const query = queryFromContextKey(key);
+    if (query === null || !('file' in query)) continue;
+    if (queryLessons(graph, query).length > 0) continue; // covered → skip
     findings.push({
       level: 'warning',
       code: 'UNCOVERED_FAILURE',

@@ -9,7 +9,7 @@ const BASE = /^\|{7}(?: |$)/;
 const SEPARATOR = /^={7}$/;
 const CLOSE = /^>{7}(?: |$)/;
 
-export interface ConflictSides {
+interface ConflictSides {
   /** Null unless every block carried a diff3 base section. */
   readonly base: string | null;
   readonly ours: string;

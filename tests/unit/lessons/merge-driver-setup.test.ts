@@ -7,21 +7,14 @@ import {
   ensureLessonsMergeDriver,
   mergeDriverSetupLine,
 } from '../../../src/lessons/merge-driver-setup.js';
-import { git, initRepo, writeFile } from '../../helpers/temp-git-repo.js';
+import { clearEnv, git, GIT_HOOK_ENV, initRepo, writeFile } from '../../helpers/temp-git-repo.js';
 
 const KEY = 'merge.agentsmesh-lessons.driver';
 const BARE = 'agentsmesh lessons merge-driver %O %A %B';
 const LOCAL_FIRST = 'npx --no --offline agentsmesh lessons merge-driver %O %A %B';
-// Hook-exported git vars would point git at another repo; host config could hold a driver.
-const HOOK_ENV = [
-  'GIT_DIR',
-  'GIT_INDEX_FILE',
-  'GIT_WORK_TREE',
-  'GIT_CONFIG_GLOBAL',
-  'GIT_CONFIG_NOSYSTEM',
-  'PATH',
-] as const;
-const savedEnv: Record<string, string | undefined> = {};
+// Host git config could hold a driver, so it is cleared along with the hook vars.
+const ISOLATED_ENV = [...GIT_HOOK_ENV, 'GIT_CONFIG_GLOBAL', 'GIT_CONFIG_NOSYSTEM', 'PATH'];
+let restoreEnv: () => void;
 
 let root: string;
 let bin: string;
@@ -35,10 +28,8 @@ function boundRepo(): void {
 }
 
 beforeAll(() => {
-  for (const k of HOOK_ENV) {
-    savedEnv[k] = process.env[k];
-    delete process.env[k];
-  }
+  const hostPath = process.env.PATH ?? '';
+  restoreEnv = clearEnv(ISOLATED_ENV);
   process.env.GIT_CONFIG_GLOBAL = join(tmpdir(), 'am-driver-setup-no-global-gitconfig');
   process.env.GIT_CONFIG_NOSYSTEM = '1';
   // The driver is only configured when git can start it: put stand-in launchers on PATH.
@@ -46,13 +37,10 @@ beforeAll(() => {
   for (const name of ['agentsmesh', 'agentsmesh.cmd', 'npx', 'npx.cmd']) {
     writeFileSync(join(bin, name), '');
   }
-  process.env.PATH = [bin, savedEnv.PATH ?? ''].join(delimiter);
+  process.env.PATH = [bin, hostPath].join(delimiter);
 });
 afterAll(() => {
-  for (const k of HOOK_ENV) {
-    if (savedEnv[k] === undefined) delete process.env[k];
-    else process.env[k] = savedEnv[k];
-  }
+  restoreEnv();
   rmSync(bin, { recursive: true, force: true });
 });
 beforeEach(() => {

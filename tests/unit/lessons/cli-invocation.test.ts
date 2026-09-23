@@ -57,6 +57,15 @@ describe('agentsmeshInvocation', () => {
     expect(agentsmeshInvocation(root)).toBe('agentsmesh');
   });
 
+  it('keeps the bare command when the manifest or a dependency field is not an object', () => {
+    for (const content of [null, 'agentsmesh', ['agentsmesh'], { dependencies: 'agentsmesh' }]) {
+      pkg(content);
+      expect(agentsmeshInvocation(root)).toBe('agentsmesh');
+    }
+    pkg({ devDependencies: null, dependencies: ['agentsmesh'] });
+    expect(agentsmeshInvocation(root)).toBe('agentsmesh');
+  });
+
   it('ignores a package that merely has agentsmesh in its name', () => {
     pkg({ devDependencies: { 'agentsmesh-plugin-foo': '1.0.0' } });
     expect(agentsmeshInvocation(root)).toBe('agentsmesh');

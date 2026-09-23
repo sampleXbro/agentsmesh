@@ -5,8 +5,8 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { isAutoPruneEnabled, maybeAutoPrune } from '../../../src/lessons/auto-prune.js';
 import { loadLessonsGraph, saveLessonsGraph } from '../../../src/lessons/graph-store.js';
 import { lessonsPaths } from '../../../src/lessons/paths.js';
-import { projectFilesOf } from '../../../src/lessons/project-files.js';
 import type { LessonsGraph } from '../../../src/lessons/graph-schema.js';
+import { filesWith } from '../../helpers/lessons-liveness-fixture.js';
 
 let root: string;
 
@@ -17,15 +17,6 @@ beforeEach(() => {
 afterEach(() => {
   rmSync(root, { recursive: true, force: true });
 });
-
-/** `src/live.ts` on disk and tracked; git history renamed `renamed` paths away. */
-function filesWith(renamed: string[]): ReadonlySet<string> {
-  return projectFilesOf(['src/live.ts'], () => ({
-    tracked: new Set(['src/live.ts']),
-    deleted: new Set<string>(),
-    renamedAway: new Set(renamed),
-  }));
-}
 
 function writeConfig(value: unknown): void {
   const path = lessonsPaths(root).config;
@@ -131,7 +122,7 @@ describe('maybeAutoPrune', () => {
     graph.lessons['live']!.triggers = ['t-live', 't-dead-glob'];
     saveLessonsGraph(root, graph);
     writeConfig({ autoPrune: true });
-    const summary = await maybeAutoPrune(root, filesWith(['src/renamed.ts']));
+    const summary = await maybeAutoPrune(root, filesWith(['src/live.ts'], ['src/renamed.ts']));
     expect(summary?.detachedDeadGlobs).toBe(1);
     expect(loadLessonsGraph(root).lessons['live']!.triggers).toEqual(['t-live']);
   });
@@ -142,7 +133,7 @@ describe('maybeAutoPrune', () => {
     graph.lessons['live']!.triggers = ['t-live', 't-new'];
     saveLessonsGraph(root, graph);
     writeConfig({ autoPrune: true });
-    for (const known of [filesWith([]), new Set(['src/live.ts'])]) {
+    for (const known of [filesWith(['src/live.ts']), new Set(['src/live.ts'])]) {
       const summary = await maybeAutoPrune(root, known);
       expect(summary?.detachedDeadGlobs ?? 0).toBe(0);
       expect(loadLessonsGraph(root).lessons['live']!.triggers).toEqual(['t-live', 't-new']);

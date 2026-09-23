@@ -9,18 +9,18 @@ import { validateLessonsGraph } from './validate.js';
  * explain an unreadable side the same way.
  */
 
-export type SideName = 'ours' | 'theirs';
+type SideName = 'ours' | 'theirs';
 
 const SIDE_LABEL: Record<SideName, string> = {
   ours: 'this branch',
   theirs: 'the incoming branch',
 };
 
-export type ParsedSide =
+type ParsedSide =
   | { readonly ok: true; readonly graph: LessonsGraph }
   | { readonly ok: false; readonly detail: string; readonly newerVersion?: number };
 
-export interface UnreadableSide {
+interface UnreadableSide {
   readonly ok: false;
   readonly side: SideName;
   readonly detail: string;
@@ -34,7 +34,7 @@ export interface MergedSides {
   readonly introduced: readonly string[];
 }
 
-export type SidesUnion = MergedSides | UnreadableSide;
+type SidesUnion = MergedSides | UnreadableSide;
 
 const absentGraph = (): LessonsGraph => ({ version: 1, lessons: {}, topics: {}, triggers: {} });
 

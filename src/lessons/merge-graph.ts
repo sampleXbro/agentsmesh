@@ -1,7 +1,7 @@
 import { normalizeRule, union } from './add-helpers.js';
 import type { Lesson, LessonsGraph } from './graph-schema.js';
 import { stableStringify } from './graph-store.js';
-import { mergeLesson } from './merge-lesson.js';
+import { mergeLesson, mergeScalar } from './merge-lesson.js';
 
 /**
  * Three-way union merge of the lessons graph — the engine behind the git merge
@@ -22,15 +22,9 @@ type ListField = 'triggers' | 'topics' | 'evidence';
 
 /** Three-way pick of a whole record; a deterministic, side-order-independent tiebreak. */
 function pick<T>(base: T | undefined, ours: T, theirs: T): T {
-  const so = stableStringify(ours);
-  const st = stableStringify(theirs);
-  if (so === st) return ours;
-  if (base !== undefined) {
-    const sb = stableStringify(base);
-    if (so === sb) return theirs; // ours unchanged → take their edit
-    if (st === sb) return ours; // theirs unchanged → take our edit
-  }
-  return so > st ? ours : theirs;
+  return mergeScalar<T | undefined>(base !== undefined, base, ours, theirs, (a, b) =>
+    stableStringify(a) > stableStringify(b) ? a : b,
+  ) as T;
 }
 
 function mergeRecord<T>(

@@ -8,7 +8,6 @@
 import type { CanonicalFiles, HookEntry } from '../../core/types.js';
 import { COPILOT_HOOKS_DIR } from './constants.js';
 import { hasHookCommand } from '../../core/hook-command.js';
-import { projectRecallHooks } from '../projection/recall-hooks.js';
 import type { RulesOutput } from './generator.js';
 
 /**
@@ -23,7 +22,7 @@ export const COPILOT_HOOK_CONTEXT_EVENTS: readonly string[] = [
   'PostToolUseFailure',
 ];
 
-const CANONICAL_TO_COPILOT: ReadonlyMap<string, string> = new Map([
+export const CANONICAL_TO_COPILOT: ReadonlyMap<string, string> = new Map([
   ['PreToolUse', 'preToolUse'],
   ['PostToolUse', 'postToolUse'],
   ['PostToolUseFailure', 'postToolUseFailure'],
@@ -40,13 +39,12 @@ export interface CopilotHookGroup {
 }
 
 /**
- * The hook entries Copilot receives, per event: the recall hook only on
- * context events, no unmapped events, no entries without a command. The hooks
- * config and the wrapper scripts both come from this, so they always match.
+ * The hook entries Copilot receives, per event: no unmapped events, no entries
+ * without a command. The hooks config and the wrapper scripts both come from
+ * this, so they always match.
  */
 export function copilotHookGroups(hooks: CanonicalFiles['hooks']): CopilotHookGroup[] {
-  const projected = projectRecallHooks(hooks, COPILOT_HOOK_CONTEXT_EVENTS) ?? {};
-  return Object.entries(projected).flatMap(([event, entries]) => {
+  return Object.entries(hooks ?? {}).flatMap(([event, entries]) => {
     const copilotEvent = CANONICAL_TO_COPILOT.get(event);
     if (!copilotEvent || !Array.isArray(entries)) return [];
     const kept = entries.filter(

@@ -6,24 +6,19 @@
  */
 
 import { describe, expect, it } from 'vitest';
+// Catalog first: entering the circular target graph from a target index leaves
+// its BUILTIN_TARGETS slot undefined.
+import { withTargetRecallHooks } from '../../../../src/targets/catalog/recall-hook-targets.js';
 import { descriptor } from '../../../../src/targets/windsurf/index.js';
 import { generateHooks } from '../../../../src/targets/windsurf/generator.js';
 import { WINDSURF_HOOKS_FILE } from '../../../../src/targets/windsurf/constants.js';
 import type { CanonicalFiles, Hooks } from '../../../../src/core/types.js';
+import { makeCanonical } from '../canonical-factory.js';
 
 const RECALL = 'agentsmesh lessons hook';
 
 function canonical(hooks: Hooks): CanonicalFiles {
-  return {
-    rules: [],
-    commands: [],
-    agents: [],
-    skills: [],
-    mcp: null,
-    permissions: null,
-    ignore: [],
-    hooks,
-  };
+  return withTargetRecallHooks(makeCanonical({ hooks }), 'windsurf');
 }
 
 const recallEverywhere: Hooks = {

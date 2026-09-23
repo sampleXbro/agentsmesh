@@ -10,17 +10,12 @@
     "scripts/**/*.ts",
     "tests/**/*.test.ts",
     "tests/e2e/**/*.ts",
-    "tests/agents-folder-structure-research.test.ts",
     "tests/harness/**/*.ts",
     "vitest.config.ts",
     "vitest.e2e.config.ts",
     "tsup.config.ts"
   ],
-  "project": [
-    "src/**/*.ts",
-    "tests/**/*.ts",
-    "scripts/**/*.ts"
-  ],
+  "project": ["src/**/*.ts", "tests/**/*.ts", "scripts/**/*.ts"],
   "ignore": [
     "dist/**",
     "coverage/**",

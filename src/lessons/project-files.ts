@@ -28,9 +28,7 @@ export function projectFilesOf(
 
 /** Git evidence carried by `paths`; null for a plain set, so nothing can be proven dead. */
 export function gitHistoryOf(paths: ReadonlySet<string>): GitPathHistory | null {
-  return 'gitHistory' in paths && typeof paths.gitHistory === 'function'
-    ? (paths as ProjectFiles).gitHistory()
-    : null;
+  return (paths as Partial<ProjectFiles>).gitHistory?.() ?? null;
 }
 
 /**

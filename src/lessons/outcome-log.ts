@@ -1,7 +1,6 @@
 import { join } from 'node:path';
 import { effectivenessScores } from './effectiveness.js';
 import type { LessonsGraph } from './graph-schema.js';
-import { loadLessonsGraphResilient } from './graph-store.js';
 import { appendJsonl, logExists, readJsonl } from './jsonl-log.js';
 import { lessonsPaths } from './paths.js';
 import { isOutcomeLogEnabled, sessionId } from './telemetry.js';
@@ -115,7 +114,6 @@ export function recordFailure(
   env: NodeJS.ProcessEnv = process.env,
   session: string | undefined = sessionId(env),
 ): void {
-  if (!isOutcomeLogEnabled(env, projectRoot)) return;
   appendOutcomeEvent(
     projectRoot,
     {
@@ -127,25 +125,6 @@ export function recordFailure(
     },
     env,
   );
-}
-
-/** How many times the latest error on `contextKey` has occurred, and that error's class. */
-export interface ContextFailures {
-  readonly count: number;
-  readonly lastErrorClass?: string;
-}
-
-/**
- * Failure history for one action, for the recurrence-driven capture nudge (STORE).
- * `count` is how often the LATEST error class recurred on this action, across
- * sessions — the same rule the recurrence gate uses — so unrelated failures of
- * one program never read as "the same mistake again". 0 without an error class.
- */
-export function failuresForContext(projectRoot: string, contextKey: string): ContextFailures {
-  const { errorClass, sameClassCount } = recurringFailure(projectRoot, contextKey);
-  return errorClass === undefined
-    ? { count: 0 }
-    : { count: sameClassCount, lastErrorClass: errorClass };
 }
 
 /** The latest error class for an action, and how many times THAT error recurred. */
@@ -179,12 +158,11 @@ export function recurringFailure(projectRoot: string, contextKey: string): Recur
 /**
  * Per-lesson ranking scores from the written log (see effectivenessScores).
  * Empty — every lesson neutral — until the log holds both deliveries and
- * failures. Pass the graph the caller already holds; without it, it is loaded.
- * `lessonIds` limits the work to the lessons the caller will rank.
+ * failures. `lessonIds` limits the work to the lessons the caller will rank.
  */
 export function loadEffectiveness(
   projectRoot: string,
-  graph?: LessonsGraph,
+  graph: LessonsGraph,
   lessonIds?: ReadonlySet<string>,
 ): ReadonlyMap<string, number> {
   const all = readOutcomeLog(projectRoot);
@@ -194,7 +172,5 @@ export function loadEffectiveness(
       : all.filter((e) => e.kind !== 'delivered' || lessonIds.has(e.lessonId));
   const kinds = new Set(events.map((e) => e.kind));
   if (!kinds.has('delivered') || !kinds.has('failure')) return new Map();
-  const load = graph === undefined ? loadLessonsGraphResilient(projectRoot) : null;
-  const resolved = graph ?? (load?.status === 'ok' ? load.graph : undefined);
-  return resolved === undefined ? new Map() : effectivenessScores(events, resolved);
+  return effectivenessScores(events, graph);
 }

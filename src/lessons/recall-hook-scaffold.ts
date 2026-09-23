@@ -61,8 +61,8 @@ export function recallHookCommand(projectRoot: string): string {
 }
 
 /** True for any command that runs the recall hook, however it is launched. */
-export function isRecallHookCommand(command: string): boolean {
-  return command.includes(RECALL_HOOK_COMMAND);
+export function isRecallHookCommand(command: unknown): boolean {
+  return typeof command === 'string' && command.includes(RECALL_HOOK_COMMAND);
 }
 
 function isManaged(item: unknown): item is YAMLMap {

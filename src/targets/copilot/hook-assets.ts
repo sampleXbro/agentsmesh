@@ -45,10 +45,6 @@ async function buildAssetOutput(
   };
 }
 
-function wrapperPath(event: string, index: number, hooksDirRel: string): string {
-  return `${hooksDirRel}/scripts/${wrapperScriptName(event, index)}`;
-}
-
 // CR/LF in matcher/command would otherwise break out of the comment header
 // and inject executable lines BEFORE `set -e -u` enables strict mode. The
 // canonical hooks parser permits arbitrary YAML strings, so any remote pack
@@ -83,7 +79,7 @@ export async function addHookScriptAssets(
   // Same groups as the hooks config, so every script is referenced and vice versa.
   for (const { event, entries } of groups) {
     for (const [index, entry] of entries.entries()) {
-      const scriptPath = wrapperPath(event, index, hooksDirRel);
+      const scriptPath = `${hooksDirRel}/scripts/${wrapperScriptName(event, index)}`;
       let command = entry.command;
       const asset = await buildAssetOutput(projectRoot, entry.command, hooksDirRel);
       if (asset) {

@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildRecallHookOutput } from '../../../src/lessons/hook.js';
-import { contextOf, graphOf, useHookProject } from './hook-test-helpers.js';
+import { count, graphOf, useHookProject } from './hook-test-helpers.js';
 
 const MIG = 'Never edit an applied migration.';
 const SRC = 'Keep src modules under 200 lines.';
@@ -19,11 +18,7 @@ const project = useHookProject(() =>
 const patch = (...body: string[]): string =>
   ['*** Begin Patch', ...body, '*** End Patch'].join('\n');
 
-async function run(payload: Record<string, unknown>): Promise<string> {
-  return contextOf((await buildRecallHookOutput(JSON.stringify(payload), project.root())).output);
-}
-
-const count = (text: string, needle: string): number => text.split(needle).length - 1;
+const run = project.recall;
 
 describe('hook recall for Codex apply_patch edits', () => {
   it('recalls file lessons for a patch carried in tool_input.command', async () => {

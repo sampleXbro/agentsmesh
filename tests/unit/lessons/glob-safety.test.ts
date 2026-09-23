@@ -1,23 +1,12 @@
-import { performance } from 'node:perf_hooks';
 import { describe, expect, it } from 'vitest';
-import {
-  getGlobMatcher,
-  isSafeGlobPattern,
-  MAX_GLOB_LENGTH,
-  MAX_GLOB_PATH_LENGTH,
-  unsafeGlobReason,
-} from '../../../src/lessons/glob-safety.js';
+import { MAX_GLOB_LENGTH, parseGlob } from '../../../src/lessons/glob-parse.js';
+import { getGlobMatcher, MAX_GLOB_PATH_LENGTH } from '../../../src/lessons/glob-safety.js';
+import { timed } from '../../helpers/timing.js';
 
 function matches(pattern: string, path: string): boolean {
   const matcher = getGlobMatcher(pattern);
   if (matcher === null) throw new Error(`pattern rejected: ${pattern}`);
   return matcher.test(path);
-}
-
-function timeMs(fn: () => void): number {
-  const start = performance.now();
-  fn();
-  return performance.now() - start;
 }
 
 describe('getGlobMatcher — legitimate globs keep picomatch({ dot: true }) semantics', () => {
@@ -73,7 +62,7 @@ describe('getGlobMatcher — legitimate globs keep picomatch({ dot: true }) sema
   });
 });
 
-describe('unsafeGlobReason — globs outside the linear subset are rejected (fail closed)', () => {
+describe('parseGlob — globs outside the linear subset are rejected (fail closed)', () => {
   it.each([
     ['**/' + '+(*)'.repeat(12) + 'ZZZ'],
     ['(a+)+b'],
@@ -106,13 +95,12 @@ describe('unsafeGlobReason — globs outside the linear subset are rejected (fai
     ['{a,b}'.repeat(7)],
     ['x'.repeat(MAX_GLOB_LENGTH + 1)],
   ])('rejects %j', (pattern) => {
-    expect(unsafeGlobReason(pattern)).toEqual(expect.any(String));
-    expect(isSafeGlobPattern(pattern)).toBe(false);
+    expect(parseGlob(pattern)).toEqual(expect.any(String));
     expect(getGlobMatcher(pattern)).toBeNull();
   });
 
   it('accepts a pattern at the length cap', () => {
-    expect(isSafeGlobPattern('x'.repeat(MAX_GLOB_LENGTH))).toBe(true);
+    expect(getGlobMatcher('x'.repeat(MAX_GLOB_LENGTH))).not.toBeNull();
   });
 
   it('allows parentheses and pipes only inside a bracket class (literal)', () => {
@@ -124,26 +112,26 @@ describe('unsafeGlobReason — globs outside the linear subset are rejected (fai
 describe('getGlobMatcher — cost is bounded (no catastrophic backtracking)', () => {
   it('rejects the nested-extglob repro in well under a millisecond budget', () => {
     const hostile = '**/' + '+(*)'.repeat(20) + 'ZZZ';
-    expect(timeMs(() => expect(getGlobMatcher(hostile)).toBeNull())).toBeLessThan(20);
+    expect(timed(() => expect(getGlobMatcher(hostile)).toBeNull()).ms).toBeLessThan(20);
   });
 
   it('matches a star-heavy glob against a long segment in linear time', () => {
     const pattern = '*a'.repeat(40) + 'b';
     const path = 'a'.repeat(4000);
     // picomatch needs minutes here (backtracking over 40 stars).
-    expect(timeMs(() => expect(matches(pattern, path)).toBe(false))).toBeLessThan(100);
+    expect(timed(() => expect(matches(pattern, path)).toBe(false)).ms).toBeLessThan(100);
   });
 
   it('matches a globstar-heavy glob against a deep path in bounded time', () => {
     const pattern = '**/*a*/'.repeat(20) + 'z';
     const path = 'a/'.repeat(2000) + 'b';
-    expect(timeMs(() => expect(matches(pattern, path)).toBe(false))).toBeLessThan(100);
+    expect(timed(() => expect(matches(pattern, path)).toBe(false)).ms).toBeLessThan(100);
   });
 
   it('bounds the work of many near-cap brace expansions', () => {
     const pattern = '{*a,*b}'.repeat(6) + 'z';
     const path = 'ab'.repeat(2000);
-    expect(timeMs(() => expect(matches(pattern, path)).toBe(false))).toBeLessThan(100);
+    expect(timed(() => expect(matches(pattern, path)).toBe(false)).ms).toBeLessThan(100);
   });
 
   it('charges a shared budget and reports a non-match once it is exhausted', () => {

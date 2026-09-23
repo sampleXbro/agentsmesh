@@ -1,6 +1,6 @@
 /**
- * `hookContextEvents` must hold for third-party plugin targets, not only the
- * builtins that project it inside their own generators.
+ * `hookContextEvents` must hold for third-party plugin targets as well as
+ * builtins: the engine projects recall hooks for both.
  *
  * A descriptor that says its hooks cannot inject context on an event must never
  * receive the lessons recall entry there: the entry would run on every tool
@@ -23,18 +23,13 @@ import type { GenerateResult } from '../../../../src/core/result-types.js';
 import type { TargetDescriptor } from '../../../../src/targets/catalog/target-descriptor.js';
 import type { CanonicalFiles } from '../../../../src/core/types.js';
 import type { ValidatedConfig } from '../../../../src/config/core/schema.js';
+import { makeCanonical } from '../../targets/canonical-factory.js';
 
 const ID = 'recall-probe-plugin';
 const RECALL = 'agentsmesh lessons hook';
 
 function canonical(): CanonicalFiles {
-  return {
-    rules: [],
-    commands: [],
-    agents: [],
-    skills: [],
-    mcp: null,
-    permissions: null,
+  return makeCanonical({
     hooks: {
       PreToolUse: [
         { matcher: 'Edit|Write|Bash', command: RECALL },
@@ -42,8 +37,7 @@ function canonical(): CanonicalFiles {
       ],
       SessionStart: [{ matcher: '*', command: RECALL }],
     },
-    ignore: [],
-  } as unknown as CanonicalFiles;
+  });
 }
 
 function echoHooks(path: string) {

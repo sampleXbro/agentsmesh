@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { renderInit } from '../../../../src/cli/renderers/init.js';
-import { useCapturedOutput } from './renderer-test-helpers.js';
+import { lessonsInit, useCapturedOutput } from './renderer-test-helpers.js';
 
 describe('renderInit', () => {
   const output = useCapturedOutput();
@@ -142,36 +142,19 @@ describe('renderInit', () => {
   });
 
   it('reports the merge-driver binding and the per-clone setup it performed', () => {
-    renderInit({
-      exitCode: 0,
-      data: {
-        scope: 'project',
-        configFile: 'agentsmesh.yaml',
-        localConfigFile: 'agentsmesh.local.yaml',
-        detectedConfigs: [],
-        imported: [],
-        importedToolCount: 0,
-        targets: [],
-        targetSource: 'explicit',
-        scaffoldType: 'none',
-        gitignoreUpdated: false,
-        lessonsOnly: true,
-        lessons: {
-          created: [`${process.cwd()}/.agentsmesh/lessons/lessons.json`],
-          updated: [],
-          skipped: [],
-          rootRuleUpdated: true,
-          gitignoreUpdated: false,
-          gitattributesUpdated: true,
-          recallHookInjected: false,
-          mergeDriver: {
-            status: 'configured',
-            command: 'agentsmesh lessons merge-driver %O %A %B',
-          },
-          recallHookTeamHint: null,
+    renderInit(
+      lessonsInit({
+        created: [`${process.cwd()}/.agentsmesh/lessons/lessons.json`],
+        rootRuleUpdated: true,
+        gitattributesUpdated: true,
+        recallHookInjected: false,
+        mergeDriver: {
+          status: 'configured',
+          command: 'agentsmesh lessons merge-driver %O %A %B',
         },
-      },
-    });
+        recallHookTeamHint: null,
+      }),
+    );
 
     const stdout = output.stdout();
     expect(stdout).toContain('merge driver in .gitattributes');
@@ -182,36 +165,18 @@ describe('renderInit', () => {
   });
 
   it('says so plainly when the merge driver could not be enabled', () => {
-    renderInit({
-      exitCode: 0,
-      data: {
-        configFile: 'agentsmesh.yaml',
-        localConfigFile: 'agentsmesh.local.yaml',
-        detectedConfigs: [],
-        imported: [],
-        importedToolCount: 0,
-        targets: [],
-        targetSource: 'explicit',
-        scaffoldType: 'none',
-        gitignoreUpdated: false,
-        lessonsOnly: true,
-        lessons: {
-          created: [],
-          updated: [],
-          skipped: [],
-          rootRuleUpdated: false,
-          gitignoreUpdated: false,
-          gitattributesUpdated: true,
-          recallHookInjected: false,
-          mergeDriver: {
-            status: 'failed',
-            command: 'agentsmesh lessons merge-driver %O %A %B',
-            reason: '`agentsmesh` is not on PATH',
-          },
-          recallHookTeamHint: null,
+    renderInit(
+      lessonsInit({
+        gitattributesUpdated: true,
+        recallHookInjected: false,
+        mergeDriver: {
+          status: 'failed',
+          command: 'agentsmesh lessons merge-driver %O %A %B',
+          reason: '`agentsmesh` is not on PATH',
         },
-      },
-    });
+        recallHookTeamHint: null,
+      }),
+    );
     expect(output.stdout() + output.stderr()).toContain(
       'Could not enable the lessons.json merge driver',
     );

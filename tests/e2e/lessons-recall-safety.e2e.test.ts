@@ -102,7 +102,7 @@ describe('lessons CLI — corrupt graph resilience (P1)', () => {
 
     const r = await runCli('lessons query --file src/index.ts --format json', dir);
     expect(r.exitCode).toBe(0);
-    expect(r.stderr.toLowerCase()).toMatch(/corrupt|unreadable/);
+    expect(r.stderr).toMatch(/recall returned no lessons: .*could not be parsed/);
     const data = JSON.parse(r.stdout) as { lessons: unknown[]; totalMatches: number };
     expect(data.lessons).toEqual([]);
     expect(data.totalMatches).toBe(0);

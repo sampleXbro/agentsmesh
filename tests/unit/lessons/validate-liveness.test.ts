@@ -1,44 +1,19 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { GitPathHistory } from '../../../src/lessons/git-path-history.js';
-import type { LessonsGraph } from '../../../src/lessons/graph-schema.js';
 import { projectFilesOf } from '../../../src/lessons/project-files.js';
 import {
   collectDeadFileGlobs,
   collectRunnerAnchoredPatterns,
-  deadFileGlobIds,
   fileGlobLiveness,
 } from '../../../src/lessons/validate-liveness.js';
 import type { ValidationFinding } from '../../../src/lessons/validate.js';
-
-/** A graph with one ACTIVE lesson referencing every supplied trigger. */
-function graphWith(triggers: LessonsGraph['triggers']): LessonsGraph {
-  return {
-    version: 1,
-    lessons: {
-      L: {
-        rule: 'R.',
-        topics: ['t'],
-        triggers: Object.keys(triggers),
-        evidence: [],
-        status: 'active',
-        createdAt: '2026-06-05',
-      },
-    },
-    topics: { t: { summary: 'T.' } },
-    triggers,
-  };
-}
+import { filesWith, graphWith } from '../../helpers/lessons-liveness-fixture.js';
 
 const NO_HISTORY: GitPathHistory = {
   tracked: new Set(),
   deleted: new Set(),
   renamedAway: new Set(),
 };
-
-/** On-disk paths with git evidence that `renamed` paths were renamed away in history. */
-function filesWith(paths: string[], renamed: string[] = []): ReadonlySet<string> {
-  return projectFilesOf(paths, () => ({ ...NO_HISTORY, renamedAway: new Set(renamed) }));
-}
 
 describe('fileGlobLiveness', () => {
   it('splits globs matching nothing on disk into dead (git proves removal) and pending (no proof)', () => {
@@ -50,9 +25,6 @@ describe('fileGlobLiveness', () => {
     const out = fileGlobLiveness(g, filesWith(['src/here/a.ts'], ['src/gone/x.ts']));
     expect([...out.dead]).toEqual(['t-moved']);
     expect([...out.pending]).toEqual(['t-new']);
-    expect([...deadFileGlobIds(g, filesWith(['src/here/a.ts'], ['src/gone/x.ts']))]).toEqual([
-      't-moved',
-    ]);
   });
 
   it('proves nothing dead from a plain set (no git evidence): every missing glob is pending', () => {

@@ -12,7 +12,7 @@ import { commandCouldMatch } from './query.js';
  * re-match it — the check errs toward "no match", never a false one.
  */
 
-export type ActionQuery = { readonly file: string } | { readonly command: string };
+type ActionQuery = { readonly file: string } | { readonly command: string };
 
 /** The recall query a stored action key stands for; null for `none` or unknown keys. */
 export function queryFromContextKey(key: string): ActionQuery | null {

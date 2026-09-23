@@ -5,8 +5,7 @@ import type { ImportResult } from '../../core/types.js';
 import { getHookCommand, hasHookCommand } from '../../core/hook-command.js';
 import { readFileSafe, writeFileAtomic, mkdirp } from '../../utils/filesystem/fs.js';
 import { GEMINI_SETTINGS } from './constants.js';
-import { mapGeminiHookEvent } from './format-helpers-shared.js';
-import { fromGeminiMatcher } from './hook-map.js';
+import { fromGeminiMatcher, mapGeminiHookEvent } from './hook-map.js';
 
 export async function importGeminiSettings(
   projectRoot: string,

@@ -48,7 +48,7 @@ export function describeCorruptGraph(projectRoot: string, error: Error): GraphPr
   };
 }
 
-export function newerGraphProblem(version: number): GraphProblem {
+function newerGraphProblem(version: number): GraphProblem {
   return {
     kind: 'newer-version',
     message:

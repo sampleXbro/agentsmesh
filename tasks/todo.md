@@ -10,15 +10,18 @@ generate --check; differential run of old vs new dist on the same scenario; comm
 - [x] one sync "read text or empty" helper; one `emptyGraph()`; `graphHasConflictMarkers(root)` in graph-problem.ts
 
 ## Fixers (disjoint files)
-- [ ] lock: exists->existsSync, releaseOwned->evictOwners, fold backoff module, lessons-lock mkdir/alias, 2 test dups
-- [ ] globs: glob-safety inline/deletes, deadFileGlobIds inline, project-files, MatchBudgets, test helpers
-- [ ] hook: semver->isOlderVersion, emitRecall/optionalPreface/env param/cliVersion, hook-notices dedup, findUp, cli-invocation, basename/stripVT, test helpers
-- [ ] merge/effectiveness: git runner, pick->mergeScalar, failuresForContext, loadEffectiveness graph, validate-health, configFlag, flat memo, add.ts projectRoot, export keywords, test dups
-- [ ] cli/mcp/install: pack-merge dedup, query degraded+guards collapse, generate/check inline, isCaptureRejection, boundedShow, init renderer, scripts, knip, test helpers
-- [ ] targets: single recall projection, reverse maps, lint supported lists, recall-hook-hint, hook-assets, stale JSDoc, test builders
+- [x] lock: exists->existsSync, releaseOwned->evictOwners, fold backoff module, lessons-lock mkdir/alias, 2 test dups
+- [x] globs: glob-safety inline/deletes, deadFileGlobIds inline, project-files, MatchBudgets, test helpers
+- [x] hook: semver->isOlderVersion, emitRecall/optionalPreface/env param/cliVersion, hook-notices dedup, findUp, cli-invocation, basename/stripVT, test helpers
+- [x] merge/effectiveness: git runner, pick->mergeScalar, failuresForContext, loadEffectiveness graph, validate-health, configFlag, flat memo, add.ts projectRoot, export keywords, test dups
+- [x] cli/mcp/install: pack-merge dedup, query degraded+guards collapse, generate/check inline, isCaptureRejection, boundedShow, init renderer, scripts, knip, test helpers
+- [x] targets: single recall projection, reverse maps, lint supported lists, recall-hook-hint, hook-assets, stale JSDoc, test builders
 
 ## Integration (me)
-- [ ] full gate, differential old/new run, commit locally
+- [x] full gate, differential old/new run, commit locally
+
+Skipped on purpose (not behavior-preserving or against repo convention): stripVTControlCharacters, absentGraph -> emptyGraph (v1 -> v2), flat memo Map (2.5x slower), scripts core/wrapper split, rich-plugin fixture test.
+Differential old/new run: identical transcripts and trees except the intended recall wording and volatile pack metadata.
 
 ---
 

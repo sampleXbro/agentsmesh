@@ -106,7 +106,7 @@ export function recallLogPath(projectRoot: string): string {
 }
 
 /** A boolean field of the project's lessons config; undefined when absent or unreadable. */
-function configFlag(projectRoot: string, key: string): boolean | undefined {
+export function configFlag(projectRoot: string, key: string): boolean | undefined {
   const path = lessonsPaths(projectRoot).config;
   if (!existsSync(path)) return undefined;
   try {

@@ -73,7 +73,7 @@ describe('EVALUATE end-to-end: outcome log → effectiveness → recall down-ran
       );
     }
 
-    expect(loadEffectiveness(root).get('l-a')).toBe(0);
+    expect(loadEffectiveness(root, GRAPH).get('l-a')).toBe(0);
     const { lessons } = await recallLessons(root, { keyword: 'foo' }, { noDedup: true });
     expect(lessons.map((l) => l.id)).toEqual(['l-b', 'l-a']);
   });

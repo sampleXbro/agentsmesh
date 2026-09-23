@@ -1,8 +1,7 @@
-import { existsSync, readFileSync } from 'node:fs';
 import { tryLoadLessonsGraph } from './graph-store.js';
 import { mutateLessonsGraph } from './mutate.js';
-import { lessonsPaths } from './paths.js';
 import { applyPruneToGraph, isEmptyPrunePlan, planPrune } from './prune.js';
+import { configFlag } from './telemetry.js';
 
 /**
  * Opt-in automatic graph hygiene. When `.agentsmesh/lessons/config.json` carries
@@ -22,15 +21,7 @@ import { applyPruneToGraph, isEmptyPrunePlan, planPrune } from './prune.js';
 
 /** True when the project config opts into automatic GC-only pruning. */
 export function isAutoPruneEnabled(projectRoot: string): boolean {
-  const path = lessonsPaths(projectRoot).config;
-  if (!existsSync(path)) return false;
-  try {
-    const parsed: unknown = JSON.parse(readFileSync(path, 'utf8'));
-    if (typeof parsed !== 'object' || parsed === null) return false;
-    return (parsed as Record<string, unknown>).autoPrune === true;
-  } catch {
-    return false;
-  }
+  return configFlag(projectRoot, 'autoPrune') === true;
 }
 
 export interface AutoPruneSummary {

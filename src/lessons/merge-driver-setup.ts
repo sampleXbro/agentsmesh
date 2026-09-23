@@ -15,7 +15,7 @@ import { runGit, type GitRunner } from './git-exec.js';
 import { commandLauncherExists, commandProgram } from './launcher.js';
 import { LESSONS_GRAPH_PATH } from './graph-store.js';
 
-export const LESSONS_MERGE_DRIVER = 'agentsmesh-lessons';
+const LESSONS_MERGE_DRIVER = 'agentsmesh-lessons';
 
 /** Committable `.gitattributes` entry binding the graph to the union merge driver. */
 export const LESSONS_GITATTRIBUTES_ENTRY = `${LESSONS_GRAPH_PATH} merge=${LESSONS_MERGE_DRIVER}`;
@@ -25,7 +25,7 @@ const NAME_KEY = `merge.${LESSONS_MERGE_DRIVER}.name`;
 const DRIVER_NAME = 'agentsmesh lessons union';
 
 /** The driver command git runs. Forward slashes only: git runs it through `sh`. */
-export function lessonsMergeDriverCommand(invocation: string): string {
+function lessonsMergeDriverCommand(invocation: string): string {
   return `${invocation.replaceAll('\\', '/')} lessons merge-driver %O %A %B`;
 }
 
@@ -42,7 +42,7 @@ export type MergeDriverSetup =
   | { readonly status: 'custom'; readonly command: string; readonly existing: string }
   | { readonly status: 'failed'; readonly command: string; readonly reason: string };
 
-export interface MergeDriverSetupOptions {
+interface MergeDriverSetupOptions {
   /** How the driver launches the CLI; defaults to {@link agentsmeshInvocation}. */
   readonly invocation?: string;
   readonly git?: GitRunner;

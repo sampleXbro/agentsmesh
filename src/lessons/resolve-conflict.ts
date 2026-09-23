@@ -13,7 +13,7 @@ import { describeUnreadableSide, unionGraphTexts, type MergedSides } from './mer
  * conflict markers. The same union the merge driver uses then replaces the file.
  */
 
-export interface ResolvedConflict {
+interface ResolvedConflict {
   readonly source: 'index' | 'markers';
   readonly lessonCount: number;
   readonly onlyOurs: number;
@@ -21,7 +21,7 @@ export interface ResolvedConflict {
   readonly introduced: readonly string[];
 }
 
-export type ResolveOutcome =
+type ResolveOutcome =
   | { readonly ok: true; readonly resolved: ResolvedConflict }
   | { readonly ok: false; readonly error: string };
 

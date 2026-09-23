@@ -1,3 +1,5 @@
+import { posix } from 'node:path';
+
 /**
  * Reduce a shell command to the program it really runs plus an optional
  * subcommand — the stable CLASS outcomes and command triggers bind to.
@@ -98,8 +100,7 @@ function splitSegments(command: string): string[] {
 
 /** `node_modules/.bin/vitest` → `vitest`; a plain name is kept. */
 function programName(word: string): string {
-  const parts = word.replace(/[\\/]+$/, '').split(/[\\/]/);
-  return parts[parts.length - 1] || word;
+  return posix.basename(word.replaceAll('\\', '/')) || word;
 }
 
 function subcommandOf(program: string, args: readonly string[]): Omit<CommandClass, 'program'> {

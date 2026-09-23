@@ -58,6 +58,9 @@ export interface AddLessonOptions {
    * legacy-merge path omits it, so no tree walk happens off the capture path.
    */
   readonly knownPaths?: ReadonlySet<string>;
+}
+
+interface AddLessonIntoOptions extends AddLessonOptions {
   /**
    * Project root for making absolute `--trigger-file` globs project-relative
    * (and rejecting ones outside it). `addLesson` sets it; legacy merge omits it.
@@ -87,10 +90,11 @@ export async function addLesson(
 ): Promise<AddLessonResult> {
   // mutateLessonsGraph migrates a legacy store first, so the very first capture
   // cannot create lessons.json over an unmigrated index.yaml and strand it.
-  const withRoot = { ...options, projectRoot: options.projectRoot ?? projectRoot };
-  return mutateLessonsGraph(projectRoot, (graph) => addLessonInto(graph, input, withRoot), {
-    retries: options.retries,
-  });
+  return mutateLessonsGraph(
+    projectRoot,
+    (graph) => addLessonInto(graph, input, { ...options, projectRoot }),
+    { retries: options.retries },
+  );
 }
 
 /**
@@ -104,7 +108,7 @@ export async function addLesson(
 export function addLessonInto(
   graph: LessonsGraph,
   input: AddLessonInput,
-  options: AddLessonOptions,
+  options: AddLessonIntoOptions,
 ): AddLessonResult {
   const ruleKey = normalizeRule(input.rule);
   const trimmedRule = assertRuleShape(input.rule);

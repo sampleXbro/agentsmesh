@@ -46,7 +46,7 @@ export function collectInvalidTriggerPatterns(
   findings: ValidationFinding[],
 ): void {
   for (const [triggerId, trigger] of Object.entries(graph.triggers)) {
-    const globFinding = trigger.kind === 'file_glob' ? unsafeGlobFinding(triggerId, trigger) : null;
+    const globFinding = unsafeGlobFinding(triggerId, trigger);
     if (globFinding !== null) findings.push(globFinding);
     if (trigger.kind !== 'command_pattern') continue;
     try {

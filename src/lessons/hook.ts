@@ -4,7 +4,6 @@ import {
   collectRecall,
   contextOutput,
   EMPTY,
-  optionalPreface,
   paragraphs,
   renderRecall,
   type RecallHookResult,
@@ -56,7 +55,6 @@ const MAX_TARGET_CHARS = 200;
 export async function buildRecallHookOutput(
   rawStdin: string,
   processCwd: string,
-  env: NodeJS.ProcessEnv = process.env,
 ): Promise<RecallHookResult> {
   let raw: unknown;
   try {
@@ -66,16 +64,12 @@ export async function buildRecallHookOutput(
   }
   if (typeof raw !== 'object' || raw === null) return EMPTY;
   const host = detectHookHost(raw as Record<string, unknown>);
-  return host.wrap(await recallFor(host, processCwd, env));
+  return host.wrap(await recallFor(host, processCwd));
 }
 
-async function recallFor(
-  host: HookHost,
-  processCwd: string,
-  env: NodeJS.ProcessEnv,
-): Promise<RecallHookResult> {
+async function recallFor(host: HookHost, processCwd: string): Promise<RecallHookResult> {
   const parsed = host.payload;
-  const location = hookLocation(parsed, processCwd, env);
+  const location = hookLocation(parsed, processCwd);
   const projectRoot = location.root;
   const sessionId = contextSessionId(parsed);
 
@@ -162,6 +156,6 @@ async function toolRecall(
   return renderRecall(collected, {
     event,
     lead: `Recalled agentsmesh lessons for ${safeRuleLine(target, MAX_TARGET_CHARS)}`,
-    ...optionalPreface([escalation ?? null, ...notices]),
+    preface: paragraphs([escalation ?? null, ...notices]),
   });
 }

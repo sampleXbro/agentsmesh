@@ -2,34 +2,15 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { MAX_RULE_LENGTH, type LessonsGraph } from '../../../../src/lessons/graph-schema.js';
+import { MAX_RULE_LENGTH } from '../../../../src/lessons/graph-schema.js';
 import { saveLessonsGraph } from '../../../../src/lessons/graph-store.js';
 import { MAX_RECALL_PAYLOAD_CHARS } from '../../../../src/lessons/rule-line.js';
 import type { McpContext } from '../../../../src/mcp/context.js';
 import { lessonsHandlers } from '../../../../src/mcp/handlers/lessons.js';
+import { bulkLessonsGraph } from '../../../helpers/lessons-graph-fixture.js';
 
 let root: string;
 let ctx: McpContext;
-
-function hugeGraph(count: number, ruleLength: number): LessonsGraph {
-  const lessons: LessonsGraph['lessons'] = {};
-  for (let i = 0; i < count; i += 1) {
-    lessons[`l${String(i).padStart(2, '0')}`] = {
-      rule: `${i}`.padEnd(ruleLength, 'Z'),
-      topics: ['t'],
-      triggers: ['g'],
-      evidence: [],
-      status: 'active',
-      createdAt: '2026-06-05',
-    };
-  }
-  return {
-    version: 2,
-    lessons,
-    topics: { t: { summary: 'T.' } },
-    triggers: { g: { kind: 'file_glob', pattern: 'src/**' } },
-  };
-}
 
 const ruleChars = (lessons: ReadonlyArray<{ rule: string }>): number =>
   lessons.reduce((n, l) => n + l.rule.length, 0);
@@ -48,14 +29,14 @@ afterEach(async () => {
 
 describe('lessons_query payload bounds', () => {
   it('clamps a single over-long rule', async () => {
-    saveLessonsGraph(root, hugeGraph(1, MAX_RULE_LENGTH * 20));
+    saveLessonsGraph(root, bulkLessonsGraph(1, MAX_RULE_LENGTH * 20));
     const out = await lessonsHandlers.query(ctx, { file: 'src/x.ts', no_dedup: true });
     expect(out.lessons[0]?.rule.length).toBe(MAX_RULE_LENGTH);
     expect(out.lessons[0]?.rule.endsWith('…[truncated]')).toBe(true);
   });
 
   it('keeps the total rule payload under the cap even with a huge token budget', async () => {
-    saveLessonsGraph(root, hugeGraph(40, MAX_RULE_LENGTH));
+    saveLessonsGraph(root, bulkLessonsGraph(40, MAX_RULE_LENGTH));
     const out = await lessonsHandlers.query(ctx, {
       file: 'src/x.ts',
       limit: 100,
@@ -68,7 +49,7 @@ describe('lessons_query payload bounds', () => {
   });
 
   it('does not mark capped-out lessons as seen: they come back on the next call', async () => {
-    saveLessonsGraph(root, hugeGraph(40, MAX_RULE_LENGTH));
+    saveLessonsGraph(root, bulkLessonsGraph(40, MAX_RULE_LENGTH));
     const session = `cap-${process.pid}-${Date.now()}`;
     const q = { file: 'src/x.ts', limit: 100, max_tokens: 1_000_000, session };
     const first = await lessonsHandlers.query(ctx, q);
@@ -81,7 +62,7 @@ describe('lessons_query payload bounds', () => {
 
 describe('lessons_show payload bounds', () => {
   it('clamps each rule and caps the total, reporting how many it left out', async () => {
-    saveLessonsGraph(root, hugeGraph(40, MAX_RULE_LENGTH * 3));
+    saveLessonsGraph(root, bulkLessonsGraph(40, MAX_RULE_LENGTH * 3));
     const out = await lessonsHandlers.show(ctx, { topic: 't' });
     expect(out.lessons.every((l) => l.rule.length <= MAX_RULE_LENGTH)).toBe(true);
     expect(ruleChars(out.lessons)).toBeLessThanOrEqual(MAX_RECALL_PAYLOAD_CHARS);
@@ -90,7 +71,7 @@ describe('lessons_show payload bounds', () => {
   });
 
   it('reports nothing omitted for a small topic', async () => {
-    saveLessonsGraph(root, hugeGraph(2, 10));
+    saveLessonsGraph(root, bulkLessonsGraph(2, 10));
     const out = await lessonsHandlers.show(ctx, { topic: 't' });
     expect(out.lessons.length).toBe(2);
     expect(out.omitted).toBeUndefined();

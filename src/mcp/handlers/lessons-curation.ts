@@ -4,6 +4,7 @@ import { maybeAutoMigrateLessons } from '../../lessons/auto-migrate.js';
 import { deprecateLesson } from '../../lessons/deprecate.js';
 import type { LessonStatus } from '../../lessons/graph-schema.js';
 import { tryLoadLessonsGraph } from '../../lessons/graph-store.js';
+import { capRulePayload, clampText } from '../../lessons/rule-line.js';
 
 export interface LessonsShowInput {
   readonly topic: string;
@@ -25,9 +26,15 @@ export interface LessonsShowResult {
     triggers: string[];
     evidence: string[];
   }>;
+  /** Lessons cut by the payload cap. */
+  readonly omitted?: number;
 }
 
-/** Inspect a topic: return its summary and every lesson under it (all statuses). */
+/**
+ * Inspect a topic: its summary and every lesson under it (all statuses). Rules
+ * are clamped and their total text capped, since the graph may come from a
+ * cloned repo.
+ */
 export async function lessonsShow(
   ctx: McpContext,
   input: LessonsShowInput,
@@ -43,13 +50,19 @@ export async function lessonsShow(
     .sort(([a], [b]) => (a < b ? -1 : 1))
     .map(([id, l]) => ({
       id,
-      rule: l.rule,
+      rule: clampText(l.rule),
       status: l.status,
       topics: [...l.topics],
       triggers: [...l.triggers],
       evidence: [...l.evidence],
     }));
-  return { topic: input.topic, summary: topic.summary, lessons };
+  const { kept, dropped } = capRulePayload(lessons, (l) => l.rule.length);
+  return {
+    topic: input.topic,
+    summary: clampText(topic.summary),
+    lessons: kept,
+    ...(dropped > 0 ? { omitted: dropped } : {}),
+  };
 }
 
 /** Retire a lesson (deprecated, or superseded when `superseded_by` is given). */

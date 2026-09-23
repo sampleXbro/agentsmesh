@@ -12,12 +12,10 @@
  */
 
 import { matchSegments } from './glob-dp.js';
-import { MAX_GLOB_LENGTH, parseGlob, type GlobSegment, type ParsedGlob } from './glob-parse.js';
+import { parseGlob, type GlobSegment, type ParsedGlob } from './glob-parse.js';
 import type { Trigger } from './graph-schema.js';
 import type { WorkBudget } from './regex-linear/index.js';
 import type { ValidationFinding } from './validate.js';
-
-export { MAX_GLOB_LENGTH } from './glob-parse.js';
 
 /** Longer inputs are not real paths; they never match. */
 export const MAX_GLOB_PATH_LENGTH = 4096;
@@ -32,21 +30,11 @@ export interface GlobMatcher {
 
 const cache = new Map<string, GlobMatcher | null>();
 
-/** Why `pattern` is outside the safe glob subset, or null when it is safe. */
-export function unsafeGlobReason(pattern: string): string | null {
-  const parsed = parseGlob(pattern);
-  return typeof parsed === 'string' ? parsed : null;
-}
-
-export function isSafeGlobPattern(pattern: string): boolean {
-  return unsafeGlobReason(pattern) === null;
-}
-
 /** UNSAFE_GLOB_PATTERN finding for validate; backslash globs have their own code. */
 export function unsafeGlobFinding(triggerId: string, trigger: Trigger): ValidationFinding | null {
   if (trigger.kind !== 'file_glob' || trigger.pattern.includes('\\')) return null;
-  const reason = unsafeGlobReason(trigger.pattern);
-  if (reason === null) return null;
+  const reason = parseGlob(trigger.pattern);
+  if (typeof reason !== 'string') return null;
   return {
     level: 'error',
     code: 'UNSAFE_GLOB_PATTERN',
@@ -60,8 +48,8 @@ export function getGlobMatcher(pattern: string): GlobMatcher | null {
   const hit = cache.get(pattern);
   if (hit !== undefined) return hit;
   if (cache.size >= CACHE_LIMIT) cache.clear();
-  const parsed = pattern.length > MAX_GLOB_LENGTH ? null : parseGlob(pattern);
-  const matcher = parsed === null || typeof parsed === 'string' ? null : build(pattern, parsed);
+  const parsed = parseGlob(pattern);
+  const matcher = typeof parsed === 'string' ? null : build(pattern, parsed);
   cache.set(pattern, matcher);
   return matcher;
 }

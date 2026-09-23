@@ -1,4 +1,4 @@
-import { effectiveness, INEFFECTIVE_MIN_DELIVERIES } from './effectiveness.js';
+import { effectiveness, effectivenessScore, isIneffective } from './effectiveness.js';
 import type { LessonsGraph } from './graph-schema.js';
 import type { OutcomeEvent } from './outcome-log.js';
 
@@ -46,13 +46,7 @@ export function summarizeEffectiveness(
     deliveries += outcome.delivered;
     misses += outcome.missed;
     for (const key of outcome.failingActions) actions.add(key);
-    if (
-      outcome.delivered >= INEFFECTIVE_MIN_DELIVERIES &&
-      outcome.missed === outcome.delivered &&
-      graph.lessons[id]?.status === 'active'
-    ) {
-      ineffective += 1;
-    }
+    if (isIneffective(outcome, graph.lessons[id])) ineffective += 1;
   }
   return {
     deliveries,
@@ -60,7 +54,7 @@ export function summarizeEffectiveness(
     failuresObserved: events.filter((e) => e.kind === 'failure').length,
     misses,
     failingActions: actions.size,
-    heldRate: deliveries === 0 ? 1 : 1 - misses / deliveries,
+    heldRate: effectivenessScore({ delivered: deliveries, missed: misses }),
     ineffectiveLessons: ineffective,
   };
 }

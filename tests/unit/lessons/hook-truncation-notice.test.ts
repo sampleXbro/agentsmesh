@@ -8,7 +8,8 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { emitRecall } from '../../../src/lessons/hook-emit.js';
+import { collectRecall, renderRecall } from '../../../src/lessons/hook-emit.js';
+import { contextOf } from './hook-test-helpers.js';
 
 let project: string;
 
@@ -58,12 +59,12 @@ function writeLongGraph(count: number, ruleChars: number): void {
   );
 }
 
-function additionalContext(output: string): string {
-  if (output === '') return '';
-  const parsed = JSON.parse(output) as {
-    hookSpecificOutput: { additionalContext: string };
-  };
-  return parsed.hookSpecificOutput.additionalContext;
+/** The injected context for one `src/app.ts` recall. */
+async function recall(sessionId?: string): Promise<string> {
+  const collected = await collectRecall(project, [{ file: 'src/app.ts' }], sessionId);
+  return contextOf(
+    renderRecall(collected, { event: 'PreToolUse', lead: 'Recalled lessons' }).output,
+  );
 }
 
 beforeEach(() => {
@@ -81,12 +82,7 @@ describe('recall hook truncation notice', () => {
     // them to a knob that cannot change the outcome.
     writeGraph(8);
 
-    const { output } = await emitRecall(
-      project,
-      { file: 'src/app.ts' },
-      { event: 'PreToolUse', lead: 'Recalled lessons', sessionId: undefined },
-    );
-    const context = additionalContext(output);
+    const context = await recall();
 
     expect(context).toContain('3 more matched');
     expect(context).toContain('at most 5');
@@ -97,12 +93,7 @@ describe('recall hook truncation notice', () => {
     // Rules long enough that the budget bites before the 5-rule ceiling does.
     writeLongGraph(4, 2600);
 
-    const { output } = await emitRecall(
-      project,
-      { file: 'src/app.ts' },
-      { event: 'PreToolUse', lead: 'Recalled lessons', sessionId: undefined },
-    );
-    const context = additionalContext(output);
+    const context = await recall();
 
     expect(context).toContain('more matched');
     expect(context).toContain('recallMaxTokens');
@@ -112,12 +103,7 @@ describe('recall hook truncation notice', () => {
   it('stays quiet when every match was delivered', async () => {
     writeGraph(2);
 
-    const { output } = await emitRecall(
-      project,
-      { file: 'src/app.ts' },
-      { event: 'PreToolUse', lead: 'Recalled lessons', sessionId: undefined },
-    );
-    const context = additionalContext(output);
+    const context = await recall();
 
     expect(context).toContain('Rule number 0');
     expect(context).not.toContain('more matched');
@@ -126,21 +112,10 @@ describe('recall hook truncation notice', () => {
   it('does not count lessons held back by session dedup as hidden by the cap', async () => {
     writeGraph(4);
     const session = 'session-dedup-probe';
-    const first = await emitRecall(
-      project,
-      { file: 'src/app.ts' },
-      { event: 'PreToolUse', lead: 'Recalled lessons', sessionId: session },
-    );
-    expect(additionalContext(first.output)).not.toContain('more matched');
+    expect(await recall(session)).not.toContain('more matched');
 
     // Second call: all four are already shown, so recall is silent — that is
     // dedup working, not a budget that is too small.
-    const second = await emitRecall(
-      project,
-      { file: 'src/app.ts' },
-      { event: 'PreToolUse', lead: 'Recalled lessons', sessionId: session },
-    );
-
-    expect(additionalContext(second.output)).not.toContain('more matched');
+    expect(await recall(session)).not.toContain('more matched');
   });
 });

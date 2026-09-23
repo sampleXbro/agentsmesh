@@ -4,7 +4,8 @@ import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { LessonsGraph } from '../../../src/lessons/graph-schema.js';
 import { appendRecallRecord, type RecallTelemetryRecord } from '../../../src/lessons/telemetry.js';
-import { collectHealthFindings, UNUSED_MIN_RECALLS } from '../../../src/lessons/validate-health.js';
+import { collectHealthFindings } from '../../../src/lessons/validate-health.js';
+import { UNUSED_MIN_RECALLS } from '../../../src/lessons/validate-never-recalled.js';
 
 const ON = { AGENTSMESH_LESSONS_TELEMETRY: '1' } as NodeJS.ProcessEnv;
 

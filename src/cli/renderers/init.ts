@@ -78,16 +78,6 @@ function renderTargetChoice(data: InitCommandResult['data']): void {
   );
 }
 
-/** The recall-hook part of the lessons scaffold result (see `recallHookTeamHint`). */
-interface RecallHookReport {
-  readonly recallHookInjected: boolean;
-  readonly recallHookTeamHint?: string | null;
-}
-
-function renderRecallTeamHint(report: RecallHookReport): void {
-  if (report.recallHookTeamHint) logger.warn(`  ${report.recallHookTeamHint}`);
-}
-
 function renderLessons(lessons: NonNullable<InitCommandResult['data']['lessons']>): void {
   const cwd = process.cwd();
   const rel = (p: string): string => relative(cwd, p).replaceAll('\\', '/');
@@ -113,7 +103,7 @@ function renderLessons(lessons: NonNullable<InitCommandResult['data']['lessons']
       '  Wired the lessons recall hook into .agentsmesh/hooks.yaml (deterministic recall on targets whose hooks can inject context)',
     );
   }
-  renderRecallTeamHint(lessons);
+  if (lessons.recallHookTeamHint) logger.warn(`  ${lessons.recallHookTeamHint}`);
   if (lessons.gitattributesUpdated) {
     logger.success(
       '  Bound .agentsmesh/lessons/lessons.json to the merge driver in .gitattributes (commit it so concurrent captures union-merge)',

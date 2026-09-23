@@ -6,8 +6,6 @@ import { readLegacySource, type LegacySource } from './import-legacy-read.js';
 import { lessonsPaths } from './paths.js';
 import { mutateLessonsGraphLocked } from './mutate.js';
 
-export { LegacyTopicPathError } from './import-legacy-read.js';
-
 export interface ImportLegacyOptions {
   /** ISO date stamped onto every imported lesson's `createdAt`. */
   readonly migratedAt: string;

@@ -5,8 +5,7 @@ import {
 } from '../../lessons/merge-driver-setup.js';
 import { recallHookTeamHint } from '../../lessons/recall-hook-hint.js';
 import { logger } from '../../utils/output/logger.js';
-
-export type GenerateMode = 'generate' | 'dry-run' | 'check';
+import type { GenerateData } from '../command-result.js';
 
 /**
  * Project-scope lessons upkeep that `generate` performs for every clone, so a
@@ -17,7 +16,7 @@ export type GenerateMode = 'generate' | 'dry-run' | 'check';
  * run, since blocking generate would stall unrelated work. Only a real run
  * touches git config.
  */
-export function runLessonsMaintenance(root: string, mode: GenerateMode): number {
+export function runLessonsMaintenance(root: string, mode: GenerateData['mode']): number {
   const problem = lessonsGraphProblem(root);
   if (problem !== null) {
     if (mode === 'check') {

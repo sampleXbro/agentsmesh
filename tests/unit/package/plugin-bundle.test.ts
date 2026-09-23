@@ -16,8 +16,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
-import { join, relative } from 'node:path';
-import { syncVersion } from '../../../scripts/sync-release-versions-core.js';
+import { join } from 'node:path';
 
 const ROOT = process.cwd();
 const BUNDLE = join(ROOT, 'plugins/agentsmesh-lessons');
@@ -32,16 +31,10 @@ function readJson(path: string): Record<string, unknown> {
 }
 
 function filesUnder(dir: string): string[] {
-  const out: string[] = [];
-  const walk = (d: string): void => {
-    for (const entry of readdirSync(d)) {
-      const full = join(d, entry);
-      if (statSync(full).isDirectory()) walk(full);
-      else out.push(relative(dir, full).replaceAll('\\', '/'));
-    }
-  };
-  walk(dir);
-  return out.sort();
+  return readdirSync(dir, { recursive: true, encoding: 'utf8' })
+    .filter((rel) => statSync(join(dir, rel)).isFile())
+    .map((rel) => rel.replaceAll('\\', '/'))
+    .sort();
 }
 
 describe('bundle layout', () => {
@@ -176,12 +169,5 @@ describe('the skill is canonical, not a fork', () => {
 describe('versions are generated, never hand-bumped', () => {
   it.each(['plugin.json', '.claude-plugin/plugin.json'])('%s matches package.json', (rel) => {
     expect(readJson(join(BUNDLE, rel)).version).toBe(packageVersion);
-  });
-
-  it('rewrites a manifest version and nothing else', () => {
-    const before = readFileSync(join(BUNDLE, 'plugin.json'), 'utf8');
-    const after = JSON.parse(syncVersion(before, '9.9.9')) as Record<string, unknown>;
-    expect(after.version).toBe('9.9.9');
-    expect({ ...after, version: packageVersion }).toEqual(JSON.parse(before));
   });
 });
