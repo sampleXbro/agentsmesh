@@ -10,7 +10,7 @@ Install rules, commands, agents, or skills from remote repositories or local pat
 
 A multi-signal classifier auto-detects three source shapes at install time:
 
-- **Anthropic-style skill packs** — root `skills/<kebab>/SKILL.md`, optional `agents/`, `references/`, `.claude/commands/`, `.gemini/commands/`, multi-tool rules at root. One `install <url>` imports the whole pack as a bulk set.
+- **Anthropic-style skill packs** — root `skills/<name>/SKILL.md`, optional `agents/`, `references/`, `.claude/commands/`, `.gemini/commands/`, multi-tool rules at root. One `install <url>` imports the whole pack as a bulk set.
 - **Canonical agentsmesh repos** — anything carrying `.agentsmesh/` at the root. Imports verbatim via the canonical loader.
 - **Tool-native repos** — `.claude/`, `.cursor/`, `.codex/`, etc. layouts. Native importer dispatches per target, identical to pre-skill-pack behavior.
 
@@ -49,6 +49,8 @@ agentsmesh install --sync
 `hooks.yaml`, `permissions.yaml`, and `mcp.json` control your agent's tool settings at generate time — shell hooks, granted allowlist permissions, and MCP server launch specs. A third-party pack shipping any of these gets local code execution on your machine the next time the matching event fires.
 
 For any non-local source (`github:`, `gitlab:`, `git+...`) AgentsMesh **strips these three artifacts by default** and warns you. To accept them, re-run with the matching `--accept-*` flag (or `--accept-elevated` for all three). Local sources (a directory on disk) are trusted as-is — you already control those bytes.
+
+Settings (`mcp.json`, `hooks.yaml`, `permissions.yaml`, `ignore`) install only from a source's `.agentsmesh/` folder. If a source without `.agentsmesh/` has any of them at its root, install skips them and prints one warning that names each file.
 
 Your consent is recorded in `installs.yaml` (`accepted_elevated`). `install --sync` and `refresh` re-apply it automatically, so a post-clone replay keeps the artifacts you accepted without you re-passing the `--accept-*` flags.
 
@@ -102,7 +104,7 @@ AgentsMesh clones the repo, classifies the source, and imports everything into `
 agentsmesh install github:addyosmani/agent-skills
 ```
 
-The classifier sees `skills/<kebab>/SKILL.md`, `agents/`, `references/`, multi-tool rules, and per-target command dirs (`.claude/commands/`, `.gemini/commands/`); it imports all skills, agents, root rule, and the merged command set in one shot. Per-entity prompts surface only when the source contains relative links that cross the imported subtree.
+The classifier sees `skills/<name>/SKILL.md`, `agents/`, `references/`, multi-tool rules, and per-target command dirs (`.claude/commands/`, `.gemini/commands/`); it imports all skills, agents, root rule, and the merged command set in one shot. Per-entity prompts surface only when the source contains relative links that cross the imported subtree.
 
 ## Interactive prompts
 
@@ -265,6 +267,8 @@ Every install error surfaces a recovery flag in its own text — you should neve
 | `No installable files found under <path> for manual install.` | `--as <kind>` was passed but the directory holds no `.md` / `.mdc` files matching the kind. | Try a different `--path` to point at the directory holding the markdown files, or drop `--as` so the classifier can re-evaluate the layout. |
 | `No installable native resources found under "<path>" for target "<id>".` | `--target` + `--path` were combined but the resulting subtree carries no native artifacts the target recognizes. | Re-run with `--path <dir>` and *without* `--target` to let auto-detect run on the narrowed tree, or use `--as <kind>` to install the directory as a flat collection. |
 | `No installable resources after skipping invalid files (N): ...` | Every `.md` under the chosen scope had invalid YAML frontmatter (e.g. unquoted scalars containing colons or `[...]` flow-sequences). Lenient parsing skipped each one with a per-file reason; nothing remained. | Fix the frontmatter at the source (quote the offending strings), or narrow `--path` to a subdirectory that excludes the bad files. |
+| `A pack named "<name>" already exists from another source or with another --as/--target.` | `--name` points at a pack that came from a different source, or was installed with a different `--as` / `--target`. Install never overwrites it. | Pick a different `--name`, or run `agentsmesh uninstall <name>` first. |
+| `Ignored mcp.json, hooks.yaml, … at the source root` (warning) | The source has no `.agentsmesh/` folder, so settings files at its root are not installed. Rules, commands, agents and skills still install. | Move the files into `.agentsmesh/` in the source (`.agentsmesh/mcp.json`, `.agentsmesh/hooks.yaml`, and so on) and install again. |
 | `No installable resources at <cache path>` | The classifier ran clean but found no rules / commands / agents / skills / SKILL.md / marketplace.json anywhere under the source. Usually means the repo is a README-only "awesome list" or a CLI tool repo, not a content pack. | Verify the repo actually carries installable content. If it does live under a non-standard path, point at it with `--path <dir>`; if it's a single flat collection, add `--as <kind>`. |
 
 ### Limitations that no flag recovers
@@ -303,6 +307,18 @@ agentsmesh install --sync
 ```
 
 Reads `.agentsmesh/installs.yaml` and reinstalls any packs that are missing from `.agentsmesh/packs/`. Add this to your project `postinstall` script.
+
+### Update an installed pack
+
+```bash
+agentsmesh install ./my-pack --name my-pack
+```
+
+Running `install` again on the same source updates its pack, under the pack's current name, instead of adding a second one. AgentsMesh looks for a pack with the same source, `--target` and `--as`: the one named by `--name` when you pass it, else the one with the same features, else the only pack that covers the whole source. When both the install and the pack cover the whole source (no `--path`, no picked subset), the pack's contents are replaced, like `refresh`: files removed at the source leave the pack, and so does a whole folder the source dropped (say `commands/`). A picked subset merges into the pack instead. Packs you split on purpose (another `--path`, `--as` or pick) stay separate.
+
+`--name` never takes over a pack from another source, or one installed with another `--as` or `--target`; install stops with an error instead.
+
+Add `--dry-run` to see which pack a re-install would update before it writes anything.
 
 ### Install into global mode
 

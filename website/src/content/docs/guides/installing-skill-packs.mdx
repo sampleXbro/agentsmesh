@@ -6,7 +6,7 @@ description: Walk through agentsmesh install on a community skill pack (addyosma
 
 import { Aside } from '@astrojs/starlight/components';
 
-Anthropic-style skill packs are repos shaped around top-level `skills/<kebab>/SKILL.md`, optional `agents/`, `references/`, and per-target command directories (`.claude/commands/`, `.gemini/commands/`). AgentsMesh classifies these automatically and imports them as a single bulk set — no `--as` or `--target` needed.
+Anthropic-style skill packs are repos shaped around top-level `skills/<name>/SKILL.md`, optional `agents/`, `references/`, and per-target command directories (`.claude/commands/`, `.gemini/commands/`). AgentsMesh classifies these automatically and imports them as a single bulk set — no `--as` or `--target` needed.
 
 This guide walks the full install → list → uninstall round-trip using [`addyosmani/agent-skills`](https://github.com/addyosmani/agent-skills) as the example.
 
@@ -21,7 +21,7 @@ AgentsMesh:
 
 1. Acquires `.agentsmesh/.install.lock`.
 2. Clones the source.
-3. Runs the multi-signal classifier. For `agent-skills` the classifier matches `skills/<kebab>/SKILL.md`, `agents/<name>.md`, `references/`, multi-tool rules at root, and per-target command dirs — total score ≥ 1.4, primary signal present → `anthropic-skill-pack`.
+3. Runs the multi-signal classifier. For `agent-skills` the classifier matches `skills/<name>/SKILL.md`, `agents/<name>.md`, `references/`, multi-tool rules at root, and per-target command dirs — total score ≥ 1.4, primary signal present → `anthropic-skill-pack`.
 4. Aggregates 23 skills + 3 agents + 7 commands (4 `.claude/commands/` + 3 `.gemini/commands/` merged into the canonical `commands/` set, with claude precedence on basename collisions) + 1 root rule.
 5. Surfaces the bulk-select prompt (`[a/n/s]`) unless `--force`.
 6. Materialises the pack under `.agentsmesh/packs/addyosmani-agent-skills/` with a per-file integrity manifest at `.agentsmesh-install-manifest.json`.

@@ -14,6 +14,7 @@ vi.mock('../../../src/install/pack/pack-writer.js', () => ({
 }));
 vi.mock('../../../src/install/pack/pack-reader.js', () => ({
   findExistingPack: mockFindExistingPack,
+  findPacksBySource: async (): Promise<never[]> => [],
   readPackMetadata: mockReadPackMetadata,
 }));
 vi.mock('../../../src/install/pack/pack-merge.js', () => ({

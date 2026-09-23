@@ -9,7 +9,6 @@ const mockMergeIntoPack = vi.hoisted(() => vi.fn());
 const mockCleanInstallCache = vi.hoisted(() => vi.fn());
 const mockUpsertInstallManifestEntry = vi.hoisted(() => vi.fn());
 const mockBuildInstallManifestEntry = vi.hoisted(() => vi.fn());
-const mockExists = vi.hoisted(() => vi.fn());
 const mockRename = vi.hoisted(() => vi.fn());
 
 vi.mock('../../../src/install/pack/pack-writer.js', () => ({
@@ -17,6 +16,7 @@ vi.mock('../../../src/install/pack/pack-writer.js', () => ({
 }));
 vi.mock('../../../src/install/pack/pack-reader.js', () => ({
   findExistingPack: mockFindExistingPack,
+  findPacksBySource: async (): Promise<never[]> => [],
   readPackMetadata: mockReadPackMetadata,
 }));
 vi.mock('../../../src/install/pack/pack-merge.js', () => ({
@@ -30,10 +30,6 @@ vi.mock('../../../src/install/core/install-manifest.js', () => ({
   buildInstallManifestEntry: mockBuildInstallManifestEntry,
   readInstallManifest: vi.fn().mockResolvedValue([]),
 }));
-vi.mock('../../../src/utils/filesystem/fs.js', async (orig) => {
-  const actual = (await orig()) as Record<string, unknown>;
-  return { ...actual, exists: mockExists };
-});
 vi.mock('node:fs/promises', async (orig) => {
   const actual = (await orig()) as Record<string, unknown>;
   return { ...actual, rename: mockRename };
@@ -83,7 +79,6 @@ beforeEach(() => {
   mockCleanInstallCache.mockResolvedValue(undefined);
   mockUpsertInstallManifestEntry.mockResolvedValue(undefined);
   mockBuildInstallManifestEntry.mockImplementation((entry) => entry);
-  mockExists.mockResolvedValue(false);
   mockRename.mockResolvedValue(undefined);
 });
 
@@ -94,33 +89,57 @@ describe('installAsPack — branches', () => {
     expect(mockMaterializePack).not.toHaveBeenCalled();
   });
 
-  it('renames existing pack when renameExistingPack=true and names differ', async () => {
+  it('merges a picked subset into the existing pack under its own name', async () => {
+    const pick = { skills: ['s1'] };
     mockFindExistingPack.mockResolvedValueOnce({
-      meta: { name: 'old-name', features: ['skills'] },
+      meta: { name: 'old-name', features: ['skills'], pick },
       packDir: '/p/.agentsmesh/packs/old-name',
       name: 'old-name',
     });
-    mockMergeIntoPack.mockResolvedValueOnce({
-      name: 'auto-name',
-      features: ['skills'],
-      pick: undefined,
-    });
-    await installAsPack({ ...baseArgs, renameExistingPack: true });
-    expect(mockRename).toHaveBeenCalledOnce();
-    expect(mockMergeIntoPack).toHaveBeenCalledOnce();
+    mockMergeIntoPack.mockResolvedValueOnce({ name: 'old-name', features: ['skills'], pick });
+    await expect(installAsPack({ ...baseArgs, pick })).resolves.toBe('old-name');
+    expect(mockMergeIntoPack.mock.calls[0]?.[0]).toBe('/p/.agentsmesh/packs/old-name');
+    expect(mockRename).not.toHaveBeenCalled();
   });
 
-  it('throws when rename target dir already exists', async () => {
+  it('replaces the pack under its own name when a whole-source install re-runs', async () => {
+    mockFindExistingPack.mockResolvedValueOnce({
+      meta: { name: 'old-name', features: ['skills'], installed_at: 'first' },
+      packDir: '/p/.agentsmesh/packs/old-name',
+      name: 'old-name',
+    });
+    await expect(installAsPack(baseArgs)).resolves.toBe('old-name');
+    expect(mockRename).not.toHaveBeenCalled();
+    expect(mockMergeIntoPack).not.toHaveBeenCalled();
+    expect(mockMaterializePack).toHaveBeenCalledOnce();
+    const [, name, , meta] = mockMaterializePack.mock.calls[0] as [
+      unknown,
+      string,
+      unknown,
+      { installed_at: string },
+    ];
+    expect(name).toBe('old-name');
+    expect(meta.installed_at).toBe('first');
+  });
+
+  it('resolves the pack it would update in dry-run, and writes nothing', async () => {
     mockFindExistingPack.mockResolvedValueOnce({
       meta: { name: 'old-name', features: ['skills'] },
       packDir: '/p/.agentsmesh/packs/old-name',
       name: 'old-name',
     });
-    mockExists.mockResolvedValueOnce(true);
-    await expect(installAsPack({ ...baseArgs, renameExistingPack: true })).rejects.toThrow(
+    await expect(installAsPack({ ...baseArgs, dryRun: true })).resolves.toBe('old-name');
+    expect(mockMaterializePack).not.toHaveBeenCalled();
+    expect(mockMergeIntoPack).not.toHaveBeenCalled();
+    expect(mockUpsertInstallManifestEntry).not.toHaveBeenCalled();
+    expect(mockCleanInstallCache).not.toHaveBeenCalled();
+  });
+
+  it('reports a pack name collision in dry-run too', async () => {
+    mockReadPackMetadata.mockResolvedValueOnce({ name: 'auto-name' });
+    await expect(installAsPack({ ...baseArgs, dryRun: true })).rejects.toThrow(
       /collides with an existing/,
     );
-    expect(mockRename).not.toHaveBeenCalled();
   });
 
   it('passes pathInRepo=undefined to materialize as path:undefined,paths:undefined', async () => {
@@ -156,9 +175,8 @@ describe('executeRunInstallPoolsAndWrite — dry-run pack branch', () => {
     vi.doMock('../../../src/install/core/install-extend-entry.js', () => ({
       writeInstallAsExtend: vi.fn(),
     }));
-    vi.doMock('../../../src/install/run/run-install-pack.js', () => ({
-      installAsPack: vi.fn(),
-    }));
+    const installAsPack = vi.fn().mockResolvedValue('existing-pack');
+    vi.doMock('../../../src/install/run/run-install-pack.js', () => ({ installAsPack }));
     vi.doMock('../../../src/cli/commands/generate.js', () => ({
       runGenerate: vi.fn().mockResolvedValue({
         exitCode: 0,
@@ -231,6 +249,7 @@ describe('executeRunInstallPoolsAndWrite — dry-run pack branch', () => {
       sourceForYaml: 'github:org/repo@abc',
       version: 'abc',
       pathInRepo: '',
+      contentRoot: '/s',
       persisted: { pathInRepo: undefined, pick: undefined },
       replay: undefined,
       prep: { yamlTarget: undefined } as never,
@@ -242,10 +261,12 @@ describe('executeRunInstallPoolsAndWrite — dry-run pack branch', () => {
       }),
       discoveredFeatures: ['skills'],
     };
-    await mod.executeRunInstallPoolsAndWrite(args);
+    const result = await mod.executeRunInstallPoolsAndWrite(args);
+    expect(installAsPack).toHaveBeenCalledWith(expect.objectContaining({ dryRun: true }));
     expect(loggerInfo).toHaveBeenCalledWith(
-      expect.stringContaining('[dry-run] Would install pack'),
+      '[dry-run] Would install pack "existing-pack" to .agentsmesh/packs/.',
     );
+    expect(result.installed).toEqual([{ kind: 'skill', name: 'demo', path: 'existing-pack' }]);
   });
 
   it('warns when generate fails after install', async () => {
@@ -344,6 +365,7 @@ describe('executeRunInstallPoolsAndWrite — dry-run pack branch', () => {
       sourceForYaml: 'github:org/repo@abc',
       version: 'abc',
       pathInRepo: '',
+      contentRoot: '/s',
       persisted: { pathInRepo: undefined, pick: undefined },
       replay: undefined,
       prep: { yamlTarget: undefined } as never,
@@ -395,6 +417,7 @@ describe('executeRunInstallPoolsAndWrite — dry-run pack branch', () => {
       sourceForYaml: 'github:org/repo@abc',
       version: 'abc',
       pathInRepo: '',
+      contentRoot: '/s',
       persisted: { pathInRepo: undefined, pick: undefined },
       replay: undefined,
       prep: { yamlTarget: undefined } as never,

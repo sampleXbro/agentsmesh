@@ -172,7 +172,7 @@ describe('installAsPack with forceFreshMaterialize', () => {
     ).rejects.toThrow(/collides/i);
   });
 
-  it('forceFreshMaterialize: false (default) preserves existing merge behavior', async () => {
+  it('forceFreshMaterialize: false (default) merges a picked subset into the existing pack', async () => {
     const packsDir = join(canonicalDir, 'packs');
     const existingPackDir = join(packsDir, 'my-pack');
     await mkdir(join(existingPackDir, 'skills', 'old-skill'), { recursive: true });
@@ -188,6 +188,9 @@ describe('installAsPack with forceFreshMaterialize', () => {
         'content_hash: sha256:0000000000000000000000000000000000000000000000000000000000000000',
         'features:',
         '  - skills',
+        'pick:',
+        '  skills:',
+        '    - old-skill',
       ].join('\n'),
     );
 
@@ -199,7 +202,7 @@ describe('installAsPack with forceFreshMaterialize', () => {
       sourceForYaml: 'github:org/repo',
       sourceKind: 'github',
       entryFeatures: ['skills'],
-      pick: undefined,
+      pick: { skills: ['new-skill'] },
     });
 
     expect(await exists(join(existingPackDir, 'skills', 'old-skill', 'SKILL.md'))).toBe(true);

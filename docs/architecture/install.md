@@ -52,7 +52,7 @@ generate (cleanupStaleGeneratedOutputs)              src/core/generate/stale-cle
 
   | Signal | Predicate | Weight |
   |---|---|---|
-  | `skill-pack-layout` | ≥1 `skills/<kebab>/SKILL.md` with `name` or `description` frontmatter | 1.0 (PRIMARY) |
+  | `skill-pack-layout` | ≥1 `skills/<name>/SKILL.md` with `name` or `description` frontmatter | 1.0 (PRIMARY) |
   | `agents-dir` | ≥1 `agents/<name>.md` with frontmatter (boilerplate filtered) | 0.4 |
   | `references-dir` | ≥1 `references/<name>.md` | 0.3 |
   | `multi-tool-rules` | ≥2 of `CLAUDE.md`, `AGENTS.md`, `GEMINI.md` at root | 0.3 |
@@ -130,7 +130,9 @@ Test plumbing note: `runInstall` and `runUninstall` construct `defaultAdapter()`
 
 `src/install/core/install-name.ts` — `findExistingInstallName(manifest, parsedSource)` normalises both sides to canonical `github:<org>/<repo>` (strips ref, `.git`, protocol variance) and looks for a matching `installs.yaml` row.
 
-The executor (`run-install-execute.ts`) gates re-use on an additional identity scope (`target + as + features`) via the local `pickReuseEntryName` helper, so feature-variant packs don't get auto-renamed. `renameExistingPack` is only set when `nameOverride === '' && reuseExistingName === null`.
+The executor (`run-install-execute.ts`) gates re-use on an additional identity scope (`target + as + features`) via the local `pickReuseEntryName` helper. An existing pack is never renamed: a re-install keeps the pack's name, and the executor reports the name `installAsPack` returns.
+
+`install-pack-target.ts` — `resolveInstallPack` picks the pack a re-install updates, always within the same source, `target` and `as`: the exact feature-set match, else the pack named by an explicit `--name`, else the single whole-source pack (no pick, no path) when the install is whole-source too. When both sides cover the whole source, `installAsPack` replaces the pack through `materializePack` (like `refresh`, keeping `installed_at`); a picked subset merges. A new pack that would take a name held by an unrelated pack fails with `packNameCollision`. With `dryRun`, `installAsPack` does the same lookup and name check, then returns the name without writing.
 
 ## Uninstall lifecycle
 

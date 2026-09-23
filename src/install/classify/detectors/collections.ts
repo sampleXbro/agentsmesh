@@ -1,5 +1,5 @@
 /**
- * Detect `skills/<kebab>/SKILL.md` skill-pack roots, flat `rules/commands/agents/skills`
+ * Detect `skills/<name>/SKILL.md` skill-pack roots, flat `rules/commands/agents/skills`
  * collections, and tool-native plugin manifests.
  */
 
@@ -23,13 +23,13 @@ const FLAT_COLLECTION_DIRS: Record<string, FlatCollection['suggestedAs']> = {
 
 const PLUGIN_MANIFESTS = ['.claude-plugin', '.codex-plugin', '.cursor-plugin'];
 
-const KEBAB_DIR = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-
 export async function detectSkillPack(root: string): Promise<SkillPackRoot | null> {
   const skillsDir = join(root, 'skills');
   const entries = await listDirEntries(skillsDir);
   for (const ent of entries) {
-    if (!ent.isDir || ent.name.startsWith('_') || !KEBAB_DIR.test(ent.name)) continue;
+    // Any folder name counts (not only kebab-case): a stricter test made a
+    // source with rules/ look like a lone rules collection and drop its skills.
+    if (!ent.isDir || ent.name.startsWith('_') || ent.name.startsWith('.')) continue;
     try {
       const skillMd = await stat(join(skillsDir, ent.name, 'SKILL.md'));
       if (skillMd.isFile()) return { path: 'skills' };

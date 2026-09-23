@@ -193,7 +193,7 @@ export async function executeRunInstallPoolsAndWrite(
     reuseExistingName: reuseExistingName || '',
   });
 
-  const installed = buildInstalledList(selected, entryName);
+  let installed = buildInstalledList(selected, entryName);
   const skipped = buildSkippedList(skillsPool, rulesPool, commandsPool, agentsPool, selected);
 
   const originalRef = resolveOriginalRef(parsed, replay);
@@ -217,13 +217,7 @@ export async function executeRunInstallPoolsAndWrite(
     });
     if (dryRun) return { installed, skipped };
   } else {
-    if (dryRun) {
-      logger.info(
-        `[dry-run] Would install pack "${entryName}" to ${scope === 'global' ? '~/.agentsmesh/packs/.' : '.agentsmesh/packs/.'}`,
-      );
-      return { installed, skipped };
-    }
-    await installAsPack({
+    const packName = await installAsPack({
       canonicalDir: context.canonicalDir,
       packName: entryName,
       narrowed: effectiveNarrowed,
@@ -236,13 +230,22 @@ export async function executeRunInstallPoolsAndWrite(
       yamlTarget: prep.yamlTarget,
       pathInRepo: persisted.pathInRepo,
       manualAs: explicitAs,
-      renameExistingPack: nameOverride === '' && reuseExistingName === null,
+      explicitName: nameOverride !== '',
+      dryRun,
       sourceType,
       contentRoot,
       forceFreshMaterialize: forceFreshMaterialize,
       originalRef,
       acceptedElevated,
     });
+    // A re-install can update a pack under its existing name.
+    installed = buildInstalledList(selected, packName);
+    if (dryRun) {
+      logger.info(
+        `[dry-run] Would install pack "${packName}" to ${scope === 'global' ? '~/.agentsmesh/packs/.' : '.agentsmesh/packs/.'}`,
+      );
+      return { installed, skipped };
+    }
   }
   await runPostOperationGenerate('install', scope, context.rootBase);
   return { installed, skipped };

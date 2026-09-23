@@ -23,6 +23,8 @@ import { runSinglePackInstall, type InstallCommandResult } from './single-pack-i
 import { routePickerResult } from './route-picker-result.js';
 import { handleSync } from './run-install-sync-locked.js';
 import { createInstallReport } from '../core/install-report.js';
+import { logger } from '../../utils/output/logger.js';
+import { ignoredRootSettings, rootSettingsNotice } from '../source/root-settings-notice.js';
 import type { ManualInstallAs } from '../manual/manual-install-mode.js';
 
 export type { InstallCommandResult };
@@ -112,6 +114,8 @@ export async function runInstallLocked(opts: RunInstallLockedArgs): Promise<Inst
   assertPathStaysInRepo(pathInRepo, parsed.pathInRepo);
   const contentRoot = pathInRepo ? join(resolvedPath, pathInRepo) : resolvedPath;
   if (!(await exists(contentRoot))) throw new Error(`Install path does not exist: ${contentRoot}`);
+  const ignoredSettings = await ignoredRootSettings(contentRoot);
+  if (ignoredSettings.length > 0) logger.warn(rootSettingsNotice(ignoredSettings));
   const persisted = await resolveManualInstallPersistence({
     as: explicitAs,
     contentRoot,

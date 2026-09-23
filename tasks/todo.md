@@ -1,3 +1,30 @@
+# Local pack install defects (2026-09-23)
+
+Source: manual QA of `agentsmesh install` from a local directory (task chip).
+Rules: TDD, files <=200 lines (run-install-pack.ts is already 228: split it), no `any`, strict
+artifact assertions, docs (install.mdx) + changeset. Keep the documented model: packs from one
+source with different feature sets or picks stay separate; only an unambiguous same-install
+re-run updates in place.
+
+- [x] D1 re-install of a changed local pack updates it in place (`install-pack-target.ts`):
+  - exact feature match, else the pack named by an explicit --name (same source, target, `as`),
+    else the single whole-source pack; explicit --name to another source's pack gets a message
+    that names --name (not "Auto-generated")
+  - whole-source re-install onto a whole-source pack replaces its contents (like refresh,
+    keeps installed_at); picks merge
+  - found in manual repro: a same-feature re-install without --name renamed a local pack to the
+    auto name (old `renameExistingPack`). Removed: a re-install keeps the pack name. --dry-run now
+    resolves the same pack (installAsPack `dryRun`), so the preview names the real pack
+- [x] D2 skill-pack detection counts any skills/<dir>/SKILL.md (not `_`/dot dirs), so skills, rules,
+  README and LICENSE install together; names kept as-is (same as a lone skills folder)
+- [x] D3 warn when mcp.json / hooks.yaml / permissions.yaml / ignore sit at the root of a
+  non-canonical source (only a source's `.agentsmesh/` settings install); docs say so
+- [x] docs (cli/install.mdx, architecture/install.md, `skills/<name>` wording), changeset, gate
+  (13719 unit+integration, 658 e2e, coverage floor, lint, typecheck, knip, build, astro,
+  generate --check, check), manual repro of all three, commit locally
+- Note: run-install-execute.ts was 249 lines at HEAD (now 252); split left for a follow-up.
+---
+
 # QA defect fixes: high + medium (2026-09-23)
 
 Source: senior manual QA of origin/develop..HEAD (5 exploratory sessions; top defects reproduced).

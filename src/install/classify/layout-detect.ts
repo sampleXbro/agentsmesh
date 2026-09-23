@@ -9,7 +9,7 @@
  *   - `fs-helpers.ts`   — `dirExists`, `listDirEntries`, `classifyFileShape`.
  *   - `root-shape.ts`   — `.agentsmesh/`, legacy `.cursorrules`/`.windsurfrules`,
  *                          root `SKILL.md`.
- *   - `collections.ts`  — `skills/<kebab>/SKILL.md` skill packs, flat
+ *   - `collections.ts`  — `skills/<name>/SKILL.md` skill packs, flat
  *                          `rules/commands/agents/skills` collections, and
  *                          tool-native plugin manifests.
  *
