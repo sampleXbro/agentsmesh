@@ -1,4 +1,3 @@
-import { spawnSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -23,6 +22,7 @@ import {
   git,
   GIT_HOOK_ENV,
   initRepo,
+  tryGit,
   writeFile,
 } from '../../../helpers/temp-git-repo.js';
 
@@ -107,8 +107,8 @@ describe('lessons subcommands during an unfinished git merge', () => {
     git(root, ['checkout', '-q', 'main']);
     writeFile(root, GRAPH, graph(['l0', 'a']));
     commitAll(root, 'ours');
-    const merge = spawnSync('git', ['merge', '--no-edit', 'feature'], { cwd: root });
-    expect(merge.status).not.toBe(0);
+    const merge = tryGit(root, ['merge', '--no-edit', 'feature']);
+    expect(merge.stdout).toContain('CONFLICT (content)');
     // One side written back by hand: parses fine, but git still holds it unmerged.
     writeFile(root, GRAPH, graph(['l0', 'a']));
     expect(lessonsGraphProblem(root)).not.toBeNull();

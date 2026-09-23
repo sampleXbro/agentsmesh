@@ -1,6 +1,6 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { delimiter, join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { commandLauncherExists, localBinExists } from '../../../src/lessons/launcher.js';
 
@@ -11,13 +11,16 @@ beforeEach(() => {
 afterEach(() => rmSync(bin, { recursive: true, force: true }));
 
 describe('commandLauncherExists', () => {
+  // Host platform and delimiter: a Windows path has a drive-letter colon.
+  const host = process.platform;
+
   it('finds the first word of a command on PATH', () => {
     writeFileSync(join(bin, 'agentsmesh'), '');
-    const env = { PATH: ['/nope', bin].join(':') };
-    expect(commandLauncherExists('agentsmesh lessons merge-driver %O %A %B', env, 'linux')).toBe(
+    const env = { PATH: ['/nope', bin].join(delimiter) };
+    expect(commandLauncherExists('agentsmesh lessons merge-driver %O %A %B', env, host)).toBe(
       true,
     );
-    expect(commandLauncherExists('missing-tool lessons', env, 'linux')).toBe(false);
+    expect(commandLauncherExists('missing-tool lessons', env, host)).toBe(false);
   });
 
   it('tries PATHEXT and a `Path` variable on Windows', () => {
@@ -42,10 +45,12 @@ describe('commandLauncherExists', () => {
       writeFileSync(join(dir, 'agentsmesh'), '');
     }
     const command = 'agentsmesh lessons merge-driver %O %A %B';
-    expect(commandLauncherExists(command, { PATH: npxCache }, 'linux')).toBe(false);
-    expect(commandLauncherExists(command, { PATH: `${scriptBin}/` }, 'linux')).toBe(false);
+    expect(commandLauncherExists(command, { PATH: npxCache }, host)).toBe(false);
+    expect(commandLauncherExists(command, { PATH: `${scriptBin}/` }, host)).toBe(false);
     writeFileSync(join(bin, 'agentsmesh'), '');
-    expect(commandLauncherExists(command, { PATH: [npxCache, bin].join(':') }, 'linux')).toBe(true);
+    expect(commandLauncherExists(command, { PATH: [npxCache, bin].join(delimiter) }, host)).toBe(
+      true,
+    );
   });
 
   it('is false for an empty command', () => {

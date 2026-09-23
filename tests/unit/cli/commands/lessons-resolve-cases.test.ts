@@ -6,7 +6,6 @@
  * of both branches).
  */
 
-import { spawnSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -22,6 +21,7 @@ import {
   git,
   GIT_HOOK_ENV,
   initRepo,
+  tryGit,
   writeFile,
 } from '../../../helpers/temp-git-repo.js';
 
@@ -49,7 +49,7 @@ function diverge(
   git(repo, ['checkout', '-q', 'main']);
   writeFile(repo, GRAPH, ours);
   commitAll(repo, 'ours');
-  return spawnSync('git', ['-c', 'commit.gpgsign=false', ...op], { cwd: repo }).status ?? 0;
+  return tryGit(repo, op).status ?? 0;
 }
 
 const addTwoLessons = (op: string[], style?: string): number =>

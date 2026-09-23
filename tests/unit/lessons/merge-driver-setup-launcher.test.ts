@@ -83,7 +83,7 @@ describe('ensureLessonsMergeDriver — a launcher git can find later', () => {
       command: LOCAL_FIRST,
       reason:
         'git runs the driver from the repository root ' +
-        `(${realpathSync(root).replaceAll('\\', '/')}), where ` +
+        `(${realpathSync.native(root).replaceAll('\\', '/')}), where ` +
         '`npx --no --offline agentsmesh` cannot find agentsmesh; add agentsmesh to the ' +
         'devDependencies of the root package.json and install, or install agentsmesh globally',
     });

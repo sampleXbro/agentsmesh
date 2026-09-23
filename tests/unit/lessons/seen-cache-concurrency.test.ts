@@ -8,6 +8,7 @@ import { execFile } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { promisify } from 'node:util';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { commitSeen, openSessionDedup } from '../../../src/lessons/seen-cache.js';
@@ -53,13 +54,15 @@ describe('commitSeen under overlap', () => {
     const seenCache = resolve('src/lessons/seen-cache.ts');
     writeFileSync(
       script,
-      `import { commitSeen, openSessionDedup } from ${JSON.stringify(seenCache)};\n` +
+      `import { commitSeen, openSessionDedup } from ${JSON.stringify(pathToFileURL(seenCache).href)};\n` +
         `const d = openSessionDedup({ explicit: process.argv[2], projectRoot: process.argv[3] });\n` +
         `commitSeen(d, [process.argv[4]]);\n`,
     );
-    const tsx = resolve('node_modules/.bin/tsx');
+    // node --import tsx, not node_modules/.bin/tsx: Windows has only tsx.cmd there.
     const ids = Array.from({ length: 12 }, (_, i) => `id-${String(i).padStart(2, '0')}`);
-    await Promise.all(ids.map((id) => run(tsx, [script, session, root, id])));
+    await Promise.all(
+      ids.map((id) => run(process.execPath, ['--import', 'tsx', script, session, root, id])),
+    );
     expect(seenNow()).toEqual(ids);
   }, 30_000);
 });

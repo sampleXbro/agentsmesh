@@ -1,4 +1,3 @@
-import { spawnSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -14,6 +13,7 @@ import {
   git,
   GIT_HOOK_ENV,
   initRepo,
+  tryGit,
   writeFile,
 } from '../../../helpers/temp-git-repo.js';
 
@@ -39,11 +39,8 @@ function conflictedRepo(project: string, theirsVersion = 2): void {
   git(repo, ['checkout', '-q', 'main']);
   writeFile(project, GRAPH, graph({ a: lesson('Ours A.'), l0: lesson('Base.') }));
   commitAll(repo, 'ours');
-  const merge = spawnSync('git', ['merge', '--no-edit', 'feature'], {
-    cwd: repo,
-    encoding: 'utf8',
-  });
-  expect(merge.status).not.toBe(0);
+  const merge = tryGit(repo, ['merge', '--no-edit', 'feature']);
+  expect(merge.stdout).toContain('CONFLICT (content)');
 }
 
 async function resolve(
