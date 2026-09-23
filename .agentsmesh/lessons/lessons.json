@@ -4689,6 +4689,20 @@
         "t-kw-8be8afaf"
       ]
     },
+    "lessons-system-in-the-lessons-cli-flag": {
+      "createdAt": "2026-09-23",
+      "evidence": [
+        "499f7c72"
+      ],
+      "rule": "In the lessons CLI flag layer, treat only a missing (true) or empty ('') value as 'needs a value'. Blank text is a real value that per-field checks judge: a ' ' --trigger-cmd must still get BROAD_COMMAND_PATTERN and a blank --topic-summary gets TOPIC_SUMMARY_REQUIRED; rejecting blanks early broke an existing contract test.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-fbe4ce70"
+      ]
+    },
     "lessons-system-keep-every-lessons-implementation-file": {
       "createdAt": "2026-06-06",
       "evidence": [
@@ -4973,6 +4987,21 @@
       "triggers": [
         "t-glob-9c525d4d",
         "t-glob-4669d772"
+      ]
+    },
+    "lessons-system-measure-the-lessons-rule-limit": {
+      "createdAt": "2026-09-23",
+      "evidence": [
+        "499f7c72"
+      ],
+      "rule": "Measure the lessons rule limit the same way in the add gate (assertRuleShape) and the recall clamp (clampText): both count characters (code points). Changing only the gate lets an accepted emoji rule be cut at recall, since UTF-16 length is up to twice the character count.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-ecaf0fce",
+        "t-glob-8829ad1e"
       ]
     },
     "lessons-system-merge-a-lesson-s-list": {
@@ -5747,6 +5776,22 @@
       ],
       "triggers": [
         "t-glob-406306ec"
+      ]
+    },
+    "lessons-system-when-testing-lessons-trigger-file": {
+      "createdAt": "2026-09-23",
+      "evidence": [
+        "499f7c72"
+      ],
+      "rule": "When testing lessons --trigger-file or root-path handling, pass the physical realpath as the project root and a logical symlinked path as input, the way the CLI runs (process.cwd is physical; macOS /tmp is a symlink to /private/tmp). A test that uses the same string for both passed while the real CLI still called the project root 'outside the project'.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-94124781",
+        "t-glob-49078a57",
+        "t-glob-15c1139a"
       ]
     },
     "lessons-system-when-the-agentsmesh-cli-lacks": {
@@ -11162,6 +11207,10 @@
       "kind": "file_glob",
       "pattern": "src/core/generate/json-owned-keys.ts"
     },
+    "t-glob-15c1139a": {
+      "kind": "file_glob",
+      "pattern": "tests/unit/lessons/*trigger-file*.test.ts"
+    },
     "t-glob-163a9800": {
       "kind": "file_glob",
       "pattern": "src/lessons/merge-graph.ts"
@@ -11413,6 +11462,10 @@
     "t-glob-471d1b86": {
       "kind": "file_glob",
       "pattern": "src/targets/*/*-generate.ts"
+    },
+    "t-glob-49078a57": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/normalize-query-file.ts"
     },
     "t-glob-49133422": {
       "kind": "file_glob",
@@ -11893,6 +11946,10 @@
     "t-glob-92a97f3a": {
       "kind": "file_glob",
       "pattern": "src/cli/commands/watch*.ts"
+    },
+    "t-glob-94124781": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/trigger-file-glob.ts"
     },
     "t-glob-948fae05": {
       "kind": "file_glob",
