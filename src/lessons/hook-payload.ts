@@ -90,6 +90,42 @@ function rootRelative(file: string, location: HookLocation): string {
   return normalizeRecallFile(absolute, location.root);
 }
 
+/**
+ * Tools that only read, lower-cased, as each host names them: Claude Code (and
+ * Cursor's Read/Grep), Copilot, Gemini CLI, Cursor, Codex and VS Code.
+ */
+const READ_ONLY_TOOLS: ReadonlySet<string> = new Set([
+  'read',
+  'glob',
+  'grep',
+  'ls',
+  'notebookread',
+  'webfetch',
+  'websearch',
+  'view',
+  'view_image',
+  'read_file',
+  'read_many_files',
+  'list_dir',
+  'list_directory',
+  'search_file_content',
+  'grep_search',
+  'grep_files',
+  'file_search',
+  'glob_file_search',
+  'codebase_search',
+  'semantic_search',
+  'web_fetch',
+  'web_search',
+  'google_web_search',
+  'fetch_webpage',
+]);
+
+/** True for a tool known to only read; unknown tools are not assumed read-only. */
+export function isReadOnlyTool(toolName: unknown): boolean {
+  return typeof toolName === 'string' && READ_ONLY_TOOLS.has(toolName.toLowerCase());
+}
+
 /** The files, command and written text of a tool call; a patch is files, not a command. */
 export function hookAction(parsed: HookStdin, location: HookLocation): HookAction {
   const input = parsed.tool_input ?? undefined;

@@ -15,11 +15,13 @@ import {
   contextSessionId,
   hookAction,
   hookLocation,
+  isReadOnlyTool,
   str,
   type HookAction,
   type HookStdin,
 } from './hook-payload.js';
 import { taskRecall } from './hook-prompt.js';
+import { findLessonsRoot } from './paths.js';
 import type { LessonsQuery } from './query.js';
 import { recurrenceEscalation } from './recurrence-gate.js';
 import { safeRuleLine } from './rule-line.js';
@@ -70,6 +72,8 @@ export async function buildRecallHookOutput(
 async function recallFor(host: HookHost, processCwd: string): Promise<RecallHookResult> {
   const parsed = host.payload;
   const location = hookLocation(parsed, processCwd);
+  // No lessons project here (e.g. the home folder): no recall, nudge or log.
+  if (findLessonsRoot(location.start) === null) return EMPTY;
   const projectRoot = location.root;
   const sessionId = contextSessionId(parsed);
 
@@ -101,7 +105,17 @@ async function recallFor(host: HookHost, processCwd: string): Promise<RecallHook
   if (parsed.hook_event_name === 'PostToolUseFailure' || errorText !== undefined) {
     const event = str(parsed.hook_event_name);
     const interrupted = parsed.is_interrupt === true;
-    return failureNudge({ event, projectRoot, sessionId, file, command, errorText, interrupted });
+    const readOnly = isReadOnlyTool(parsed.tool_name);
+    return failureNudge({
+      event,
+      projectRoot,
+      sessionId,
+      file,
+      command,
+      errorText,
+      interrupted,
+      readOnly,
+    });
   }
 
   if (file === undefined && command === undefined) return EMPTY;
@@ -133,29 +147,24 @@ async function toolRecall(
   );
 
   // Recurrence gate (PreToolUse only): the first-touch guard is the last moment
-  // to stop a KNOWN repeat, so a recurring covered action escalates above the
-  // regular recall bullets — see recurrence-gate.ts.
+  // to stop a KNOWN repeat, so recurring covered actions escalate in ONE warning
+  // above the regular recall bullets — see recurrence-gate.ts.
   const escalation =
-    event === 'PreToolUse'
-      ? paragraphs(
-          queries.map((q) =>
-            recurrenceEscalation(projectRoot, { file: q.file, command: q.command, sessionId }),
-          ),
-        )
-      : undefined;
+    event === 'PreToolUse' ? recurrenceEscalation(projectRoot, queries, sessionId) : null;
 
   // Provable command-only no-match: skip the full recall load — see cmd-fastpath.ts.
   const fast = { file: action.files[0], command, keyword, sessionId };
-  if (escalation === undefined && hookCommandFastpath(projectRoot, fast)) {
+  if (escalation === null && hookCommandFastpath(projectRoot, fast)) {
     const notices = paragraphs(await sessionNotices(projectRoot, sessionId, {}));
     return notices === undefined ? EMPTY : contextOutput(event, notices);
   }
-  const collected = await collectRecall(projectRoot, queries, sessionId);
+  const shown = new Set(escalation?.ruleIds);
+  const collected = await collectRecall(projectRoot, queries, sessionId, shown);
   const notices = await sessionNotices(projectRoot, sessionId, collected);
   const target = action.files.length > 0 ? action.files.join(', ') : (command ?? '');
   return renderRecall(collected, {
     event,
     lead: `Recalled agentsmesh lessons for ${safeRuleLine(target, MAX_TARGET_CHARS)}`,
-    preface: paragraphs([escalation ?? null, ...notices]),
+    preface: paragraphs([escalation?.text ?? null, ...notices]),
   });
 }

@@ -15,16 +15,21 @@ export interface HookFailure {
   readonly errorText: string | undefined;
   /** The user stopped the tool; still nudged (it may be a correction), never recorded. */
   readonly interrupted?: boolean;
+  /** A read-only tool failed (a missing file, a bad glob): it acted on nothing. */
+  readonly readOnly?: boolean;
 }
 
 /**
  * Record a failed tool call and return the capture nudge. Only a real action
  * (file/command) can be attributed, recorded, and covered. An action-less
- * failure (a failed Read/Grep/MCP call → key 'none') still gets the generic
- * nudge, but is never recorded — it would fabricate cross-action recurrence.
+ * failure (a read-only tool, or no file/command → key 'none') still gets the
+ * generic nudge, but is never recorded — it would fabricate recurrence: a
+ * failed Read of a file not created yet is not a failed write of it.
  */
 export function failureNudge(f: HookFailure): RecallHookResult {
-  const { projectRoot, file, command, sessionId } = f;
+  const { projectRoot, sessionId } = f;
+  const file = f.readOnly === true ? undefined : f.file;
+  const command = f.readOnly === true ? undefined : f.command;
   let failures = 0;
   let lastErrorClass: string | undefined;
   let covered = false;

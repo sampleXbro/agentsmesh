@@ -143,7 +143,14 @@ export function errorResult(
         subcommand,
         exitCode,
         error: message,
-        data: { id: '', isNewLesson: false, isNewTopic: false, newTriggerIds: [], warnings: [] },
+        data: {
+          id: '',
+          isNewLesson: false,
+          isNewTopic: false,
+          newTriggerIds: [],
+          changes: [],
+          warnings: [],
+        },
       };
     case 'show':
       return { subcommand, exitCode, error: message, data: { subject: '', markdown: '' } };

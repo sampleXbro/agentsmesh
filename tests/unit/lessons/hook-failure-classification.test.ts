@@ -8,6 +8,8 @@ import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { emptyGraph } from '../../../src/lessons/graph-schema.js';
+import { saveLessonsGraph } from '../../../src/lessons/graph-store.js';
 import { buildRecallHookOutput } from '../../../src/lessons/hook.js';
 import { outcomeLogPath, readOutcomeLog } from '../../../src/lessons/outcome-log.js';
 import { OUTCOME_LOG_ENV, SESSION_ENV, TELEMETRY_ENV } from '../../../src/lessons/telemetry.js';
@@ -18,6 +20,8 @@ let counter = 0;
 
 beforeEach(() => {
   root = mkdtempSync(join(tmpdir(), 'amesh-hook-classify-'));
+  // The hook only acts inside a lessons project.
+  saveLessonsGraph(root, emptyGraph());
   // Telemetry OFF: the outcome log must record by default without it.
   vi.stubEnv(TELEMETRY_ENV, '');
   vi.stubEnv(OUTCOME_LOG_ENV, '');

@@ -144,6 +144,7 @@ describe('renderLessons — add', () => {
         isNewLesson: true,
         isNewTopic: false,
         newTriggerIds: ['t-glob-abc'],
+        changes: [],
         warnings: [],
       },
     });
@@ -151,11 +152,18 @@ describe('renderLessons — add', () => {
     expect(output.stdout()).toMatch(/new triggers?/i);
   });
 
-  it('signals a no-change re-capture when lesson already existed with no new triggers', () => {
+  it('signals a no-change re-capture when the re-add changed nothing', () => {
     renderLessons({
       subcommand: 'add',
       exitCode: 0,
-      data: { id: 'x', isNewLesson: false, isNewTopic: false, newTriggerIds: [], warnings: [] },
+      data: {
+        id: 'x',
+        isNewLesson: false,
+        isNewTopic: false,
+        newTriggerIds: [],
+        changes: [],
+        warnings: [],
+      },
     });
     expect(output.stdout()).toMatch(/existing|no change/i);
   });
@@ -169,11 +177,11 @@ describe('renderLessons — add', () => {
         isNewLesson: false,
         isNewTopic: false,
         newTriggerIds: ['t-glob-new'],
+        changes: ['trigger attached: t-glob-new'],
         warnings: [],
       },
     });
-    expect(output.stdout()).toMatch(/updated lesson: x/i);
-    expect(output.stdout()).toMatch(/\+1 trigger/i);
+    expect(output.stdout()).toContain('Updated lesson: x — trigger attached: t-glob-new');
   });
 
   it('routes errors to stderr', () => {
@@ -181,7 +189,14 @@ describe('renderLessons — add', () => {
       subcommand: 'add',
       exitCode: 1,
       error: 'Unknown topic: nope',
-      data: { id: '', isNewLesson: false, isNewTopic: false, newTriggerIds: [], warnings: [] },
+      data: {
+        id: '',
+        isNewLesson: false,
+        isNewTopic: false,
+        newTriggerIds: [],
+        changes: [],
+        warnings: [],
+      },
     });
     expect(output.stderr()).toContain('Unknown topic: nope');
   });
@@ -191,7 +206,14 @@ describe('renderLessons — add', () => {
       subcommand: 'add',
       exitCode: 2,
       error: 'Missing --rule',
-      data: { id: '', isNewLesson: false, isNewTopic: false, newTriggerIds: [], warnings: [] },
+      data: {
+        id: '',
+        isNewLesson: false,
+        isNewTopic: false,
+        newTriggerIds: [],
+        changes: [],
+        warnings: [],
+      },
     });
     expect(output.stdout()).not.toMatch(/existing lesson/i);
     expect(output.stderr()).toContain('Missing --rule');
@@ -206,6 +228,7 @@ describe('renderLessons — add', () => {
         isNewLesson: true,
         isNewTopic: false,
         newTriggerIds: ['t-glob-abc'],
+        changes: [],
         warnings: [{ code: 'BROAD_GLOB_TRIGGER', message: 'broad glob.' }],
       },
     });
@@ -213,7 +236,7 @@ describe('renderLessons — add', () => {
     expect(output.stderr()).toContain('BROAD_GLOB_TRIGGER');
   });
 
-  it('warns about a stray location and an unwired subsystem on stderr', () => {
+  it('warns about an unwired subsystem on stderr', () => {
     renderLessons({
       subcommand: 'add',
       exitCode: 0,
@@ -222,12 +245,11 @@ describe('renderLessons — add', () => {
         isNewLesson: true,
         isNewTopic: false,
         newTriggerIds: [],
+        changes: [],
         warnings: [],
-        locationNote: 'a lessons project already exists at /proj.',
         activationNote: 'recall is not wired into your AI tools yet.',
       },
     });
-    expect(output.stderr()).toContain('a lessons project already exists at /proj.');
     expect(output.stderr()).toContain('recall is not wired into your AI tools yet.');
   });
 });
@@ -556,25 +578,11 @@ describe('renderLessons — add / query coverage gaps', () => {
         isNewLesson: true,
         isNewTopic: true,
         newTriggerIds: ['t-glob-abc'],
+        changes: [],
         warnings: [],
       },
     });
     expect(output.stdout()).toMatch(/created new topic/i);
-  });
-
-  it('add pluralizes the trigger count on a multi-trigger upsert', () => {
-    renderLessons({
-      subcommand: 'add',
-      exitCode: 0,
-      data: {
-        id: 'x',
-        isNewLesson: false,
-        isNewTopic: false,
-        newTriggerIds: ['t-a', 't-b'],
-        warnings: [],
-      },
-    });
-    expect(output.stdout()).toMatch(/\+2 triggers/i);
   });
 
   it('query warns on stderr when the ranked cap hid matches', () => {
@@ -979,6 +987,7 @@ describe('renderLessons — branch coverage for less-common subcommands', () => 
         isNewLesson: true,
         isNewTopic: false,
         newTriggerIds: [],
+        changes: [],
         warnings: [],
         autoPruned: { removedTriggers: 1, removedTopics: 2, detachedDeadGlobs: 0 },
       },

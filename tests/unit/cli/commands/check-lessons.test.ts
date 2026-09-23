@@ -1,10 +1,16 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { runCheck } from '../../../../src/cli/commands/check.js';
 import { hashContent } from '../../../../src/utils/crypto/hash.js';
 import { CONFLICTED_GRAPH_TEXT, writeGraphText } from '../../../helpers/lessons-graph-fixture.js';
+import {
+  driverDidNotRun,
+  isolateGit,
+  mergeLessonsBranches,
+  TWO_CAPTURES,
+} from '../../../helpers/lessons-merge-repo.js';
 
 let root: string;
 
@@ -25,6 +31,11 @@ extends: {}
   );
 }
 
+let restoreEnv: () => void;
+beforeAll(() => {
+  restoreEnv = isolateGit();
+});
+afterAll(() => restoreEnv());
 beforeEach(() => {
   root = mkdtempSync(join(tmpdir(), 'am-check-lessons-'));
   inSyncProject();
@@ -52,6 +63,16 @@ describe('runCheck — lessons graph', () => {
     expect(r.data.inSync).toBe(true);
     expect(r.error).toContain('merge conflict');
     expect(r.error).toContain('agentsmesh lessons resolve');
+  });
+
+  it('fails when git still holds a one-sided lessons.json unmerged (no markers)', async () => {
+    mergeLessonsBranches(root, root, TWO_CAPTURES);
+    driverDidNotRun(root, root);
+    const r = await runCheck({}, root);
+    expect(r.exitCode).toBe(1);
+    expect(r.data.inSync).toBe(true);
+    expect(r.error).toContain('git still has .agentsmesh/lessons/lessons.json in a merge conflict');
+    expect(r.error).toContain('`agentsmesh lessons resolve` BEFORE `git add');
   });
 
   it('keeps the lock result when both the lock and the graph are broken', async () => {

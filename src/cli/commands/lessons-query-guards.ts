@@ -1,8 +1,6 @@
-import { existsSync } from 'node:fs';
-import { join } from 'node:path';
 import { problemFromLoad } from '../../lessons/graph-problem.js';
 import type { ResilientGraphLoad } from '../../lessons/graph-store.js';
-import { ancestorLessonsProjectDir, lessonsSetupHint } from '../../lessons/paths.js';
+import { lessonsSetupHint } from '../../lessons/paths.js';
 import type { LessonsFlags } from './lessons-helpers.js';
 
 /**
@@ -34,18 +32,6 @@ export function mergeWarnings(...parts: Array<string | undefined>): string | und
 }
 
 /**
- * Warn when recall finds no graph at the CWD but a `.agentsmesh` project exists
- * in an ancestor — the classic "invoked from a subdirectory" trap, which would
- * otherwise look like an empty (but valid) recall.
- */
-export function strayDirWarning(projectRoot: string): string | undefined {
-  if (existsSync(join(projectRoot, '.agentsmesh'))) return undefined;
-  const ancestor = ancestorLessonsProjectDir(projectRoot);
-  if (ancestor === null) return undefined;
-  return `no lessons graph here — this directory has no .agentsmesh, but a lessons project exists at ${ancestor.replaceAll('\\', '/')}. Run lessons from there (cd into it) for recall to work.`;
-}
-
-/**
  * Warning for recall with no usable graph. Recall degrades to no lessons
  * (exit 0) with a warning that names the cause and the fix.
  */
@@ -59,6 +45,6 @@ export function degradedRecallWarning(
   const cause =
     problem !== null
       ? `recall returned no lessons: ${problem.message}`
-      : mergeWarnings(strayDirWarning(projectRoot) ?? lessonsSetupHint(), keywordOnlyWarning);
+      : mergeWarnings(lessonsSetupHint(), keywordOnlyWarning);
   return mergeWarnings(cause, configWarning);
 }

@@ -12,7 +12,7 @@
  */
 import { agentsmeshInvocation } from './cli-invocation.js';
 import { runGit, type GitRunner } from './git-exec.js';
-import { commandLauncherExists, commandProgram } from './launcher.js';
+import { commandLauncherExists, commandProgram, localBinExists } from './launcher.js';
 import { LESSONS_GRAPH_PATH } from './graph-store.js';
 
 const LESSONS_MERGE_DRIVER = 'agentsmesh-lessons';
@@ -29,10 +29,11 @@ function lessonsMergeDriverCommand(invocation: string): string {
   return `${invocation.replaceAll('\\', '/')} lessons merge-driver %O %A %B`;
 }
 
+const NPX_INVOCATION = 'npx --no --offline agentsmesh';
+const NPX_COMMAND = lessonsMergeDriverCommand(NPX_INVOCATION);
+
 /** Values agentsmesh itself configured or suggested; safe to replace. */
-const OWN_COMMANDS = new Set(
-  ['agentsmesh', 'npx --no --offline agentsmesh'].map(lessonsMergeDriverCommand),
-);
+const OWN_COMMANDS = new Set([lessonsMergeDriverCommand('agentsmesh'), NPX_COMMAND]);
 
 export type MergeDriverSetup =
   | {
@@ -46,11 +47,44 @@ interface MergeDriverSetupOptions {
   /** How the driver launches the CLI; defaults to {@link agentsmeshInvocation}. */
   readonly invocation?: string;
   readonly git?: GitRunner;
+  /** Environment whose PATH must hold the launcher; defaults to process.env. */
+  readonly env?: NodeJS.ProcessEnv;
 }
 
 function configValue(git: GitRunner, root: string, key: string): string | null {
   const r = git(root, ['config', '--get', key]);
   return r.status === 0 ? r.stdout.trim() : null;
+}
+
+/**
+ * Why git could not start `command` at merge time, or null when it can. Git
+ * runs the driver from the repository root, so the npx form needs agentsmesh
+ * installed there (or an ancestor) or globally.
+ */
+function launchProblem(
+  git: GitRunner,
+  projectRoot: string,
+  command: string,
+  env: NodeJS.ProcessEnv,
+): string | null {
+  if (!commandLauncherExists(command, env)) {
+    return (
+      `\`${commandProgram(command)}\` is not installed on PATH (npx and package-script bin ` +
+      'folders do not count), so git could not start the driver; install agentsmesh globally ' +
+      'or as a project devDependency'
+    );
+  }
+  if (command !== NPX_COMMAND) return null;
+  const top = git(projectRoot, ['rev-parse', '--show-toplevel']);
+  const repoRoot = top.status === 0 ? top.stdout.trim() : projectRoot;
+  if (localBinExists(repoRoot, 'agentsmesh') || commandLauncherExists('agentsmesh', env)) {
+    return null;
+  }
+  return (
+    `git runs the driver from the repository root (${repoRoot.replaceAll('\\', '/')}), where ` +
+    `\`${NPX_INVOCATION}\` cannot find agentsmesh; add agentsmesh to the devDependencies of ` +
+    'the root package.json and install, or install agentsmesh globally'
+  );
 }
 
 /**
@@ -76,12 +110,11 @@ export function ensureLessonsMergeDriver(
     return { status: 'custom', command, existing };
   }
   // A driver git cannot start leaves our side as-is with no markers: worse than none.
-  if (existing !== command && !commandLauncherExists(command)) {
-    const reason =
-      `\`${commandProgram(command)}\` is not on PATH, so git could not start the driver; ` +
-      'install agentsmesh globally or as a project devDependency';
-    return { status: 'failed', command, reason };
-  }
+  const reason =
+    existing === command
+      ? null
+      : launchProblem(git, projectRoot, command, options.env ?? process.env);
+  if (reason !== null) return { status: 'failed', command, reason };
   const writes: Array<[string, string]> = [];
   if (existing !== command) writes.push([DRIVER_KEY, command]);
   if (configValue(git, projectRoot, NAME_KEY) === null) writes.push([NAME_KEY, DRIVER_NAME]);

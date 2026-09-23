@@ -1,10 +1,16 @@
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { runLessons } from '../../../../src/cli/commands/lessons.js';
 import type { LessonsValidateData } from '../../../../src/cli/commands/lessons-types.js';
 import { CONFLICTED_GRAPH_TEXT, writeGraphText } from '../../../helpers/lessons-graph-fixture.js';
+import {
+  driverDidNotRun,
+  isolateGit,
+  mergeLessonsBranches,
+  TWO_CAPTURES,
+} from '../../../helpers/lessons-merge-repo.js';
 
 let root: string;
 
@@ -14,6 +20,11 @@ async function validate(): Promise<{ exitCode: number; data: LessonsValidateData
   return r;
 }
 
+let restoreEnv: () => void;
+beforeAll(() => {
+  restoreEnv = isolateGit();
+});
+afterAll(() => restoreEnv());
 beforeEach(() => {
   root = mkdtempSync(join(tmpdir(), 'am-validate-handler-'));
 });
@@ -39,6 +50,33 @@ describe('lessons validate — unreadable graph', () => {
     const message = r.data.findings[0]!.message;
     expect(message.indexOf('Keep a copy')).toBeGreaterThan(-1);
     expect(message.indexOf('Keep a copy')).toBeLessThan(message.indexOf('git checkout'));
+  });
+
+  it('fails with MERGE_CONFLICT when git still holds a one-sided lessons.json unmerged', async () => {
+    mergeLessonsBranches(root, root, TWO_CAPTURES);
+    driverDidNotRun(root, root);
+    const r = await validate();
+    expect(r.exitCode).toBe(1);
+    expect(r.data.findings.map((f) => f.code)).toEqual(['MERGE_CONFLICT']);
+    expect(r.data.findings[0]!.message).toContain(
+      'Run `agentsmesh lessons resolve` BEFORE `git add',
+    );
+  });
+
+  it('reports a well-formed graph that fails the schema as SCHEMA_INVALID, briefly', async () => {
+    writeGraphText(
+      root,
+      '{"version":2,"lessons":{},"topics":{"Bad Id":{"summary":""}},"triggers":{}}',
+    );
+    const r = await validate();
+    expect(r.exitCode).toBe(1);
+    expect(r.data.findings.map((f) => f.code)).toEqual(['SCHEMA_INVALID']);
+    const message = r.data.findings[0]!.message;
+    expect(message).toContain(
+      'does not match the lessons schema (topics.Bad Id: Invalid key in record',
+    );
+    expect(message).not.toContain('"origin"');
+    expect(message.split('\n')).toHaveLength(1);
   });
 
   it('reports a newer schema version as an upgrade, not corruption', async () => {

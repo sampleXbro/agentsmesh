@@ -1,10 +1,8 @@
-import { existsSync } from 'node:fs';
-import { join } from 'node:path';
 import { UnknownTopicError } from '../../lessons/add.js';
 import { captureLesson } from '../../lessons/capture.js';
 import { isCaptureRejection } from '../../lessons/capture-rejection.js';
 import { deprecateLesson } from '../../lessons/deprecate.js';
-import { ancestorLessonsProjectDir, lessonsActivated } from '../../lessons/paths.js';
+import { lessonsActivated } from '../../lessons/paths.js';
 import {
   errorResult,
   listFlag,
@@ -50,15 +48,6 @@ export async function doAdd(
     );
   }
 
-  // Flag a capture about to create a stray graph in a subdirectory of a real
-  // project (computed before capture, which would create .agentsmesh here).
-  const ancestorLessons = existsSync(join(projectRoot, '.agentsmesh'))
-    ? null
-    : ancestorLessonsProjectDir(projectRoot);
-  const locationNote =
-    ancestorLessons !== null
-      ? `Capturing into a new .agentsmesh here — a lessons project already exists at ${ancestorLessons.replaceAll('\\', '/')}. If that was unintended, cd into it and re-run.`
-      : undefined;
   // When lessons was never activated (no `init --lessons`), a bare `add` writes
   // only the graph — no recall hook, ritual, or skill — so the capture lands but
   // no agent is ever told to recall it. Warn so the half-wired state isn't silent.
@@ -96,11 +85,7 @@ export async function doAdd(
         topicSummary: stringFlag(flags, 'topic-summary') ?? undefined,
       },
     );
-    const data: LessonsAddData = {
-      ...result,
-      ...(locationNote ? { locationNote } : {}),
-      ...(activationNote ? { activationNote } : {}),
-    };
+    const data: LessonsAddData = { ...result, ...(activationNote ? { activationNote } : {}) };
     return { subcommand: 'add', exitCode: 0, data };
   } catch (err) {
     if (err instanceof UnknownTopicError) {

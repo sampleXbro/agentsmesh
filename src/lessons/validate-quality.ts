@@ -32,14 +32,12 @@ export function collectDuplicateRules(graph: LessonsGraph, findings: ValidationF
 }
 
 /**
- * A `command_pattern` trigger whose pattern is not a valid regex is dead: recall
- * compiles it with `new RegExp` and a throw is swallowed as a non-match, so the
- * lesson silently becomes unreachable via that trigger. A *valid* pattern that
- * is ReDoS-unsafe (catastrophic backtracking, e.g. `(a+)+`) is worse: recall
- * would execute it on every command and could hang. Flag both as errors so the
- * transactional write path rejects them at capture time (recall additionally
- * skips them at runtime — see regex-safety.ts). Unsafe `file_glob`s get the
- * same treatment (UNSAFE_GLOB_PATTERN, see glob-safety.ts).
+ * A `command_pattern` that is not a valid regex, or that the linear matcher
+ * cannot run (a backreference or a lookaround), is dead: recall skips it (see
+ * regex-safety.ts). Both are errors for validate and the write barrier; capture
+ * drops them first (add-gates.ts dropDeadCommandTriggers). Unsafe
+ * `file_glob`s get the same treatment (UNSAFE_GLOB_PATTERN, see glob-safety.ts).
+ * MCP redacts `/word` tokens as paths, so messages must not echo one.
  */
 export function collectInvalidTriggerPatterns(
   graph: LessonsGraph,
@@ -55,7 +53,7 @@ export function collectInvalidTriggerPatterns(
       findings.push({
         level: 'error',
         code: 'INVALID_TRIGGER_PATTERN',
-        message: `Trigger "${triggerId}" has an invalid command_pattern regex (${trigger.pattern}): ${err instanceof Error ? err.message : String(err)}.`,
+        message: `Trigger "${triggerId}" has an invalid command_pattern regex (${trigger.pattern}): ${regexSyntaxReason(err)}.`,
         triggerId,
       });
       continue;
@@ -64,11 +62,17 @@ export function collectInvalidTriggerPatterns(
       findings.push({
         level: 'error',
         code: 'UNSAFE_TRIGGER_PATTERN',
-        message: `Trigger "${triggerId}" has a command_pattern regex outside the provably-linear subset (${trigger.pattern}): it can backtrack catastrophically (e.g. a quantified group like (a+)+ or (a|aa)+, adjacent repetition like a+a+, or a backreference/lookaround). Rewrite using a linear pattern.`,
+        message: `Trigger "${triggerId}" has a command_pattern regex the linear matcher cannot run (${trigger.pattern}). It does not support backreferences (\\1, \\k<name>), lookarounds ((?=x), (?!x), (?<=x), (?<!x)), or patterns too large to run, such as (a{1000}){10}. Nested quantifiers such as (a+)+ are fine. Rewrite the pattern without the unsupported part.`,
         triggerId,
       });
     }
   }
+}
+
+/** The parser's reason without V8's `/pattern/:` echo, which a redactor reads as a path. */
+function regexSyntaxReason(err: unknown): string {
+  const text = err instanceof Error ? err.message : String(err);
+  return text.replace(/^Invalid regular expression: \/[\s\S]*\/[a-z]*: /, '');
 }
 
 /**

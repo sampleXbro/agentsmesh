@@ -7,6 +7,7 @@ import { saveLessonsGraph } from '../../../../src/lessons/graph-store.js';
 import { MAX_RECALL_PAYLOAD_CHARS } from '../../../../src/lessons/rule-line.js';
 import type { McpContext } from '../../../../src/mcp/context.js';
 import { lessonsHandlers } from '../../../../src/mcp/handlers/lessons.js';
+import type { LessonsShowTopicResult } from '../../../../src/mcp/handlers/lessons-curation.js';
 import { bulkLessonsGraph } from '../../../helpers/lessons-graph-fixture.js';
 
 let root: string;
@@ -60,10 +61,17 @@ describe('lessons_query payload bounds', () => {
   });
 });
 
+/** The topic view of lessons_show (a lesson id returns a single lesson instead). */
+async function showTopic(topic: string): Promise<LessonsShowTopicResult> {
+  const out = await lessonsHandlers.show(ctx, { topic });
+  if (!('lessons' in out)) throw new Error(`expected the topic view of ${topic}`);
+  return out;
+}
+
 describe('lessons_show payload bounds', () => {
   it('clamps each rule and caps the total, reporting how many it left out', async () => {
     saveLessonsGraph(root, bulkLessonsGraph(40, MAX_RULE_LENGTH * 3));
-    const out = await lessonsHandlers.show(ctx, { topic: 't' });
+    const out = await showTopic('t');
     expect(out.lessons.every((l) => l.rule.length <= MAX_RULE_LENGTH)).toBe(true);
     expect(ruleChars(out.lessons)).toBeLessThanOrEqual(MAX_RECALL_PAYLOAD_CHARS);
     expect(out.omitted).toBe(40 - out.lessons.length);
@@ -72,8 +80,18 @@ describe('lessons_show payload bounds', () => {
 
   it('reports nothing omitted for a small topic', async () => {
     saveLessonsGraph(root, bulkLessonsGraph(2, 10));
-    const out = await lessonsHandlers.show(ctx, { topic: 't' });
+    const out = await showTopic('t');
     expect(out.lessons.length).toBe(2);
     expect(out.omitted).toBeUndefined();
+  });
+
+  it('reaches a lesson the cap left out by its id', async () => {
+    saveLessonsGraph(root, bulkLessonsGraph(40, MAX_RULE_LENGTH * 3));
+    const shown = new Set((await showTopic('t')).lessons.map((l) => l.id));
+    const cut = Object.keys(bulkLessonsGraph(40, 1).lessons).find((id) => !shown.has(id));
+    expect(cut).toBeDefined();
+    const one = await lessonsHandlers.show(ctx, { topic: cut! });
+    expect(one).toMatchObject({ lesson: { id: cut, status: 'active', topics: ['t'] } });
+    expect('lesson' in one && one.lesson.rule.length).toBe(MAX_RULE_LENGTH);
   });
 });

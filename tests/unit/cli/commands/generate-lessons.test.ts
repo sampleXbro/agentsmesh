@@ -8,15 +8,26 @@
  * - Projects without lessons are untouched.
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach, vi } from 'vitest';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { runLessonsMaintenance } from '../../../../src/cli/commands/generate-lessons.js';
 import { logger } from '../../../../src/utils/output/logger.js';
 import { CONFLICTED_GRAPH_TEXT, writeGraphText } from '../../../helpers/lessons-graph-fixture.js';
+import {
+  driverDidNotRun,
+  isolateGit,
+  mergeLessonsBranches,
+  TWO_CAPTURES,
+} from '../../../helpers/lessons-merge-repo.js';
 
 let root: string;
+let restoreEnv: () => void;
+beforeAll(() => {
+  restoreEnv = isolateGit();
+});
+afterAll(() => restoreEnv());
 beforeEach(() => {
   root = mkdtempSync(join(tmpdir(), 'gen-lessons-'));
 });
@@ -38,6 +49,18 @@ describe('runLessonsMaintenance', () => {
     const warn = vi.spyOn(logger, 'warn').mockImplementation(() => {});
     expect(runLessonsMaintenance(root, 'generate')).toBe(0);
     expect(warn.mock.calls.flat().join(' ')).toMatch(/conflict/i);
+  });
+
+  it('fails --check and warns on a run when git holds a one-sided lessons.json unmerged', () => {
+    mergeLessonsBranches(root, root, TWO_CAPTURES);
+    driverDidNotRun(root, root);
+    const error = vi.spyOn(logger, 'error').mockImplementation(() => {});
+    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => {});
+    vi.spyOn(logger, 'info').mockImplementation(() => {});
+    expect(runLessonsMaintenance(root, 'check')).toBe(1);
+    expect(error.mock.calls.flat().join(' ')).toContain('BEFORE `git add');
+    expect(runLessonsMaintenance(root, 'generate')).toBe(0);
+    expect(warn.mock.calls.flat().join(' ')).toContain('BEFORE `git add');
   });
 
   it('leaves a project without lessons untouched', () => {

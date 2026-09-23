@@ -15,6 +15,8 @@ import { normalizeRecallFile } from './normalize-query-file.js';
 
 const FILE_PLACEHOLDER = "--trigger-file '<glob>'";
 const CMD_PLACEHOLDER = "--trigger-cmd '<regex matching the command>'";
+/** Quotes, controls, line separators and format characters break or hide the pasted line. */
+const UNSAFE = /['\p{Cc}\p{Cf}\p{Zl}\p{Zp}]/u;
 
 /** Escape a literal string for use inside a command_pattern regex. */
 function escapeRegex(literal: string): string {
@@ -37,7 +39,7 @@ function classPattern(cls: CommandClass): string {
 function fileHint(file: string, projectRoot: string | undefined): string {
   const rel =
     projectRoot === undefined ? file.replaceAll('\\', '/') : normalizeRecallFile(file, projectRoot);
-  const unusable = /^(?:[A-Za-z]:)?\//.test(rel) || rel.startsWith('../') || rel.includes("'");
+  const unusable = /^(?:[A-Za-z]:)?\//.test(rel) || rel.startsWith('../') || UNSAFE.test(rel);
   return unusable ? FILE_PLACEHOLDER : `--trigger-file '${rel}'`;
 }
 
@@ -51,7 +53,6 @@ export function triggerHint(input: TriggerHintInput): string {
   if (input.file !== undefined) return fileHint(input.file, input.projectRoot);
   if (input.command === undefined) return FILE_PLACEHOLDER;
   const cls = commandClass(input.command);
-  // A quote in the pattern would unbalance the pasted shell line.
   const pattern = cls === null ? null : classPattern(cls);
-  return pattern === null || pattern.includes("'") ? CMD_PLACEHOLDER : `--trigger-cmd '${pattern}'`;
+  return pattern === null || UNSAFE.test(pattern) ? CMD_PLACEHOLDER : `--trigger-cmd '${pattern}'`;
 }

@@ -1,5 +1,5 @@
+import type { AddLessonWarning } from '../../lessons/add.js';
 import type { AutoPruneSummary } from '../../lessons/auto-prune.js';
-import type { GuardrailWarning } from '../../lessons/capture-guardrails.js';
 import type { CaptureStatsReport } from '../../lessons/stats-capture.js';
 import type { EffectivenessStatsReport } from '../../lessons/stats-effectiveness.js';
 import type { RecallStatsReport } from '../../lessons/stats.js';
@@ -35,11 +35,11 @@ export interface LessonsAddData {
   readonly isNewLesson: boolean;
   readonly isNewTopic: boolean;
   readonly newTriggerIds: string[];
-  readonly warnings: GuardrailWarning[];
+  /** What a re-add changed on the existing lesson; empty for a new lesson or a no-op. */
+  readonly changes: string[];
+  readonly warnings: AddLessonWarning[];
   /** Cruft the opt-in auto-prune cleaned right after this capture (present only when it ran). */
   readonly autoPruned?: AutoPruneSummary;
-  /** Set when the capture wrote to a CWD whose graph lives outside the nearest project. */
-  readonly locationNote?: string;
   /** Set when the capture bootstrapped a graph-only state — recall isn't wired into any tool yet. */
   readonly activationNote?: string;
 }

@@ -52,10 +52,11 @@ Running `agentsmesh generate` once upgrades the lock and enables output verifica
 
 ## Unreadable lessons graph
 
-In project scope, `check` also fails (exit 1) when `.agentsmesh/lessons/lessons.json` exists but cannot be read, even if the lock is in sync. The error starts with `Lessons graph unreadable:` and names the cause and the next step:
+In project scope, `check` also fails (exit 1) when `.agentsmesh/lessons/lessons.json` exists but cannot be read, or is still in an unfinished git merge, even if the lock is in sync. The error starts with `Lessons graph unreadable:` and names the cause and the next step:
 
-- **Merge conflict** — the file has git conflict markers. Run `agentsmesh lessons resolve`, then `git add` the file.
+- **Merge conflict** — the file has git conflict markers. Run `agentsmesh lessons resolve`, then `git add` the file. `check` also fails when git still holds `lessons.json` unmerged and the file is missing lessons from the other branch (for example, the merge driver could not run). Run `agentsmesh lessons resolve` **before** `git add`, or the other branch's lessons are dropped.
 - **Corrupt** — the JSON cannot be parsed. Keep a copy, then repair it or restore the last committed graph from git.
+- **Schema** — the file is valid JSON but does not match the lessons schema. The error lists the first problems. Keep a copy, then fix those fields by hand or restore the last committed graph from git.
 - **Newer version** — the graph was written by a newer agentsmesh. Upgrade agentsmesh.
 
 A project without a lessons graph is not affected. See [`agentsmesh lessons`](../lessons/#team-workflow).

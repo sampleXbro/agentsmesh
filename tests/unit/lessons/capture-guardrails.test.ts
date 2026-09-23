@@ -29,7 +29,7 @@ describe('inspectCapturedLesson', () => {
     expect(codes(graphWith(triggers))).not.toContain('OVERSIZED_LESSON_TRIGGERS');
   });
 
-  it.each([['src/**'], ['**/*.ts'], ['*'], ['**'], ['src/**/*.test.ts']])(
+  it.each([['src/**'], ['**/*.ts'], ['*'], ['**'], ['src/**/*.test.ts'], ['!vendor/lock.json']])(
     'flags broad file glob %s',
     (pattern) => {
       const g = graphWith({ f: { kind: 'file_glob', pattern } });

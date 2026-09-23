@@ -9,7 +9,7 @@ import type { ValidatedConfig } from '../../config/core/schema.js';
 import type { ResolvedExtend } from '../../config/resolve/resolver.js';
 import { resolveExtendPaths } from '../../config/resolve/resolver.js';
 import { loadCanonicalFiles } from '../load/loader.js';
-import { mergeCanonicalFiles } from '../load/merge.js';
+import { combineHooks, mergeCanonicalFiles } from '../load/merge.js';
 import { loadCanonicalForExtend } from './extend-load.js';
 import { applyExtendPick } from './extend-pick.js';
 import { gateExtendElevatedArtifacts } from './extend-elevated.js';
@@ -90,10 +90,13 @@ export async function loadCanonicalWithExtends(
   }
 
   const packsCanonical = await loadPacksCanonical(canonicalDir);
-  merged = mergeCanonicalFiles(merged, packsCanonical);
+  merged = mergeCanonicalFiles(merged, packsCanonical, { hooks: 'combine' });
 
   const localCanonical = await loadCanonicalFiles(canonicalDir);
   merged = mergeCanonicalFiles(merged, localCanonical);
+  // A local event overrides extends hooks, but an installed pack's hooks stay
+  // (e.g. `init --lessons` adding the recall hook must not drop them).
+  merged = { ...merged, hooks: combineHooks(merged.hooks, packsCanonical.hooks) };
 
   return { canonical: merged, resolvedExtends };
 }

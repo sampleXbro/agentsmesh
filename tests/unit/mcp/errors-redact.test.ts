@@ -35,4 +35,20 @@ describe('redactAbsolutePaths — global stripping', () => {
   it('leaves a path-free message intact', () => {
     expect(redactAbsolutePaths('plain message')).toBe('plain message');
   });
+
+  it('strips a path after a file URL scheme', () => {
+    const out = redactAbsolutePaths('at file:///Users/dev/proj/x.js:3:1');
+    expect(out).not.toContain('/Users/dev');
+  });
+
+  it('strips a path after an equals sign, a bracket, or an unclosed quote', () => {
+    for (const raw of ['cwd=/Users/dev/x', '[/Users/dev/x]', "open '/Users/dev/x"]) {
+      expect(redactAbsolutePaths(raw)).not.toContain('/Users/dev');
+    }
+  });
+
+  it('keeps a slash inside a word, which is prose or a relative path, not a host path', () => {
+    const prose = 'no backreference/lookaround; push origin/main; edit src/cli/x.ts';
+    expect(redactAbsolutePaths(prose)).toBe(prose);
+  });
 });

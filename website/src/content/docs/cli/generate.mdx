@@ -100,8 +100,8 @@ Forces a re-fetch of all remote `extends` sources. Without this flag, AgentsMesh
 
 In project scope, when the project uses [lessons](../lessons/), `generate` also does a little upkeep for every clone, so a team stays healthy without anyone re-running `init --lessons`:
 
-- **Merge driver.** On a normal run it sets this clone's `merge.agentsmesh-lessons.*` git config (local config) when `.gitattributes` binds `lessons.json` to the driver, and prints what it did. It skips the setup when the driver program is not on `PATH`, and keeps a driver you configured yourself. See [Team workflow](../lessons/#team-workflow).
-- **Unreadable graph.** When `lessons.json` has merge conflict markers, is corrupt, or was written by a newer agentsmesh, a normal run warns and carries on, and `generate --check` fails with exit code 1.
+- **Merge driver.** On a normal run it sets this clone's `merge.agentsmesh-lessons.*` git config (local config) when `.gitattributes` binds `lessons.json` to the driver, and prints what it did. It skips the setup when git could not start the driver later (see [Team workflow](../lessons/#team-workflow) for the rule), and keeps a driver you configured yourself.
+- **Unreadable graph.** When `lessons.json` has merge conflict markers, is corrupt, does not match the schema, or was written by a newer agentsmesh, a normal run warns and carries on, and `generate --check` fails with exit code 1. The same happens while git still holds `lessons.json` unmerged and the file is missing lessons from the other branch: run `agentsmesh lessons resolve` before `git add`.
 - **Team hint.** When the recall hook is wired but the project's `package.json` does not list agentsmesh as a dependency, it warns that teammates without a global install will not get lesson recall, and suggests adding agentsmesh as a devDependency and re-running `agentsmesh init --lessons`.
 
 The recall hook entries themselves are filtered per target: each target keeps them only on the hook events whose output reaches its model. See [Hook mode](../lessons/#hook-mode-deterministic-recall).

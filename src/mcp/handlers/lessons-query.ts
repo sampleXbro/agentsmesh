@@ -1,5 +1,6 @@
-import type { McpContext } from '../context.js';
-import { lessonsGraphProblem } from '../../lessons/graph-problem.js';
+import { lessonsRootOf, type McpContext } from '../context.js';
+import { problemFromLoad } from '../../lessons/graph-problem.js';
+import { loadLessonsGraphResilient } from '../../lessons/graph-store.js';
 import { recallLessons } from '../../lessons/recall.js';
 import { recallAlwaysLessons } from '../../lessons/recall-always.js';
 import { loadRecallConfig } from '../../lessons/recall-config.js';
@@ -112,49 +113,48 @@ export async function lessonsQuery(
         'pass file and/or command for complete recall.\n',
     );
   }
+  const root = lessonsRootOf(ctx);
+  // Outside any project there are no lessons to recall.
+  if (root === null) return { lessons: [], totalMatches: 0 };
+  // One correlator and one TTL for both paths: `session` and `no_dedup` must
+  // reach the universal lessons too, or `no_dedup` could not bring them back.
+  const dedup = {
+    sessionId:
+      input.session === undefined || input.session === 'auto' ? mcpSessionId() : input.session,
+    noDedup: input.no_dedup === true || input['no-dedup'] === true,
+    // The server never sees the client compact its context, so suppression is
+    // BOUNDED: otherwise a rule the client summarized away would stay hidden
+    // for the server lifetime. `no_dedup` is still the immediate escape.
+    ttlMs: AUTO_SESSION_TTL_MS,
+  };
   // `always=true` prepends the universal always-on lessons (excluded from
   // triggered recall) so a non-hook agent can pull them at task start.
-  const alwaysOut =
-    input.always === true
-      ? (
-          await recallAlwaysLessons(ctx.projectRoot, {
-            // Same correlator and same bound as the triggered path below:
-            // otherwise an exported AGENTSMESH_SESSION_ID would suppress the
-            // universal lessons here with no TTL and no reset signal at all.
-            sessionId: mcpSessionId(),
-            ttlMs: AUTO_SESSION_TTL_MS,
-          })
-        ).lessons.map(({ id, rule }) => ({ id, rule: clampText(rule) }))
-      : [];
+  const always = input.always === true ? await recallAlwaysLessons(root, dedup) : null;
+  const alwaysOut = (always?.lessons ?? []).map(({ id, rule }) => ({ id, rule: clampText(rule) }));
   const {
     lessons: ranked,
     totalMatches,
     suppressed,
     corrupt,
     newerVersion,
-  } = await recallLessons(ctx.projectRoot, query, {
+  } = await recallLessons(root, query, {
     limit: input.limit,
     maxTokens: payloadBoundedTokens(
-      input.max_tokens ?? input['max-tokens'] ?? loadRecallConfig(ctx.projectRoot).maxTokens,
+      input.max_tokens ?? input['max-tokens'] ?? loadRecallConfig(root).maxTokens,
       alwaysOut,
     ),
-    sessionId:
-      input.session === undefined || input.session === 'auto' ? mcpSessionId() : input.session,
-    noDedup: input.no_dedup === true || input['no-dedup'] === true,
-    // The server never sees the client compact its context, so suppression is
-    // BOUNDED here: without it, a rule the client summarized away would stay
-    // hidden for the whole server lifetime — a blocking recall gate silently
-    // returning nothing. `no_dedup` is still the immediate escape.
-    ttlMs: AUTO_SESSION_TTL_MS,
+    ...dedup,
   });
   if (corrupt === true || newerVersion !== undefined) {
     // Recall degrades to empty rather than throwing; the reason goes to stderr
-    // (stdout is the MCP protocol channel), worded like the CLI's warning.
-    const problem = lessonsGraphProblem(ctx.projectRoot);
+    // (stdout is the MCP protocol channel), worded like the CLI's warning. No
+    // git here: recall runs before every edit.
+    const problem = problemFromLoad(root, loadLessonsGraphResilient(root));
     if (problem !== null) {
       process.stderr.write(`agentsmesh: recall returned no lessons: ${problem.message}\n`);
     }
   }
+  const hidden = suppressed + (always?.suppressed ?? 0);
   // Compact by default — return only id + rule to keep recall token-cheap.
   // Metadata (topics/triggers/evidence/score) is opt-in via `verbose`.
   const verbose = input.verbose === true;
@@ -175,6 +175,6 @@ export async function lessonsQuery(
       ),
     ],
     totalMatches,
-    ...(suppressed > 0 ? { suppressed } : {}),
+    ...(hidden > 0 ? { suppressed: hidden } : {}),
   };
 }

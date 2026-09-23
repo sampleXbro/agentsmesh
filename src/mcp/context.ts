@@ -1,4 +1,4 @@
-import { resolveLessonsRoot } from '../lessons/paths.js';
+import { findLessonsProjectRoot } from '../lessons/paths.js';
 import { resolve, dirname } from 'node:path';
 import { stat } from 'node:fs/promises';
 import { McpError } from './errors.js';
@@ -9,7 +9,17 @@ import type { CanonicalFiles } from '../core/types.js';
 
 export interface McpContext {
   projectRoot: string;
+  /**
+   * Where the lessons tools read and write, when it is not `projectRoot`
+   * (see {@link lessonsRootOf}). Null outside any project.
+   */
+  lessonsRoot?: string | null;
   loadCanonical: () => Promise<CanonicalFiles>;
+}
+
+/** The lessons root of `ctx`, or null when there is none. */
+export function lessonsRootOf(ctx: McpContext): string | null {
+  return ctx.lessonsRoot === undefined ? ctx.projectRoot : ctx.lessonsRoot;
 }
 
 async function findProjectRoot(start: string): Promise<string> {
@@ -49,15 +59,18 @@ async function loadProjectPlugins(projectRoot: string): Promise<void> {
 export async function resolveContext(opts: {
   cwd: string;
   /**
-   * Default true. False falls back to the nearest directory holding lessons, or
-   * `cwd`, when no `agentsmesh.yaml` is found — a plugin-only repo has none.
+   * Default true. False is the lessons tools' context: rooted like the MCP
+   * instructions and the recall hook, never requiring `agentsmesh.yaml` — a
+   * plugin-only repo has none.
    */
   requireProject?: boolean;
 }): Promise<McpContext> {
-  const projectRoot =
-    opts.requireProject === false
-      ? await findProjectRoot(opts.cwd).catch(() => resolveLessonsRoot(opts.cwd))
-      : await findProjectRoot(opts.cwd);
+  if (opts.requireProject === false) {
+    const lessonsRoot = findLessonsProjectRoot(opts.cwd);
+    const projectRoot = lessonsRoot ?? resolve(opts.cwd);
+    return { projectRoot, lessonsRoot, loadCanonical: () => loadCanonicalFiles(projectRoot) };
+  }
+  const projectRoot = await findProjectRoot(opts.cwd);
   await loadProjectPlugins(projectRoot);
   return {
     projectRoot,

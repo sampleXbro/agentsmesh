@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { appendJsonl, logExists, readJsonl } from './jsonl-log.js';
+import { isRecallRecord } from './log-record-guards.js';
 import { lessonsPaths } from './paths.js';
 
 /** Keep at most this many recall records; older ones are dropped on truncation. */
@@ -180,7 +181,7 @@ export function recallLogExists(projectRoot: string): boolean {
   return logExists(recallLogPath(projectRoot));
 }
 
-/** Read the recall log, skipping any malformed line. Returns [] when absent. */
+/** Read every well-formed recall record. Returns [] when absent or unreadable. */
 export function readRecallLog(projectRoot: string): RecallTelemetryRecord[] {
-  return readJsonl<RecallTelemetryRecord>(recallLogPath(projectRoot));
+  return readJsonl(recallLogPath(projectRoot), isRecallRecord);
 }

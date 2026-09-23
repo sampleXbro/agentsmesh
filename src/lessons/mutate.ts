@@ -1,8 +1,23 @@
 import { maybeAutoMigrateLessons } from './auto-migrate.js';
 import { CURRENT_GRAPH_VERSION, emptyGraph, type LessonsGraph } from './graph-schema.js';
 import { saveLessonsGraph, tryLoadLessonsGraph } from './graph-store.js';
-import { acquireLessonsLock } from './lessons-lock.js';
+import { acquireLessonsLock, assertLessonsLockHeld } from './lessons-lock.js';
 import { validateLessonsGraph, type ValidationFinding, type ValidationReport } from './validate.js';
+
+/** The validator refused a write; `findings` are the errors the change would add. */
+export class LessonsWriteRefusedError extends Error {
+  readonly findings: readonly ValidationFinding[];
+  constructor(findings: readonly ValidationFinding[]) {
+    const errors = findings.map((f) => `${f.code}: ${f.message.replace(/\.+$/, '')}`).join('; ');
+    super(
+      `mutateLessonsGraph: refusing to write — this change introduces ${errors}. ` +
+        '(Pre-existing graph issues are not blocking; run `agentsmesh lessons validate` to ' +
+        'review and `lessons untrigger`/`prune` to repair them.)',
+    );
+    this.name = 'LessonsWriteRefusedError';
+    this.findings = findings;
+  }
+}
 
 export interface MutateOptions {
   readonly retries?: number;
@@ -57,17 +72,15 @@ export async function mutateLessonsGraphLocked<T>(
       (f) => f.level === 'error' && !baseline.has(findingKey(f)),
     );
     if (introduced.length > 0) {
-      const errors = introduced.map((f) => `${f.code}: ${f.message}`).join('; ');
-      throw new Error(
-        `mutateLessonsGraph: refusing to write — this change introduces ${errors}. ` +
-          '(Pre-existing graph issues are not blocking; run `agentsmesh lessons validate` to ' +
-          'review and `lessons untrigger`/`prune` to repair them.)',
-      );
+      throw new LessonsWriteRefusedError(introduced);
     }
 
     // Upgrade-on-write: every persisted graph is stamped at the current version,
     // so a loaded legacy v1 graph migrates to v2 the first time it is mutated.
     graph.version = CURRENT_GRAPH_VERSION;
+    // A pause past the stale window lets a later writer take the lock and save;
+    // saving now would silently erase that write.
+    await assertLessonsLockHeld(release);
     saveLessonsGraph(projectRoot, graph);
     return result;
   } finally {

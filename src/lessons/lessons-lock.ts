@@ -11,8 +11,8 @@
 import { resolve } from 'node:path';
 import {
   acquireProcessLock,
+  type HeldLock,
   type LockOptions,
-  type LockRelease,
 } from '../utils/filesystem/process-lock.js';
 
 export const LESSONS_LOCK_FILENAME = '.lessons.lock';
@@ -38,7 +38,7 @@ export function lessonsLockPath(projectRoot: string): string {
 export async function acquireLessonsLock(
   projectRoot: string,
   opts: LockOptions = {},
-): Promise<LockRelease> {
+): Promise<HeldLock> {
   return acquireProcessLock(lessonsLockPath(projectRoot), {
     retries: opts.retries ?? LESSONS_LOCK_OPTIONS.retries,
     retryDelayMs: opts.retryDelayMs ?? LESSONS_LOCK_OPTIONS.retryDelayMs,
@@ -47,4 +47,20 @@ export async function acquireLessonsLock(
     staleMs: opts.staleMs ?? LESSONS_LOCK_OPTIONS.staleMs,
     label: 'lessons lock',
   });
+}
+
+/** The lessons lock was evicted as stale while this process held it; nothing was saved. */
+export class LessonsLockLostError extends Error {
+  constructor() {
+    super(
+      'lost the lessons lock while writing (the process was paused longer than the ' +
+        `${LESSONS_LOCK_OPTIONS.staleMs / 1000} s stale window?); nothing was saved — retry the command`,
+    );
+    this.name = 'LessonsLockLostError';
+  }
+}
+
+/** Call right before saving: throws LessonsLockLostError once `lock` no longer owns the lock. */
+export async function assertLessonsLockHeld(lock: HeldLock): Promise<void> {
+  if (!(await lock.isHeld())) throw new LessonsLockLostError();
 }

@@ -7,11 +7,14 @@
  * a stale eviction can delete a lock that already passed to another process.
  *
  * Stale recovery: a dead same-host holder, or a live pid that now belongs to
- * another process, is evicted at once. Any holder older than `staleMs` is
- * evicted too — the bound for hung processes and holders on other hosts.
+ * another process, is evicted at once. Any holder older than `staleMs` (or
+ * dated in the future past clock skew) is evicted too — the bound for hung
+ * processes and holders on other hosts. A holder evicted this way sees
+ * `isHeld()` turn false, so it can refuse to write.
  */
 
 import { randomUUID } from 'node:crypto';
+import { existsSync } from 'node:fs';
 import { mkdir } from 'node:fs/promises';
 import { hostname } from 'node:os';
 import { dirname } from 'node:path';
@@ -23,6 +26,7 @@ import {
   describeHolder,
   inspectLock,
   isStale,
+  ownerPath,
   type LockMetadata,
   type LockState,
   type ProbeCache,
@@ -54,18 +58,28 @@ export interface LockOptions {
 
 export type LockRelease = () => Promise<void>;
 
+/** The release function of an acquired lock. */
+export interface HeldLock extends LockRelease {
+  /**
+   * False once this acquisition no longer owns the lock: released, or evicted
+   * as stale (e.g. the process was paused longer than `staleMs`). Check it
+   * right before a write that must not overwrite a later holder's work.
+   */
+  isHeld(): Promise<boolean>;
+}
+
 /**
  * Acquire an exclusive process-level lock.
  *
  * @param lockPath - Absolute path where the lock directory will be created.
  * @param opts - Retry/stale tuning knobs.
- * @returns A release function; callers must invoke it in a `finally` block.
+ * @returns A release function (with `isHeld()`); callers must invoke it in a `finally` block.
  * @throws {LockAcquisitionError} if the lock cannot be acquired within the retry budget.
  */
 export async function acquireProcessLock(
   lockPath: string,
   opts: LockOptions = {},
-): Promise<LockRelease> {
+): Promise<HeldLock> {
   const retries = opts.retries ?? DEFAULT_RETRIES;
   const staleMs = opts.staleMs ?? DEFAULT_STALE_MS;
 
@@ -131,7 +145,7 @@ function newHolder(procStart: string | null): LockMetadata & { token: string } {
   };
 }
 
-function holdLock(lockPath: string, token: string): LockRelease {
+function holdLock(lockPath: string, token: string): HeldLock {
   let released = false;
   const cleanup = (): void => {
     if (released) return;
@@ -151,7 +165,7 @@ function holdLock(lockPath: string, token: string): LockRelease {
   process.once('SIGTERM', signalHandler);
   process.once('exit', cleanup);
 
-  return async () => {
+  const release = async (): Promise<void> => {
     if (released) return;
     released = true;
     process.off('SIGINT', signalHandler);
@@ -160,4 +174,7 @@ function holdLock(lockPath: string, token: string): LockRelease {
     // Removes the lock only while this token still owns it.
     await evictOwners(lockPath, [token]).catch(() => {});
   };
+  // The owner marker leaves only through release or eviction (see process-lock-ops.ts).
+  const isHeld = async (): Promise<boolean> => !released && existsSync(ownerPath(lockPath, token));
+  return Object.assign(release, { isHeld });
 }

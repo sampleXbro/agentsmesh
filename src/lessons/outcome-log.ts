@@ -2,6 +2,7 @@ import { join } from 'node:path';
 import { effectivenessScores } from './effectiveness.js';
 import type { LessonsGraph } from './graph-schema.js';
 import { appendJsonl, logExists, readJsonl } from './jsonl-log.js';
+import { isOutcomeEvent } from './log-record-guards.js';
 import { lessonsPaths } from './paths.js';
 import { isOutcomeLogEnabled, sessionId } from './telemetry.js';
 
@@ -62,9 +63,9 @@ export function appendOutcomeEvent(
   });
 }
 
-/** Read every outcome event, skipping torn lines. Returns [] when absent. */
+/** Read every well-formed outcome event. Returns [] when absent or unreadable. */
 export function readOutcomeLog(projectRoot: string): OutcomeEvent[] {
-  return readJsonl<OutcomeEvent>(outcomeLogPath(projectRoot));
+  return readJsonl(outcomeLogPath(projectRoot), isOutcomeEvent);
 }
 
 /** True when the outcome log file exists — distinguishes "never recorded" from "empty". */

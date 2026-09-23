@@ -39,6 +39,42 @@ describe('lessonsGraphProblem', () => {
     expect(message.indexOf('copy')).toBeLessThan(message.indexOf('git checkout'));
   });
 
+  it('names up to 3 schema issues in one short message, never the raw Zod dump', () => {
+    const bad = { rule: '', topics: ['Bad Id'], triggers: [], evidence: [], status: 'bogus' };
+    writeGraph(
+      JSON.stringify({
+        version: 2,
+        lessons: { 'l-a': { ...bad, createdAt: '2026-01-01' } },
+        topics: { 'Bad Id': { summary: 'x' } },
+        triggers: {},
+      }),
+    );
+    const problem = lessonsGraphProblem(root);
+    expect(problem?.kind).toBe('schema-invalid');
+    expect(problem?.message).toBe(
+      '.agentsmesh/lessons/lessons.json does not match the lessons schema (' +
+        'lessons.l-a.rule: lesson rule must not be empty; ' +
+        'lessons.l-a.topics.0: id must be kebab-case; ' +
+        'lessons.l-a.status: Invalid option: expected one of "active"|"deprecated"|"superseded"; ' +
+        'and 1 more). Keep a copy first (e.g. `cp .agentsmesh/lessons/lessons.json ' +
+        'lessons.json.bak`), then fix those fields by hand, or restore the last committed graph ' +
+        'with `git checkout -- .agentsmesh/lessons/lessons.json` (this drops lessons that were ' +
+        'not committed yet).',
+    );
+  });
+
+  it('gives a short schema message for a graph that is null or an array', () => {
+    for (const text of ['null', '[]']) {
+      writeGraph(text);
+      const problem = lessonsGraphProblem(root);
+      expect(problem?.kind).toBe('schema-invalid');
+      const received = text === 'null' ? 'null' : 'array';
+      expect(problem?.message).toContain(
+        `does not match the lessons schema (top level: Invalid input: expected object, received ${received}).`,
+      );
+    }
+  });
+
   it('asks for an upgrade when the graph uses a newer schema', () => {
     writeGraph('{"version":42,"lessons":{},"topics":{},"triggers":{}}');
     const problem = lessonsGraphProblem(root);

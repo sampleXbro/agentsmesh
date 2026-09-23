@@ -1,7 +1,7 @@
 /**
  * E2E: recall safety + leanness through the real binary —
- *   - ReDoS guard: capturing a catastrophic-backtracking command_pattern is
- *     rejected (UNSAFE_TRIGGER_PATTERN); recall never executes one.
+ *   - ReDoS guard: a command_pattern the linear engine cannot run is a dead
+ *     trigger (alone: unrecallable, exit 2); recall never executes one.
  *   - default token budget: a broad match is trimmed by the default budget
  *     unless `--all` is passed.
  */
@@ -27,7 +27,7 @@ afterEach(() => {
 describe('lessons CLI — ReDoS guard (P1, linear engine)', () => {
   // Patterns the non-backtracking engine cannot evaluate (backreference /
   // lookaround) or that expand too large (state amplification / ε-chain blowup)
-  // are rejected at capture — fail closed.
+  // are dead triggers: alone they make the capture unrecallable (exit 2).
   it.each(['(a)\\1', '(?=foo)bar', '(?<!x)y', 'a{1000}'.repeat(10), '(){1000}'.repeat(5)])(
     'rejects a capture with an unsupported command_pattern %j',
     async (pattern) => {
@@ -46,8 +46,9 @@ describe('lessons CLI — ReDoS guard (P1, linear engine)', () => {
         ],
         dir,
       );
-      expect(r.exitCode).toBe(1);
-      expect(r.stderr).toContain('UNSAFE_TRIGGER_PATTERN');
+      expect(r.exitCode).toBe(2);
+      expect(r.stderr).toContain('no effective trigger');
+      expect(r.stderr).toContain('outside the provably-linear engine');
     },
   );
 

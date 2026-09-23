@@ -28,6 +28,8 @@ export interface AlwaysRecallResult {
   readonly lessons: AlwaysLesson[];
   /** Total active always-lessons before the token cap (so callers can note drops). */
   readonly total: number;
+  /** Always-lessons hidden because this session already received them. */
+  readonly suppressed: number;
 }
 
 export async function recallAlwaysLessons(
@@ -35,6 +37,8 @@ export async function recallAlwaysLessons(
   options: {
     readonly maxTokens?: number | null;
     readonly sessionId?: string;
+    /** Skip session dedup: deliver already-seen lessons and mark nothing seen. */
+    readonly noDedup?: boolean;
     /** Bound suppression for callers with no context-reset signal — see RecallOptions.ttlMs. */
     readonly ttlMs?: number;
   } = {},
@@ -46,7 +50,7 @@ export async function recallAlwaysLessons(
     // Degrade to whatever graph state exists.
   }
   const load = loadLessonsGraphResilient(projectRoot);
-  if (load.status !== 'ok') return { lessons: [], total: 0 };
+  if (load.status !== 'ok') return { lessons: [], total: 0, suppressed: 0 };
 
   const all = collectAlwaysLessons(load.graph);
   const total = all.length;
@@ -54,6 +58,7 @@ export async function recallAlwaysLessons(
   // most once per session, so re-prompting does not re-inject the whole set.
   const dedup = openSessionDedup({
     explicit: options.sessionId,
+    disabled: options.noDedup,
     projectRoot,
     ...(options.ttlMs !== undefined ? { ttlMs: options.ttlMs } : {}),
   });
@@ -70,7 +75,7 @@ export async function recallAlwaysLessons(
       dedup,
       lessons.map((l) => l.id),
     );
-  return { lessons, total };
+  return { lessons, total, suppressed: total - fresh.length };
 }
 
 /** Leading items whose summed rule tokens fit `budget`; the first always stays. */

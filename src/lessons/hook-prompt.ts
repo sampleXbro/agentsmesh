@@ -1,5 +1,5 @@
 import { HOOK_INJECT_LIMIT, paragraphs, renderRecall, type RecallHookResult } from './hook-emit.js';
-import { sessionNotices } from './hook-notices.js';
+import { graphHealth, sessionNotices } from './hook-notices.js';
 import { recallAlwaysLessons } from './recall-always.js';
 import { recallLessons } from './recall.js';
 
@@ -25,7 +25,10 @@ export async function taskRecall(
           { keyword: taskText },
           { sessionId, limit: HOOK_INJECT_LIMIT },
         );
-  const notices = await sessionNotices(projectRoot, sessionId, keyword ?? {});
+  // No task text, no keyword recall: read the graph health directly so an
+  // unreadable graph is still reported on a prompt-less session start.
+  const health = keyword ?? graphHealth(projectRoot);
+  const notices = await sessionNotices(projectRoot, sessionId, health);
   const rules = [
     ...always.lessons,
     ...(keyword?.lessons ?? []).map((l) => ({ id: l.id, rule: l.lesson.rule })),

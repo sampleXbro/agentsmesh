@@ -83,11 +83,9 @@ export function renderLessons(result: LessonsCommandResult): void {
 
 function renderAdd(data: LessonsAddData): void {
   if (!data.isNewLesson) {
-    // Re-capture upserts: report when new triggers were merged so the agent
-    // knows its capture changed the lesson rather than being a silent no-op.
-    if (data.newTriggerIds.length > 0) {
-      const n = data.newTriggerIds.length;
-      logger.success(`Updated lesson: ${data.id} (+${n} trigger${n === 1 ? '' : 's'})`);
+    // Re-capture upserts: say what changed so a merge is never reported as a no-op.
+    if (data.changes.length > 0) {
+      logger.success(`Updated lesson: ${data.id} — ${data.changes.join('; ')}`);
     } else {
       logger.info(`Existing lesson: ${data.id} (no change)`);
     }
@@ -104,7 +102,6 @@ function renderAdd(data: LessonsAddData): void {
 
 /** Non-blocking trigger-hygiene nudges — warn (stderr), never fail the capture. */
 function renderGuardrails(data: LessonsAddData): void {
-  if (data.locationNote !== undefined) logger.warn(data.locationNote);
   if (data.activationNote !== undefined) logger.warn(data.activationNote);
   for (const w of data.warnings) logger.warn(`${w.code}: ${w.message}`);
   const ap = data.autoPruned;

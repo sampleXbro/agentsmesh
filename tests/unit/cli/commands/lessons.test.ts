@@ -241,28 +241,14 @@ describe('runLessons query', () => {
     expect(r.data.warning).toMatch(/init --lessons/);
   });
 
-  it('warns when run from a subdir of a real lessons project (graph in an ancestor)', async () => {
-    // The ancestor must hold an actual lessons graph — a bare .agentsmesh (e.g.
-    // the global-mode config) must NOT trigger the warning.
-    mkdirSync(join(root, '.agentsmesh', 'lessons'), { recursive: true });
-    writeFileSync(join(root, '.agentsmesh', 'lessons', 'lessons.json'), '{}');
-    const sub = join(root, 'packages', 'app');
-    mkdirSync(sub, { recursive: true });
-    const r = await runLessons({ file: 'src/x.ts' }, ['query'], sub);
-    if (r.subcommand !== 'query') return;
-    expect(r.exitCode).toBe(0);
-    expect(r.data.warning).toMatch(/no lessons graph here/i);
-    expect(r.data.warning).toMatch(/cd into it/i);
-  });
-
-  it('does NOT warn from a subdir whose ancestor has a bare .agentsmesh but no lessons graph', async () => {
+  it('stays in a subdir whose ancestor has a bare .agentsmesh but no lessons graph', async () => {
     mkdirSync(join(root, '.agentsmesh'), { recursive: true }); // global-mode style, no lessons/
     const sub = join(root, 'packages', 'app');
     mkdirSync(sub, { recursive: true });
     const r = await runLessons({ file: 'src/x.ts' }, ['query'], sub);
-    if (r.subcommand !== 'query') return;
-    // The "set up lessons" hint is fine, but never the stray-project warning.
-    expect(r.data.warning ?? '').not.toMatch(/no lessons graph here/i);
+    if (r.subcommand !== 'query') throw new Error('expected query');
+    // The bare .agentsmesh is not a lessons project: recall stays at the subdir.
+    expect(r.data.warning).toMatch(/init --lessons/);
   });
 
   it('warns when config.json is present but malformed (still returns results)', async () => {
@@ -401,27 +387,6 @@ describe('runLessons add', () => {
     expect(r.data.activationNote).toBeUndefined();
   });
 
-  it('notes a stray location when capturing in a subdir of a lessons project', async () => {
-    // Ancestor holds a real graph; the capture cwd (sub) has no .agentsmesh.
-    mkdirSync(join(root, '.agentsmesh', 'lessons'), { recursive: true });
-    writeFileSync(join(root, '.agentsmesh', 'lessons', 'lessons.json'), '{}');
-    const sub = join(root, 'packages', 'app');
-    mkdirSync(sub, { recursive: true });
-    const r = await runLessons(
-      {
-        rule: 'Stray rule.',
-        topic: 't',
-        'new-topic': true,
-        'topic-summary': 'T.',
-        'trigger-file': 'src/**/*.ts',
-      },
-      ['add'],
-      sub,
-    );
-    if (r.subcommand !== 'add') return;
-    expect(r.data.locationNote).toMatch(/a lessons project already exists at/);
-  });
-
   it('accepts the rule as a positional arg (the documented `add "<rule>" --topic` form)', async () => {
     seedSimpleGraph();
     const r = await runLessons(
@@ -458,15 +423,16 @@ describe('runLessons add', () => {
     expect(noTopic.error).toMatch(/topic/i);
   });
 
-  it('surfaces a non-topic capture error (e.g. invalid command regex) with exit 1', async () => {
+  it('rejects a lone invalid command regex as UNRECALLABLE_LESSON with exit 2', async () => {
     seedSimpleGraph();
     const r = await runLessons(
       { rule: 'Bad regex rule.', topic: 'topic-x', 'trigger-cmd': '(' },
       ['add'],
       root,
     );
-    expect(r.exitCode).toBe(1);
-    expect(r.error).toMatch(/INVALID_TRIGGER_PATTERN|invalid/i);
+    expect(r.exitCode).toBe(2);
+    expect(r.error).toMatch(/no effective trigger/);
+    expect(r.error).toMatch(/invalid regex/);
   });
 
   it('rejects unknown topic without --new-topic', async () => {
@@ -1522,13 +1488,14 @@ describe('runLessons — cross-cutting hardening', () => {
   it('a rejected add surfaces a clean message without the internal function prefix', async () => {
     seedSimpleGraph();
     const r = await runLessons(
-      { topic: 'topic-x', 'trigger-cmd': '(?<=x)y' }, // lookbehind: outside the linear subset
-      ['add', 'Unsafe regex rule.'],
+      // Too many brace expansions: refused by the write barrier.
+      { topic: 'topic-x', 'trigger-file': `src/${'{a,b}'.repeat(20)}` },
+      ['add', 'Unsafe glob rule.'],
       root,
     );
     expect(r.exitCode).not.toBe(0);
     expect(r.error).toBeDefined();
     expect(r.error).not.toContain('mutateLessonsGraph:');
-    expect(r.error).toMatch(/UNSAFE_TRIGGER_PATTERN|refusing to write/);
+    expect(r.error).toMatch(/UNSAFE_GLOB_PATTERN/);
   });
 });

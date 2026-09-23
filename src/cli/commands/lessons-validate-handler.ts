@@ -1,5 +1,5 @@
 import { emptyGraph } from '../../lessons/graph-schema.js';
-import { problemFromLoad, type GraphProblemKind } from '../../lessons/graph-problem.js';
+import { problemFromLoadAndGit, type GraphProblemKind } from '../../lessons/graph-problem.js';
 import { loadLessonsGraphResilient } from '../../lessons/graph-store.js';
 import { listProjectFiles } from '../../lessons/project-files.js';
 import { validateLessonsGraph } from '../../lessons/validate.js';
@@ -9,13 +9,14 @@ import type { LessonsCommandResult, LessonsValidateData } from './lessons-types.
 const PROBLEM_CODE: Record<GraphProblemKind, string> = {
   conflict: 'MERGE_CONFLICT',
   corrupt: 'CORRUPT_GRAPH',
+  'schema-invalid': 'SCHEMA_INVALID',
   'newer-version': 'NEWER_GRAPH_VERSION',
 };
 
 export function doValidate(projectRoot: string): LessonsCommandResult {
-  // Name the cause (merge conflict, corruption, newer schema) and the safe next step.
+  // Name the cause (merge conflict, bad JSON or schema, newer schema) and the safe next step.
   const load = loadLessonsGraphResilient(projectRoot);
-  const problem = problemFromLoad(projectRoot, load);
+  const problem = problemFromLoadAndGit(projectRoot, load);
   if (problem !== null) {
     const data: LessonsValidateData = {
       ok: false,

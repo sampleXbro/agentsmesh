@@ -59,6 +59,32 @@ describe('ranking: file-glob narrowness', () => {
   });
 });
 
+describe('ranking: a negated glob is the least specific file trigger', () => {
+  function negatedGraph(): LessonsGraph {
+    return {
+      version: 1,
+      lessons: {
+        // Its wording fits the query best, so only specificity can sink it.
+        negated: lesson('Recall lessons for the recall entry point in src lessons.', 'neg'),
+        exact: lesson('Keep the public signature stable.', 'exact'),
+      },
+      topics: { t: { summary: 'T.' } },
+      triggers: {
+        neg: { kind: 'file_glob', pattern: '!vendor/lock.json' },
+        exact: { kind: 'file_glob', pattern: 'src/lessons/recall.ts' },
+      },
+    };
+  }
+
+  it('ranks an exact-path lesson above a negated-glob lesson and scores the negation at zero', () => {
+    const g = negatedGraph();
+    const query = { file: 'src/lessons/recall.ts' };
+    const ranked = rankLessons(g, query, queryLessons(g, query), {});
+    expect(ranked.map((r) => r.id)).toEqual(['exact', 'negated']);
+    expect(ranked.find((r) => r.id === 'negated')?.reason.specificity).toBe(0);
+  });
+});
+
 describe('ranking: an incidental keyword hit is weaker than an exact path', () => {
   function mixedGraph(): LessonsGraph {
     return {

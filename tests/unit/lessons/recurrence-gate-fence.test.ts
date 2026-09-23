@@ -38,9 +38,9 @@ function escalate(rule: string): string {
   );
   const key = contextKey({ file: 'src/x.ts' }, root);
   for (let i = 0; i < 2; i += 1) recordFailure(root, key, 'same error', ON);
-  const out = recurrenceEscalation(root, { file: 'src/x.ts' });
+  const out = recurrenceEscalation(root, [{ file: 'src/x.ts' }]);
   if (out === null) throw new Error('expected an escalation');
-  return out;
+  return out.text;
 }
 
 describe('repeat-failure warning rendering', () => {

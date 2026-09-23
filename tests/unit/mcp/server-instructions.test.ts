@@ -16,25 +16,32 @@
  * claims nothing that is not on disk.
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { mkdtempSync, rmSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { mcpServerInstructions } from '../../../src/mcp/instructions.js';
 import { LESSONS_PROCEDURAL_RULE } from '../../../src/lessons/paths.js';
 
+const fakeHome = vi.hoisted(() => ({ dir: '' }));
+vi.mock('node:os', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('node:os')>();
+  return { ...actual, homedir: (): string => fakeHome.dir };
+});
+
 let dir: string;
 beforeEach(() => {
   dir = mkdtempSync(join(tmpdir(), 'amesh-instructions-'));
+  fakeHome.dir = join(dir, 'home');
 });
 afterEach(() => rmSync(dir, { recursive: true, force: true }));
 
-function withLessons(options: { graph?: boolean; config?: boolean }): string {
-  const base = join(dir, '.agentsmesh', 'lessons');
+function withLessons(options: { graph?: boolean; config?: boolean }, at: string = dir): string {
+  const base = join(at, '.agentsmesh', 'lessons');
   mkdirSync(base, { recursive: true });
   if (options.graph) writeFileSync(join(base, 'lessons.json'), '{"topics":{},"lessons":{}}');
   if (options.config) writeFileSync(join(base, 'config.json'), '{}');
-  return dir;
+  return at;
 }
 
 /** Shell commands a tools-only client may be unable to run. */
@@ -102,5 +109,21 @@ describe('where lessons are not set up', () => {
     expectNoShell(text);
     // Context every session pays for.
     expect(text.length).toBeLessThanOrEqual(600);
+  });
+
+  it('says capture works inside an agentsmesh project, since it is refused outside one', () => {
+    const text = mcpServerInstructions(dir);
+    expect(text).toContain('inside an agentsmesh project');
+    expect(text).toContain('`agentsmesh.yaml`');
+  });
+
+  it('ignores a stray graph in the home directory, from home or below it', () => {
+    // The memory belongs to a repository; a graph under ~ would bind every
+    // session under the home directory to one set of rules.
+    withLessons({ graph: true, config: true }, fakeHome.dir);
+    const plain = join(fakeHome.dir, 'work', 'plain');
+    mkdirSync(plain, { recursive: true });
+    expect(mcpServerInstructions(fakeHome.dir)).not.toContain('BLOCKING');
+    expect(mcpServerInstructions(plain)).not.toContain('BLOCKING');
   });
 });

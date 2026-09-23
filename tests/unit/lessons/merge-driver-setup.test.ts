@@ -134,8 +134,9 @@ describe('ensureLessonsMergeDriver', () => {
       status: 'failed',
       command: 'not-installed-am-xyz lessons merge-driver %O %A %B',
       reason:
-        '`not-installed-am-xyz` is not on PATH, so git could not start the driver; install ' +
-        'agentsmesh globally or as a project devDependency',
+        '`not-installed-am-xyz` is not installed on PATH (npx and package-script bin folders ' +
+        'do not count), so git could not start the driver; install agentsmesh globally or as ' +
+        'a project devDependency',
     });
     expect(localConfig(KEY)).toBeNull();
   });

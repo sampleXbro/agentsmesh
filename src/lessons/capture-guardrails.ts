@@ -1,3 +1,4 @@
+import { isNegatedGlob } from './glob-breadth.js';
 import type { LessonsGraph } from './graph-schema.js';
 import {
   isLowSignalKeyword,
@@ -60,7 +61,7 @@ export const MAX_RECOMMENDED_TRIGGERS = 8;
  */
 export function isBroadGlob(pattern: string): boolean {
   const p = pattern.trim();
-  if (p === '*' || p === '**') return true;
+  if (p === '*' || p === '**' || isNegatedGlob(p)) return true;
   if (!p.includes('**')) return false;
   const basename = p.slice(p.lastIndexOf('/') + 1);
   return basename.startsWith('*');

@@ -3,6 +3,8 @@
  * Runs the real CLI from source (tsx) in a throwaway git repo:
  *  - without the per-clone driver config (a fresh clone) git line-merges
  *    lessons.json into conflict markers, and `lessons resolve` must recover both;
+ *  - with a driver git cannot start, git keeps one side with no markers; validate
+ *    must flag it, and `lessons resolve` must recover both;
  *  - with the config written by `ensureLessonsMergeDriver` the merge is clean.
  */
 import { spawnSync } from 'node:child_process';
@@ -136,6 +138,29 @@ describe('lessons.json merge between two branches', () => {
     git('add', GRAPH);
     expect(git('commit', '--no-edit', '-q').status).toBe(0);
     expect(git('ls-files', '-u').stdout).toBe('');
+  }, 120_000);
+
+  it('with a driver git cannot start: validate fails, then `lessons resolve` keeps both', () => {
+    const missing = 'agentsmesh-not-installed-xyz lessons merge-driver %O %A %B';
+    expect(git('config', '--local', 'merge.agentsmesh-lessons.driver', missing).status).toBe(0);
+    const merge = parallelCaptures();
+    expect(merge.status).not.toBe(0);
+    // Git kept this branch's file as-is: no markers, but the path is still unmerged.
+    expect(readFileSync(join(dir, GRAPH), 'utf8')).not.toMatch(/^<{7} /m);
+    expect(git('ls-files', '-u', '--', GRAPH).stdout).not.toBe('');
+    expect(rules()).toEqual(['Rule X from teammate one.']);
+
+    const validate = cli('lessons', 'validate', '--json');
+    expect(validate.status).toBe(1);
+    const report = JSON.parse(validate.stdout) as { data: { findings: { code: string }[] } };
+    expect(report.data.findings.map((f) => f.code)).toEqual(['MERGE_CONFLICT']);
+
+    expect(cli('lessons', 'resolve').status).toBe(0);
+    expect(rules()).toEqual(['Rule X from teammate one.', 'Rule Y from teammate two.']);
+    expect(cli('lessons', 'validate').status).toBe(0);
+    git('add', GRAPH);
+    expect(git('commit', '--no-edit', '-q').status).toBe(0);
+    expect(rules()).toEqual(['Rule X from teammate one.', 'Rule Y from teammate two.']);
   }, 120_000);
 
   it('with the driver config from ensureLessonsMergeDriver: merges cleanly', () => {

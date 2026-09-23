@@ -47,11 +47,13 @@ export interface CollectedRecall extends GraphHealth {
  * are collected, recording each delivery against its own action (EVALUATE).
  * Each call is capped at the remaining room, so per-session dedup commits
  * EXACTLY the set injected: slicing afterwards would mark unshown lessons seen.
+ * `exclude` holds ids this output already carries (the recurrence warning).
  */
 export async function collectRecall(
   projectRoot: string,
   queries: readonly LessonsQuery[],
   sessionId: string | undefined,
+  exclude: ReadonlySet<string> = new Set(),
 ): Promise<CollectedRecall> {
   const rules: RecalledRule[] = [];
   let hidden = 0;
@@ -62,7 +64,7 @@ export async function collectRecall(
     if (r.corrupt === true) return { rules, hidden, corrupt: true };
     if (r.newerVersion !== undefined) return { rules, hidden, newerVersion: r.newerVersion };
     hidden += hiddenByCap(r.totalMatches, r.suppressed, r.lessons.length);
-    const fresh = r.lessons.filter((l) => !rules.some((x) => x.id === l.id));
+    const fresh = r.lessons.filter((l) => !exclude.has(l.id) && !rules.some((x) => x.id === l.id));
     if (fresh.length === 0) continue;
     recordDelivered(
       projectRoot,

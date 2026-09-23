@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
-import type { AddLessonTriggers } from './add.js';
-import type { LessonsGraph, Trigger, TriggerKind } from './graph-schema.js';
+import type { AddLessonInput, AddLessonTriggers } from './add.js';
+import type { Lesson, LessonsGraph, Trigger, TriggerKind } from './graph-schema.js';
 import { projectRelativeGlob } from './trigger-file-glob.js';
 
 export function normalizeRule(rule: string): string {
@@ -11,6 +11,61 @@ export function union(base: readonly string[], extra: readonly string[]): string
   const out = [...base];
   for (const item of extra) if (!out.includes(item)) out.push(item);
   return out;
+}
+
+/**
+ * Fold a re-captured rule into its existing lesson: union topics, triggers and
+ * evidence; the first rationale wins; `--scope always` promotes it to always-on.
+ */
+export function upsertLesson(
+  before: Lesson,
+  input: AddLessonInput,
+  triggerIds: readonly string[],
+): Lesson {
+  return {
+    ...before,
+    topics: union(before.topics, [input.topic]),
+    triggers: union(before.triggers, triggerIds),
+    evidence: union(before.evidence, input.evidence ?? []),
+    ...(before.rationale === undefined && input.rationale !== undefined
+      ? { rationale: input.rationale }
+      : {}),
+    ...(input.scope === 'always' ? { scope: 'always' as const } : {}),
+  };
+}
+
+/** What an upsert changed, in a fixed order; empty when the re-add was a no-op. */
+export function describeUpsert(before: Lesson, after: Lesson): string[] {
+  const added = (base: readonly string[], next: readonly string[]): string[] =>
+    next.filter((item) => !base.includes(item));
+  const topics = added(before.topics, after.topics);
+  const triggers = added(before.triggers, after.triggers);
+  const evidence = added(before.evidence, after.evidence);
+  const changes: string[] = [];
+  if (after.scope === 'always' && before.scope !== 'always') changes.push('scope set to always');
+  if (topics.length > 0) changes.push(`topic added: ${topics.join(', ')}`);
+  if (triggers.length > 0) {
+    changes.push(`trigger${triggers.length === 1 ? '' : 's'} attached: ${triggers.join(', ')}`);
+  }
+  if (evidence.length > 0) changes.push(`evidence added: ${evidence.join(', ')}`);
+  if (before.rationale === undefined && after.rationale !== undefined) {
+    changes.push('rationale added');
+  }
+  return changes;
+}
+
+/**
+ * Find an ACTIVE lesson with the same normalized rule. Inactive
+ * (deprecated/superseded) lessons are ignored on purpose: re-capturing a rule
+ * whose only match is dead must produce a fresh ACTIVE lesson (a live
+ * replacement), not silently enrich a corpse that recall will never surface.
+ */
+export function findExistingLessonByRule(graph: LessonsGraph, ruleKey: string): string | null {
+  for (const [id, lesson] of Object.entries(graph.lessons)) {
+    if (lesson.status !== 'active') continue;
+    if (normalizeRule(lesson.rule) === ruleKey) return id;
+  }
+  return null;
 }
 
 interface TriggerSpec {

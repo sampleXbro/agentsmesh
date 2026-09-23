@@ -12,7 +12,9 @@ import { dirname } from 'node:path';
 /**
  * Generic append-only JSONL log primitive shared by the recall- and
  * capture-telemetry modules. One JSON object per line; readers skip torn lines
- * (a crash mid-append or a hand-edit) so a diagnostic log can never crash stats.
+ * (a crash mid-append or a hand-edit) and rows their guard rejects, so a
+ * diagnostic log can never crash stats. Every call is best-effort: a log that
+ * cannot be written or read never breaks the recall hook or the command.
  *
  * Bounded by a byte-size trigger on append (cheap `statSync`, full rewrite only
  * when it grows past the trigger) plus an atomic last-N truncation, so a
@@ -33,11 +35,18 @@ export interface JsonlAppendOptions {
   readonly trimTriggerBytes: number;
 }
 
-/** Append one record, creating parent dirs; truncate when past the byte trigger. */
+/**
+ * Append one record, creating parent dirs; truncate when past the byte trigger.
+ * Never throws: a read-only or broken log path just drops the record.
+ */
 export function appendJsonl(path: string, record: unknown, opts: JsonlAppendOptions): void {
-  mkdirSync(dirname(path), { recursive: true });
-  appendFileSync(path, `${JSON.stringify(record)}\n`, 'utf8');
-  if (statSync(path).size > opts.trimTriggerBytes) capJsonl(path, opts.maxRecords);
+  try {
+    mkdirSync(dirname(path), { recursive: true });
+    appendFileSync(path, `${JSON.stringify(record)}\n`, 'utf8');
+    if (statSync(path).size > opts.trimTriggerBytes) capJsonl(path, opts.maxRecords);
+  } catch {
+    // Diagnostic side channel: losing a record beats breaking the caller.
+  }
 }
 
 /**
@@ -57,14 +66,23 @@ export function capJsonl(path: string, maxRecords: number): void {
   renameSync(tmp, path);
 }
 
-/** Read every record, skipping any malformed line. Returns [] when absent. */
-export function readJsonl<T>(path: string): T[] {
-  if (!existsSync(path)) return [];
+/**
+ * Read every record `isRecord` accepts, skipping torn or malformed lines.
+ * Returns [] when the log is absent or cannot be read.
+ */
+export function readJsonl<T>(path: string, isRecord: (value: unknown) => value is T): T[] {
+  let text: string;
+  try {
+    text = readFileSync(path, 'utf8');
+  } catch {
+    return [];
+  }
   const out: T[] = [];
-  for (const line of readFileSync(path, 'utf8').split('\n')) {
+  for (const line of text.split('\n')) {
     if (line.trim().length === 0) continue;
     try {
-      out.push(JSON.parse(line) as T);
+      const value: unknown = JSON.parse(line);
+      if (isRecord(value)) out.push(value);
     } catch {
       // A torn final line (crash mid-append) or hand-edit — skip it, don't fail stats.
     }

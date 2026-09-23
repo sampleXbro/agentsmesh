@@ -109,12 +109,17 @@ export function doStats(flags: LessonsFlags, projectRoot: string): LessonsComman
  * human). Reads the harness hook payload from stdin, recalls lessons for the
  * touched file/command, and emits the harness context-injection JSON on stdout.
  * Exits 0 (or the code the host needs, e.g. 2 for Copilot failures) and stays
- * silent on any unrecognized input, so a wired hook can never break the harness.
+ * silent on any unrecognized input or unexpected error, so a wired hook can
+ * never break the harness.
  */
 export async function doHook(projectRoot: string): Promise<LessonsCommandResult> {
-  const raw = await readStdin();
-  const { output, exitCode } = await buildRecallHookOutput(raw, projectRoot);
-  return { subcommand: 'hook', exitCode: exitCode ?? 0, data: { output } };
+  try {
+    const raw = await readStdin();
+    const { output, exitCode } = await buildRecallHookOutput(raw, projectRoot);
+    return { subcommand: 'hook', exitCode: exitCode ?? 0, data: { output } };
+  } catch {
+    return { subcommand: 'hook', exitCode: 0, data: { output: '' } };
+  }
 }
 
 /**

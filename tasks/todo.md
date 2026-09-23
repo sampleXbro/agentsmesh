@@ -1,3 +1,42 @@
+# QA defect fixes: high + medium (2026-09-23)
+
+Source: senior manual QA of origin/develop..HEAD (5 exploratory sessions; top defects reproduced).
+User decision: fix 4 high + 17 medium now; spin off lows and the install/generate issues as tasks.
+Rules: TDD (failing test first), files <=200 lines, fixers own disjoint files, frozen golden and docs
+updated once at integration. Gate: full suite + floor, e2e, lint, typecheck, knip, build, QA repros.
+
+## High
+- [x] H1 hook never breaks on log I/O: best-effort JSONL writes, readers skip non-object lines, lock read guarded, doHook safety net
+- [x] H2 unmerged lessons.json detected by validate/check/generate --check; merge-driver setup rejects npx-cache PATH and a monorepo npx that cannot resolve from the git top level
+- [x] H3 MCP lessons tools never create a graph outside a project or in home; lessons root resolution shared with the instructions
+- [x] H4 lessons CLI rejects extra positionals (unquoted rule)
+
+## Medium
+- [x] M1 repeated single-value flags rejected
+- [x] M2 failed read-only tools are action-less (no recurrence record)
+- [x] M3 recurrence warning deduped across a multi-file patch; hook output capped
+- [x] M4 unreadable graph reported on prompt-less session starts
+- [x] M5 fence: strip invisible format characters, full-width delimiters; capture hint path sanitized
+- [x] M6 every lessons command and MCP tool reports an unreadable graph with the graph-problem message; SCHEMA_INVALID for schema failures
+- [x] M7 resolve falls back to the working-file markers when an index side is unreadable
+- [x] M8 future-dated locks become stale
+- [x] M9 MCP always honors no_dedup and session
+- [x] M10 MCP lessons_show accepts a lesson id
+- [x] M11 MCP write refusals are VALIDATION errors with readable messages
+- [x] M12 negated globs are broad
+- [x] M13 upsert reports what changed
+- [x] M14 lessons CLI resolves the lessons root from a subdirectory (like the hook and MCP)
+- [x] M15 unusable --trigger-cmd follows the dead-trigger contract (mixed = warn, all dead = exit 2)
+- [x] M16 local hooks.yaml no longer replaces pack hooks for the same event
+- [x] M17 a writer that lost the lock (paused > 60 s) refuses to save
+
+## Integration (me)
+- Also fixed at integration: MCP/plugin capture falls back to the git repo root; hook is silent and CLI add/import-md refuse in the home folder; typed LessonsWriteRefusedError; hooks keep extends override per event (e2e contract) while packs combine.
+- [x] resolve-conflict adopts the lock ownership check; frozen golden; docs; changeset; gate; QA repros; commit
+- [x] spin off lows + install/generate issues as tasks (4 task chips)
+
+---
+
 # Ponytail cleanup of the unpushed lessons work (2026-09-23)
 
 Source: ponytail review of origin/develop..HEAD (6 reviewers, claims verified; -862 lines possible).

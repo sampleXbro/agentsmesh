@@ -88,7 +88,9 @@ A lesson that could never be recalled is rejected at capture time, and the error
 
 If you want the memory without adopting the rest of AgentsMesh, install it as a plugin. The plugin
 carries the operating manual as a skill and starts the MCP server that reads and writes the graph,
-so it needs no global install and no `agentsmesh.yaml`.
+so inside a git repository it needs no global install and no `agentsmesh.yaml`: lessons are captured
+at the repository root. Outside a repository (or in your home folder) there is no project to save
+them to, so capture fails.
 
 <Tabs>
   <TabItem label="Claude Code">

@@ -540,6 +540,7 @@ describe('lessonsHandlers.add — input coercion + CLI-flag aliases', () => {
 describe('lessonsHandlers.show', () => {
   it('returns the topic summary and its lessons with status + metadata', async () => {
     const r = await lessonsHandlers.show(ctx, { topic: 'topic-x' });
+    if (!('lessons' in r)) throw new Error('expected the topic view');
     expect(r.topic).toBe('topic-x');
     expect(r.summary).toBe('Topic X.');
     expect(r.lessons).toEqual([

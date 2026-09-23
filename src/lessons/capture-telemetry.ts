@@ -1,6 +1,7 @@
 import { join } from 'node:path';
 import type { AddLessonResult } from './add.js';
 import { appendJsonl, logExists, readJsonl } from './jsonl-log.js';
+import { isCaptureRecord } from './log-record-guards.js';
 import { lessonsPaths } from './paths.js';
 import { isTelemetryEnabled, sessionId } from './telemetry.js';
 
@@ -77,9 +78,9 @@ export function captureLogExists(projectRoot: string): boolean {
   return logExists(captureLogPath(projectRoot));
 }
 
-/** Read the capture log, skipping any malformed line. Returns [] when absent. */
+/** Read every well-formed capture record. Returns [] when absent or unreadable. */
 export function readCaptureLog(projectRoot: string): CaptureTelemetryRecord[] {
-  return readJsonl<CaptureTelemetryRecord>(captureLogPath(projectRoot));
+  return readJsonl(captureLogPath(projectRoot), isCaptureRecord);
 }
 
 /**

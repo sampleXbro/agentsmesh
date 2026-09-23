@@ -55,7 +55,7 @@ export async function loadPacksCanonical(abDir: string): Promise<CanonicalFiles>
     const canonical = await loadPackCanonical(packDir);
     const filtered = filterCanonicalByFeatures(canonical, meta.features);
     const picked = applyExtendPick(filtered, meta.features, meta.pick, meta.name);
-    merged = mergeCanonicalFiles(merged, picked);
+    merged = mergeCanonicalFiles(merged, picked, { hooks: 'combine' });
   }
   return merged;
 }

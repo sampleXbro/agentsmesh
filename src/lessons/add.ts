@@ -1,10 +1,22 @@
-import { makeLessonId, mergeTriggers, normalizeRule, todayIso, union } from './add-helpers.js';
+import {
+  describeUpsert,
+  findExistingLessonByRule,
+  makeLessonId,
+  mergeTriggers,
+  normalizeRule,
+  todayIso,
+  union,
+  upsertLesson,
+} from './add-helpers.js';
 import { UnknownTopicError } from './add-errors.js';
 import {
   assertRecallable,
   assertRuleShape,
   assertTriggerInputs,
+  deadCommandWarning,
+  dropDeadCommandTriggers,
   skipsTriggerGates,
+  type DeadCommandWarning,
 } from './add-gates.js';
 import type { AutoPruneSummary } from './auto-prune.js';
 import { type GuardrailWarning, inspectCapturedLesson } from './capture-guardrails.js';
@@ -68,13 +80,18 @@ interface AddLessonIntoOptions extends AddLessonOptions {
   readonly projectRoot?: string;
 }
 
+/** A non-blocking capture warning: a guardrail nudge or a dropped dead command trigger. */
+export type AddLessonWarning = GuardrailWarning | DeadCommandWarning;
+
 export interface AddLessonResult {
   readonly id: string;
   readonly isNewLesson: boolean;
   readonly isNewTopic: boolean;
   readonly newTriggerIds: string[];
-  /** Non-blocking capture guardrail warnings for the resulting (merged) lesson. */
-  readonly warnings: GuardrailWarning[];
+  /** What a re-add changed on the existing lesson; empty for a new lesson or a no-op. */
+  readonly changes: string[];
+  /** Non-blocking capture warnings for the resulting (merged) lesson. */
+  readonly warnings: AddLessonWarning[];
   /**
    * Counts of structural cruft the opt-in auto-prune cleaned up right after this
    * capture (config `autoPrune: true`). Present only when something was pruned;
@@ -129,36 +146,29 @@ export function addLessonInto(
   // Gates (see add-gates.ts): a throw aborts the transactional write.
   const existing = existingId !== null ? graph.lessons[existingId] : undefined;
   assertTriggerInputs(input, options, existing?.triggers.length ?? 0);
-  const { triggerIds, newTriggerIds } = mergeTriggers(graph, input.triggers, options.projectRoot);
+  const merged = mergeTriggers(graph, input.triggers, options.projectRoot);
+  const { triggerIds, newTriggerIds, dropped } = dropDeadCommandTriggers(graph, merged, options);
   if (!skipsTriggerGates(input, options)) {
-    assertRecallable(
-      graph,
-      existing === undefined ? triggerIds : union(existing.triggers, triggerIds),
-    );
+    const resulting = existing === undefined ? triggerIds : union(existing.triggers, triggerIds);
+    assertRecallable(graph, resulting, dropped);
   }
+  const droppedWarnings = dropped.map(deadCommandWarning);
 
-  if (existingId !== null) {
-    // existingId came from Object.entries(graph.lessons), so it is present.
-    const existing = graph.lessons[existingId]!;
-    graph.lessons[existingId] = {
-      ...existing,
-      topics: union(existing.topics, [input.topic]),
-      triggers: union(existing.triggers, triggerIds),
-      evidence: union(existing.evidence, input.evidence ?? []),
-      ...(existing.rationale === undefined && input.rationale !== undefined
-        ? { rationale: input.rationale }
-        : {}),
-      // Re-capturing a rule with --scope always promotes it to always-on.
-      ...(input.scope === 'always' ? { scope: 'always' as const } : {}),
-    };
+  if (existingId !== null && existing !== undefined) {
+    const updated = upsertLesson(existing, input, triggerIds);
+    graph.lessons[existingId] = updated;
     return {
       id: existingId,
       isNewLesson: false,
       isNewTopic,
       newTriggerIds,
+      changes: describeUpsert(existing, updated),
       // Near-duplicate detection is meaningless on an upsert (the lesson IS the
       // match), so only DEAD_GLOB/hygiene warnings apply here.
-      warnings: inspectCapturedLesson(graph, existingId, options.knownPaths),
+      warnings: [
+        ...inspectCapturedLesson(graph, existingId, options.knownPaths),
+        ...droppedWarnings,
+      ],
     };
   }
 
@@ -173,27 +183,17 @@ export function addLessonInto(
     ...(input.rationale === undefined ? {} : { rationale: input.rationale }),
     ...(input.scope === 'always' ? { scope: 'always' as const } : {}),
   };
-  const warnings = inspectCapturedLesson(graph, id, options.knownPaths);
   const nearDup = nearDuplicateWarning(graph, id);
   return {
     id,
     isNewLesson: true,
     isNewTopic,
     newTriggerIds,
-    warnings: nearDup === null ? warnings : [...warnings, nearDup],
+    changes: [],
+    warnings: [
+      ...inspectCapturedLesson(graph, id, options.knownPaths),
+      ...(nearDup === null ? [] : [nearDup]),
+      ...droppedWarnings,
+    ],
   };
-}
-
-/**
- * Find an ACTIVE lesson with the same normalized rule. Inactive
- * (deprecated/superseded) lessons are ignored on purpose: re-capturing a rule
- * whose only match is dead must produce a fresh ACTIVE lesson (a live
- * replacement), not silently enrich a corpse that recall will never surface.
- */
-function findExistingLessonByRule(graph: LessonsGraph, ruleKey: string): string | null {
-  for (const [id, lesson] of Object.entries(graph.lessons)) {
-    if (lesson.status !== 'active') continue;
-    if (normalizeRule(lesson.rule) === ruleKey) return id;
-  }
-  return null;
 }

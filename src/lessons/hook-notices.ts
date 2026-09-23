@@ -3,7 +3,7 @@ import { getVersion } from '../cli/version.js';
 import { readLock } from '../config/core/lock.js';
 import { agentsmeshInvocation } from './cli-invocation.js';
 import { graphHasConflictMarkers } from './graph-problem.js';
-import { LESSONS_GRAPH_PATH } from './graph-store.js';
+import { LESSONS_GRAPH_PATH, loadLessonsGraphResilient } from './graph-store.js';
 import { commitSeen, openSessionDedup } from './seen-cache.js';
 import { autoSessionId } from './session-window.js';
 
@@ -36,6 +36,14 @@ export function isOlderVersion(a: string, b: string): boolean {
   return x[4] !== undefined && y[4] === undefined;
 }
 
+/** Graph health read straight from disk, for events that run no keyword recall. */
+export function graphHealth(root: string): GraphHealth {
+  const load = loadLessonsGraphResilient(root);
+  if (load.status === 'corrupt') return { corrupt: true };
+  if (load.status === 'newer-version') return { newerVersion: load.version };
+  return {};
+}
+
 function graphNotice(root: string, health: GraphHealth): string | null {
   if (health.newerVersion !== undefined) {
     return (
@@ -51,7 +59,8 @@ function graphNotice(root: string, health: GraphHealth): string | null {
 }
 
 async function versionNotice(root: string): Promise<string | null> {
-  const lock = await readLock(join(root, '.agentsmesh'));
+  // An unreadable lock (e.g. a directory) just skips the notice.
+  const lock = await readLock(join(root, '.agentsmesh')).catch(() => null);
   const cliVersion = getVersion();
   if (lock === null || !isOlderVersion(cliVersion, lock.libVersion)) return null;
   return (

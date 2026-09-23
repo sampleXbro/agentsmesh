@@ -18,6 +18,9 @@ const OWNER_PREFIX = 'owner-';
 const YOUNG_LOCK_GRACE_MS = 2_000;
 // A healthy critical section is short, so only older holders are probed for pid reuse.
 const PID_REUSE_PROBE_AFTER_MS = 2_000;
+// Hosts sharing a lock may disagree on the time a little. A start time (or dir
+// mtime) further ahead than this cannot be a running holder's: it counts as stale.
+const CLOCK_SKEW_TOLERANCE_MS = 5 * 60 * 1000;
 
 export interface LockMetadata {
   pid: number;
@@ -87,17 +90,18 @@ export async function inspectLock(lockPath: string): Promise<LockState> {
   const age = await dirAgeMs(lockPath);
   if (age === null) return { kind: 'gone' };
   // Negative ages (mtime a hair ahead of Date.now()) are young too.
-  return age < YOUNG_LOCK_GRACE_MS ? { kind: 'young' } : { kind: 'orphan', tokens, raw };
+  const young = age < YOUNG_LOCK_GRACE_MS && age >= -CLOCK_SKEW_TOLERANCE_MS;
+  return young ? { kind: 'young' } : { kind: 'orphan', tokens, raw };
 }
 
-/** Dead same-host pid, reused pid, or older than `staleMs`. */
+/** Dead same-host pid, reused pid, older than `staleMs`, or started in the future. */
 export async function isStale(
   meta: LockMetadata,
   staleMs: number,
   cache: ProbeCache,
 ): Promise<boolean> {
   const age = Date.now() - meta.started;
-  if (age > staleMs) return true;
+  if (age > staleMs || age < -CLOCK_SKEW_TOLERANCE_MS) return true;
   if (meta.hostname && meta.hostname !== hostname()) return false;
   if (!isProcessAlive(meta.pid)) return true;
   if (meta.procStart === undefined || age < PID_REUSE_PROBE_AFTER_MS) return false;
@@ -108,7 +112,7 @@ export function describeHolder(state: LockState): string {
   if (state.kind !== 'held' && state.kind !== 'legacy') return 'unknown (unreadable lock metadata)';
   const { meta } = state;
   const host = meta.hostname ? `${meta.hostname}:` : '';
-  return `${host}pid ${meta.pid} (running ${Date.now() - meta.started}ms)`;
+  return `${host}pid ${meta.pid} (running ${Math.max(0, Date.now() - meta.started)}ms)`;
 }
 
 async function dirAgeMs(lockPath: string): Promise<number | null> {

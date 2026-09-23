@@ -409,3 +409,5 @@ Every install writes `.agentsmesh-install-manifest.json` next to the pack with t
 ## Merge behavior
 
 Installed packs merge with your canonical config during `agentsmesh generate`. If a pack defines a rule with the same name as your canonical rule, the canonical rule takes precedence.
+
+Hooks are the exception: a pack's hooks are never dropped. Packs with hooks on the same event are combined, a pack adds to an `extends` source's hooks for that event, and when your `hooks.yaml` defines the same event, the pack's hooks follow yours. A pack hook with the same type, matcher and command (or prompt text) as one of yours is the same hook, and your copy wins. To drop a pack hook, uninstall the pack or leave `hooks` out of its features.

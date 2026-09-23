@@ -74,12 +74,9 @@ function ineffectiveReason(kind: TriggerKind, pattern: string): string | null {
 }
 
 /**
- * Dead triggers that should BLOCK capture (used by `addLessonInto`). This is a
- * STRICT SUBSET of {@link ineffectiveTriggers}: a `command_pattern` is excluded
- * because the transactional write barrier already rejects an invalid/unsafe
- * command regex with its own error (INVALID/UNSAFE_TRIGGER_PATTERN). Blocking it
- * here too would only pre-empt that clearer, established rejection — so the block
- * meaningfully adds only the keyword-dead case (which the write barrier passes).
+ * Dead non-command triggers (the keyword-dead case), for the add gate. A dead
+ * `command_pattern` is excluded here: the add gate drops it first with a
+ * DEAD_COMMAND_PATTERN warning (see `dropDeadCommandTriggers` in add-gates.ts).
  */
 export function blockingDeadTriggers(
   graph: LessonsGraph,

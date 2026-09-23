@@ -1,5 +1,4 @@
-import { existsSync } from 'node:fs';
-import { lessonsPaths, resolveLessonsRoot } from '../lessons/paths.js';
+import { findLessonsRoot } from '../lessons/paths.js';
 
 /**
  * Standing instructions handed to every MCP client at initialize.
@@ -18,17 +17,9 @@ import { lessonsPaths, resolveLessonsRoot } from '../lessons/paths.js';
  * have written a graph into a repository that never asked for one.
  */
 export function mcpServerInstructions(start: string): string {
-  return hasLessons(resolveLessonsRoot(start)) ? ACTIVE : INACTIVE;
-}
-
-/**
- * Either signal counts. `config.json` means the full setup ran; the graph alone
- * means someone captured through the tools without it. Both mean there are
- * lessons here to recall.
- */
-function hasLessons(projectRoot: string): boolean {
-  const paths = lessonsPaths(projectRoot);
-  return existsSync(paths.graph) || existsSync(paths.config);
+  // Either signal counts: `config.json` means the full setup ran; the graph
+  // alone means someone captured through the tools without it.
+  return findLessonsRoot(start) === null ? INACTIVE : ACTIVE;
 }
 
 /**
@@ -50,6 +41,6 @@ Graph \`.agentsmesh/lessons/lessons.json\` is canonical; never hand-edit it. Ful
 /** Describes the capability without asserting anything that is not on disk. */
 const INACTIVE = `## Lessons
 
-This server can keep a git-tracked memory of rules for this repository, recalled before an edit and captured after a failure. Nothing is set up here yet, so \`lessons_query\` returns no matches.
+This server can keep a git-tracked memory of rules for a repository, recalled before an edit and captured after a failure. Nothing is set up here yet, so \`lessons_query\` returns no matches.
 
-To start one, call \`lessons_add\` with a rule, a topic, \`new_topic: true\`, a \`topic_summary\` and a \`trigger_file\` glob. To wire automatic recall into your AI tools as well, run \`agentsmesh init --lessons\` and then \`agentsmesh generate\`.`;
+To start one inside an agentsmesh project (a directory with \`agentsmesh.yaml\`), call \`lessons_add\` with a rule, a topic, \`new_topic: true\`, a \`topic_summary\` and a \`trigger_file\` glob. Elsewhere, or to wire automatic recall into your AI tools, run \`agentsmesh init --lessons\` in your project, then \`agentsmesh generate\`.`;

@@ -9,13 +9,19 @@
  *
  * Narrowness is the share of path segments the pattern pins down literally. A
  * `**` counts as no literal segment AND widens the denominator, because it can
- * span any depth.
+ * span any depth. A negated glob matches every path but its own, so it scores 0.
  */
 
 const WILDCARD = /[*?[\]]/;
 
+/** A leading `!` (see glob-parse.ts): the trigger fires on every path it does NOT match. */
+export function isNegatedGlob(pattern: string): boolean {
+  return pattern.startsWith('!');
+}
+
 /** Narrowness in [0,1]: 1 = an exact path, 0 = matches the whole tree. */
 export function globNarrowness(pattern: string): number {
+  if (isNegatedGlob(pattern)) return 0;
   const segments = pattern
     .replaceAll('\\', '/')
     .split('/')
