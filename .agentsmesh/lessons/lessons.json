@@ -8988,6 +8988,22 @@
         "t-kw-4859e2d1"
       ]
     },
+    "testing-in-a-new-test-file": {
+      "createdAt": "2026-09-23",
+      "evidence": [
+        "7857ff17"
+      ],
+      "rule": "In a NEW test file type a mock as vi.fn<typeof fn>() (import type { fn }), never vi.fn<[args], Return>(): this vitest takes one function type, so the tuple form fails tsc -p tsconfig.tests.json (TS2558, then 'not assignable to never'). Older tests still use the tuple form only because they sit in the tsconfig.tests.json baseline, which is not type-checked, so do not copy mock typings from them.",
+      "status": "active",
+      "topics": [
+        "testing"
+      ],
+      "triggers": [
+        "t-glob-91e8e620",
+        "t-kw-26c3e806",
+        "t-kw-3e2415e1"
+      ]
+    },
     "testing-in-manual-cli-repros-on": {
       "createdAt": "2026-09-23",
       "evidence": [
@@ -12930,6 +12946,10 @@
       "kind": "keyword",
       "pattern": "reachability audit"
     },
+    "t-kw-26c3e806": {
+      "kind": "keyword",
+      "pattern": "vi.fn"
+    },
     "t-kw-27b89f58": {
       "kind": "keyword",
       "pattern": "irregular whitespace"
@@ -13017,6 +13037,10 @@
     "t-kw-3da2b937": {
       "kind": "keyword",
       "pattern": "manual qa"
+    },
+    "t-kw-3e2415e1": {
+      "kind": "keyword",
+      "pattern": "mock typing"
     },
     "t-kw-3e99909c": {
       "kind": "keyword",
