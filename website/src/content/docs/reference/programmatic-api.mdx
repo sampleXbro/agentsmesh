@@ -292,7 +292,7 @@ if (graph) {
 
 `recallLessons(projectRoot, query, opts?)` is the migration-aware recall entry
 point: it migrates a legacy store, loads the graph, and returns the
-relevance-ranked, capped matches (default top 10 + ~400-token budget). The
+relevance-ranked, capped matches (default top 10 + ~1200-token budget). The
 low-level `queryLessons(graph, { file, command, keyword })` returns the raw
 `active` candidate set — OR across triggers — without migrating or ranking. See
 the [recall semantics](../lessons/#recall-semantics) for the full contract.

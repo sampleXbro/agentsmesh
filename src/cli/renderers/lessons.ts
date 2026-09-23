@@ -15,6 +15,7 @@ import type {
 } from '../commands/lessons-types.js';
 import { renderPrune, renderStats, renderValidate } from './lessons-render-diagnostics.js';
 import { renderQuery } from './lessons-render-query.js';
+import { renderResolve } from './lessons-render-resolve.js';
 
 export function renderLessons(result: LessonsCommandResult): void {
   if (result.error !== undefined && result.error.length > 0) {
@@ -73,6 +74,8 @@ export function renderLessons(result: LessonsCommandResult): void {
       return renderPrune(result.data);
     case 'stats':
       return renderStats(result.data, result.format);
+    case 'resolve':
+      return renderResolve(result.data);
     case 'import-md':
       return renderImportMd(result.data);
   }

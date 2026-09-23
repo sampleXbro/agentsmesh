@@ -63,6 +63,10 @@ export const LESSONS_USAGE: Record<string, LessonsSubcommandUsage> = {
   validate: {
     usage: 'agentsmesh lessons validate',
   },
+  resolve: {
+    usage: 'agentsmesh lessons resolve',
+    summary: 'union both sides of a git merge conflict in lessons.json',
+  },
   stats: {
     usage: 'agentsmesh lessons stats [--json]',
     summary: 'recall telemetry summary; needs AGENTSMESH_LESSONS_TELEMETRY=1',

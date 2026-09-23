@@ -19,7 +19,7 @@ agentsmesh generate [flags]
 | `--targets <csv>` | Comma-separated list of target IDs to generate for. Defaults to all configured targets. |
 | `--global` | Generate user-level config from `~/.agentsmesh/` instead of project-local config (e.g. `claude-code`, `antigravity`, `codex-cli`; Cursor writes full `~/.cursor/` global surfaces including `rules/`, `AGENTS.md`, hooks, ignore, MCP, skills, agents, commands). |
 | `--dry-run` | Preview changes without writing any files. |
-| `--check` | Verify sync status only. Exit code 1 if out of sync. |
+| `--check` | Verify sync status only. Exit code 1 if out of sync, or if the project's lessons graph cannot be read. |
 | `--force` | Bypass collaboration lock violations. |
 | `--refresh-cache` | Re-fetch remote extends sources before generating. |
 | `--no-cache` | Alias for `--refresh-cache`. |
@@ -96,6 +96,16 @@ Forces a re-fetch of all remote `extends` sources. Without this flag, AgentsMesh
 6. **Write output** — create target directories, write all files, update the lock file (canonical-source checksums plus an `outputs` map of every generated file's checksum, so `agentsmesh check` can later detect direct edits to generated files). Filtered runs (`--targets`) merge outputs per-path into the existing map; a full run replaces it.
 7. **Clean stale files** — remove previously generated files no longer in the output set. This also runs when a full run produces no files at all, so uninstalling the last pack removes its generated outputs and resets the lock's `outputs` map.
 
+## Lessons upkeep
+
+In project scope, when the project uses [lessons](../lessons/), `generate` also does a little upkeep for every clone, so a team stays healthy without anyone re-running `init --lessons`:
+
+- **Merge driver.** On a normal run it sets this clone's `merge.agentsmesh-lessons.*` git config (local config) when `.gitattributes` binds `lessons.json` to the driver, and prints what it did. It skips the setup when the driver program is not on `PATH`, and keeps a driver you configured yourself. See [Team workflow](../lessons/#team-workflow).
+- **Unreadable graph.** When `lessons.json` has merge conflict markers, is corrupt, or was written by a newer agentsmesh, a normal run warns and carries on, and `generate --check` fails with exit code 1.
+- **Team hint.** When the recall hook is wired but the project's `package.json` does not list agentsmesh as a dependency, it warns that teammates without a global install will not get lesson recall, and suggests adding agentsmesh as a devDependency and re-running `agentsmesh init --lessons`.
+
+The recall hook entries themselves are filtered per target: each target keeps them only on the hook events whose output reaches its model. See [Hook mode](../lessons/#hook-mode-deterministic-recall).
+
 ## Output locations
 
 For Claude Code, explicitly empty canonical configuration clears previously generated entries: `allow: []`, `deny: []`, and `ask: []` remove permission rules; `hooks.yaml` containing `{}` removes hooks; and `mcp.json` containing `{"mcpServers": {}}` removes servers. Unrelated settings remain intact. Missing canonical files leave the corresponding user settings alone.
@@ -116,4 +126,4 @@ If `~/.agentsmesh/agentsmesh.yaml` does not exist, `--global` commands fail with
 | Code | Meaning |
 |------|---------|
 | `0` | Success — all files generated. |
-| `1` | Error or drift detected (with `--check`). |
+| `1` | Error, or drift or an unreadable lessons graph detected (with `--check`). |

@@ -49,7 +49,14 @@ export function lintCommands(canonical: CanonicalFiles): LintDiagnostic[] {
 
 export function lintHooks(canonical: CanonicalFiles): LintDiagnostic[] {
   if (!canonical.hooks || Object.keys(canonical.hooks).length === 0) return [];
-  const supported = ['PreToolUse', 'PostToolUse', 'Notification', 'UserPromptSubmit'] as const;
+  const supported = [
+    'PreToolUse',
+    'PostToolUse',
+    'PostToolUseFailure',
+    'Notification',
+    'UserPromptSubmit',
+    'SessionStart',
+  ] as const;
   const diagnostics: LintDiagnostic[] = unsupportedHookEventNames(canonical.hooks, supported).map(
     (event) =>
       createUnsupportedHookWarning(event, 'copilot', supported, {

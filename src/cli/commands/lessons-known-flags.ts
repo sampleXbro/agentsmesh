@@ -57,6 +57,7 @@ export const LESSONS_KNOWN_FLAGS: Record<string, readonly string[]> = {
   'strip-markers': ['dry-run'],
   journal: [],
   validate: [],
+  resolve: [],
   stats: ['json'],
   prune: ['apply', 'cap'],
   'import-md': ['merge', 'force', 'migrated-at'],

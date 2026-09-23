@@ -61,19 +61,30 @@ export async function recallAlwaysLessons(
   const budget =
     options.maxTokens === null ? undefined : (options.maxTokens ?? DEFAULT_ALWAYS_MAX_TOKENS);
 
-  const lessons: AlwaysLesson[] = [];
-  let used = 0;
-  for (const { id, lesson } of fresh) {
-    const cost = estTokens(lesson.rule);
-    // Always keep the first; then fill while the cumulative token cost fits.
-    if (budget !== undefined && lessons.length > 0 && used + cost > budget) break;
-    used += cost;
-    lessons.push({ id, rule: lesson.rule });
-  }
+  const lessons: AlwaysLesson[] = withinTokenBudget(
+    fresh.map(({ id, lesson }) => ({ id, rule: lesson.rule })),
+    budget,
+  );
   if (dedup !== null)
     commitSeen(
       dedup,
       lessons.map((l) => l.id),
     );
   return { lessons, total };
+}
+
+/** Leading items whose summed rule tokens fit `budget`; the first always stays. */
+export function withinTokenBudget<T extends { readonly rule: string }>(
+  items: readonly T[],
+  budget: number | undefined,
+): T[] {
+  const kept: T[] = [];
+  let used = 0;
+  for (const item of items) {
+    const cost = estTokens(item.rule);
+    if (budget !== undefined && kept.length > 0 && used + cost > budget) break;
+    used += cost;
+    kept.push(item);
+  }
+  return kept;
 }

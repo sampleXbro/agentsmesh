@@ -2,15 +2,12 @@ import { captureLogExists, readCaptureLog } from '../../lessons/capture-telemetr
 import { tryLoadLessonsGraph } from '../../lessons/graph-store.js';
 import { buildRecallHookOutput } from '../../lessons/hook.js';
 import { lessonsActivated, lessonsSetupHint } from '../../lessons/paths.js';
-import { listProjectFiles } from '../../lessons/project-files.js';
 import { outcomeLogExists, readOutcomeLog } from '../../lessons/outcome-log.js';
 import { summarizeCapture } from '../../lessons/stats-capture.js';
 import { summarizeEffectiveness } from '../../lessons/stats-effectiveness.js';
 import { statsAdvice } from '../../lessons/stats-advice.js';
 import { summarizeRecall } from '../../lessons/stats.js';
 import { isTelemetryEnabled, readRecallLog, recallLogExists } from '../../lessons/telemetry.js';
-import { validateLessonsGraph } from '../../lessons/validate.js';
-import { collectHealthFindings } from '../../lessons/validate-health.js';
 import {
   emptyGraph,
   errorResult,
@@ -18,11 +15,7 @@ import {
   renderTopicMarkdown,
   type LessonsFlags,
 } from './lessons-helpers.js';
-import type {
-  LessonsCommandResult,
-  LessonsJournalData,
-  LessonsValidateData,
-} from './lessons-types.js';
+import type { LessonsCommandResult, LessonsJournalData } from './lessons-types.js';
 
 export type { LessonsFlags } from './lessons-helpers.js';
 // Recall (read-heavy, dedup-aware) lives in its own module; re-exported so the
@@ -111,50 +104,17 @@ export function doStats(flags: LessonsFlags, projectRoot: string): LessonsComman
   };
 }
 
-export function doValidate(projectRoot: string): LessonsCommandResult {
-  // Recall's corrupt-graph warning routes users HERE, so validate must diagnose
-  // a corrupt file as a structured finding — not dead-end on the raw parse error.
-  let graph;
-  try {
-    graph = tryLoadLessonsGraph(projectRoot) ?? emptyGraph();
-  } catch (err) {
-    const data: LessonsValidateData = {
-      ok: false,
-      findings: [
-        {
-          level: 'error',
-          code: 'CORRUPT_GRAPH',
-          message: `lessons.json could not be parsed (${err instanceof Error ? err.message : String(err)}). The graph is git-tracked — restore it (e.g. \`git checkout -- .agentsmesh/lessons/lessons.json\`) or repair the JSON; recall degrades to empty until then.`,
-        },
-      ],
-    };
-    return { subcommand: 'validate', exitCode: 1, data };
-  }
-  // Supply the working-tree file list so dead-`file_glob` triggers surface; null
-  // (no git, walk failed) → undefined → the liveness check is skipped, never a
-  // false "everything is dead".
-  const knownPaths = listProjectFiles(projectRoot) ?? undefined;
-  const report = validateLessonsGraph(graph, { knownPaths });
-  // Append the log-derived health view (ineffective / uncovered). These are always
-  // WARNING level and computed HERE, never inside validateLessonsGraph — that call
-  // is also the write barrier, and telemetry-derived findings must not gate a write.
-  // `ok`/exit-code stay driven by error-level findings, so warnings never fail.
-  const findings = [...report.findings, ...collectHealthFindings(projectRoot, graph)];
-  const data: LessonsValidateData = { ok: report.ok, findings };
-  return { subcommand: 'validate', exitCode: report.ok ? 0 : 1, data };
-}
-
 /**
  * Hook-mode recall (internal — invoked by a generated PostToolUse hook, not by a
  * human). Reads the harness hook payload from stdin, recalls lessons for the
  * touched file/command, and emits the harness context-injection JSON on stdout.
- * Always exits 0 and stays silent on any unrecognized input, so a wired hook can
- * never break the harness.
+ * Exits 0 (or the code the host needs, e.g. 2 for Copilot failures) and stays
+ * silent on any unrecognized input, so a wired hook can never break the harness.
  */
 export async function doHook(projectRoot: string): Promise<LessonsCommandResult> {
   const raw = await readStdin();
-  const { output } = await buildRecallHookOutput(raw, projectRoot);
-  return { subcommand: 'hook', exitCode: 0, data: { output } };
+  const { output, exitCode } = await buildRecallHookOutput(raw, projectRoot);
+  return { subcommand: 'hook', exitCode: exitCode ?? 0, data: { output } };
 }
 
 /**

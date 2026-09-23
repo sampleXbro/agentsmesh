@@ -4,7 +4,7 @@ import {
   keywordNeedleLosesTokens,
   MAX_RECOMMENDED_KEYWORD_TOKENS,
 } from './keyword-signal.js';
-import { deadFileGlobIds, fileGlobMatchCount } from './validate-liveness.js';
+import { fileGlobLiveness, fileGlobMatchCount } from './validate-liveness.js';
 
 /**
  * Capture guardrails — mostly WARNINGS, steering authors toward a few specific
@@ -29,6 +29,7 @@ export type GuardrailCode =
   | 'LOW_SIGNAL_KEYWORD'
   | 'STOPWORD_KEYWORD'
   | 'DEAD_GLOB'
+  | 'PENDING_GLOB'
   | 'NEAR_DUPLICATE_LESSON';
 
 /**
@@ -70,10 +71,10 @@ export function isBroadGlob(pattern: string): boolean {
  * Operates on the post-mutation graph so it reflects the merged trigger set of
  * an upserted lesson, not just the triggers from this one `add` call.
  *
- * `knownPaths` (project-relative, forward-slash) enables the DEAD_GLOB liveness
- * warning. The pure write-barrier path passes nothing (no tree walk on the hot
- * mutate path); only the capture entry point supplies it, so a dead glob is
- * flagged at the best moment to fix it — right after capture.
+ * `knownPaths` (project-relative, forward-slash) enables the DEAD_GLOB and
+ * PENDING_GLOB liveness warnings. The pure write-barrier path passes nothing (no
+ * tree walk on the hot mutate path); only the capture entry point supplies it, so
+ * a dead or mistyped glob is flagged at the best moment to fix it.
  */
 export function inspectCapturedLesson(
   graph: LessonsGraph,
@@ -133,15 +134,19 @@ export function inspectCapturedLesson(
   }
 
   if (knownPaths !== undefined) {
-    const dead = deadFileGlobIds(graph, knownPaths);
-    const deadHere = lesson.triggers
-      .filter((id) => dead.has(id))
-      .map((id) => graph.triggers[id]?.pattern)
-      .filter((p): p is string => p !== undefined);
+    const { dead, pending } = fileGlobLiveness(graph, knownPaths, lesson.triggers);
+    const deadHere = patternsIn(graph, lesson.triggers, dead);
     if (deadHere.length > 0) {
       warnings.push({
         code: 'DEAD_GLOB',
-        message: `Lesson "${lessonId}" has file_glob trigger(s) (${deadHere.join(', ')}) that match no file in the working tree — likely a rename. Re-point them at the current path, or the lesson is unreachable via those globs.`,
+        message: `Lesson "${lessonId}" has file_glob trigger(s) (${deadHere.join(', ')}) that match no file, and git history shows the path was renamed or deleted — likely a rename. Re-point them at the current path, or the lesson is unreachable via those globs.`,
+      });
+    }
+    const pendingHere = patternsIn(graph, lesson.triggers, pending);
+    if (pendingHere.length > 0) {
+      warnings.push({
+        code: 'PENDING_GLOB',
+        message: `Lesson "${lessonId}" has file_glob trigger(s) (${pendingHere.join(', ')}) whose path does not exist yet — the trigger will fire once it does, so it is kept. If the path is a typo, re-point it.`,
       });
     }
 
@@ -160,4 +165,15 @@ export function inspectCapturedLesson(
   }
 
   return warnings;
+}
+
+function patternsIn(
+  graph: LessonsGraph,
+  ids: readonly string[],
+  keep: ReadonlySet<string>,
+): string[] {
+  return ids
+    .filter((id) => keep.has(id))
+    .map((id) => graph.triggers[id]?.pattern)
+    .filter((p): p is string => p !== undefined);
 }

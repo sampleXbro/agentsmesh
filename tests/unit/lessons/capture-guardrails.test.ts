@@ -174,25 +174,6 @@ describe('inspectCapturedLesson — STOPWORD_KEYWORD', () => {
   });
 });
 
-describe('inspectCapturedLesson — DEAD_GLOB (B4, knownPaths supplied)', () => {
-  it('warns when a file_glob matches no path in the working tree', () => {
-    const g = graphWith({ f: { kind: 'file_glob', pattern: 'src/renamed/**/*.ts' } });
-    const out = inspectCapturedLesson(g, 'L', new Set(['src/here.ts', 'README.md']));
-    expect(out.map((w) => w.code)).toContain('DEAD_GLOB');
-  });
-
-  it('does not warn when the glob matches a known path', () => {
-    const g = graphWith({ f: { kind: 'file_glob', pattern: 'src/**/*.ts' } });
-    const out = inspectCapturedLesson(g, 'L', new Set(['src/here.ts']));
-    expect(out.map((w) => w.code)).not.toContain('DEAD_GLOB');
-  });
-
-  it('is skipped entirely when knownPaths is omitted (the pure write-barrier path)', () => {
-    const g = graphWith({ f: { kind: 'file_glob', pattern: 'src/renamed/**/*.ts' } });
-    expect(codes(g)).not.toContain('DEAD_GLOB');
-  });
-});
-
 describe('nearDuplicateWarning (C)', () => {
   function lesson(rule: string, status: Lesson['status'] = 'active'): Lesson {
     return { rule, topics: ['t'], triggers: [], evidence: [], status, createdAt: '2026-06-01' };

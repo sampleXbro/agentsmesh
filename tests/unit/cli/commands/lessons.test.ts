@@ -23,6 +23,7 @@ import { appendOutcomeEvent, type OutcomeEvent } from '../../../../src/lessons/o
 import { clearSeen } from '../../../../src/lessons/seen-cache.js';
 import { readRecallLog } from '../../../../src/lessons/telemetry.js';
 import { DEFAULT_RECALL_MAX_TOKENS } from '../../../../src/lessons/ranking.js';
+import { commitAll, git, initRepo, writeFile } from '../../../helpers/temp-git-repo.js';
 
 const TELEMETRY_ON = { AGENTSMESH_LESSONS_TELEMETRY: '1' } as NodeJS.ProcessEnv;
 const failEvent = (contextKey: string): OutcomeEvent => ({
@@ -1207,10 +1208,15 @@ describe('runLessons validate', () => {
     expect(r.exitCode).toBe(0);
   });
 
-  it('surfaces a dead file_glob trigger (matches no working-tree file) as a warning', async () => {
-    // End-to-end wiring: the handler computes the real working-tree file list
-    // and passes it to validate, so a glob over a path that does not exist here
-    // is flagged. Warning-level, so the graph stays ok / exit 0.
+  it('surfaces a dead file_glob trigger (its files were renamed away in git) as a warning', async () => {
+    // End-to-end wiring: the handler computes the real working-tree file list and
+    // git evidence and passes them to validate, so a glob whose files git history
+    // renamed away is flagged. Warning-level, so the graph stays ok / exit 0.
+    initRepo(root);
+    writeFile(root, 'src/long/gone/a.ts', 'export const movedAway = "this file is renamed";\n');
+    commitAll(root, 'init');
+    git(root, ['mv', 'src/long/gone', 'src/long/here']);
+    commitAll(root, 'rename');
     const graph: LessonsGraph = {
       version: 1,
       lessons: {
@@ -1249,9 +1255,12 @@ describe('runLessons validate', () => {
 
   it('flags an ineffective lesson (delivered, never helped) as a warning, exit 0', async () => {
     seedSimpleGraph();
-    for (const k of ['k1', 'k2', 'k3'])
+    // A miss needs a later failure on an action the lesson's own trigger matches.
+    const keys = ['file:src/a.ts', 'file:src/b.ts', 'file:src/c.ts'];
+    for (const k of keys)
       appendOutcomeEvent(root, deliveredEvent('topic-x-rule-1', k), TELEMETRY_ON);
-    for (const k of ['k1', 'k2', 'k3']) appendOutcomeEvent(root, failEvent(k), TELEMETRY_ON);
+    for (const k of keys)
+      appendOutcomeEvent(root, { ...failEvent(k), ts: '2026-01-01T00:01:00Z' }, TELEMETRY_ON);
     const r = await runLessons({}, ['validate'], root);
     if (r.subcommand !== 'validate') return;
     expect(

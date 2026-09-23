@@ -9,6 +9,7 @@ import {
   serializeImportedCommand,
 } from '../../../../src/targets/copilot/command-prompt.js';
 import { addHookScriptAssets } from '../../../../src/targets/copilot/hook-assets.js';
+import { wrapperScriptName } from '../../../../src/targets/copilot/hook-format.js';
 import type { CanonicalCommand, CanonicalFiles } from '../../../../src/core/types.js';
 
 function makeCommand(partial: Partial<CanonicalCommand> = {}): CanonicalCommand {
@@ -254,7 +255,11 @@ describe('addHookScriptAssets', () => {
     expect(assets).toHaveLength(1);
   });
 
-  it('uses safe phase name with non-alphanumeric chars replaced', async () => {
+  it('uses safe phase name with non-alphanumeric chars replaced', () => {
+    expect(wrapperScriptName('My Hook!', 0)).toBe('my-hook--0.sh');
+  });
+
+  it('writes no wrapper for an event the hooks config never references', async () => {
     const result = await addHookScriptAssets(
       projectRoot,
       makeCanonical({
@@ -264,6 +269,6 @@ describe('addHookScriptAssets', () => {
       }),
       [],
     );
-    expect(result[0]!.path).toBe('.github/hooks/scripts/my-hook--0.sh');
+    expect(result).toEqual([]);
   });
 });

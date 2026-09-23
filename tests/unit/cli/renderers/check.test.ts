@@ -165,4 +165,29 @@ describe('renderCheck', () => {
 
     expect(output.stdout()).not.toContain('Generated-output verification skipped');
   });
+
+  it('prints an unreadable lessons graph error even when the lock is in sync', () => {
+    renderCheck({
+      exitCode: 1,
+      error: 'Lessons graph unreadable: lessons.json has an unresolved git merge conflict.',
+      data: {
+        hasLock: true,
+        canonicalDrift: false,
+        outputDrift: false,
+        inSync: true,
+        modified: [],
+        added: [],
+        removed: [],
+        extendsModified: [],
+        lockedViolations: [],
+        outputsModified: [],
+        outputsRemoved: [],
+        outputsStale: [],
+        outputsUntracked: [],
+        outputsChecked: false,
+      },
+    });
+
+    expect(output.stderr()).toContain('Lessons graph unreadable');
+  });
 });

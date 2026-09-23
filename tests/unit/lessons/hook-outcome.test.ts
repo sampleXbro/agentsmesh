@@ -116,12 +116,18 @@ describe('hook wiring: outcome emission', () => {
     ]);
   });
 
-  it('records nothing when telemetry is off', async () => {
-    delete process.env.AGENTSMESH_LESSONS_TELEMETRY;
-    await buildRecallHookOutput(
-      JSON.stringify({ hook_event_name: 'PostToolUse', tool_input: { file_path: 'src/x.ts' } }),
-      root,
-    );
+  it('records nothing when the outcome log is turned off', async () => {
+    const prev = process.env.AGENTSMESH_LESSONS_OUTCOME_LOG;
+    process.env.AGENTSMESH_LESSONS_OUTCOME_LOG = '0';
+    try {
+      await buildRecallHookOutput(
+        JSON.stringify({ hook_event_name: 'PostToolUse', tool_input: { file_path: 'src/x.ts' } }),
+        root,
+      );
+    } finally {
+      if (prev === undefined) delete process.env.AGENTSMESH_LESSONS_OUTCOME_LOG;
+      else process.env.AGENTSMESH_LESSONS_OUTCOME_LOG = prev;
+    }
     expect(readOutcomeLog(root)).toEqual([]);
   });
 });

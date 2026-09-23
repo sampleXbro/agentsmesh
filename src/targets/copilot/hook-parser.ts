@@ -20,10 +20,14 @@ export function mapCopilotHookEvent(event: string): string | null {
       return 'PreToolUse';
     case 'postToolUse':
       return 'PostToolUse';
+    case 'postToolUseFailure':
+      return 'PostToolUseFailure';
     case 'notification':
       return 'Notification';
     case 'userPromptSubmitted':
       return 'UserPromptSubmit';
+    case 'sessionStart':
+      return 'SessionStart';
     default:
       return null;
   }

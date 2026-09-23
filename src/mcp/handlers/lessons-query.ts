@@ -1,6 +1,8 @@
 import type { McpContext } from '../context.js';
 import { recallLessons } from '../../lessons/recall.js';
 import { recallAlwaysLessons } from '../../lessons/recall-always.js';
+import { loadRecallConfig } from '../../lessons/recall-config.js';
+import { clampText, MAX_RECALL_PAYLOAD_CHARS } from '../../lessons/rule-line.js';
 import { AUTO_SESSION_TTL_MS } from '../../lessons/seen-cache.js';
 import { sessionId as envSessionId } from '../../lessons/telemetry.js';
 import { McpError } from '../errors.js';
@@ -66,6 +68,19 @@ export interface LessonsQueryOutput {
   suppressed?: number;
 }
 
+/** Recall's token estimate (see ranking.ts estTokens). */
+const CHARS_PER_TOKEN = 4;
+
+/**
+ * The recall token budget, lowered so the answer's rules fit the payload cap.
+ * Capping inside recall, not after it, keeps dedup marking only what is sent.
+ */
+function payloadBoundedTokens(requested: number, already: ReadonlyArray<{ rule: string }>): number {
+  const used = already.reduce((n, l) => n + l.rule.length, 0);
+  const room = Math.floor((MAX_RECALL_PAYLOAD_CHARS - used) / CHARS_PER_TOKEN);
+  return Math.min(requested, Math.max(0, room));
+}
+
 export async function lessonsQuery(
   ctx: McpContext,
   input: LessonsQueryInput,
@@ -96,6 +111,20 @@ export async function lessonsQuery(
         'pass file and/or command for complete recall.\n',
     );
   }
+  // `always=true` prepends the universal always-on lessons (excluded from
+  // triggered recall) so a non-hook agent can pull them at task start.
+  const alwaysOut =
+    input.always === true
+      ? (
+          await recallAlwaysLessons(ctx.projectRoot, {
+            // Same correlator and same bound as the triggered path below:
+            // otherwise an exported AGENTSMESH_SESSION_ID would suppress the
+            // universal lessons here with no TTL and no reset signal at all.
+            sessionId: mcpSessionId(),
+            ttlMs: AUTO_SESSION_TTL_MS,
+          })
+        ).lessons.map(({ id, rule }) => ({ id, rule: clampText(rule) }))
+      : [];
   const {
     lessons: ranked,
     totalMatches,
@@ -104,7 +133,10 @@ export async function lessonsQuery(
     newerVersion,
   } = await recallLessons(ctx.projectRoot, query, {
     limit: input.limit,
-    maxTokens: input.max_tokens ?? input['max-tokens'],
+    maxTokens: payloadBoundedTokens(
+      input.max_tokens ?? input['max-tokens'] ?? loadRecallConfig(ctx.projectRoot).maxTokens,
+      alwaysOut,
+    ),
     sessionId:
       input.session === undefined || input.session === 'auto' ? mcpSessionId() : input.session,
     noDedup: input.no_dedup === true || input['no-dedup'] === true,
@@ -125,37 +157,23 @@ export async function lessonsQuery(
       `agentsmesh: lessons.json is version ${newerVersion}, newer than this build supports — recall returned no lessons. Upgrade agentsmesh to read it.\n`,
     );
   }
-  // `always=true` prepends the universal always-on lessons (excluded from
-  // triggered recall) so a non-hook agent can pull them at task start.
-  const alwaysOut =
-    input.always === true
-      ? (
-          await recallAlwaysLessons(ctx.projectRoot, {
-            // Same correlator and same bound as the triggered path above:
-            // otherwise an exported AGENTSMESH_SESSION_ID would suppress the
-            // universal lessons here with no TTL and no reset signal at all.
-            sessionId: mcpSessionId(),
-            ttlMs: AUTO_SESSION_TTL_MS,
-          })
-        ).lessons
-      : [];
   // Compact by default — return only id + rule to keep recall token-cheap.
   // Metadata (topics/triggers/evidence/score) is opt-in via `verbose`.
   const verbose = input.verbose === true;
   return {
     lessons: [
-      ...alwaysOut.map(({ id, rule }) => ({ id, rule })),
+      ...alwaysOut,
       ...ranked.map(({ id, lesson, score }) =>
         verbose
           ? {
               id,
-              rule: lesson.rule,
+              rule: clampText(lesson.rule),
               topics: [...lesson.topics],
               triggers: [...lesson.triggers],
               evidence: [...lesson.evidence],
               score,
             }
-          : { id, rule: lesson.rule },
+          : { id, rule: clampText(lesson.rule) },
       ),
     ],
     totalMatches,

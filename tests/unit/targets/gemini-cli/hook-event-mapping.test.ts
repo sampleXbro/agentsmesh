@@ -9,12 +9,13 @@
  *   SubagentStart, SubagentStop, SessionStart (BEST_EFFORT), UserPromptSubmit, PostToolUseFailure
  *
  * Wired bidirectional mappings (generator canonical->gemini, importer gemini->canonical):
- *   PreToolUse    <-> BeforeTool
- *   PostToolUse   <-> AfterTool
- *   Notification  <-> Notification
- *   SubagentStart <-> BeforeAgent
- *   SubagentStop  <-> AfterAgent
- *   SessionStart  <-> SessionStart
+ *   PreToolUse       <-> BeforeTool
+ *   PostToolUse      <-> AfterTool
+ *   Notification     <-> Notification
+ *   UserPromptSubmit <-> BeforeAgent (fires after the user submits a prompt)
+ *   SubagentStart     -> BeforeAgent (generate only; kept for existing hooks)
+ *   SubagentStop     <-> AfterAgent
+ *   SessionStart     <-> SessionStart
  *
  * Gemini-only events (SessionEnd, PreCompress, BeforeModel, AfterModel,
  * BeforeToolSelection) have no canonical equivalent and remain unmapped.
@@ -66,8 +67,8 @@ afterEach(() => rmSync(TEST_DIR, { recursive: true, force: true }));
 // ---------------------------------------------------------------------------
 
 describe('mapGeminiHookEvent — extended event support', () => {
-  it('maps BeforeAgent to SubagentStart', () => {
-    expect(mapGeminiHookEvent('BeforeAgent')).toBe('SubagentStart');
+  it('maps BeforeAgent to UserPromptSubmit', () => {
+    expect(mapGeminiHookEvent('BeforeAgent')).toBe('UserPromptSubmit');
   });
 
   it('maps AfterAgent to SubagentStop', () => {
@@ -225,16 +226,16 @@ describe('lintHooks — extended supported events', () => {
     expect(diags).toHaveLength(0);
   });
 
-  it('warns once for a user-authored UserPromptSubmit hook (Gemini has no such event)', () => {
+  it('warns once for a user-authored PostToolUseFailure hook (Gemini has no such event)', () => {
     const canonical = makeCanonical({
       hooks: {
+        PostToolUseFailure: [{ matcher: '*', command: 'echo failed', type: 'command' }],
         UserPromptSubmit: [{ matcher: '*', command: 'echo prompt', type: 'command' }],
-        PostToolUse: [{ matcher: 'Write', command: 'fmt', type: 'command' }],
       },
     });
     const diags = lintHooks(canonical);
     expect(diags).toHaveLength(1);
-    expect(diags[0]!.message).toContain('UserPromptSubmit is not supported by gemini-cli');
+    expect(diags[0]!.message).toContain('PostToolUseFailure is not supported by gemini-cli');
   });
 
   it('stays silent for the agentsmesh-injected UserPromptSubmit recall hook', () => {
@@ -268,7 +269,7 @@ describe('lintHooks — extended supported events', () => {
 // ---------------------------------------------------------------------------
 
 describe('importFromGemini — extended hook event import', () => {
-  it('imports BeforeAgent as SubagentStart', async () => {
+  it('imports BeforeAgent as UserPromptSubmit', async () => {
     mkdirSync(join(TEST_DIR, '.gemini'), { recursive: true });
     writeFileSync(
       join(TEST_DIR, GEMINI_SETTINGS),
@@ -284,7 +285,8 @@ describe('importFromGemini — extended hook event import', () => {
     const hooksResult = results.find((r) => r.toPath === '.agentsmesh/hooks.yaml');
     expect(hooksResult).toBeDefined();
     const content = readFileSync(join(TEST_DIR, '.agentsmesh', 'hooks.yaml'), 'utf-8');
-    expect(content).toContain('SubagentStart');
+    expect(content).toContain('UserPromptSubmit');
+    expect(content).not.toContain('SubagentStart');
     expect(content).toContain('echo agent-start');
     expect(content).not.toContain('BeforeAgent');
   });
@@ -371,7 +373,7 @@ describe('importFromGemini — extended hook event import', () => {
     const content = readFileSync(join(TEST_DIR, '.agentsmesh', 'hooks.yaml'), 'utf-8');
     // Mapped events present
     expect(content).toContain('PreToolUse');
-    expect(content).toContain('SubagentStart');
+    expect(content).toContain('UserPromptSubmit');
     expect(content).toContain('SubagentStop');
     expect(content).toContain('SessionStart');
     // Gemini-only event dropped

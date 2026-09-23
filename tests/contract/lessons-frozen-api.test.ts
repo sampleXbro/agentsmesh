@@ -35,7 +35,7 @@ export function lessonsFrozenSurface(): unknown {
 }
 
 describe('lessons frozen end-user API (contract)', () => {
-  it('pins the graph version, the 13 CLI subcommands, and the 5 MCP tools by name', () => {
+  it('pins the graph version, the 14 CLI subcommands, and the 5 MCP tools by name', () => {
     expect(CURRENT_GRAPH_VERSION).toBe(2);
     expect([...LESSONS_SUBCOMMANDS]).toEqual([
       'query',
@@ -48,6 +48,7 @@ describe('lessons frozen end-user API (contract)', () => {
       'strip-markers',
       'journal',
       'validate',
+      'resolve',
       'stats',
       'prune',
       'import-md',

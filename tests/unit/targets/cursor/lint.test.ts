@@ -41,19 +41,7 @@ describe('lintHooks (cursor)', () => {
     expect(diags[0]!.level).toBe('warning');
   });
 
-  it('does NOT warn about best-effort agentsmesh events (PostToolUseFailure)', () => {
-    // The lessons recall/capture scaffold injects PostToolUseFailure; Cursor cannot
-    // represent it, but dropping it is not user data loss, so warning would be
-    // permanent and unfixable. A user-authored unmapped event still warns.
-    const diags = lintHooks(
-      makeCanonical({
-        PostToolUseFailure: [{ matcher: '*', type: 'command', command: 'agentsmesh lessons hook' }],
-      }),
-    );
-    expect(diags).toEqual([]);
-  });
-
-  it('warns when a user-authored hook shares a best-effort event with the recall hook', () => {
+  it('does NOT warn about PostToolUseFailure, which Cursor maps to postToolUseFailure', () => {
     const diags = lintHooks(
       makeCanonical({
         PostToolUseFailure: [
@@ -62,7 +50,6 @@ describe('lintHooks (cursor)', () => {
         ],
       }),
     );
-    expect(diags).toHaveLength(1);
-    expect(diags[0]!.message).toContain('PostToolUseFailure');
+    expect(diags).toEqual([]);
   });
 });

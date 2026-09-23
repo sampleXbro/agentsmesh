@@ -62,6 +62,16 @@ describe('where lessons are set up', () => {
     expect(mcpServerInstructions(withLessons({ config: true }))).toContain('BLOCKING');
   });
 
+  it('applies when the server starts in a subdirectory of a project with lessons', () => {
+    // Hosts start the server in the session's directory, often a package in a
+    // monorepo. Checking only that directory told users nothing was set up
+    // while the tools themselves could still find the graph.
+    const project = withLessons({ graph: true, config: true });
+    const pkg = join(project, 'packages', 'api');
+    mkdirSync(pkg, { recursive: true });
+    expect(mcpServerInstructions(pkg)).toContain('BLOCKING');
+  });
+
   it('carries the same anchors as the CLI contract', () => {
     const text = mcpServerInstructions(withLessons({ graph: true, config: true }));
     for (const anchor of ['Lesson: captured', 'Lesson: none', '.agentsmesh/lessons/lessons.json']) {

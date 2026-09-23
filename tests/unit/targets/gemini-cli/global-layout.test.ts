@@ -286,7 +286,8 @@ describe('gemini-cli global frontmatter preservation', () => {
     expect(hooksObj).toHaveProperty('BeforeTool');
     const entries = hooksObj.BeforeTool as Array<Record<string, unknown>>;
     expect(entries).toHaveLength(1);
-    expect(entries[0]!.matcher).toBe('Bash');
+    // Gemini matches its own tool names, so canonical Bash becomes run_shell_command.
+    expect(entries[0]!.matcher).toBe('^(?:run_shell_command)$');
     const hooks = entries[0]!.hooks as Array<Record<string, unknown>>;
     expect(hooks).toHaveLength(1);
     expect(hooks[0]!.type).toBe('command');

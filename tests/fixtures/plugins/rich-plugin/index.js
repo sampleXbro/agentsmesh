@@ -14,6 +14,7 @@
  * - emitScopedSettings native settings sidecar
  * - mergeGeneratedOutputContent shared-config merge hook
  * - postProcessHookOutputs async hook post-processing
+ * - hookContextEvents (events whose hook output reaches the model)
  * - Detection paths
  */
 
@@ -415,6 +416,11 @@ export const descriptor = {
     }
     return processed;
   },
+
+  // ──── Hook Context Events ──────────────────────────────────────────────────
+  // Only SessionStart output reaches the model, so the lessons recall hook is
+  // kept there and dropped from every other event.
+  hookContextEvents: ['SessionStart'],
 
   // ──── Import Path Mapping ──────────────────────────────────────────────────
   async buildImportPaths(refs, _projectRoot, _scope) {

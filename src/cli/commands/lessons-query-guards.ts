@@ -1,5 +1,6 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
+import { describeCorruptGraph } from '../../lessons/graph-problem.js';
 import { ancestorLessonsProjectDir } from '../../lessons/paths.js';
 import type { LessonsFlags } from './lessons-helpers.js';
 
@@ -29,6 +30,21 @@ export function validateFormatFlag(flags: LessonsFlags): string | null {
 export function mergeWarnings(...parts: Array<string | undefined>): string | undefined {
   const present = parts.filter((p): p is string => p !== undefined && p.length > 0);
   return present.length > 0 ? present.join('\n') : undefined;
+}
+
+/**
+ * Recall warning for a graph that failed to parse. An unresolved git merge is
+ * named as such (with the command that fixes it); anything else goes to
+ * `lessons validate`, which carries the full, copy-first recovery advice.
+ */
+export function unreadableGraphWarning(projectRoot: string, error: Error): string {
+  if (describeCorruptGraph(projectRoot, error).kind === 'conflict') {
+    return (
+      'lessons.json has an unresolved git merge conflict — recall returned no lessons. ' +
+      'Run `agentsmesh lessons resolve` to combine the lessons from both branches.'
+    );
+  }
+  return `lessons.json is unreadable (corrupt) — recall returned no lessons. Run \`agentsmesh lessons validate\`. (${error.message})`;
 }
 
 /**

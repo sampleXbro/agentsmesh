@@ -1,5 +1,5 @@
 /**
- * agentsmesh lessons — query / add / topics / show / deprecate / merge / untrigger / strip-markers / journal / validate / stats / prune / import-md.
+ * agentsmesh lessons — query / add / topics / show / deprecate / merge / untrigger / strip-markers / journal / validate / resolve / stats / prune / import-md.
  * Auto-migrates from legacy index.yaml + topics on first invocation.
  */
 import { maybeAutoMigrateLessons } from '../../lessons/auto-migrate.js';
@@ -18,11 +18,12 @@ import {
   doStripMarkers,
   doTopics,
   doUntrigger,
-  doValidate,
   type LessonsFlags,
 } from './lessons-handlers.js';
 import { validateLessonsFlags } from './lessons-known-flags.js';
+import { doResolve } from './lessons-resolve-handler.js';
 import type { LessonsCommandResult } from './lessons-types.js';
+import { doValidate } from './lessons-validate-handler.js';
 
 export type { LessonsCommandResult } from './lessons-types.js';
 
@@ -35,7 +36,11 @@ export type { LessonsCommandResult } from './lessons-types.js';
  * empty graph from permanently stranding an unmigrated legacy store.
  */
 async function migrateForSubcommand(subcommand: string, projectRoot: string): Promise<boolean> {
-  if (subcommand === 'import-md') return false;
+  // `resolve` and the git merge driver work on a conflicted graph mid-merge;
+  // migrating first could write over it or fail the merge.
+  if (subcommand === 'import-md' || subcommand === 'resolve' || subcommand === 'merge-driver') {
+    return false;
+  }
   if (subcommand === 'query' || subcommand === 'hook') {
     try {
       return await maybeAutoMigrateLessons(projectRoot);
@@ -86,6 +91,8 @@ export async function runLessons(
       return doJournal(projectRoot);
     case 'validate':
       return doValidate(projectRoot);
+    case 'resolve':
+      return doResolve(projectRoot);
     case 'stats':
       return doStats(flags, projectRoot);
     case 'prune':

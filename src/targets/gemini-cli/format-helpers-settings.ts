@@ -6,6 +6,7 @@ import { getHookCommand, hasHookCommand } from '../../core/hook-command.js';
 import { readFileSafe, writeFileAtomic, mkdirp } from '../../utils/filesystem/fs.js';
 import { GEMINI_SETTINGS } from './constants.js';
 import { mapGeminiHookEvent } from './format-helpers-shared.js';
+import { fromGeminiMatcher } from './hook-map.js';
 
 export async function importGeminiSettings(
   projectRoot: string,
@@ -79,7 +80,7 @@ export async function importGeminiSettings(
                   hook !== null && typeof hook === 'object' && hasHookCommand(hook),
               )
               .map((hook) => ({
-                matcher: entry.matcher as string,
+                matcher: fromGeminiMatcher(event, entry.matcher as string),
                 command: getHookCommand(hook),
                 type: 'command',
                 timeout: typeof hook.timeout === 'number' ? hook.timeout : undefined,
@@ -95,7 +96,7 @@ export async function importGeminiSettings(
                 hasHookCommand(entry),
             )
             .map((entry) => ({
-              matcher: entry.matcher as string,
+              matcher: fromGeminiMatcher(event, entry.matcher as string),
               command: getHookCommand(entry),
               type: 'command',
             }));

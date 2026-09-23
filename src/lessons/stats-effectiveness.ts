@@ -1,14 +1,15 @@
+import { effectiveness, INEFFECTIVE_MIN_DELIVERIES } from './effectiveness.js';
 import type { LessonsGraph } from './graph-schema.js';
-import { effectiveness, type OutcomeEvent } from './outcome-log.js';
-import { INEFFECTIVE_MIN_DELIVERIES } from './validate-health.js';
+import type { OutcomeEvent } from './outcome-log.js';
 
 /**
  * Pure aggregator over the OUTCOME log — the benefit side of the picture that
  * summarizeRecall (cost) and summarizeCapture (activity) deliberately leave out.
  * Answers "are delivered lessons actually preventing the repeat?" The signal is
- * COARSE by design (attribution is noisy — a delivery not followed by a recorded
- * repeat is a weak upper bound on prevention, NOT proof), so the report is labeled
- * as such and never claims a precise number of mistakes prevented.
+ * COARSE by design (a delivery not followed by a matching failure is a weak upper
+ * bound on prevention, NOT proof), so the report is labeled as such, never claims
+ * a number of mistakes prevented, and shows how many distinct actions the misses
+ * came from — one noisy action can otherwise dominate the rate.
  */
 
 export interface EffectivenessStatsReport {
@@ -18,13 +19,17 @@ export interface EffectivenessStatsReport {
   readonly lessonsDelivered: number;
   /** `failure` events observed at decision points. */
   readonly failuresObserved: number;
+  /** Deliveries followed by a failure the lesson's own triggers match (see effectiveness.ts). */
+  readonly misses: number;
+  /** Distinct failing actions behind `misses`. */
+  readonly failingActions: number;
   /**
-   * Coarse HELD rate: fraction of deliveries NOT followed by a repeat failure on
-   * the same (session, action). A weak UPPER bound on prevention — the repeat may
-   * simply never have been attempted — not proof the lesson worked. 1 when no data.
+   * Coarse HELD rate: fraction of deliveries NOT followed, in the same session and
+   * window, by a failure the lesson's triggers match. A weak UPPER bound on
+   * prevention — the repeat may simply never have been attempted. 1 when no data.
    */
   readonly heldRate: number;
-  /** Active lessons delivered >= threshold that were followed by a repeat EVERY time. */
+  /** Active lessons delivered >= threshold that were followed by a matching failure EVERY time. */
   readonly ineffectiveLessons: number;
 }
 
@@ -35,10 +40,12 @@ export function summarizeEffectiveness(
   let deliveries = 0;
   let misses = 0;
   let ineffective = 0;
-  const eff = effectiveness(events);
+  const actions = new Set<string>();
+  const eff = effectiveness(events, graph);
   for (const [id, outcome] of eff) {
     deliveries += outcome.delivered;
     misses += outcome.missed;
+    for (const key of outcome.failingActions) actions.add(key);
     if (
       outcome.delivered >= INEFFECTIVE_MIN_DELIVERIES &&
       outcome.missed === outcome.delivered &&
@@ -51,6 +58,8 @@ export function summarizeEffectiveness(
     deliveries,
     lessonsDelivered: eff.size,
     failuresObserved: events.filter((e) => e.kind === 'failure').length,
+    misses,
+    failingActions: actions.size,
     heldRate: deliveries === 0 ? 1 : 1 - misses / deliveries,
     ineffectiveLessons: ineffective,
   };

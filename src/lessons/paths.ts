@@ -79,6 +79,31 @@ export function ancestorLessonsProjectDir(projectRoot: string): string | null {
 }
 
 /**
+ * The directory whose lessons apply to `start`: `start` itself when it holds a
+ * graph or a lessons config, else the nearest ancestor that does, else `start`.
+ *
+ * For callers with no human to read a warning — the recall hook and the MCP
+ * server — which the host starts in the session's directory, often a package
+ * inside a monorepo. The interactive CLI stays rooted at the current directory
+ * and warns instead (see `ancestorLessonsProjectDir`).
+ *
+ * Keys off `.agentsmesh/lessons/` artifacts, never a bare `.agentsmesh`, for the
+ * same reason as `ancestorLessonsProjectDir`: the global config lives in one.
+ */
+export function resolveLessonsRoot(start: string): string {
+  const origin = resolve(start);
+  let dir = origin;
+  let prev = '';
+  while (dir !== prev) {
+    const paths = lessonsPaths(dir);
+    if (existsSync(paths.graph) || existsSync(paths.config)) return dir;
+    prev = dir;
+    dir = dirname(dir);
+  }
+  return origin;
+}
+
+/**
  * Project-relative path for a given absolute path, normalized to forward
  * slashes for cross-platform consistency in markdown rule files.
  */

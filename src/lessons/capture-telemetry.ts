@@ -10,9 +10,9 @@ import { isTelemetryEnabled, sessionId } from './telemetry.js';
  * Recall has a `PostToolUse` hook + telemetry + `stats`; capture had nothing, so
  * a maintainer could not tell whether lessons were being captured or silently
  * skipped/blocked. This log mirrors the recall log: one append-only record per
- * `lessons add` (CLI or MCP), gated on the SAME `AGENTSMESH_LESSONS_TELEMETRY=1`
- * env, recording presence/counts ONLY (never the rule text) so it leaks no
- * source content and stays small.
+ * `lessons add` (CLI or MCP), gated on the SAME opt-in switch (`"telemetry": true`
+ * in the lessons config, or `AGENTSMESH_LESSONS_TELEMETRY=1`), recording
+ * presence/counts ONLY (never the rule text) so it leaks no source content.
  */
 
 /** Keep at most this many capture records; older ones drop on truncation. */

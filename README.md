@@ -113,7 +113,7 @@ agentsmesh lessons query --file src/cli/output.ts --session auto
 # -> "Normalize CLI display paths to forward slashes"
 ```
 
-`agentsmesh init --lessons` wires the loop once: an always-on rule in `_root.md`, a `lessons` skill where supported, recall and capture hooks on hook-capable tools, and matching MCP tools (`lessons_query`, `lessons_add`) for agents without shell access. Rules can be scoped by file, command, or keyword, or always-on with `--scope always`.
+`agentsmesh init --lessons` wires the loop once: an always-on rule in `_root.md`, a `lessons` skill where supported, recall and capture hooks on hook-capable tools, and matching MCP tools (`lessons_query`, `lessons_add`) for agents without shell access. Rules can be scoped by file, command, or keyword, or always-on with `--scope always`. A git merge driver, set up by `init --lessons` and then by `generate` in every clone, combines lessons captured on two branches; `agentsmesh lessons resolve` repairs a conflict that slips through.
 
 Full walkthrough: [Teach your AI agents with lessons](https://samplexbro.github.io/agentsmesh/guides/lessons/) · [`agentsmesh lessons` reference](https://samplexbro.github.io/agentsmesh/cli/lessons/)
 

@@ -134,10 +134,14 @@ describe('renderInit', () => {
       },
     });
 
-    expect(output.stdout()).toContain('.agentsmesh/lessons/recall-log.jsonl to .gitignore');
+    // Five runtime files are gitignored now (logs, lock, temp files), not one.
+    expect(output.stdout()).toContain(
+      'lessons runtime files (logs, lock, temp files) to .gitignore',
+    );
+    expect(output.stdout()).not.toContain('recall-log.jsonl to .gitignore');
   });
 
-  it('reports the merge-driver .gitattributes binding and prints the per-clone git-config hint', () => {
+  it('reports the merge-driver binding and the per-clone setup it performed', () => {
     renderInit({
       exitCode: 0,
       data: {
@@ -160,13 +164,57 @@ describe('renderInit', () => {
           gitignoreUpdated: false,
           gitattributesUpdated: true,
           recallHookInjected: false,
+          mergeDriver: {
+            status: 'configured',
+            command: 'agentsmesh lessons merge-driver %O %A %B',
+          },
+          recallHookTeamHint: null,
         },
       },
     });
 
     const stdout = output.stdout();
     expect(stdout).toContain('merge driver in .gitattributes');
-    expect(stdout).toContain('git config merge.agentsmesh-lessons.driver');
+    // The per-clone half is performed now, not printed as manual steps.
+    expect(stdout).toContain('Enabled the lessons.json merge driver for this clone');
+    expect(stdout).not.toContain('each clone enables the merge driver once');
+    expect(stdout).toContain("gets the same setup the next time they run 'agentsmesh generate'");
+  });
+
+  it('says so plainly when the merge driver could not be enabled', () => {
+    renderInit({
+      exitCode: 0,
+      data: {
+        configFile: 'agentsmesh.yaml',
+        localConfigFile: 'agentsmesh.local.yaml',
+        detectedConfigs: [],
+        imported: [],
+        importedToolCount: 0,
+        targets: [],
+        targetSource: 'explicit',
+        scaffoldType: 'none',
+        gitignoreUpdated: false,
+        lessonsOnly: true,
+        lessons: {
+          created: [],
+          updated: [],
+          skipped: [],
+          rootRuleUpdated: false,
+          gitignoreUpdated: false,
+          gitattributesUpdated: true,
+          recallHookInjected: false,
+          mergeDriver: {
+            status: 'failed',
+            command: 'agentsmesh lessons merge-driver %O %A %B',
+            reason: '`agentsmesh` is not on PATH',
+          },
+          recallHookTeamHint: null,
+        },
+      },
+    });
+    expect(output.stdout() + output.stderr()).toContain(
+      'Could not enable the lessons.json merge driver',
+    );
   });
 
   it('renders Kept lines for skipped paths and notes the already-present paragraph', () => {

@@ -22,6 +22,7 @@ export {
   UnknownTopicError,
   UnrecallableLessonError,
 } from './add-errors.js';
+export { TriggerFileGlobError } from './trigger-file-glob.js';
 
 export interface AddLessonTriggers {
   readonly files?: readonly string[];
@@ -57,6 +58,11 @@ export interface AddLessonOptions {
    * legacy-merge path omits it, so no tree walk happens off the capture path.
    */
   readonly knownPaths?: ReadonlySet<string>;
+  /**
+   * Project root for making absolute `--trigger-file` globs project-relative
+   * (and rejecting ones outside it). `addLesson` sets it; legacy merge omits it.
+   */
+  readonly projectRoot?: string;
 }
 
 export interface AddLessonResult {
@@ -81,7 +87,8 @@ export async function addLesson(
 ): Promise<AddLessonResult> {
   // mutateLessonsGraph migrates a legacy store first, so the very first capture
   // cannot create lessons.json over an unmigrated index.yaml and strand it.
-  return mutateLessonsGraph(projectRoot, (graph) => addLessonInto(graph, input, options), {
+  const withRoot = { ...options, projectRoot: options.projectRoot ?? projectRoot };
+  return mutateLessonsGraph(projectRoot, (graph) => addLessonInto(graph, input, withRoot), {
     retries: options.retries,
   });
 }
@@ -118,7 +125,7 @@ export function addLessonInto(
   // Gates (see add-gates.ts): a throw aborts the transactional write.
   const existing = existingId !== null ? graph.lessons[existingId] : undefined;
   assertTriggerInputs(input, options, existing?.triggers.length ?? 0);
-  const { triggerIds, newTriggerIds } = mergeTriggers(graph, input.triggers);
+  const { triggerIds, newTriggerIds } = mergeTriggers(graph, input.triggers, options.projectRoot);
   if (!skipsTriggerGates(input, options)) {
     assertRecallable(
       graph,

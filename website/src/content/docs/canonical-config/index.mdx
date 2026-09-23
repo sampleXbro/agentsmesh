@@ -78,7 +78,7 @@ agentsmesh.local.yaml
 .agentsmesh/packs/
 ```
 
-`init --lessons` adds three more — `.agentsmesh/lessons/recall-log.jsonl`, `capture-log.jsonl` and `outcome-log.jsonl` — because those logs are per-machine telemetry, not shared config.
+`init --lessons` adds five more — the `.agentsmesh/lessons/recall-log.jsonl`, `capture-log.jsonl` and `outcome-log.jsonl` logs, the `.agentsmesh/lessons/.lessons.lock/` directory, and `.agentsmesh/lessons/*.tmp` — because those are per-machine runtime files, not shared config.
 
 Everything else — the rest of `.agentsmesh/`, generated tool directories, and `agentsmesh.yaml` — should be committed. Generated files are intentionally committed so that team members who don't use AgentsMesh can still benefit from the configs. Note that `.agentsmesh/packs/` is the one exception inside the canonical directory: packs are materialized derivatives of `installs.yaml`, the same way `node_modules/` is a derivative of `package.json`.
 

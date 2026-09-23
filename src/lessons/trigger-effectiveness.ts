@@ -21,7 +21,7 @@ import { isSafeRegexPattern } from './regex-safety.js';
  *   (recall skips it to avoid ReDoS) — either way it never matches at recall.
  * - `file_glob`: NEVER flagged here. Input normalization (`add-helpers.ts`) makes
  *   syntactically-dead globs unreachable, and dead-vs-tree is a warn-only liveness
- *   concern (DEAD_GLOB guardrail), not a structural block.
+ *   concern (DEAD_GLOB / PENDING_GLOB guardrails), not a structural block.
  */
 
 export interface IneffectiveTrigger {

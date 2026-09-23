@@ -1,3 +1,52 @@
+# Lessons critical-gap fixes (2026-09-22)
+
+Source: Staff audit of the lessons subsystem (5 parallel reviewers, findings reproduced).
+Constraint carried from the earlier plan below: the legacy migrator and `maybeAutoMigrateLessons` stay.
+Gate: targeted unit tests per fixer; then ONE serialized full run (typecheck, lint, knip,
+coverage + floor, e2e, generate --check), then re-run every original reproduction.
+Fixers never build `dist/`, never commit, never run `lessons add` (captures are serialized at the end).
+
+## Foundations (done first, by me)
+- [x] `resolveLessonsRoot(start)` in `src/lessons/paths.ts`
+- [x] `agentsmeshInvocation(root)` in `src/lessons/cli-invocation.ts` (npx only when agentsmesh is a project dependency)
+- [x] H4 MCP: server instructions + lessons tool context resolve the lessons root from a subdirectory
+
+## Critical
+- [x] C1 team merge: generate/init configure the per-clone merge driver; `lessons resolve` rebuilds a conflicted graph from git stages; `check` fails on an unreadable graph; validate stops recommending `git checkout`
+- [x] C2 launcher: adaptive hook + merge-driver command; hook warns visibly on version skew; generate/init team hint when agentsmesh is not a project dependency
+- [x] C3 lock: owner token, compare-before-evict and compare-before-release; short stale window for the lessons lock
+- [x] C4 dedup keyed on session id + agent id
+- [x] C5 Codex `apply_patch` file extraction in the hook
+- [x] C6 read Claude Code's top-level `error`, class past `Exit code N`; outcome log on by default (keys only), telemetry stays opt-in
+
+## High
+- [x] H1 effectiveness: attribute a failure only when it re-matches the lesson's own trigger in a bounded window; strip `cd … &&`; no deprecate advice from telemetry
+- [x] H2 prune liveness: never auto-detach a glob that never matched a tracked file; partial file walk skips liveness
+- [x] H3 stop wiring lessons hooks where the host cannot inject context (Cursor, Copilot, Gemini CLI, Windsurf); add documented injection paths only; matcher gaps
+- [x] H4 hook resolves the lessons root from a subdirectory
+- [x] H5 file_glob matching cannot backtrack exponentially; length cap; docs corrected
+- [x] H6 rule clamp on every delivery path + payload cap; config budget ceilings; prompt-time recall limit
+- [x] H7 recalled text fenced: one rule per line, id-labelled, delimiter neutralized
+- [x] H8 legacy migration only reads files inside `.agentsmesh/lessons/`
+
+## Also
+- [x] A1 merge driver merges the same lesson field by field; deprecated/superseded wins; version = max
+- [x] A2 deprecate the lesson describing the non-existent always-block projection
+- [x] A3 failure reminder and capture relativize absolute file triggers
+
+## Integration (me)
+- [x] CLI hook passes the host exit code through (Copilot exit 2); dead `doValidate` removed
+- [x] query handler: only printed rules are marked seen; `--always` budget; conflict names `lessons resolve`
+- [x] `lessons resolve` renderer case; `check` prints the unreadable-graph error; skill + plugin skill list `resolve`
+- [x] validate, prune, capture guardrails and effectiveness use the safe glob matcher (no picomatch on lesson globs)
+- [x] user interrupts are not recorded as failures
+- [x] hook latency with a full 5000-event outcome log: +130 ms -> +20 ms (memo + scope to ranked lessons)
+- [x] changeset; lesson captures serialized
+- [x] full serialized gate, original reproductions re-run, docs (README + website), commit locally (no push)
+- Known limit: a lock holder paused > 60 s can still be evicted mid-write (needs an ownership check in the lock API)
+
+---
+
 # Ponytail cleanup — remove over-engineering across the lib
 
 Source: repo-wide ponytail review (2026-09-17). Target: ~-3,365 lines.

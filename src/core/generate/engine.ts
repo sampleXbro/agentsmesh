@@ -2,6 +2,7 @@
  * Generate orchestrator: produces target-specific files from canonical sources.
  */
 
+import { withTargetRecallHooks } from '../../targets/catalog/recall-hook-targets.js';
 import type { CanonicalFiles, GenerateResult } from '../types.js';
 import type { ValidatedConfig } from '../../config/core/schema.js';
 import {
@@ -90,7 +91,12 @@ export async function generate(ctx: GenerateContext): Promise<GenerateResult[]> 
     const descriptor = getBuiltinTargetDefinition(target) ?? getDescriptor(target);
     const scopeExtras = descriptor?.globalSupport?.scopeExtras;
     if (scopeExtras) {
-      const extras = await scopeExtras(canonical, projectRoot, scope, enabledFeatures);
+      const extras = await scopeExtras(
+        withTargetRecallHooks(canonical, target),
+        projectRoot,
+        scope,
+        enabledFeatures,
+      );
       await emitScopeExtras(results, target, extras, projectRoot);
     }
   }

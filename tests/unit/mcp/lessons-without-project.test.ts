@@ -12,9 +12,9 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { mkdtempSync, rmSync, existsSync } from 'node:fs';
+import { mkdtempSync, rmSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import { resolveContext } from '../../../src/mcp/context.js';
 import { LESSONS_TOOL_DESCRIPTORS } from '../../../src/mcp/tool-tables/lessons-tools.js';
 import { TOOL_DESCRIPTORS } from '../../../src/mcp/register.js';
@@ -36,6 +36,18 @@ describe('MCP context without a project', () => {
     const ctx = await resolveContext({ cwd: dir, requireProject: false });
     expect(ctx.projectRoot).toBe(dir);
     expect(existsSync(join(dir, 'agentsmesh.yaml'))).toBe(false);
+  });
+
+  it('resolves to the directory holding the graph when started in a subdirectory', async () => {
+    // A plugin-only repo has no agentsmesh.yaml, so without a lessons-aware
+    // fallback a server started in `packages/app` read and wrote a second,
+    // empty graph there: recall missed every real lesson and captures split.
+    mkdirSync(join(dir, '.agentsmesh', 'lessons'), { recursive: true });
+    writeFileSync(join(dir, '.agentsmesh', 'lessons', 'lessons.json'), '{}');
+    const pkg = join(dir, 'packages', 'app');
+    mkdirSync(pkg, { recursive: true });
+    const ctx = await resolveContext({ cwd: pkg, requireProject: false });
+    expect(ctx.projectRoot).toBe(resolve(dir));
   });
 
   it('defaults to requiring a project, so config tools are unaffected', async () => {

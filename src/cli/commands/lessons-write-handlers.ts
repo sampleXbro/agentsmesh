@@ -5,6 +5,7 @@ import {
   EmptyRuleError,
   NoTriggerError,
   RuleTooLongError,
+  TriggerFileGlobError,
   UnknownTopicError,
   UnrecallableLessonError,
 } from '../../lessons/add.js';
@@ -121,7 +122,8 @@ export async function doAdd(
       err instanceof NoTriggerError ||
       err instanceof UnrecallableLessonError ||
       err instanceof RuleTooLongError ||
-      err instanceof BroadCommandPatternError
+      err instanceof BroadCommandPatternError ||
+      err instanceof TriggerFileGlobError
     ) {
       return errorResult('add', `${err.message}${lessonsAddHint()}`, 2);
     }

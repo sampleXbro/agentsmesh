@@ -105,20 +105,25 @@ export function recallLogPath(projectRoot: string): string {
   return join(lessonsPaths(projectRoot).base, 'recall-log.jsonl');
 }
 
-/** True when the project's lessons config opts in. Never throws: a broken file is "off". */
-function configTelemetry(projectRoot: string): boolean {
+/** A boolean field of the project's lessons config; undefined when absent or unreadable. */
+function configFlag(projectRoot: string, key: string): boolean | undefined {
   const path = lessonsPaths(projectRoot).config;
-  if (!existsSync(path)) return false;
+  if (!existsSync(path)) return undefined;
   try {
     const parsed: unknown = JSON.parse(readFileSync(path, 'utf8'));
-    return (
-      typeof parsed === 'object' &&
-      parsed !== null &&
-      (parsed as Record<string, unknown>).telemetry === true
-    );
+    if (typeof parsed !== 'object' || parsed === null) return undefined;
+    const value = (parsed as Record<string, unknown>)[key];
+    return typeof value === 'boolean' ? value : undefined;
   } catch {
-    return false;
+    return undefined;
   }
+}
+
+/** `1` forces on, `0` forces off, anything else defers to the config. */
+function envOverride(raw: string | undefined): boolean | undefined {
+  if (raw === '1') return true;
+  if (raw === '0') return false;
+  return undefined;
 }
 
 /**
@@ -130,10 +135,28 @@ export function isTelemetryEnabled(
   env: NodeJS.ProcessEnv = process.env,
   projectRoot?: string,
 ): boolean {
-  const raw = env[TELEMETRY_ENV];
-  if (raw === '1') return true;
-  if (raw === '0') return false;
-  return projectRoot !== undefined && configTelemetry(projectRoot);
+  return (
+    envOverride(env[TELEMETRY_ENV]) ??
+    (projectRoot !== undefined && configFlag(projectRoot, 'telemetry') === true)
+  );
+}
+
+/**
+ * Env override for the outcome log (`1` on, `0` off). The outcome log is a
+ * separate switch from telemetry: repeat-failure detection reads it, so it is
+ * ON unless `.agentsmesh/lessons/config.json` sets `"outcomeLog": false`. It is
+ * local, gitignored and holds normalized keys and error classes only.
+ */
+export const OUTCOME_LOG_ENV = 'AGENTSMESH_LESSONS_OUTCOME_LOG';
+
+export function isOutcomeLogEnabled(
+  env: NodeJS.ProcessEnv = process.env,
+  projectRoot?: string,
+): boolean {
+  return (
+    envOverride(env[OUTCOME_LOG_ENV]) ??
+    (projectRoot === undefined || configFlag(projectRoot, 'outcomeLog') !== false)
+  );
 }
 
 /**

@@ -5,24 +5,61 @@
  * docs.github.com/en/copilot/reference/hooks-configuration).
  */
 
-import type { CanonicalFiles } from '../../core/types.js';
+import type { CanonicalFiles, HookEntry } from '../../core/types.js';
 import { COPILOT_HOOKS_DIR } from './constants.js';
 import { hasHookCommand } from '../../core/hook-command.js';
+import { projectRecallHooks } from '../projection/recall-hooks.js';
 import type { RulesOutput } from './generator.js';
 
-function mapHookEvent(event: string): string | null {
-  switch (event) {
-    case 'PreToolUse':
-      return 'preToolUse';
-    case 'PostToolUse':
-      return 'postToolUse';
-    case 'Notification':
-      return 'notification';
-    case 'UserPromptSubmit':
-      return 'userPromptSubmitted';
-    default:
-      return null;
-  }
+/**
+ * Events whose output reaches the model: `additionalContext` on sessionStart,
+ * postToolUse and postToolUseFailure. preToolUse output is only
+ * permissionDecision/permissionDecisionReason/modifiedArgs, and config-file
+ * userPromptSubmitted output is dropped (docs.github.com/en/copilot/reference/hooks-configuration).
+ */
+export const COPILOT_HOOK_CONTEXT_EVENTS: readonly string[] = [
+  'SessionStart',
+  'PostToolUse',
+  'PostToolUseFailure',
+];
+
+const CANONICAL_TO_COPILOT: ReadonlyMap<string, string> = new Map([
+  ['PreToolUse', 'preToolUse'],
+  ['PostToolUse', 'postToolUse'],
+  ['PostToolUseFailure', 'postToolUseFailure'],
+  ['Notification', 'notification'],
+  ['UserPromptSubmit', 'userPromptSubmitted'],
+  ['SessionStart', 'sessionStart'],
+]);
+
+export interface CopilotHookGroup {
+  /** Canonical event; it names the wrapper scripts. */
+  readonly event: string;
+  readonly copilotEvent: string;
+  readonly entries: readonly HookEntry[];
+}
+
+/**
+ * The hook entries Copilot receives, per event: the recall hook only on
+ * context events, no unmapped events, no entries without a command. The hooks
+ * config and the wrapper scripts both come from this, so they always match.
+ */
+export function copilotHookGroups(hooks: CanonicalFiles['hooks']): CopilotHookGroup[] {
+  const projected = projectRecallHooks(hooks, COPILOT_HOOK_CONTEXT_EVENTS) ?? {};
+  return Object.entries(projected).flatMap(([event, entries]) => {
+    const copilotEvent = CANONICAL_TO_COPILOT.get(event);
+    if (!copilotEvent || !Array.isArray(entries)) return [];
+    const kept = entries.filter(
+      (entry): entry is HookEntry =>
+        typeof entry === 'object' && entry !== null && hasHookCommand(entry),
+    );
+    return kept.length > 0 ? [{ event, copilotEvent, entries: kept }] : [];
+  });
+}
+
+/** Wrapper script file name for the `index`-th entry of a canonical event. */
+export function wrapperScriptName(event: string, index: number): string {
+  return `${event.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}-${index}.sh`;
 }
 
 /**
@@ -35,30 +72,22 @@ function mapHookEvent(event: string): string | null {
 export function buildCopilotHooksObject(
   hooks: CanonicalFiles['hooks'],
 ): Record<string, unknown> | null {
-  if (!hooks) return null;
-  const result = Object.fromEntries(
-    Object.entries(hooks).flatMap(([event, entries]) => {
-      const mappedEvent = mapHookEvent(event);
-      if (!mappedEvent || !Array.isArray(entries)) return [];
-      const mappedEntries = entries
-        .filter(
-          (entry): entry is NonNullable<typeof entry> =>
-            typeof entry === 'object' && entry !== null && hasHookCommand(entry),
-        )
-        .map((entry, index) => {
-          const safePhase = event.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
-          const hook: Record<string, unknown> = {
-            type: 'command',
-            bash: `./scripts/${safePhase}-${index}.sh`,
-          };
-          if (entry.matcher && entry.matcher !== '*') hook.matcher = entry.matcher;
-          if (entry.timeout !== undefined) hook.timeoutSec = Math.ceil(entry.timeout / 1000);
-          return hook;
-        });
-      return mappedEntries.length > 0 ? [[mappedEvent, mappedEntries] as const] : [];
-    }),
+  const groups = copilotHookGroups(hooks);
+  if (groups.length === 0) return null;
+  return Object.fromEntries(
+    groups.map(({ event, copilotEvent, entries }) => [
+      copilotEvent,
+      entries.map((entry, index) => {
+        const hook: Record<string, unknown> = {
+          type: 'command',
+          bash: `./scripts/${wrapperScriptName(event, index)}`,
+        };
+        if (entry.matcher && entry.matcher !== '*') hook.matcher = entry.matcher;
+        if (entry.timeout !== undefined) hook.timeoutSec = Math.ceil(entry.timeout / 1000);
+        return hook;
+      }),
+    ]),
   );
-  return Object.keys(result).length > 0 ? result : null;
 }
 
 /** Generate .github/hooks/agentsmesh.json (project scope) from canonical hooks. */

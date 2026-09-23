@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { isAutoPruneEnabled, maybeAutoPrune } from '../../../src/lessons/auto-prune.js';
 import { loadLessonsGraph, saveLessonsGraph } from '../../../src/lessons/graph-store.js';
 import { lessonsPaths } from '../../../src/lessons/paths.js';
+import { projectFilesOf } from '../../../src/lessons/project-files.js';
 import type { LessonsGraph } from '../../../src/lessons/graph-schema.js';
 
 let root: string;
@@ -16,6 +17,15 @@ beforeEach(() => {
 afterEach(() => {
   rmSync(root, { recursive: true, force: true });
 });
+
+/** `src/live.ts` on disk and tracked; git history renamed `renamed` paths away. */
+function filesWith(renamed: string[]): ReadonlySet<string> {
+  return projectFilesOf(['src/live.ts'], () => ({
+    tracked: new Set(['src/live.ts']),
+    deleted: new Set<string>(),
+    renamedAway: new Set(renamed),
+  }));
+}
 
 function writeConfig(value: unknown): void {
   const path = lessonsPaths(root).config;
@@ -48,7 +58,10 @@ function graphWithOrphan(): LessonsGraph {
     },
     // `gone` is referenced by NO lesson (any status) → an orphan topic.
     topics: { t: { summary: 'T.' }, gone: { summary: 'Orphan topic.' } },
-    triggers: { 't-live': { kind: 'file_glob', pattern: 'src/live.ts' }, 't-orphan': { kind: 'file_glob', pattern: 'src/dead.ts' } },
+    triggers: {
+      't-live': { kind: 'file_glob', pattern: 'src/live.ts' },
+      't-orphan': { kind: 'file_glob', pattern: 'src/dead.ts' },
+    },
   };
 }
 
@@ -111,16 +124,29 @@ describe('maybeAutoPrune', () => {
     expect(Object.keys(graph.triggers)).toContain('t-live');
   });
 
-  it('detaches a non-stranding dead glob when knownPaths is supplied', async () => {
+  it('detaches a non-stranding glob that git history renamed away', async () => {
     const graph = graphWithOrphan();
     // Give the active lesson a second, live trigger + a dead glob.
     graph.triggers['t-dead-glob'] = { kind: 'file_glob', pattern: 'src/renamed.ts' };
     graph.lessons['live']!.triggers = ['t-live', 't-dead-glob'];
     saveLessonsGraph(root, graph);
     writeConfig({ autoPrune: true });
-    const summary = await maybeAutoPrune(root, new Set(['src/live.ts'])); // src/renamed.ts is gone
+    const summary = await maybeAutoPrune(root, filesWith(['src/renamed.ts']));
     expect(summary?.detachedDeadGlobs).toBe(1);
     expect(loadLessonsGraph(root).lessons['live']!.triggers).toEqual(['t-live']);
+  });
+
+  it('keeps a glob with no removal proof (pending, or no git evidence) and only GCs orphans', async () => {
+    const graph = graphWithOrphan();
+    graph.triggers['t-new'] = { kind: 'file_glob', pattern: 'src/api/refunds.ts' };
+    graph.lessons['live']!.triggers = ['t-live', 't-new'];
+    saveLessonsGraph(root, graph);
+    writeConfig({ autoPrune: true });
+    for (const known of [filesWith([]), new Set(['src/live.ts'])]) {
+      const summary = await maybeAutoPrune(root, known);
+      expect(summary?.detachedDeadGlobs ?? 0).toBe(0);
+      expect(loadLessonsGraph(root).lessons['live']!.triggers).toEqual(['t-live', 't-new']);
+    }
   });
 
   it('never trims a within-or-over-cap active lesson (GC-only, no trigger drop from a live lesson)', async () => {
@@ -138,7 +164,10 @@ describe('maybeAutoPrune', () => {
       },
       topics: { t: { summary: 'T.' } },
       triggers: Object.fromEntries(
-        Array.from({ length: 10 }, (_, i) => [`g${i}`, { kind: 'file_glob', pattern: `src/f${i}.ts` }]),
+        Array.from({ length: 10 }, (_, i) => [
+          `g${i}`,
+          { kind: 'file_glob', pattern: `src/f${i}.ts` },
+        ]),
       ),
     };
     saveLessonsGraph(root, graph);

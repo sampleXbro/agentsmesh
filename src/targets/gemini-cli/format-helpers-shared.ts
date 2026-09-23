@@ -13,7 +13,8 @@ export function mapGeminiHookEvent(event: string): string | null {
     case 'notification':
       return 'Notification';
     case 'BeforeAgent':
-      return 'SubagentStart';
+      // Fires after the user submits a prompt and carries `prompt`.
+      return 'UserPromptSubmit';
     case 'AfterAgent':
       return 'SubagentStop';
     case 'SessionStart':

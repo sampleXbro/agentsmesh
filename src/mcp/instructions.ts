@@ -1,5 +1,5 @@
 import { existsSync } from 'node:fs';
-import { lessonsPaths } from '../lessons/paths.js';
+import { lessonsPaths, resolveLessonsRoot } from '../lessons/paths.js';
 
 /**
  * Standing instructions handed to every MCP client at initialize.
@@ -17,8 +17,8 @@ import { lessonsPaths } from '../lessons/paths.js';
  * edit that could only return nothing — and obeying the capture half would
  * have written a graph into a repository that never asked for one.
  */
-export function mcpServerInstructions(projectRoot: string): string {
-  return hasLessons(projectRoot) ? ACTIVE : INACTIVE;
+export function mcpServerInstructions(start: string): string {
+  return hasLessons(resolveLessonsRoot(start)) ? ACTIVE : INACTIVE;
 }
 
 /**

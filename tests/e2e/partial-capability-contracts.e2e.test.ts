@@ -74,15 +74,16 @@ describe('partial capability subset contracts', () => {
     expect((await runCli('generate --targets gemini-cli', dir)).exitCode).toBe(0);
     const settings = readJson(join(dir, '.gemini', 'settings.json'));
     expect(settings['hooks']).toEqual({
+      // Gemini matches its own tool names: Bash -> run_shell_command, Write -> write_file.
       BeforeTool: [
         {
-          matcher: 'Bash',
+          matcher: '^(?:run_shell_command)$',
           hooks: [{ name: 'BeforeTool-1', type: 'command', command: 'echo pre' }],
         },
       ],
       AfterTool: [
         {
-          matcher: 'Write',
+          matcher: '^(?:write_file)$',
           hooks: [{ name: 'AfterTool-1', type: 'command', command: 'echo post' }],
         },
       ],
@@ -102,7 +103,7 @@ describe('partial capability subset contracts', () => {
 
     const lintResult = await runCli('lint --targets gemini-cli', dir);
     expect(lintResult.stdout + lintResult.stderr).toContain(
-      'SessionEnd is not supported by gemini-cli; only PreToolUse, PostToolUse, Notification, SubagentStart, SubagentStop, and SessionStart are projected.',
+      'SessionEnd is not supported by gemini-cli; only PreToolUse, PostToolUse, Notification, UserPromptSubmit, SubagentStart, SubagentStop, and SessionStart are projected.',
     );
   });
 
@@ -210,7 +211,7 @@ describe('partial capability subset contracts', () => {
 
     const copilotLint = await runCli('lint --targets copilot', dir);
     expect(copilotLint.stdout + copilotLint.stderr).toContain(
-      'SubagentStop is not supported by Copilot hooks; only PreToolUse, PostToolUse, Notification, and UserPromptSubmit are projected.',
+      'SubagentStop is not supported by Copilot hooks; only PreToolUse, PostToolUse, PostToolUseFailure, Notification, UserPromptSubmit, and SessionStart are projected.',
     );
   });
 });

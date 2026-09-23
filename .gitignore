@@ -30,6 +30,9 @@ Thumbs.db
 # Lessons — opt-in telemetry logs (runtime artifacts, not canonical, per-machine)
 .agentsmesh/lessons/recall-log.jsonl
 .agentsmesh/lessons/outcome-log.jsonl
+# Lessons — process lock and leftovers of an interrupted atomic write
+.agentsmesh/lessons/.lessons.lock/
+.agentsmesh/lessons/*.tmp
 # Agents e2e diagnostic report — rewritten with a fresh timestamp on every run
 # (see tests/e2e/agents.e2e.test.ts). Kept on disk to inspect the last run, not committed.
 tests/e2e/agents-last-run.md

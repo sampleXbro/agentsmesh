@@ -1,4 +1,5 @@
 import { normalizeRule } from './add-helpers.js';
+import { unsafeGlobFinding } from './glob-safety.js';
 import type { LessonsGraph } from './graph-schema.js';
 import { isSafeRegexPattern } from './regex-safety.js';
 import type { ValidationFinding } from './validate.js';
@@ -37,13 +38,16 @@ export function collectDuplicateRules(graph: LessonsGraph, findings: ValidationF
  * is ReDoS-unsafe (catastrophic backtracking, e.g. `(a+)+`) is worse: recall
  * would execute it on every command and could hang. Flag both as errors so the
  * transactional write path rejects them at capture time (recall additionally
- * skips them at runtime — see regex-safety.ts).
+ * skips them at runtime — see regex-safety.ts). Unsafe `file_glob`s get the
+ * same treatment (UNSAFE_GLOB_PATTERN, see glob-safety.ts).
  */
 export function collectInvalidTriggerPatterns(
   graph: LessonsGraph,
   findings: ValidationFinding[],
 ): void {
   for (const [triggerId, trigger] of Object.entries(graph.triggers)) {
+    const globFinding = trigger.kind === 'file_glob' ? unsafeGlobFinding(triggerId, trigger) : null;
+    if (globFinding !== null) findings.push(globFinding);
     if (trigger.kind !== 'command_pattern') continue;
     try {
       new RegExp(trigger.pattern);

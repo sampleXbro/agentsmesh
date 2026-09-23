@@ -66,19 +66,26 @@ describe('doStats', () => {
       deliveries: 0,
       lessonsDelivered: 0,
       failuresObserved: 0,
+      misses: 0,
+      failingActions: 0,
       heldRate: 1,
       ineffectiveLessons: 0,
     });
   });
 
   it('summarizes the benefit side from the outcome log', () => {
-    saveLessonsGraph(root, graph);
+    // A miss needs a failure on an action the lesson's own trigger matches.
+    saveLessonsGraph(root, {
+      ...graph,
+      lessons: { ...graph.lessons, fg: { ...graph.lessons.kw!, triggers: ['t-fg'] } },
+      triggers: { ...graph.triggers, 't-fg': { kind: 'file_glob', pattern: 'src/**' } },
+    });
     appendOutcomeEvent(
       root,
       {
         ts: '2026-01-01T00:00:00Z',
         kind: 'delivered',
-        lessonId: 'kw',
+        lessonId: 'fg',
         contextKey: 'file:src/x.ts',
         session: 's1',
       },

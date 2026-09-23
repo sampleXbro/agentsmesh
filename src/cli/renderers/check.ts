@@ -7,6 +7,7 @@ import type { CheckCommandResult } from '../commands/check.js';
 
 export function renderCheck(result: CheckCommandResult): void {
   const { data } = result;
+  if (result.error !== undefined) ui.error(result.error);
 
   if (!data.hasLock) {
     ui.error("Not initialized for collaboration. Run 'agentsmesh generate' first.");

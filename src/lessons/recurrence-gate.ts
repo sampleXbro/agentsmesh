@@ -1,7 +1,7 @@
+import { RECALL_BLOCK_CLOSE, RECALL_BLOCK_OPEN, safeRuleLine } from './rule-line.js';
 import { RECURRENCE_THRESHOLD } from './capture-nudge.js';
 import { contextKey } from './context-key.js';
 import { loadLessonsGraphResilient } from './graph-store.js';
-import { clampRule } from './hook-emit.js';
 import { normalizeRecallFile } from './normalize-query-file.js';
 import { outcomeLogExists, recordDelivered, recurringFailure } from './outcome-log.js';
 import { queryLessons, type LessonsQuery } from './query.js';
@@ -80,7 +80,7 @@ export interface RecurrenceGateInput {
  * The escalation text for a recurring, covered action — or `null` when the gate
  * does not apply: no action, no failure history past the threshold, no covering
  * lesson, or already escalated for this action this session. Cheap on the hot
- * path: a missing outcome log (telemetry off / fresh project) exits on one stat.
+ * path: a missing outcome log (switched off / fresh project) exits on one stat.
  */
 export function recurrenceEscalation(
   projectRoot: string,
@@ -115,9 +115,10 @@ export function recurrenceEscalation(
     );
     commitSeen(dedup, [sentinel, ...shown.map((c) => c.id)]);
   }
-  const bullets = shown.map((c) => `- ${clampRule(c.rule)}`).join('\n');
+  const bullets = shown.map((c) => `- [${c.id}] ${safeRuleLine(c.rule)}`).join('\n');
   return (
     `RECURRENT FAILURE: this action has failed ${sameClassCount}× with the same error ` +
-    `and a captured lesson covers it — apply the rule before retrying:\n${bullets}`
+    `and a captured lesson covers it — apply the rule before retrying:\n` +
+    `${RECALL_BLOCK_OPEN}\n${bullets}\n${RECALL_BLOCK_CLOSE}`
   );
 }

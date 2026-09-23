@@ -41,7 +41,11 @@ beforeEach(() => {
 });
 afterEach(() => rmSync(root, { recursive: true, force: true }));
 
-function seedRecalls(count: number, deliveredIds: readonly string[]): void {
+function seedRecalls(
+  count: number,
+  deliveredIds: readonly string[],
+  contextKey: string | null = 'file:src/app.ts',
+): void {
   for (let i = 0; i < count; i += 1) {
     const day = String(1 + (i % 28)).padStart(2, '0');
     const record: RecallTelemetryRecord = {
@@ -54,6 +58,7 @@ function seedRecalls(count: number, deliveredIds: readonly string[]): void {
       returnedTokens: 0,
       truncated: false,
       matchedByKind: { file: 1, command: 0, keyword: 0 },
+      ...(contextKey !== null ? { contextKey } : {}),
       ...(i === 0 ? { lessonIds: deliveredIds } : {}),
     };
     appendRecallRecord(root, record, ON);
@@ -61,7 +66,7 @@ function seedRecalls(count: number, deliveredIds: readonly string[]): void {
 }
 
 describe('collectHealthFindings: NEVER_RECALLED (recall-log derived)', () => {
-  it('reports, in one finding, the active lessons that predate the log window and never fired', () => {
+  it('reports, in one finding, lessons whose triggers matched touched actions yet never fired', () => {
     seedRecalls(UNUSED_MIN_RECALLS, ['old-used']);
     const findings = collectHealthFindings(root, GRAPH).filter((f) => f.code === 'NEVER_RECALLED');
     expect(findings).toEqual([
@@ -73,7 +78,18 @@ describe('collectHealthFindings: NEVER_RECALLED (recall-log derived)', () => {
       },
     ]);
     expect(findings[0]!.message).toContain(`${UNUSED_MIN_RECALLS} recalls`);
-    expect(findings[0]!.message).toContain('agentsmesh lessons deprecate');
+    expect(findings[0]!.message).toContain('review');
+    expect(findings[0]!.message).not.toContain('deprecate');
+  });
+
+  it('does not flag a lesson just because its trigger paths were not touched', () => {
+    seedRecalls(UNUSED_MIN_RECALLS, ['old-used'], 'file:docs/readme.md');
+    expect(collectHealthFindings(root, GRAPH).some((f) => f.code === 'NEVER_RECALLED')).toBe(false);
+  });
+
+  it('does not flag anything when recalls carry no action key', () => {
+    seedRecalls(UNUSED_MIN_RECALLS, ['old-used'], null);
+    expect(collectHealthFindings(root, GRAPH).some((f) => f.code === 'NEVER_RECALLED')).toBe(false);
   });
 
   it('stays silent until the log holds enough recalls to judge', () => {

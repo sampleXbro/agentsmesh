@@ -58,7 +58,8 @@ At least one _effective_ trigger is required (or `--scope always` for a universa
 the capture is rejected (`UNRECALLABLE_LESSON`); prefer `--trigger-file`. No shell → MCP `lessons_query`,
 `lessons_add`, `lessons_topics`, `lessons_show`, `lessons_deprecate`. Run
 `agentsmesh lessons --help` for every subcommand and flag: query, add, topics, show,
-deprecate, merge, untrigger, strip-markers, prune, journal, validate, stats, import-md.
+deprecate, merge, untrigger, strip-markers, prune, journal, validate, resolve, stats, import-md.
+A git merge conflict in `lessons.json` → run `agentsmesh lessons resolve`; never hand-edit it.
 
 ### Rationalization Prevention — these excuses mean STOP
 

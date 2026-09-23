@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import type { AddLessonTriggers } from './add.js';
 import type { LessonsGraph, Trigger, TriggerKind } from './graph-schema.js';
+import { projectRelativeGlob } from './trigger-file-glob.js';
 
 export function normalizeRule(rule: string): string {
   return rule.trim().replace(/\s+/g, ' ').toLowerCase();
@@ -17,18 +18,26 @@ interface TriggerSpec {
   readonly pattern: string;
 }
 
-/** Resolve/create trigger nodes for the requested patterns; returns referenced + newly-created ids. */
+/**
+ * Resolve/create trigger nodes for the requested patterns; returns referenced +
+ * newly-created ids. With `projectRoot`, an absolute file glob inside the
+ * project is made relative and one outside it throws TriggerFileGlobError.
+ */
 export function mergeTriggers(
   graph: LessonsGraph,
   spec: AddLessonTriggers,
+  projectRoot?: string,
 ): { triggerIds: string[]; newTriggerIds: string[] } {
   const requested: TriggerSpec[] = [
-    // Normalize `\` → `/` so a Windows-shaped glob matches: recall relativizes
-    // every `--file` to forward slashes (normalizeRecallFile), so a backslash
-    // pattern stored raw would silently never fire. Normalizing here also lets
-    // a backslash pattern dedupe against the forward-slash node it equals.
+    // Recall matches forward-slash, project-relative paths (normalizeRecallFile),
+    // so a backslash or absolute pattern stored raw would silently never fire.
+    // Normalizing here also dedupes it against the node it equals.
     ...(spec.files ?? []).map(
-      (p): TriggerSpec => ({ kind: 'file_glob', pattern: p.replaceAll('\\', '/') }),
+      (p): TriggerSpec => ({
+        kind: 'file_glob',
+        pattern:
+          projectRoot === undefined ? p.replaceAll('\\', '/') : projectRelativeGlob(p, projectRoot),
+      }),
     ),
     ...(spec.commands ?? []).map((p): TriggerSpec => ({ kind: 'command_pattern', pattern: p })),
     ...(spec.keywords ?? []).map((p): TriggerSpec => ({ kind: 'keyword', pattern: p })),

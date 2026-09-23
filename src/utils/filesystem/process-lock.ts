@@ -1,43 +1,45 @@
 /**
  * Cross-platform process lock backed by an atomic mkdir.
  *
- * Stale recovery: the holder writes its PID and start timestamp into the lock
- * dir. A dead same-host holder is evicted at once. A live or remote holder is
- * evicted only past `staleMs` — an hours-long bound that catches a hung
- * process or a recycled PID, never a slow but healthy run.
+ * Each acquisition gets a random owner token, kept as an `owner-<token>` marker
+ * in the lock dir next to `holder.json` (pid, host, start time). The lock
+ * changes hands only by removing that exact marker, so neither a release nor
+ * a stale eviction can delete a lock that already passed to another process.
+ *
+ * Stale recovery: a dead same-host holder, or a live pid that now belongs to
+ * another process, is evicted at once. Any holder older than `staleMs` is
+ * evicted too — the bound for hung processes and holders on other hosts.
  */
 
-import { setTimeout as sleep } from 'node:timers/promises';
-import { mkdir, readFile, writeFile, rm, stat } from 'node:fs/promises';
-import { rmSync } from 'node:fs';
+import { randomUUID } from 'node:crypto';
+import { mkdir } from 'node:fs/promises';
 import { hostname } from 'node:os';
-import { dirname, join } from 'node:path';
+import { dirname } from 'node:path';
+import { setTimeout as sleep } from 'node:timers/promises';
 import { LockAcquisitionError } from '../../core/errors.js';
+import { selfIdentity } from './process-identity.js';
+import { lockRetryDelayMs, type LockBackoffOptions } from './process-lock-backoff.js';
+import { evict, releaseOwned, releaseOwnedSync, tryAcquire } from './process-lock-ops.js';
+import {
+  describeHolder,
+  inspectLock,
+  isStale,
+  type LockMetadata,
+  type LockState,
+  type ProbeCache,
+} from './process-lock-state.js';
 
 const DEFAULT_STALE_MS = 6 * 60 * 60 * 1000;
 const DEFAULT_RETRIES = 30;
-const DEFAULT_RETRY_DELAY_MS = 200;
-// `tryAcquire` does `mkdir(lockPath)` then `writeFile(holder.json)`. Between
-// those two calls, a competing acquirer can see the lock dir without metadata.
-// Treat such a dir as held (not orphaned) for this grace window so the in-flight
-// owner gets a chance to finish writing `holder.json`. Older missing-metadata
-// dirs are still evicted as orphaned.
-const YOUNG_LOCK_GRACE_MS = 2_000;
+// Evictions and vanished locks retry at once; this caps a run of them.
+const MAX_IMMEDIATE_RETRIES = 100;
 
-interface LockMetadata {
-  pid: number;
-  started: number;
-  hostname?: string;
-}
-
-export interface LockOptions {
+export interface LockOptions extends LockBackoffOptions {
   /** Maximum retry attempts before throwing LockAcquisitionError. */
   retries?: number;
-  /** Delay between retries in ms. */
-  retryDelayMs?: number;
   /**
-   * Secondary age bound (default 6h): a lock older than this is evicted even
-   * when its holder PID is still alive or cannot be probed (other host).
+   * Age bound (default 6h): a lock older than this is evicted even when its
+   * holder is still alive or cannot be probed (other host).
    */
   staleMs?: number;
   /** Human-readable lock name surfaced in LockAcquisitionError, e.g. "lessons lock". */
@@ -59,62 +61,64 @@ export async function acquireProcessLock(
   opts: LockOptions = {},
 ): Promise<LockRelease> {
   const retries = opts.retries ?? DEFAULT_RETRIES;
-  const delay = opts.retryDelayMs ?? DEFAULT_RETRY_DELAY_MS;
-  const stale = opts.staleMs ?? DEFAULT_STALE_MS;
+  const staleMs = opts.staleMs ?? DEFAULT_STALE_MS;
 
   await mkdir(dirname(lockPath), { recursive: true });
+  const procStart = await selfIdentity();
+  const probes: ProbeCache = new Map();
 
   let attempt = 0;
+  let immediate = 0;
   while (true) {
-    const acquired = await tryAcquire(lockPath);
-    if (acquired) return acquired;
+    const holder = newHolder(procStart);
+    if (await tryAcquire(lockPath, holder)) return holdLock(lockPath, holder.token);
 
-    const existing = await inspectLock(lockPath);
-    if (existing !== 'young' && isStale(existing, stale)) {
-      await rm(lockPath, { recursive: true, force: true });
-      // Stale eviction is bookkeeping, not a wait — try again without consuming retry budget.
+    const state = await inspectLock(lockPath);
+    // A vanished or just-evicted lock is bookkeeping, not a wait: no retry budget used.
+    if (immediate < MAX_IMMEDIATE_RETRIES && (await clearedNow(lockPath, state, staleMs, probes))) {
+      immediate++;
       continue;
     }
 
     if (attempt >= retries) {
-      const holder = existing === 'young' ? null : existing;
-      throw new LockAcquisitionError(lockPath, describeHolder(holder), { label: opts.label });
+      throw new LockAcquisitionError(lockPath, describeHolder(state), { label: opts.label });
     }
     attempt++;
-    await sleep(delay);
+    immediate = 0;
+    await sleep(lockRetryDelayMs(attempt, opts));
   }
 }
 
-async function tryAcquire(lockPath: string): Promise<LockRelease | null> {
-  try {
-    await mkdir(lockPath, { recursive: false });
-  } catch (err) {
-    if ((err as NodeJS.ErrnoException).code === 'EEXIST') return null;
-    throw err;
-  }
+/** True when the lock is gone or was just evicted, so the next try needs no wait. */
+async function clearedNow(
+  lockPath: string,
+  state: LockState,
+  staleMs: number,
+  probes: ProbeCache,
+): Promise<boolean> {
+  if (state.kind === 'gone') return true;
+  if (state.kind === 'young') return false;
+  if (state.kind !== 'orphan' && !(await isStale(state.meta, staleMs, probes))) return false;
+  await evict(lockPath, state);
+  return true;
+}
 
-  const metadataPath = join(lockPath, 'holder.json');
-  const metadata: LockMetadata = {
+function newHolder(procStart: string | null): LockMetadata & { token: string } {
+  return {
     pid: process.pid,
     started: Date.now(),
-    hostname: getHostname(),
+    hostname: hostname(),
+    token: randomUUID(),
+    ...(procStart === null ? {} : { procStart }),
   };
-  try {
-    await writeFile(metadataPath, JSON.stringify(metadata), 'utf-8');
-  } catch (error) {
-    await rm(lockPath, { recursive: true, force: true }).catch(() => {});
-    throw error;
-  }
+}
 
+function holdLock(lockPath: string, token: string): LockRelease {
   let released = false;
   const cleanup = (): void => {
     if (released) return;
     released = true;
-    try {
-      rmSync(lockPath, { recursive: true, force: true });
-    } catch {
-      // Best-effort cleanup on signal/exit.
-    }
+    releaseOwnedSync(lockPath, token);
   };
   const signalHandler = (signal: NodeJS.Signals): void => {
     cleanup();
@@ -135,63 +139,7 @@ async function tryAcquire(lockPath: string): Promise<LockRelease | null> {
     process.off('SIGINT', signalHandler);
     process.off('SIGTERM', signalHandler);
     process.off('exit', cleanup);
-    await rm(lockPath, { recursive: true, force: true }).catch(() => {});
+    // Removes the lock only while this token still owns it.
+    await releaseOwned(lockPath, token).catch(() => {});
   };
-}
-
-async function inspectLock(lockPath: string): Promise<LockMetadata | 'young' | null> {
-  try {
-    const raw = await readFile(join(lockPath, 'holder.json'), 'utf-8');
-    const parsed = JSON.parse(raw) as unknown;
-    if (!isLockMetadata(parsed)) return null;
-    return parsed;
-  } catch {
-    // holder.json is missing or unreadable. The lock dir is either still
-    // bootstrapping its metadata (young) or genuinely orphaned (old).
-    // Allow negative `ageMs` because under suite-load the directory's mtime
-    // can be a hair ahead of `Date.now()` due to FS-vs-clock resolution skew;
-    // such a dir is by definition young.
-    try {
-      const info = await stat(lockPath);
-      const ageMs = Date.now() - info.mtimeMs;
-      if (ageMs < YOUNG_LOCK_GRACE_MS) return 'young';
-    } catch {
-      // lockPath gone — treat as null so the next tryAcquire can mkdir.
-    }
-    return null;
-  }
-}
-
-function isStale(meta: LockMetadata | null, staleMs: number): boolean {
-  if (!meta) return true;
-  const sameHost = !meta.hostname || meta.hostname === getHostname();
-  if (sameHost && !isProcessAlive(meta.pid)) return true;
-  return Date.now() - meta.started > staleMs;
-}
-
-function isProcessAlive(pid: number): boolean {
-  if (!Number.isInteger(pid) || pid <= 0) return false;
-  try {
-    process.kill(pid, 0);
-    return true;
-  } catch (err) {
-    // ESRCH = no such process. EPERM = process exists but not ours (still alive).
-    return (err as NodeJS.ErrnoException).code === 'EPERM';
-  }
-}
-
-function describeHolder(meta: LockMetadata | null): string {
-  if (!meta) return 'unknown (unreadable lock metadata)';
-  const host = meta.hostname ? `${meta.hostname}:` : '';
-  return `${host}pid ${meta.pid} (running ${Date.now() - meta.started}ms)`;
-}
-
-function isLockMetadata(value: unknown): value is LockMetadata {
-  if (typeof value !== 'object' || value === null) return false;
-  const v = value as Record<string, unknown>;
-  return typeof v.pid === 'number' && typeof v.started === 'number';
-}
-
-function getHostname(): string {
-  return hostname();
 }

@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { buildCaptureNudge, CAPTURE_NUDGE_SENTINEL } from '../../../src/lessons/capture-nudge.js';
+import { getCommandMatcher } from '../../../src/lessons/regex-safety.js';
 
 let counter = 0;
 const sessions: string[] = [];
@@ -57,12 +58,43 @@ describe('buildCaptureNudge', () => {
     expect(ctx).toContain("--trigger-cmd '<regex matching the command>'");
   });
 
-  it('falls back to the placeholder when the class carries a quote fragment', () => {
-    // `grep foo' src` normalizes to the class `grep foo'` — embedding that in
-    // the pre-filled shell line would leave an unbalanced quote.
+  it('never carries a quote fragment into the pasted shell line', () => {
     const ctx = buildCaptureNudge({ command: "grep foo' src" });
-    expect(ctx).toContain("--trigger-cmd '<regex matching the command>'");
+    expect(ctx).toContain("--trigger-cmd '\\bgrep\\b'");
     expect(ctx).not.toContain("foo'");
+  });
+
+  it('keys a compound command on the real program, not on cd', () => {
+    const ctx = buildCaptureNudge({ command: 'cd /repo && pnpm tsc --noEmit' });
+    expect(ctx).toContain("--trigger-cmd '\\bpnpm tsc\\b'");
+  });
+
+  it.each([
+    ['git -C packages/app commit -m x', '\\bgit\\b.*\\bcommit\\b'],
+    ['pnpm --filter web test', '\\bpnpm\\b.*\\btest\\b'],
+    ['npx -y vitest run', '\\bnpx\\b.*\\bvitest\\b'],
+  ])(
+    'a subcommand behind global flags gets a pattern that matches the failed command (%s)',
+    (command, pattern) => {
+      const ctx = buildCaptureNudge({ command });
+      expect(ctx).toContain(`--trigger-cmd '${pattern}'`);
+      const matcher = getCommandMatcher(pattern);
+      expect(matcher?.test(command, { remaining: 100_000 })).toBe(true);
+    },
+  );
+
+  it('suggests a project-relative file trigger for an absolute path inside the project', () => {
+    const ctx = buildCaptureNudge({ file: '/proj/src/lessons/hook.ts', projectRoot: '/proj' });
+    expect(ctx).toContain("--trigger-file 'src/lessons/hook.ts'");
+    expect(ctx).not.toContain('/proj/');
+  });
+
+  it('never suggests an absolute or outside-project path as a file trigger', () => {
+    const outside = buildCaptureNudge({ file: '/elsewhere/x.ts', projectRoot: '/proj' });
+    expect(outside).toContain("--trigger-file '<glob>'");
+    expect(outside).not.toContain('elsewhere');
+    const noRoot = buildCaptureNudge({ file: '/abs/x.ts' });
+    expect(noRoot).toContain("--trigger-file '<glob>'");
   });
 
   it('states the rule shape that makes lessons worth reading', () => {

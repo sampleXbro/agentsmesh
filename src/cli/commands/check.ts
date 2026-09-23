@@ -5,12 +5,26 @@
 
 import { loadScopedConfig } from '../../config/core/scope.js';
 import { checkLockSync } from '../../core/check/lock-sync.js';
+import { lessonsGraphProblem } from '../../lessons/graph-problem.js';
 import { bootstrapPlugins } from '../../plugins/bootstrap-plugins.js';
 import type { CheckData } from '../command-result.js';
 
 export interface CheckCommandResult {
   exitCode: number;
   data: CheckData;
+  /** Set when a lessons graph exists but cannot be read; always fails the check. */
+  error?: string;
+}
+
+/** Add an unreadable-lessons failure (project scope only) on top of the lock result. */
+function withLessonsCheck(
+  result: CheckCommandResult,
+  scope: string,
+  projectRoot: string,
+): CheckCommandResult {
+  const problem = scope === 'project' ? lessonsGraphProblem(projectRoot) : null;
+  if (problem === null) return result;
+  return { ...result, exitCode: 1, error: `Lessons graph unreadable: ${problem.message}` };
 }
 
 /**
@@ -42,6 +56,10 @@ export async function runCheck(
     scope,
   });
 
+  return withLessonsCheck(lockResult(report), scope, context.configDir);
+}
+
+function lockResult(report: Awaited<ReturnType<typeof checkLockSync>>): CheckCommandResult {
   if (!report.hasLock) {
     return {
       exitCode: 1,

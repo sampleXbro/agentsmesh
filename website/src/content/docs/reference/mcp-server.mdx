@@ -50,7 +50,7 @@ Three deployment forms are supported:
 }
 ```
 
-The server reads `projectRoot` from the process working directory at startup. No configuration flags are accepted; the MCP host controls the working directory via the `cwd` field in the MCP server entry when needed.
+The server reads `projectRoot` from the process working directory at startup, walking up to the nearest directory with `agentsmesh.yaml`. The lessons tools also work without `agentsmesh.yaml` (for example with only the lessons plugin): they then use the nearest directory with `.agentsmesh/lessons/` (a `lessons.json` or `config.json`). So starting the server in a subdirectory of the project works. No configuration flags are accepted; the MCP host controls the working directory via the `cwd` field in the MCP server entry when needed.
 
 ## Tools reference
 
@@ -151,7 +151,10 @@ The server exposes **50 tools** grouped by category. All tool errors return a st
 | `lessons_show` | Render one topic's lessons or a single lesson by id (read-only diagnosis view) |
 | `lessons_deprecate` | Mark a lesson `deprecated`, or `superseded` with a replacement id |
 
-The lessons tools mirror the [`agentsmesh lessons` CLI](../../cli/lessons/) — same predicates, same guardrails — for agents without shell access.
+The lessons tools mirror the [`agentsmesh lessons` CLI](../../cli/lessons/) — same predicates, same guardrails — for agents without shell access. A few details:
+
+- **Size caps.** The graph may come from a cloned repo, so every answer is bounded. Each rule is cut to 2000 characters, and a `lessons_query` or `lessons_show` answer carries at most 32,000 characters of rule text. `lessons_show` reports how many lessons it cut in an `omitted` field.
+- **`lessons_add` checks.** A `trigger_files` glob that is an absolute path outside the project is rejected with `VALIDATION_FAILED` (`details.code` is `TRIGGER_FILE_OUTSIDE_PROJECT`); an absolute path inside the project is stored project-relative. The non-blocking `warnings` include `DEAD_GLOB` (git history shows the glob's path was renamed or deleted) and `PENDING_GLOB` (the path does not exist yet; the trigger is kept). See [capture guardrails](../lessons/#capture-guardrails).
 
 The pack-lifecycle tools always run non-interactively. MCP has no stdin TTY, so the documented `--force` defaults are accepted for every interactive prompt the CLI would surface (bulk select → accept all, broken-link → leave-with-warnings, modified-files → delete-anyway). For finer-grained selection, drive the CLI directly. Input shapes mirror the CLI flags one-for-one (`refresh` accepts `names?: string[]`, `dry_run?`, `global?`); output envelopes match `InstallData` / `UninstallData` / `InstallsListData` / `RefreshData` documented under [`install`](../../cli/install/#json-output), [`uninstall`](../../cli/uninstall/#json-output), [`installs`](../../cli/installs/#json-output), and [`refresh`](../../cli/refresh/#json-output).
 

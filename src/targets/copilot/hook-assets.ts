@@ -3,14 +3,10 @@ import type { CanonicalFiles } from '../../core/types.js';
 import { readFileSafe } from '../../utils/filesystem/fs.js';
 import { COPILOT_HOOKS_DIR } from './constants.js';
 import type { RulesOutput } from './generator.js';
-import { hasHookCommand } from '../../core/hook-command.js';
+import { copilotHookGroups, wrapperScriptName } from './hook-format.js';
 
 const SCRIPT_PREFIX_RE =
   /^(?<prefix>\s*(?:(?:bash|sh|zsh)\s+)?)["']?(?<path>(?:\.\.\/|\.\/|[^/\s"'`]+\/)[^\s"'`]+)["']?(?<suffix>(?:\s.*)?)$/;
-
-function safePhaseName(phase: string): string {
-  return phase.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
-}
 
 function toRepoRelative(projectRoot: string, sourcePath: string): string | null {
   const repoRelative = relative(projectRoot, sourcePath).replace(/\\/g, '/');
@@ -50,7 +46,7 @@ async function buildAssetOutput(
 }
 
 function wrapperPath(event: string, index: number, hooksDirRel: string): string {
-  return `${hooksDirRel}/scripts/${safePhaseName(event)}-${index}.sh`;
+  return `${hooksDirRel}/scripts/${wrapperScriptName(event, index)}`;
 }
 
 // CR/LF in matcher/command would otherwise break out of the comment header
@@ -78,16 +74,15 @@ export async function addHookScriptAssets(
   outputs: RulesOutput[],
   hooksDirRel: string = COPILOT_HOOKS_DIR,
 ): Promise<RulesOutput[]> {
-  if (!canonical.hooks) return outputs;
+  const groups = copilotHookGroups(canonical.hooks);
+  if (groups.length === 0) return outputs;
 
   const wrapperOutputs: RulesOutput[] = [];
   const assetOutputs = new Map<string, RulesOutput>();
 
-  for (const [event, entries] of Object.entries(canonical.hooks)) {
-    if (!Array.isArray(entries)) continue;
-    let index = 0;
-    for (const entry of entries) {
-      if (!hasHookCommand(entry)) continue;
+  // Same groups as the hooks config, so every script is referenced and vice versa.
+  for (const { event, entries } of groups) {
+    for (const [index, entry] of entries.entries()) {
       const scriptPath = wrapperPath(event, index, hooksDirRel);
       let command = entry.command;
       const asset = await buildAssetOutput(projectRoot, entry.command, hooksDirRel);
@@ -103,7 +98,6 @@ export async function addHookScriptAssets(
         'set -eu\nHOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"\n',
       );
       wrapperOutputs.push({ path: scriptPath, content: wrapper });
-      index++;
     }
   }
 

@@ -1,9 +1,9 @@
 # Auto-generated. DO NOT EDIT MANUALLY.
 # Tracks the state of all config files for team conflict resolution.
 
-generated_at: 2026-09-19T15:20:36.389Z
+generated_at: 2026-09-23T05:52:29.113Z
 generated_by: serhii
-lib_version: 0.38.0
+lib_version: 0.40.0
 checksums:
   agents/code-debugger.md: sha256:33452bf839256a119a602cd10d085bff3cdb8f537ded76e60053bb9d8e5d33bc
   agents/code-documenter.md: sha256:89b4ebd27718bcd50a7283c95ea1ff9cad153b1112cf695f9f1fc22d90ec85ec
@@ -36,7 +36,7 @@ checksums:
   skills/code-reviewer/scripts/review_report_generator.py: sha256:9507bf76ab19c18feac70746554e104a96f03cf51bf82c6c18cf7a53bedc7719
   skills/docs-and-examples/SKILL.md: sha256:3339fe5adc40866cc6d9c75f3b452056ff144ecdaa9b4e7e14c412088948b9be
   skills/homebrew-packaging/SKILL.md: sha256:eb0e1a2075c53efe70bbae7cb6996049ebe75a5b0a40ccb5326f051f07c4e02a
-  skills/lessons/SKILL.md: sha256:f05a07109e46efbb4d748afff043a8279e7443ea6c41fe0992aff4bc8e79e76c
+  skills/lessons/SKILL.md: sha256:b72130d4adb0ff1c24a64c07d7caa26533939f6f7ed8a88f32be509bf29d043e
   skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
   skills/post-feature-qa/SKILL.md: sha256:718b292a72e03a890018da90005b184439d0e180b1f3a6708a7606b2024d9eaa
@@ -888,7 +888,7 @@ outputs:
   .claude/skills/add-global-mode-target/references/global-mode-target-checklist.md: sha256:61f8827978f90ee079e2dfd426ef25b17e77c71d9f79c5f81ebc700379f6fafc
   .claude/skills/docs-and-examples/SKILL.md: sha256:3339fe5adc40866cc6d9c75f3b452056ff144ecdaa9b4e7e14c412088948b9be
   .claude/skills/homebrew-packaging/SKILL.md: sha256:eb0e1a2075c53efe70bbae7cb6996049ebe75a5b0a40ccb5326f051f07c4e02a
-  .claude/skills/lessons/SKILL.md: sha256:ba4db46b2caaad413bde415e08e7e4ac11dfc9011115535b436f1d6737e8cd4d
+  .claude/skills/lessons/SKILL.md: sha256:9ab51dfeedaf89274b98a08c3f9685c83bef59654d6f3b5ccfbe65d7b855e4e8
   .claude/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .claude/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
   .claude/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
@@ -1034,7 +1034,7 @@ outputs:
   .cursor/skills/add-global-mode-target/references/global-mode-target-checklist.md: sha256:61f8827978f90ee079e2dfd426ef25b17e77c71d9f79c5f81ebc700379f6fafc
   .cursor/skills/docs-and-examples/SKILL.md: sha256:3339fe5adc40866cc6d9c75f3b452056ff144ecdaa9b4e7e14c412088948b9be
   .cursor/skills/homebrew-packaging/SKILL.md: sha256:eb0e1a2075c53efe70bbae7cb6996049ebe75a5b0a40ccb5326f051f07c4e02a
-  .cursor/skills/lessons/SKILL.md: sha256:37d4a9861d636e6137f6f47d7e5545b7bb82879d91ce88e1329b1e238f6c150d
+  .cursor/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .cursor/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .cursor/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
   .cursor/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
@@ -1180,7 +1180,7 @@ outputs:
   .github/skills/add-global-mode-target/references/global-mode-target-checklist.md: sha256:61f8827978f90ee079e2dfd426ef25b17e77c71d9f79c5f81ebc700379f6fafc
   .github/skills/docs-and-examples/SKILL.md: sha256:3339fe5adc40866cc6d9c75f3b452056ff144ecdaa9b4e7e14c412088948b9be
   .github/skills/homebrew-packaging/SKILL.md: sha256:eb0e1a2075c53efe70bbae7cb6996049ebe75a5b0a40ccb5326f051f07c4e02a
-  .github/skills/lessons/SKILL.md: sha256:37d4a9861d636e6137f6f47d7e5545b7bb82879d91ce88e1329b1e238f6c150d
+  .github/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .github/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .github/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
   .github/skills/prepare-release/SKILL.md: sha256:00ba45b53952289f94a6f1b4ce3c361af55fd15b7c7f57cd2e04a5f9a24d2781
@@ -1326,7 +1326,7 @@ outputs:
   .gemini/skills/add-global-mode-target/references/global-mode-target-checklist.md: sha256:61f8827978f90ee079e2dfd426ef25b17e77c71d9f79c5f81ebc700379f6fafc
   .gemini/skills/docs-and-examples/SKILL.md: sha256:3339fe5adc40866cc6d9c75f3b452056ff144ecdaa9b4e7e14c412088948b9be
   .gemini/skills/homebrew-packaging/SKILL.md: sha256:eb0e1a2075c53efe70bbae7cb6996049ebe75a5b0a40ccb5326f051f07c4e02a
-  .gemini/skills/lessons/SKILL.md: sha256:37d4a9861d636e6137f6f47d7e5545b7bb82879d91ce88e1329b1e238f6c150d
+  .gemini/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .gemini/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .gemini/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
   .gemini/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
@@ -1472,7 +1472,7 @@ outputs:
   .cline/skills/add-global-mode-target/references/global-mode-target-checklist.md: sha256:61f8827978f90ee079e2dfd426ef25b17e77c71d9f79c5f81ebc700379f6fafc
   .cline/skills/docs-and-examples/SKILL.md: sha256:3339fe5adc40866cc6d9c75f3b452056ff144ecdaa9b4e7e14c412088948b9be
   .cline/skills/homebrew-packaging/SKILL.md: sha256:eb0e1a2075c53efe70bbae7cb6996049ebe75a5b0a40ccb5326f051f07c4e02a
-  .cline/skills/lessons/SKILL.md: sha256:37d4a9861d636e6137f6f47d7e5545b7bb82879d91ce88e1329b1e238f6c150d
+  .cline/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .cline/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .cline/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
   .cline/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
@@ -1618,7 +1618,7 @@ outputs:
   .agents/skills/add-global-mode-target/references/global-mode-target-checklist.md: sha256:61f8827978f90ee079e2dfd426ef25b17e77c71d9f79c5f81ebc700379f6fafc
   .agents/skills/docs-and-examples/SKILL.md: sha256:3339fe5adc40866cc6d9c75f3b452056ff144ecdaa9b4e7e14c412088948b9be
   .agents/skills/homebrew-packaging/SKILL.md: sha256:eb0e1a2075c53efe70bbae7cb6996049ebe75a5b0a40ccb5326f051f07c4e02a
-  .agents/skills/lessons/SKILL.md: sha256:37d4a9861d636e6137f6f47d7e5545b7bb82879d91ce88e1329b1e238f6c150d
+  .agents/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .agents/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .agents/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
   .agents/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
@@ -1764,7 +1764,7 @@ outputs:
   .windsurf/skills/add-global-mode-target/references/global-mode-target-checklist.md: sha256:61f8827978f90ee079e2dfd426ef25b17e77c71d9f79c5f81ebc700379f6fafc
   .windsurf/skills/docs-and-examples/SKILL.md: sha256:3339fe5adc40866cc6d9c75f3b452056ff144ecdaa9b4e7e14c412088948b9be
   .windsurf/skills/homebrew-packaging/SKILL.md: sha256:eb0e1a2075c53efe70bbae7cb6996049ebe75a5b0a40ccb5326f051f07c4e02a
-  .windsurf/skills/lessons/SKILL.md: sha256:37d4a9861d636e6137f6f47d7e5545b7bb82879d91ce88e1329b1e238f6c150d
+  .windsurf/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .windsurf/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .windsurf/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
   .windsurf/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
@@ -1910,7 +1910,7 @@ outputs:
   .continue/skills/add-global-mode-target/references/global-mode-target-checklist.md: sha256:61f8827978f90ee079e2dfd426ef25b17e77c71d9f79c5f81ebc700379f6fafc
   .continue/skills/docs-and-examples/SKILL.md: sha256:3339fe5adc40866cc6d9c75f3b452056ff144ecdaa9b4e7e14c412088948b9be
   .continue/skills/homebrew-packaging/SKILL.md: sha256:eb0e1a2075c53efe70bbae7cb6996049ebe75a5b0a40ccb5326f051f07c4e02a
-  .continue/skills/lessons/SKILL.md: sha256:37d4a9861d636e6137f6f47d7e5545b7bb82879d91ce88e1329b1e238f6c150d
+  .continue/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .continue/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .continue/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
   .continue/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
@@ -2056,7 +2056,7 @@ outputs:
   .junie/skills/add-global-mode-target/references/global-mode-target-checklist.md: sha256:61f8827978f90ee079e2dfd426ef25b17e77c71d9f79c5f81ebc700379f6fafc
   .junie/skills/docs-and-examples/SKILL.md: sha256:3339fe5adc40866cc6d9c75f3b452056ff144ecdaa9b4e7e14c412088948b9be
   .junie/skills/homebrew-packaging/SKILL.md: sha256:eb0e1a2075c53efe70bbae7cb6996049ebe75a5b0a40ccb5326f051f07c4e02a
-  .junie/skills/lessons/SKILL.md: sha256:37d4a9861d636e6137f6f47d7e5545b7bb82879d91ce88e1329b1e238f6c150d
+  .junie/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .junie/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .junie/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
   .junie/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
@@ -2202,7 +2202,7 @@ outputs:
   .roo/skills/add-global-mode-target/references/global-mode-target-checklist.md: sha256:61f8827978f90ee079e2dfd426ef25b17e77c71d9f79c5f81ebc700379f6fafc
   .roo/skills/docs-and-examples/SKILL.md: sha256:3339fe5adc40866cc6d9c75f3b452056ff144ecdaa9b4e7e14c412088948b9be
   .roo/skills/homebrew-packaging/SKILL.md: sha256:eb0e1a2075c53efe70bbae7cb6996049ebe75a5b0a40ccb5326f051f07c4e02a
-  .roo/skills/lessons/SKILL.md: sha256:37d4a9861d636e6137f6f47d7e5545b7bb82879d91ce88e1329b1e238f6c150d
+  .roo/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .roo/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .roo/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
   .roo/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
@@ -2348,7 +2348,7 @@ outputs:
   .kiro/skills/add-global-mode-target/references/global-mode-target-checklist.md: sha256:61f8827978f90ee079e2dfd426ef25b17e77c71d9f79c5f81ebc700379f6fafc
   .kiro/skills/docs-and-examples/SKILL.md: sha256:3339fe5adc40866cc6d9c75f3b452056ff144ecdaa9b4e7e14c412088948b9be
   .kiro/skills/homebrew-packaging/SKILL.md: sha256:eb0e1a2075c53efe70bbae7cb6996049ebe75a5b0a40ccb5326f051f07c4e02a
-  .kiro/skills/lessons/SKILL.md: sha256:37d4a9861d636e6137f6f47d7e5545b7bb82879d91ce88e1329b1e238f6c150d
+  .kiro/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .kiro/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .kiro/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
   .kiro/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
@@ -2494,7 +2494,7 @@ outputs:
   .kilo/skills/add-global-mode-target/references/global-mode-target-checklist.md: sha256:61f8827978f90ee079e2dfd426ef25b17e77c71d9f79c5f81ebc700379f6fafc
   .kilo/skills/docs-and-examples/SKILL.md: sha256:3339fe5adc40866cc6d9c75f3b452056ff144ecdaa9b4e7e14c412088948b9be
   .kilo/skills/homebrew-packaging/SKILL.md: sha256:eb0e1a2075c53efe70bbae7cb6996049ebe75a5b0a40ccb5326f051f07c4e02a
-  .kilo/skills/lessons/SKILL.md: sha256:37d4a9861d636e6137f6f47d7e5545b7bb82879d91ce88e1329b1e238f6c150d
+  .kilo/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .kilo/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .kilo/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
   .kilo/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
@@ -2640,7 +2640,7 @@ outputs:
   .opencode/skills/add-global-mode-target/references/global-mode-target-checklist.md: sha256:61f8827978f90ee079e2dfd426ef25b17e77c71d9f79c5f81ebc700379f6fafc
   .opencode/skills/docs-and-examples/SKILL.md: sha256:3339fe5adc40866cc6d9c75f3b452056ff144ecdaa9b4e7e14c412088948b9be
   .opencode/skills/homebrew-packaging/SKILL.md: sha256:eb0e1a2075c53efe70bbae7cb6996049ebe75a5b0a40ccb5326f051f07c4e02a
-  .opencode/skills/lessons/SKILL.md: sha256:37d4a9861d636e6137f6f47d7e5545b7bb82879d91ce88e1329b1e238f6c150d
+  .opencode/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .opencode/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .opencode/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
   .opencode/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
@@ -2786,7 +2786,7 @@ outputs:
   .warp/skills/add-global-mode-target/references/global-mode-target-checklist.md: sha256:61f8827978f90ee079e2dfd426ef25b17e77c71d9f79c5f81ebc700379f6fafc
   .warp/skills/docs-and-examples/SKILL.md: sha256:3339fe5adc40866cc6d9c75f3b452056ff144ecdaa9b4e7e14c412088948b9be
   .warp/skills/homebrew-packaging/SKILL.md: sha256:eb0e1a2075c53efe70bbae7cb6996049ebe75a5b0a40ccb5326f051f07c4e02a
-  .warp/skills/lessons/SKILL.md: sha256:37d4a9861d636e6137f6f47d7e5545b7bb82879d91ce88e1329b1e238f6c150d
+  .warp/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .warp/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .warp/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
   .warp/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
@@ -2932,7 +2932,7 @@ outputs:
   .aider/skills/add-global-mode-target/references/global-mode-target-checklist.md: sha256:61f8827978f90ee079e2dfd426ef25b17e77c71d9f79c5f81ebc700379f6fafc
   .aider/skills/docs-and-examples/SKILL.md: sha256:3339fe5adc40866cc6d9c75f3b452056ff144ecdaa9b4e7e14c412088948b9be
   .aider/skills/homebrew-packaging/SKILL.md: sha256:eb0e1a2075c53efe70bbae7cb6996049ebe75a5b0a40ccb5326f051f07c4e02a
-  .aider/skills/lessons/SKILL.md: sha256:37d4a9861d636e6137f6f47d7e5545b7bb82879d91ce88e1329b1e238f6c150d
+  .aider/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .aider/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .aider/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
   .aider/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
@@ -3078,7 +3078,7 @@ outputs:
   .augment/skills/add-global-mode-target/references/global-mode-target-checklist.md: sha256:61f8827978f90ee079e2dfd426ef25b17e77c71d9f79c5f81ebc700379f6fafc
   .augment/skills/docs-and-examples/SKILL.md: sha256:3339fe5adc40866cc6d9c75f3b452056ff144ecdaa9b4e7e14c412088948b9be
   .augment/skills/homebrew-packaging/SKILL.md: sha256:eb0e1a2075c53efe70bbae7cb6996049ebe75a5b0a40ccb5326f051f07c4e02a
-  .augment/skills/lessons/SKILL.md: sha256:37d4a9861d636e6137f6f47d7e5545b7bb82879d91ce88e1329b1e238f6c150d
+  .augment/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .augment/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .augment/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
   .augment/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
@@ -3224,7 +3224,7 @@ outputs:
   .crush/skills/add-global-mode-target/references/global-mode-target-checklist.md: sha256:61f8827978f90ee079e2dfd426ef25b17e77c71d9f79c5f81ebc700379f6fafc
   .crush/skills/docs-and-examples/SKILL.md: sha256:3339fe5adc40866cc6d9c75f3b452056ff144ecdaa9b4e7e14c412088948b9be
   .crush/skills/homebrew-packaging/SKILL.md: sha256:eb0e1a2075c53efe70bbae7cb6996049ebe75a5b0a40ccb5326f051f07c4e02a
-  .crush/skills/lessons/SKILL.md: sha256:37d4a9861d636e6137f6f47d7e5545b7bb82879d91ce88e1329b1e238f6c150d
+  .crush/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .crush/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .crush/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
   .crush/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
@@ -3370,7 +3370,7 @@ outputs:
   .qwen/skills/add-global-mode-target/references/global-mode-target-checklist.md: sha256:61f8827978f90ee079e2dfd426ef25b17e77c71d9f79c5f81ebc700379f6fafc
   .qwen/skills/docs-and-examples/SKILL.md: sha256:3339fe5adc40866cc6d9c75f3b452056ff144ecdaa9b4e7e14c412088948b9be
   .qwen/skills/homebrew-packaging/SKILL.md: sha256:eb0e1a2075c53efe70bbae7cb6996049ebe75a5b0a40ccb5326f051f07c4e02a
-  .qwen/skills/lessons/SKILL.md: sha256:37d4a9861d636e6137f6f47d7e5545b7bb82879d91ce88e1329b1e238f6c150d
+  .qwen/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .qwen/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .qwen/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
   .qwen/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
@@ -3516,7 +3516,7 @@ outputs:
   .trae/skills/add-global-mode-target/references/global-mode-target-checklist.md: sha256:61f8827978f90ee079e2dfd426ef25b17e77c71d9f79c5f81ebc700379f6fafc
   .trae/skills/docs-and-examples/SKILL.md: sha256:3339fe5adc40866cc6d9c75f3b452056ff144ecdaa9b4e7e14c412088948b9be
   .trae/skills/homebrew-packaging/SKILL.md: sha256:eb0e1a2075c53efe70bbae7cb6996049ebe75a5b0a40ccb5326f051f07c4e02a
-  .trae/skills/lessons/SKILL.md: sha256:37d4a9861d636e6137f6f47d7e5545b7bb82879d91ce88e1329b1e238f6c150d
+  .trae/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .trae/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .trae/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
   .trae/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
@@ -3662,7 +3662,7 @@ outputs:
   .deepagents/skills/add-global-mode-target/references/global-mode-target-checklist.md: sha256:61f8827978f90ee079e2dfd426ef25b17e77c71d9f79c5f81ebc700379f6fafc
   .deepagents/skills/docs-and-examples/SKILL.md: sha256:3339fe5adc40866cc6d9c75f3b452056ff144ecdaa9b4e7e14c412088948b9be
   .deepagents/skills/homebrew-packaging/SKILL.md: sha256:eb0e1a2075c53efe70bbae7cb6996049ebe75a5b0a40ccb5326f051f07c4e02a
-  .deepagents/skills/lessons/SKILL.md: sha256:37d4a9861d636e6137f6f47d7e5545b7bb82879d91ce88e1329b1e238f6c150d
+  .deepagents/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .deepagents/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .deepagents/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
   .deepagents/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
@@ -3808,7 +3808,7 @@ outputs:
   .factory/skills/add-global-mode-target/references/global-mode-target-checklist.md: sha256:61f8827978f90ee079e2dfd426ef25b17e77c71d9f79c5f81ebc700379f6fafc
   .factory/skills/docs-and-examples/SKILL.md: sha256:3339fe5adc40866cc6d9c75f3b452056ff144ecdaa9b4e7e14c412088948b9be
   .factory/skills/homebrew-packaging/SKILL.md: sha256:eb0e1a2075c53efe70bbae7cb6996049ebe75a5b0a40ccb5326f051f07c4e02a
-  .factory/skills/lessons/SKILL.md: sha256:37d4a9861d636e6137f6f47d7e5545b7bb82879d91ce88e1329b1e238f6c150d
+  .factory/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .factory/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .factory/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
   .factory/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
@@ -3954,7 +3954,7 @@ outputs:
   .pi/skills/add-global-mode-target/references/global-mode-target-checklist.md: sha256:61f8827978f90ee079e2dfd426ef25b17e77c71d9f79c5f81ebc700379f6fafc
   .pi/skills/docs-and-examples/SKILL.md: sha256:3339fe5adc40866cc6d9c75f3b452056ff144ecdaa9b4e7e14c412088948b9be
   .pi/skills/homebrew-packaging/SKILL.md: sha256:eb0e1a2075c53efe70bbae7cb6996049ebe75a5b0a40ccb5326f051f07c4e02a
-  .pi/skills/lessons/SKILL.md: sha256:37d4a9861d636e6137f6f47d7e5545b7bb82879d91ce88e1329b1e238f6c150d
+  .pi/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .pi/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .pi/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
   .pi/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
@@ -4100,7 +4100,7 @@ outputs:
   .rovodev/skills/add-global-mode-target/references/global-mode-target-checklist.md: sha256:61f8827978f90ee079e2dfd426ef25b17e77c71d9f79c5f81ebc700379f6fafc
   .rovodev/skills/docs-and-examples/SKILL.md: sha256:3339fe5adc40866cc6d9c75f3b452056ff144ecdaa9b4e7e14c412088948b9be
   .rovodev/skills/homebrew-packaging/SKILL.md: sha256:eb0e1a2075c53efe70bbae7cb6996049ebe75a5b0a40ccb5326f051f07c4e02a
-  .rovodev/skills/lessons/SKILL.md: sha256:37d4a9861d636e6137f6f47d7e5545b7bb82879d91ce88e1329b1e238f6c150d
+  .rovodev/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .rovodev/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .rovodev/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
   .rovodev/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
@@ -4152,12 +4152,10 @@ outputs:
   .factory/settings.json: sha256:44127052c3853d12af2d34d7cc8bce0807a2f5927e642bdcfc9a91e99faa52a5
   .pi/settings.json: sha256:ded948deafe0744a31515b27ab1ae292e838477bc7281d9dc8724dc163b3e7f1
   .claude/settings.json: sha256:dd7d3e251384b292e314c391710a4e97f58f069a00451fce774ec3a5b904ff8d
-  .cursor/hooks.json: sha256:182b55021f4b09e7fe0e2aab67c243e7c72f9806ce785450b554aaec40e64148
-  .github/hooks/agentsmesh.json: sha256:136bf232ef3c137aec91931d033ea8f4d7767cbe6c2d5859d0cb560b990952d2
+  .cursor/hooks.json: sha256:214e703fed5a525c16796249a78e314bb1d1abd44cc02640df215c6d117890a0
+  .github/hooks/agentsmesh.json: sha256:b86d4deaa71edd2ece0f26edb695848a1ed5b15615f5f108ede42849585bd896
   .github/hooks/scripts/pretooluse-0.sh: sha256:8a6ca51d7b410e798636df4e93186b652333d8ea9241079ef44aeda216475a69
-  .github/hooks/scripts/pretooluse-1.sh: sha256:67787886373584d8c96807ed8b6e388298b7b81cc45f32ced7d38c9c22042ce7
   .github/hooks/scripts/posttooluse-0.sh: sha256:f0a2199ef400137aed26718b789566f31e404532cae614273ccd0da7d6e5de93
-  .github/hooks/scripts/userpromptsubmit-0.sh: sha256:311ecc2e65ecc09ff3e08000f8237657c0e3456624ddb8b6fd1578c9b538a41f
   .github/hooks/scripts/posttoolusefailure-0.sh: sha256:311ecc2e65ecc09ff3e08000f8237657c0e3456624ddb8b6fd1578c9b538a41f
   .github/hooks/scripts/sessionstart-0.sh: sha256:311ecc2e65ecc09ff3e08000f8237657c0e3456624ddb8b6fd1578c9b538a41f
   .cline/hooks/pretooluse-0.sh: sha256:84a67dd4de7287f0b365197e1418fafb2a55198694e485c1f5198b58300d7f3c
@@ -4167,7 +4165,7 @@ outputs:
   .cline/hooks/posttoolusefailure-0.sh: sha256:71e4d9e2b8a3c0e18a87c9bb12cbafc84d850870f1001c8193b86ddf557a2faf
   .cline/hooks/sessionstart-0.sh: sha256:7f166713a9d610e8148cc7b49db0c15800bf4a04176ae22b51bc859b74c000ae
   .codex/hooks.json: sha256:ba98ef505129308e9fd067fb251d48b3a5d06b2e102d83e82fb045b48806d403
-  .windsurf/hooks.json: sha256:d54313d7c79530f33e1284bc3acb86290e08d2f7d6965d717c96ebe610d5b407
+  .windsurf/hooks.json: sha256:0254127ad8ac9445c952123800f3e85ed592e615770e54e2e1c8896bcd6b85cf
   .continue/settings.json: sha256:89162c6acee871d4cec4087f918a8ff155b0d82a7d02580f3d2c85167588edf3
   .agents/hooks.json: sha256:a70487093675f527a55cc8c4e30dc2198dcc9211ee5ddb68cfa359281d0f528a
   .kiro/hooks/pre-tool-use-1.json: sha256:eb7a57379357419113f3496ecf2fb9cb3c535984ccad94ab6bdf5cb786cc4c2f
@@ -4197,7 +4195,7 @@ outputs:
   .crushignore: sha256:53ad60cb2c945a41619fbb5dd0d43559c8461e4cb35e30f4d98b901c73766e12
   .qwenignore: sha256:53ad60cb2c945a41619fbb5dd0d43559c8461e4cb35e30f4d98b901c73766e12
   .trae/.ignore: sha256:53ad60cb2c945a41619fbb5dd0d43559c8461e4cb35e30f4d98b901c73766e12
-  .gemini/settings.json: sha256:11a797afbbfa9efa87d6da43d7b68b0f20f90ab3c43be0616950325b84e77961
+  .gemini/settings.json: sha256:98e99409117a7c047e528125b7a7cfdec1c1143e212140a0069be40ee69be502
   .agents/mcp_config.json: sha256:1aa1ba0782154eca7fedd6aba057291106f7076298eb84393324c4c7698e2546
   .kiro/agents/code-reviewer.md: sha256:26851c88906f4d1a494b4919586df4fb5718867ab85326307585402e9d0dee8b
   .kiro/agents/test-runner.md: sha256:0b45f061fda561fc86609cd9b874723a88391c517d8dc38bd309219791bc3688

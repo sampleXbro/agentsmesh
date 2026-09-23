@@ -34,6 +34,7 @@ import { cursorAgentMapper, cursorCommandMapper } from './import-mappers.js';
 import { lintRules } from './linter.js';
 import { buildCursorImportPaths } from '../../core/reference/import-map-builders.js';
 import { lintCommands, lintMcp, lintPermissions, lintHooks } from './lint.js';
+import { CURSOR_HOOK_CONTEXT_EVENTS } from './hook-format.js';
 
 export const target: TargetGenerators = {
   name: 'cursor',
@@ -161,6 +162,7 @@ export const descriptor = {
   },
   emptyImportMessage:
     'No Cursor config found (AGENTS.md or .cursor/rules/*.mdc; with --global: ~/.cursor/{rules/*.mdc,AGENTS.md,mcp.json,hooks.json,cursorignore,skills/,agents/,commands/} and legacy ~/.agentsmesh-exports/cursor/user-rules.md).',
+  hookContextEvents: CURSOR_HOOK_CONTEXT_EVENTS,
   lintRules,
   lint: {
     commands: lintCommands,

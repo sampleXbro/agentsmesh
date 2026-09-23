@@ -50,6 +50,16 @@ Generated-output verification skipped; run 'agentsmesh generate' to refresh the 
 
 Running `agentsmesh generate` once upgrades the lock and enables output verification on subsequent checks. A run of `agentsmesh merge` intentionally omits the `outputs` map (a merge changes canonical inputs), so verification is reported as skipped until you regenerate.
 
+## Unreadable lessons graph
+
+In project scope, `check` also fails (exit 1) when `.agentsmesh/lessons/lessons.json` exists but cannot be read, even if the lock is in sync. The error starts with `Lessons graph unreadable:` and names the cause and the next step:
+
+- **Merge conflict** — the file has git conflict markers. Run `agentsmesh lessons resolve`, then `git add` the file.
+- **Corrupt** — the JSON cannot be parsed. Keep a copy, then repair it or restore the last committed graph from git.
+- **Newer version** — the graph was written by a newer agentsmesh. Upgrade agentsmesh.
+
+A project without a lessons graph is not affected. See [`agentsmesh lessons`](../lessons/#team-workflow).
+
 ## CI integration
 
 ```yaml
@@ -87,7 +97,7 @@ jobs:
 | Code | Meaning |
 |------|---------|
 | `0` | Canonical sources and recorded generated outputs both match the lock. |
-| `1` | Drift detected — canonical sources or generated outputs are out of sync. |
+| `1` | Drift detected — canonical sources or generated outputs are out of sync — or the project's lessons graph cannot be read. |
 
 The MCP `check` tool mirrors this in its result payload, exposing `canonicalDrift`, `outputDrift`, `outputsModified`, `outputsRemoved`, `outputsStale`, and `outputsChecked`.
 

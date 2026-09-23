@@ -227,6 +227,7 @@ const targetDescriptorSchemaBase = z
     emitScopedSettings: z.function().optional(),
     mergeGeneratedOutputContent: z.function().optional(),
     postProcessHookOutputs: z.function().optional(),
+    hookContextEvents: z.array(z.string()).optional(),
     preservesManualActivation: z.boolean().optional(),
   })
   .passthrough();

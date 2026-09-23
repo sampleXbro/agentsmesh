@@ -95,6 +95,17 @@ export interface LessonsValidateData {
   readonly findings: ValidationFinding[];
 }
 
+export interface LessonsResolveData {
+  /** Where the two sides came from: git's merge stages, or the markers in the file. */
+  readonly source: 'index' | 'markers';
+  readonly path: string;
+  readonly lessonCount: number;
+  readonly onlyOurs: number;
+  readonly onlyTheirs: number;
+  /** Validation errors the merge created that neither side had. */
+  readonly introduced: readonly string[];
+}
+
 export interface LessonsImportMdData {
   readonly topicCount: number;
   readonly lessonCount: number;
@@ -165,6 +176,7 @@ export type LessonsCommandResult =
     }
   | { subcommand: 'journal'; exitCode: number; data: LessonsJournalData; error?: string }
   | { subcommand: 'validate'; exitCode: number; data: LessonsValidateData; error?: string }
+  | { subcommand: 'resolve'; exitCode: number; data: LessonsResolveData; error?: string }
   | { subcommand: 'import-md'; exitCode: number; data: LessonsImportMdData; error?: string }
   | { subcommand: 'prune'; exitCode: number; data: LessonsPruneData; error?: string }
   | {

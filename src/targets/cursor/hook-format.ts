@@ -15,6 +15,7 @@ import { getHookText, hasHookText } from '../../core/hook-command.js';
 const CANONICAL_TO_CURSOR = {
   PreToolUse: 'preToolUse',
   PostToolUse: 'postToolUse',
+  PostToolUseFailure: 'postToolUseFailure',
   UserPromptSubmit: 'beforeSubmitPrompt',
   SubagentStart: 'subagentStart',
   SubagentStop: 'subagentStop',
@@ -23,6 +24,18 @@ const CANONICAL_TO_CURSOR = {
   SessionEnd: 'sessionEnd',
   PreCompact: 'preCompact',
 } as const;
+
+/**
+ * Events whose output Cursor feeds to the model: `additional_context` on
+ * sessionStart, postToolUse and postToolUseFailure. preToolUse output is only
+ * permission/user_message/agent_message/updated_input, and beforeSubmitPrompt
+ * only continue/user_message (cursor.com/docs/agent/hooks).
+ */
+export const CURSOR_HOOK_CONTEXT_EVENTS: readonly string[] = [
+  'SessionStart',
+  'PostToolUse',
+  'PostToolUseFailure',
+];
 
 const CURSOR_TO_CANONICAL = new Map<string, string>(
   Object.entries(CANONICAL_TO_CURSOR).map(([canonical, cursor]) => [cursor, canonical]),

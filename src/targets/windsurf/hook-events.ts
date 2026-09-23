@@ -18,6 +18,13 @@ export const KNOWN_CANONICAL_HOOK_EVENTS: readonly string[] = [
   ...BEST_EFFORT_HOOK_EVENTS,
 ];
 
+/**
+ * Windsurf hooks report only through exit codes: stdout goes to the Cascade UI
+ * and only an exit-2 stderr reaches the agent, while blocking the action
+ * (docs.windsurf.com/windsurf/cascade/hooks). No event injects context.
+ */
+export const WINDSURF_HOOK_CONTEXT_EVENTS: readonly string[] = [];
+
 export function windsurfEventName(event: string): string {
   return event
     .replace(/([a-z0-9])([A-Z])/g, '$1_$2')

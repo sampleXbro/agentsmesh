@@ -57,6 +57,7 @@ export function lintHooks(canonical: CanonicalFiles): LintDiagnostic[] {
     'PreToolUse',
     'PostToolUse',
     'Notification',
+    'UserPromptSubmit',
     'SubagentStart',
     'SubagentStop',
     'SessionStart',

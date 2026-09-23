@@ -138,7 +138,10 @@ export async function recallLessons(
     // unchanged until the outcome log has real signal). Read from the side-channel
     // only when something survived matching+dedup — a no-match recall must not pay
     // the (up to 2MB) outcome-log read for a ranking of nothing.
-    effectiveness: forRank.length === 0 ? new Map() : loadEffectiveness(projectRoot),
+    effectiveness:
+      forRank.length === 0
+        ? new Map()
+        : loadEffectiveness(projectRoot, graph, new Set(forRank.map((m) => m.id))),
   });
   if (dedup !== null)
     commitSeen(

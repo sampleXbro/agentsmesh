@@ -1,3 +1,4 @@
+import { resolveLessonsRoot } from '../lessons/paths.js';
 import { resolve, dirname } from 'node:path';
 import { stat } from 'node:fs/promises';
 import { McpError } from './errors.js';
@@ -47,12 +48,15 @@ async function loadProjectPlugins(projectRoot: string): Promise<void> {
 
 export async function resolveContext(opts: {
   cwd: string;
-  /** Default true. False resolves to `cwd` when no `agentsmesh.yaml` is found. */
+  /**
+   * Default true. False falls back to the nearest directory holding lessons, or
+   * `cwd`, when no `agentsmesh.yaml` is found — a plugin-only repo has none.
+   */
   requireProject?: boolean;
 }): Promise<McpContext> {
   const projectRoot =
     opts.requireProject === false
-      ? await findProjectRoot(opts.cwd).catch(() => resolve(opts.cwd))
+      ? await findProjectRoot(opts.cwd).catch(() => resolveLessonsRoot(opts.cwd))
       : await findProjectRoot(opts.cwd);
   await loadProjectPlugins(projectRoot);
   return {

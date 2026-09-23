@@ -1,26 +1,7 @@
 import type { CanonicalFiles } from '../../../core/types.js';
-import { getHookCommand, hasHookCommand } from '../../../core/hook-command.js';
 import { GEMINI_ROOT, GEMINI_COMPAT_AGENTS, GEMINI_SETTINGS } from '../constants.js';
+import { buildGeminiHooks } from './hooks.js';
 import type { RulesOutput } from './types.js';
-
-function mapHookEvent(event: string): string | null {
-  switch (event) {
-    case 'PreToolUse':
-      return 'BeforeTool';
-    case 'PostToolUse':
-      return 'AfterTool';
-    case 'Notification':
-      return 'Notification';
-    case 'SubagentStart':
-      return 'BeforeAgent';
-    case 'SubagentStop':
-      return 'AfterAgent';
-    case 'SessionStart':
-      return 'SessionStart';
-    default:
-      return null;
-  }
-}
 
 /**
  * Emits merged `.gemini/settings.json` when MCP, agents, or hooks contribute native settings.
@@ -47,32 +28,10 @@ export function generateGeminiSettingsFiles(
     settings.experimental = { enableAgents: true };
     hasAnyNativeSettings = true;
   }
-  if (enabledFeatures.has('hooks') && canonical.hooks) {
-    const hookEntries = Object.entries(canonical.hooks).flatMap(([event, entries]) => {
-      const mappedEvent = mapHookEvent(event);
-      if (!mappedEvent || !Array.isArray(entries)) return [];
-      const mappedEntries = entries
-        .filter(
-          (entry): entry is NonNullable<typeof entry> =>
-            typeof entry === 'object' && entry !== null && hasHookCommand(entry),
-        )
-        .map((entry, index) => ({
-          matcher: entry!.matcher,
-          hooks: [
-            {
-              name: `${mappedEvent}-${index + 1}`,
-              type: 'command',
-              command: getHookCommand(entry),
-              timeout: entry!.timeout,
-            },
-          ],
-        }));
-      return mappedEntries.length > 0 ? [[mappedEvent, mappedEntries] as const] : [];
-    });
-    if (hookEntries.length > 0) {
-      settings.hooks = Object.fromEntries(hookEntries);
-      hasAnyNativeSettings = true;
-    }
+  const hooks = enabledFeatures.has('hooks') ? buildGeminiHooks(canonical.hooks) : null;
+  if (hooks) {
+    settings.hooks = hooks;
+    hasAnyNativeSettings = true;
   }
 
   if (hasAnyNativeSettings) {

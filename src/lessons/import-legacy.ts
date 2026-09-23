@@ -1,17 +1,12 @@
-import { existsSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { parse as parseYaml } from 'yaml';
-import type { AddLessonInput } from './add.js';
-import { CURRENT_GRAPH_VERSION, type Lesson, type Topic, type Trigger } from './graph-schema.js';
-import {
-  collectClusterTriggerIds,
-  deleteLegacyArtifacts,
-  LegacyIndexSchema,
-  parseRulesSection,
-} from './import-legacy-parse.js';
+import { existsSync } from 'node:fs';
+import { CURRENT_GRAPH_VERSION } from './graph-schema.js';
+import { deleteLegacyArtifacts } from './import-legacy-parse.js';
 import { mergeLegacy } from './import-legacy-merge.js';
+import { readLegacySource, type LegacySource } from './import-legacy-read.js';
 import { lessonsPaths } from './paths.js';
 import { mutateLessonsGraphLocked } from './mutate.js';
+
+export { LegacyTopicPathError } from './import-legacy-read.js';
 
 export interface ImportLegacyOptions {
   /** ISO date stamped onto every imported lesson's `createdAt`. */
@@ -37,6 +32,12 @@ export interface ImportLegacyOptions {
    * data; `force` is irrelevant in this mode.
    */
   readonly merge?: boolean;
+  /**
+   * Refuse ({@link LessonsGraphExistsError}) when `lessons.json` exists at write
+   * time under the lock, even if empty. Auto-migration sets this so two first
+   * writers cannot both migrate.
+   */
+  readonly requireAbsentGraph?: boolean;
 }
 
 /** Thrown when migration would overwrite an already-populated graph without `force`. */
@@ -67,81 +68,29 @@ export interface ImportLegacyReport {
  * `existsSync(lessonsPaths(root).index)` before invoking (see
  * `maybeAutoMigrateLessons` and the `import-md` handler); re-running on a
  * post-migration tree, where the legacy files are already gone, throws.
+ * Topic files outside `.agentsmesh/lessons/` are refused (LegacyTopicPathError).
  */
 export async function importLegacyLessons(
   projectRoot: string,
   options: ImportLegacyOptions,
 ): Promise<ImportLegacyReport> {
   const paths = lessonsPaths(projectRoot);
-  const indexRaw = readFileSync(paths.index, 'utf8');
-  const index = LegacyIndexSchema.parse(parseYaml(indexRaw));
-
-  const topics: Record<string, Topic> = {};
-  const triggersById = new Map<string, Trigger>();
-  const triggerIdByKey = new Map<string, string>();
-  const lessons: Record<string, Lesson> = {};
-  // Per-lesson specs for the MERGE path (rule + raw trigger patterns + topic).
-  const specs: AddLessonInput[] = [];
-  const summaryByTopic = new Map<string, string>();
-
-  for (const cluster of index.clusters) {
-    topics[cluster.topic] = { summary: cluster.summary };
-    summaryByTopic.set(cluster.topic, cluster.summary);
-    const clusterTriggerIds = collectClusterTriggerIds(cluster, triggersById, triggerIdByKey);
-
-    const topicFile = join(projectRoot, cluster.file);
-    if (!existsSync(topicFile)) {
-      // Fail closed: a declared topic file that is missing means we would
-      // migrate an incomplete graph and then delete the legacy source. Refuse
-      // before anything is written or deleted.
-      throw new Error(
-        `importLegacyLessons: declared topic file is missing: ${cluster.file}. Refusing to migrate (legacy artifacts left intact).`,
-      );
-    }
-    const topicMarkdown = readFileSync(topicFile, 'utf8');
-
-    for (const { index: ruleIndex, body, evidence } of parseRulesSection(topicMarkdown)) {
-      const lessonEvidence = [
-        `legacy:${cluster.file}#rule-${ruleIndex}`,
-        ...evidence.map((e) => `legacy:${e}`),
-      ];
-      lessons[`${cluster.topic}-rule-${ruleIndex}`] = {
-        rule: body,
-        topics: [cluster.topic],
-        triggers: clusterTriggerIds,
-        evidence: lessonEvidence,
-        status: 'active',
-        createdAt: options.migratedAt,
-      };
-      specs.push({
-        rule: body,
-        topic: cluster.topic,
-        triggers: {
-          files: cluster.triggers.file_globs,
-          commands: cluster.triggers.command_patterns,
-          keywords: cluster.triggers.keywords,
-        },
-        evidence: lessonEvidence,
-        createdAt: options.migratedAt,
-      });
-    }
-  }
-
-  if (options.merge === true)
+  if (options.merge === true) {
+    const { specs, summaryByTopic } = await readLegacySource(projectRoot, options.migratedAt);
     return mergeLegacy(projectRoot, paths, specs, summaryByTopic, options);
-
-  const triggers = Object.fromEntries(triggersById.entries());
+  }
 
   // Write through the transactional path: lock → load → replace → VALIDATE →
   // atomic save. mutate throws on any error-level finding (e.g. two identical
   // legacy rules → DUPLICATE_RULE), so an invalid migration never persists and
   // the legacy source below is left intact (fail closed).
-  await mutateLessonsGraphLocked(projectRoot, (g) => {
-    // Re-check existence UNDER the lock (the absent-graph check in callers is
-    // racy on its own): if a concurrent writer populated the graph, refuse to
-    // clobber it unless force is set. "Populated" means ANY content — a graph
-    // with hand-curated topics/triggers but zero lessons must not be silently
-    // replaced either.
+  const { topics, lessons, triggers } = await mutateLessonsGraphLocked(projectRoot, async (g) => {
+    // Existence is checked UNDER the lock (callers' checks are racy), and the
+    // legacy store is read only after it, so a waiter never re-reads a store a
+    // concurrent migrator already consumed. "Populated" means ANY content.
+    if (options.requireAbsentGraph === true && existsSync(paths.graph)) {
+      throw new LessonsGraphExistsError();
+    }
     const populated =
       Object.keys(g.lessons).length > 0 ||
       Object.keys(g.topics).length > 0 ||
@@ -149,10 +98,12 @@ export async function importLegacyLessons(
     if (options.force !== true && populated) {
       throw new LessonsGraphExistsError();
     }
+    const source: LegacySource = await readLegacySource(projectRoot, options.migratedAt);
     g.version = CURRENT_GRAPH_VERSION;
-    g.lessons = lessons;
-    g.topics = topics;
-    g.triggers = triggers;
+    g.lessons = source.lessons;
+    g.topics = source.topics;
+    g.triggers = source.triggers;
+    return source;
   });
 
   const deletedPaths = options.deleteLegacy === false ? [] : deleteLegacyArtifacts(paths.base);
@@ -162,6 +113,6 @@ export async function importLegacyLessons(
     deletedPaths,
     topicCount: Object.keys(topics).length,
     lessonCount: Object.keys(lessons).length,
-    triggerCount: triggersById.size,
+    triggerCount: Object.keys(triggers).length,
   };
 }

@@ -31,6 +31,7 @@ import { lintRules } from './linter.js';
 import { buildGeminiCliImportPaths } from '../../core/reference/import-map-builders.js';
 import { lintCommands, lintHooks, lintPermissions } from './lint.js';
 import { emitScopedGeminiSettings } from './scoped-settings-emit.js';
+import { GEMINI_HOOK_CONTEXT_EVENTS } from './hook-map.js';
 import { mergeGeminiSettingsJson } from '../../core/generate/settings.js';
 
 export const target: TargetGenerators = {
@@ -90,6 +91,7 @@ export const descriptor = {
     permissions: lintPermissions,
   },
   emitScopedSettings: emitScopedGeminiSettings,
+  hookContextEvents: GEMINI_HOOK_CONTEXT_EVENTS,
   mergeGeneratedOutputContent(existing, pending, newContent, resolvedPath) {
     const base = pending?.content ?? existing;
     if (base !== null && resolvedPath === GEMINI_SETTINGS) {

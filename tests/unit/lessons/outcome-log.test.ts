@@ -2,12 +2,12 @@ import { mkdtempSync, rmSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import type { LessonsGraph } from '../../../src/lessons/graph-schema.js';
+import { saveLessonsGraph } from '../../../src/lessons/graph-store.js';
 import {
   appendOutcomeEvent,
   readOutcomeLog,
   outcomeLogPath,
-  effectiveness,
-  effectivenessScore,
   loadEffectiveness,
   recordDelivered,
   recordFailure,
@@ -16,6 +16,7 @@ import {
 } from '../../../src/lessons/outcome-log.js';
 
 const ON = { AGENTSMESH_LESSONS_TELEMETRY: '1' } as NodeJS.ProcessEnv;
+const OFF = { AGENTSMESH_LESSONS_OUTCOME_LOG: '0' } as NodeJS.ProcessEnv;
 
 let root: string;
 beforeEach(() => {
@@ -23,28 +24,37 @@ beforeEach(() => {
 });
 afterEach(() => rmSync(root, { recursive: true, force: true }));
 
-const delivered = (lessonId: string, contextKey: string, session?: string): OutcomeEvent => ({
-  ts: '2026-01-01T00:00:00Z',
+const delivered = (
+  lessonId: string,
+  contextKey: string,
+  session?: string,
+  ts = '2026-01-01T00:00:00Z',
+): OutcomeEvent => ({
+  ts,
   kind: 'delivered',
   lessonId,
   contextKey,
   ...(session !== undefined ? { session } : {}),
 });
-const failure = (contextKey: string, session?: string): OutcomeEvent => ({
-  ts: '2026-01-01T00:00:00Z',
+const failure = (
+  contextKey: string,
+  session?: string,
+  ts = '2026-01-01T00:00:00Z',
+): OutcomeEvent => ({
+  ts,
   kind: 'failure',
   contextKey,
   ...(session !== undefined ? { session } : {}),
 });
 
-describe('outcome-log persistence (telemetry side-channel)', () => {
-  it('is a no-op when telemetry is disabled — no file, empty read', () => {
-    appendOutcomeEvent(root, delivered('l1', 'k1'), {} as NodeJS.ProcessEnv);
+describe('outcome-log persistence', () => {
+  it('is a no-op when the outcome log is switched off — no file, empty read', () => {
+    appendOutcomeEvent(root, delivered('l1', 'k1'), OFF);
     expect(existsSync(outcomeLogPath(root))).toBe(false);
     expect(readOutcomeLog(root)).toEqual([]);
   });
 
-  it('appends and reads back records when telemetry is enabled', () => {
+  it('appends and reads back records', () => {
     appendOutcomeEvent(root, delivered('l1', 'k1', 's1'), ON);
     appendOutcomeEvent(root, failure('k1', 's1'), ON);
     expect(
@@ -54,70 +64,62 @@ describe('outcome-log persistence (telemetry side-channel)', () => {
   });
 });
 
-describe('effectiveness derivation (pure)', () => {
-  it('a delivery is a MISS when the same contextKey fails later in the same session', () => {
-    const e = effectiveness([delivered('l1', 'k1', 's1'), failure('k1', 's1')]);
-    expect(e.get('l1')).toEqual({ delivered: 1, missed: 1 });
+describe('loadEffectiveness (ranking scores from the written log)', () => {
+  const lesson = (trigger: string): LessonsGraph['lessons'][string] => ({
+    rule: 'A rule.',
+    topics: ['t'],
+    triggers: [trigger],
+    evidence: [],
+    status: 'active',
+    createdAt: '2026-01-01',
+  });
+  const GRAPH: LessonsGraph = {
+    version: 2,
+    topics: { t: { summary: 'T.' } },
+    triggers: {
+      src: { kind: 'file_glob', pattern: 'src/**' },
+      docs: { kind: 'file_glob', pattern: 'docs/**' },
+    },
+    lessons: { l1: lesson('src'), l2: lesson('docs') },
+  };
+  const minute = (m: number): string => new Date(Date.UTC(2026, 0, 1, 0, m)).toISOString();
+
+  function seedThreeRounds(): void {
+    for (const m of [0, 10, 20]) {
+      appendOutcomeEvent(root, delivered('l1', 'file:src/x.ts', 's1', minute(m)), ON);
+      appendOutcomeEvent(root, delivered('l2', 'file:docs/a.md', 's1', minute(m)), ON);
+      appendOutcomeEvent(root, failure('file:src/x.ts', 's1', minute(m + 1)), ON);
+    }
+  }
+
+  it('scores a lesson whose own trigger kept failing 0, and one that held 1', () => {
+    seedThreeRounds();
+    const scores = loadEffectiveness(root, GRAPH);
+    expect(scores.get('l1')).toBe(0);
+    expect(scores.get('l2')).toBe(1);
+    expect(scores.get('lX')).toBeUndefined();
   });
 
-  it('a delivery is NOT a miss when no later same-key failure follows', () => {
-    const e = effectiveness([delivered('l1', 'k1', 's1'), failure('k2', 's1')]);
-    expect(e.get('l1')).toEqual({ delivered: 1, missed: 0 });
+  it('loads the graph itself when the caller has none', () => {
+    saveLessonsGraph(root, GRAPH);
+    seedThreeRounds();
+    expect(loadEffectiveness(root).get('l1')).toBe(0);
   });
 
-  it('a failure BEFORE the delivery does not impeach it (only later failures count)', () => {
-    const e = effectiveness([failure('k1', 's1'), delivered('l1', 'k1', 's1')]);
-    expect(e.get('l1')).toEqual({ delivered: 1, missed: 0 });
-  });
-
-  it('a failure in a DIFFERENT session does not impeach the delivery', () => {
-    const e = effectiveness([delivered('l1', 'k1', 's1'), failure('k1', 's2')]);
-    expect(e.get('l1')).toEqual({ delivered: 1, missed: 0 });
-  });
-
-  it('accumulates across multiple deliveries of the same lesson', () => {
-    const e = effectiveness([
-      delivered('l1', 'k1', 's1'),
-      failure('k1', 's1'), // impeaches the first
-      delivered('l1', 'k2', 's2'), // helped (no later k2 failure)
-    ]);
-    expect(e.get('l1')).toEqual({ delivered: 2, missed: 1 });
-  });
-
-  it('a same-scope failure impeaches only the delivery BEFORE it, not one after', () => {
-    const e = effectiveness([
-      delivered('l1', 'k1', 's1'), // before the failure → miss
-      failure('k1', 's1'),
-      delivered('l1', 'k1', 's1'), // after the failure, no later one → not a miss
-    ]);
-    expect(e.get('l1')).toEqual({ delivered: 2, missed: 1 });
-  });
-
-  it('scores: undelivered → neutral 1; all-missed → 0; half → 0.5', () => {
-    expect(effectivenessScore({ delivered: 0, missed: 0 })).toBe(1);
-    expect(effectivenessScore({ delivered: 3, missed: 3 })).toBe(0);
-    expect(effectivenessScore({ delivered: 2, missed: 1 })).toBe(0.5);
-  });
-
-  it('loadEffectiveness derives per-lesson scores from the written log', () => {
-    appendOutcomeEvent(root, delivered('l1', 'k1', 's1'), ON);
-    appendOutcomeEvent(root, failure('k1', 's1'), ON);
-    appendOutcomeEvent(root, delivered('l2', 'k9', 's1'), ON);
-    const scores = loadEffectiveness(root);
-    expect(scores.get('l1')).toBe(0); // fired, mistake recurred
-    expect(scores.get('l2')).toBe(1); // fired, no recurrence
-    expect(scores.get('lX')).toBeUndefined(); // never delivered → neutral (absent)
+  it('is empty until the log holds both deliveries and failures', () => {
+    appendOutcomeEvent(root, delivered('l1', 'file:src/x.ts', 's1'), ON);
+    expect(loadEffectiveness(root, GRAPH).size).toBe(0);
   });
 });
 
-describe('record helpers (stamp ts + session, gated on telemetry)', () => {
+describe('record helpers (stamp ts + session, gated on the outcome-log switch)', () => {
   const withSession = {
     AGENTSMESH_LESSONS_TELEMETRY: '1',
     AGENTSMESH_SESSION_ID: 's1',
   } as NodeJS.ProcessEnv;
 
-  it('recordDelivered writes one delivered event per lesson id; no-op when telemetry is off', () => {
-    recordDelivered(root, ['l1', 'l2'], 'file:x', {} as NodeJS.ProcessEnv);
+  it('recordDelivered writes one delivered event per lesson id; no-op when the log is off', () => {
+    recordDelivered(root, ['l1', 'l2'], 'file:x', OFF);
     expect(readOutcomeLog(root)).toEqual([]);
 
     recordDelivered(root, ['l1', 'l2'], 'file:x', withSession);
@@ -184,11 +186,19 @@ describe('record helpers (stamp ts + session, gated on telemetry)', () => {
 describe('failuresForContext (recurrence history, pure read)', () => {
   const ON = { AGENTSMESH_LESSONS_TELEMETRY: '1' } as NodeJS.ProcessEnv;
 
-  it('counts only failures for the given contextKey and returns the latest error class', () => {
+  it('counts how often the LATEST error recurred on this action, not every failure', () => {
     recordFailure(root, 'cmd:build', 'error a', ON);
-    recordFailure(root, 'file:x', 'error other', ON);
+    recordFailure(root, 'file:x', 'error b', ON);
+    recordFailure(root, 'cmd:build', 'error b', ON);
+    expect(failuresForContext(root, 'cmd:build')).toEqual({ count: 1, lastErrorClass: 'error b' });
     recordFailure(root, 'cmd:build', 'error b', ON);
     expect(failuresForContext(root, 'cmd:build')).toEqual({ count: 2, lastErrorClass: 'error b' });
+  });
+
+  it('never claims a recurrence without an error class', () => {
+    recordFailure(root, 'cmd:build', undefined, ON);
+    recordFailure(root, 'cmd:build', undefined, ON);
+    expect(failuresForContext(root, 'cmd:build')).toEqual({ count: 0 });
   });
 
   it('is zero for an action that has never failed', () => {
