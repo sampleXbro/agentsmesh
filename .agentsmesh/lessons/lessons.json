@@ -4808,6 +4808,20 @@
         "t-glob-d7206b5d"
       ]
     },
+    "lessons-system-lessons-deprecate-refuses-with-inactive": {
+      "createdAt": "2026-09-23",
+      "evidence": [
+        "ab63a792"
+      ],
+      "rule": "lessons deprecate refuses with INACTIVE_SUPERSEDER when an older lesson is already superseded by the one you are deprecating. Re-point the older lesson first (lessons deprecate <older-id> --superseded-by <live-id>), then deprecate the middle one to the same live id; do not hand-edit lessons.json to break the chain.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-cmd-1f2e50cd"
+      ]
+    },
     "lessons-system-lessons-logs-are-best-effort": {
       "createdAt": "2026-09-23",
       "evidence": [],
@@ -6470,6 +6484,22 @@
         "t-kw-925d9b8d",
         "t-kw-8a80159c",
         "t-kw-5197b195"
+      ]
+    },
+    "lock-file-format-when-deciding-whether-generate-must": {
+      "createdAt": "2026-09-23",
+      "evidence": [
+        "ab63a792"
+      ],
+      "rule": "When deciding whether generate must rewrite .agentsmesh/.lock, compare only the content fields (checksums, extends, packs, outputs) and skip the write when they match. Never compare generated_at, generated_by or lib_version: they differ per run, per teammate and per version, so comparing them brings back the dirty-tree lock churn. When the lock gains a new content field, add it to sameContent in generate-lock.ts or real changes to it will not be written.",
+      "status": "active",
+      "topics": [
+        "lock-file-format"
+      ],
+      "triggers": [
+        "t-glob-f9f526aa",
+        "t-glob-17f43180",
+        "t-glob-09ce206e"
       ]
     },
     "mcp-generate-lock-the-mcp-generate-handler-src": {
@@ -9404,13 +9434,11 @@
       "evidence": [],
       "rule": "tests/e2e/agents-last-run.md is a git-TRACKED report that the agents e2e suite rewrites with a fresh _Generated: <timestamp>_ on every run, so it shows as modified after any full or e2e test run. Revert it (git checkout --) before staging a release commit so the timestamp churn never lands; better, it should be gitignored or written to a temp path.",
       "status": "superseded",
-      "supersededBy": "verification-workflow-tests-e2e-agents-last-run-2",
+      "supersededBy": "dist-backed-tests-tests-e2e-agents-last-run",
       "topics": [
         "verification-workflow"
       ],
-      "triggers": [
-        "t-glob-6200f5c1"
-      ]
+      "triggers": []
     },
     "verification-workflow-tests-e2e-agents-last-run-2": {
       "createdAt": "2026-06-18",
@@ -9419,13 +9447,13 @@
       ],
       "rationale": "The file was gitignored to stop timestamp dirty-tree churn; the old lesson assuming it is git-tracked is now wrong.",
       "rule": "tests/e2e/agents-last-run.md is gitignored (added to .gitignore, untracked via `git rm --cached`); the agents e2e suite still rewrites it on disk each run for inspection but it is no longer committed. Do NOT re-track or commit it, and do NOT use `git checkout --` to \"restore\" it. Any test-written diagnostic report carrying a fresh `_Generated: <timestamp>_` line must stay gitignored (or write to a temp path) — never a committed fixture — so e2e/full test runs leave the working tree clean.",
-      "status": "active",
+      "status": "superseded",
+      "supersededBy": "dist-backed-tests-tests-e2e-agents-last-run",
       "topics": [
         "verification-workflow"
       ],
       "triggers": [
-        "t-glob-892c1e39",
-        "t-glob-6200f5c1"
+        "t-glob-892c1e39"
       ]
     },
     "verification-workflow-tests-for-env-gated-features": {
@@ -10578,6 +10606,10 @@
       "kind": "command_pattern",
       "pattern": "pnpm flake:watch"
     },
+    "t-cmd-1f2e50cd": {
+      "kind": "command_pattern",
+      "pattern": "lessons deprecate"
+    },
     "t-cmd-2136a61d": {
       "kind": "command_pattern",
       "pattern": " --global"
@@ -11049,6 +11081,10 @@
     "t-glob-09987b10": {
       "kind": "file_glob",
       "pattern": "src/lessons/validate-liveness.ts"
+    },
+    "t-glob-09ce206e": {
+      "kind": "file_glob",
+      "pattern": "src/core/types.ts"
     },
     "t-glob-0a664e0b": {
       "kind": "file_glob",
@@ -11533,10 +11569,6 @@
     "t-glob-61ea5981": {
       "kind": "file_glob",
       "pattern": "src/targets/continue/**"
-    },
-    "t-glob-6200f5c1": {
-      "kind": "file_glob",
-      "pattern": "tests/e2e/agents.e2e.test.ts"
     },
     "t-glob-62627edd": {
       "kind": "file_glob",
