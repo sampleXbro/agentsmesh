@@ -1,3 +1,24 @@
+# Stable lock on no-op generate (2026-09-23)
+
+Bug: `generate` with nothing changed still rewrites `generated_at` in `.agentsmesh/.lock`, so the
+tree is dirty after every run and each teammate's run shows a lock diff.
+Contract: the lock is rewritten only when its content changes (`checksums`, `extends`, `packs`,
+`outputs`). `generated_at`, `generated_by` and `lib_version` then describe the last run that
+changed something; comparing them would bring the churn back between teammates.
+
+- [x] Unit tests (writeLockFile, `generate-lock-stable.test.ts`): unchanged content → byte-identical
+  (later clock, other USER, other lib_version, filtered run); changed output / dropped output /
+  canonical file / extends / old-format lock / unreadable lock → rewritten; cache symlink refreshed
+- [x] Integration (`generate-lock-stable.integration.test.ts`): generate twice → lock bytes equal,
+  git tree clean; `check` and `generate --check` exit 0; edited rule → lock rewritten
+- [x] Implement in `src/cli/commands/generate-lock.ts` (`sameContent`); `merge` still always writes
+- [x] Watch: no loop (manual run: 1 regen at start, 1 per edit; watch suites green)
+- [x] Docs: reference/generation-pipeline.mdx + cli/generate.mdx, changeset, gate (13732
+  unit+integration, 658 e2e, coverage floor, lint, typecheck, knip, build, astro, generate
+  --check, check), manual git repro (init --yes, generate, commit, generate → clean), commit
+- Stale "merge omits outputs" wording on 3 docs pages left for a follow-up task
+---
+
 # Local pack install defects (2026-09-23)
 
 Source: manual QA of `agentsmesh install` from a local directory (task chip).

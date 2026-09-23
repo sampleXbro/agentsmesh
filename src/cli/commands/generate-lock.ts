@@ -15,6 +15,27 @@ import { ensureCacheSymlink } from '../../utils/filesystem/fs.js';
 import { logger } from '../../utils/output/logger.js';
 import { getVersion } from '../version.js';
 import type { ResolvedExtend } from '../../config/resolve/resolver.js';
+import type { LockFile } from '../../core/types.js';
+
+type LockContent = Pick<LockFile, 'checksums' | 'extends' | 'packs' | 'outputs'>;
+
+function sameMap(
+  a: Record<string, string> | undefined,
+  b: Record<string, string> | undefined,
+): boolean {
+  if (a === undefined || b === undefined) return a === b;
+  const keys = Object.keys(a);
+  return keys.length === Object.keys(b).length && keys.every((key) => a[key] === b[key]);
+}
+
+function sameContent(previous: LockFile, next: LockContent): boolean {
+  return (
+    sameMap(previous.checksums, next.checksums) &&
+    sameMap(previous.extends, next.extends) &&
+    sameMap(previous.packs, next.packs) &&
+    sameMap(previous.outputs, next.outputs)
+  );
+}
 
 export async function writeLockFile(
   context: { canonicalDir: string; configDir: string },
@@ -26,21 +47,22 @@ export async function writeLockFile(
   const extendChecksums =
     resolvedExtends.length > 0 ? await buildExtendChecksums(resolvedExtends) : {};
   const packChecksums = await buildPackChecksums(join(context.canonicalDir, 'packs'));
-  const generatedBy = process.env['USER'] ?? process.env['USERNAME'] ?? 'unknown';
+  const previous = await readLock(context.canonicalDir);
   // Full generate replaces the outputs map (dropping disabled targets' entries).
   // Filtered generate merges per-path so untouched targets' entries survive; it
   // never prunes stale entries — an accepted limitation until the next full run.
-  const previousOutputs = filtered ? ((await readLock(context.canonicalDir))?.outputs ?? {}) : {};
-  const outputs = filtered ? { ...previousOutputs, ...runOutputs } : runOutputs;
-  await writeLock(context.canonicalDir, {
-    generatedAt: new Date().toISOString(),
-    generatedBy,
-    libVersion: getVersion(),
-    checksums,
-    extends: extendChecksums,
-    packs: packChecksums,
-    outputs,
-  });
+  const outputs = filtered ? { ...(previous?.outputs ?? {}), ...runOutputs } : runOutputs;
+  const content = { checksums, extends: extendChecksums, packs: packChecksums, outputs };
+  // Time, user and version describe the last run that changed the content.
+  // Rewriting them on a no-op run dirtied the git tree after every generate.
+  if (previous === null || !sameContent(previous, content)) {
+    await writeLock(context.canonicalDir, {
+      generatedAt: new Date().toISOString(),
+      generatedBy: process.env['USER'] ?? process.env['USERNAME'] ?? 'unknown',
+      libVersion: getVersion(),
+      ...content,
+    });
+  }
   try {
     await ensureCacheSymlink(getCacheDir(), join(context.configDir, '.agentsmeshcache'));
   } catch (err) {
