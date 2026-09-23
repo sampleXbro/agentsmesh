@@ -9476,6 +9476,21 @@
         "t-kw-92a3ef4a"
       ]
     },
+    "verification-when-comparing-an-old-and": {
+      "createdAt": "2026-09-23",
+      "evidence": [
+        "174b3cd5"
+      ],
+      "rule": "When comparing an old and a new build of dist/cli.js, run both from the same kind of location (both copied folders, or both worktree dist/): getVersion() finds package.json relative to the build folder, so a build copied to dist-old/ reports lib_version 'unknown' and schema URLs without @version while the in-place build says 0.40.0 — a false diff that looks like a behavior change.",
+      "status": "active",
+      "topics": [
+        "verification"
+      ],
+      "triggers": [
+        "t-cmd-3b8eef0f",
+        "t-kw-a66f38a6"
+      ]
+    },
     "verification-workflow-after-splitting-a-module-repoint": {
       "createdAt": "2026-09-13",
       "evidence": [
@@ -10789,6 +10804,10 @@
     "t-cmd-3b496323": {
       "kind": "command_pattern",
       "pattern": "apply_patch add document|apply_patch add .*markdown|apply_patch add .*\\.md"
+    },
+    "t-cmd-3b8eef0f": {
+      "kind": "command_pattern",
+      "pattern": "cp -R dist"
     },
     "t-cmd-3c746c92": {
       "kind": "command_pattern",
@@ -13221,6 +13240,10 @@
     "t-kw-a5ed6024": {
       "kind": "keyword",
       "pattern": "test placement"
+    },
+    "t-kw-a66f38a6": {
+      "kind": "keyword",
+      "pattern": "differential build"
     },
     "t-kw-a6b86c86": {
       "kind": "keyword",
