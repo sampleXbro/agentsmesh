@@ -88,7 +88,8 @@ re-run updates in place.
 - [x] docs (cli/install.mdx, architecture/install.md, `skills/<name>` wording), changeset, gate
   (13719 unit+integration, 658 e2e, coverage floor, lint, typecheck, knip, build, astro,
   generate --check, check), manual repro of all three, commit locally
-- Note: run-install-execute.ts was 249 lines at HEAD (now 252); split left for a follow-up.
+- [x] run-install-execute.ts (252 lines) split: selection prep moved to run-install-selection.ts
+  (121 + 164 lines); a before/after build diff over 10 install scenarios is identical.
 ---
 
 # QA defect fixes: high + medium (2026-09-23)
