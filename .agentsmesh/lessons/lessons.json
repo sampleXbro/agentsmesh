@@ -841,6 +841,19 @@
         "t-glob-3770e211"
       ]
     },
+    "copilot-hooks-never-wire-a-hook-that": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "Never wire a hook that can fail to Copilot preToolUse: a failing preToolUse hook denies the tool call. Build Copilot's hooks config and its wrapper scripts from one grouping, or scripts are left orphaned.",
+      "status": "active",
+      "topics": [
+        "copilot-hooks"
+      ],
+      "triggers": [
+        "t-glob-c5046cbd",
+        "t-glob-22a25a4b"
+      ]
+    },
     "copilot-hooks-when-a-target-s-global": {
       "createdAt": "2026-07-12",
       "evidence": [
@@ -1180,6 +1193,21 @@
       "triggers": [
         "t-glob-9f0a5990",
         "t-kw-364764c2"
+      ]
+    },
+    "fixture-and-assertion-discipline-agentsmesh-lessons-validate-prints-lesso": {
+      "createdAt": "2026-09-22",
+      "evidence": [
+        "7589475d"
+      ],
+      "rule": "`agentsmesh lessons validate` prints \"Lessons graph: ok.\" whenever there are no ERROR findings; warnings (DEAD_FILE_GLOB, NEVER_RECALLED and the like) are printed too and do NOT suppress the ok line (src/cli/renderers/lessons-render-diagnostics.ts prints it on data.ok). Tests asserting on validate must check the exit code and the specific finding codes, never the presence or absence of the ok line.",
+      "status": "active",
+      "topics": [
+        "fixture-and-assertion-discipline"
+      ],
+      "triggers": [
+        "t-glob-4ac421f1",
+        "t-kw-e61f5882"
       ]
     },
     "fixture-and-assertion-discipline-before-calling-a-shared-test": {
@@ -1709,15 +1737,13 @@
         "lesson:e2e-lessons-validate-output"
       ],
       "rule": "When asserting on `agentsmesh lessons validate` output, know it prints \"Lessons graph: ok.\" to stdout ONLY when there are zero findings; non-fatal warnings (e.g. UNREACHABLE_LESSON for a lesson with no triggers) are written to stderr and suppress the ok line while exit stays 0. Test fixtures that expect the ok line must seed lessons WITH at least one trigger, or assert on exit code instead.",
-      "status": "active",
+      "status": "superseded",
+      "supersededBy": "fixture-and-assertion-discipline-agentsmesh-lessons-validate-prints-lesso",
       "topics": [
         "fixture-and-assertion-discipline"
       ],
       "triggers": [
-        "t-glob-1b989d0e",
-        "t-kw-e61f5882",
-        "t-kw-3c5328a3",
-        "t-kw-04b69ea5"
+        "t-kw-e61f5882"
       ]
     },
     "fixture-and-assertion-discipline-when-testing-realpath-based-path": {
@@ -2649,6 +2675,18 @@
       ],
       "triggers": [
         "t-cmd-7c1c43ea"
+      ]
+    },
+    "git-commit-hygiene-never-git-stash-a-file": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "Never git stash a file to prove a test red while parallel agents have staged new files in the tree: stash and pop can restage or drop their state. Copy the file aside, write the old version, run the test, then copy it back.",
+      "status": "active",
+      "topics": [
+        "git-commit-hygiene"
+      ],
+      "triggers": [
+        "t-cmd-6b608027"
       ]
     },
     "git-commit-hygiene-never-let-a-git-commit": {
@@ -3868,6 +3906,19 @@
         "t-glob-497f5415"
       ]
     },
+    "lessons-a-new-lessons-subcommand-must": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "A new lessons subcommand must also land in the renderer switch (src/cli/renderers/lessons.ts), the skill.ts subcommand list plus its canonical .agentsmesh/skills/lessons/SKILL.md and plugins/agentsmesh-lessons copies, the frozen-API golden, and CANONICAL_SUBCOMMANDS. lessons resolve shipped with no renderer case, so it printed nothing on success.",
+      "status": "active",
+      "topics": [
+        "lessons"
+      ],
+      "triggers": [
+        "t-glob-74262634",
+        "t-glob-8bbff52e"
+      ]
+    },
     "lessons-system-a-command-pattern-trigger-s": {
       "createdAt": "2026-06-26",
       "evidence": [
@@ -3987,6 +4038,20 @@
         "t-kw-b5a60c47"
       ]
     },
+    "lessons-system-anything-the-recall-hook-derives": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "Anything the recall hook derives from the outcome log runs before every edit and command: memoize per (lesson, action) and compute only for the lessons being ranked, then time the hook with a full 5000-event log. Unmemoized effectiveness added about 130 ms per hook call; memo plus scoping cut it to about 20 ms.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-8ac603bd",
+        "t-glob-0a664e0b",
+        "t-glob-c88404c0"
+      ]
+    },
     "lessons-system-apply-the-same-legacy-auto": {
       "createdAt": "2026-06-06",
       "evidence": [
@@ -4034,6 +4099,19 @@
         "t-kw-719d8353"
       ]
     },
+    "lessons-system-before-turning-a-lessons-log": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "Before turning a lessons log on by default, re-run every consumer on the real log. The old effectiveness join reported 677 misses (65% on cmd:cd); counting a miss only for a failure in the same session, within 30 minutes, on an action the lesson's own trigger matches reports 4.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-55cef0b5",
+        "t-glob-0571e0f3"
+      ]
+    },
     "lessons-system-bound-compiled-nfa-size-and": {
       "createdAt": "2026-06-06",
       "evidence": [
@@ -4047,6 +4125,35 @@
       "triggers": [
         "t-glob-f238075d",
         "t-kw-233ef987"
+      ]
+    },
+    "lessons-system-call-a-lessons-file-glob": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "Call a lessons file_glob that matches nothing on disk dead only with git proof: HEAD history deleted or renamed its path, and a wildcard glob needs a rename. Ignored build output, not-yet-created files, other branches and non-git projects stay pending and are never auto-detached; 'no match on disk' alone pruned live lessons on every fresh clone.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-6df22239",
+        "t-glob-23ebed0d",
+        "t-glob-730e2b43"
+      ]
+    },
+    "lessons-system-claude-code-posttoolusefailure-carries-t": {
+      "createdAt": "2026-09-22",
+      "evidence": [
+        "5e8ef3b9"
+      ],
+      "rule": "Claude Code PostToolUseFailure carries the failure text in a TOP-LEVEL `error` string whose first line is `Exit code N` (documented example: \"error\": \"Exit code 1\\nError: Cannot find module ...\"), not in tool_error or tool_response. Read `error`, and class on the first line AFTER `Exit code N`, or every Bash failure collapses into one class. Before writing any hook payload extractor, copy the field names from the docs example JSON for that exact event and assert against a fixture built from it: an extractor built on a guessed field shipped and left 0 of 247 real failures classified for months.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-a930701b",
+        "t-glob-a2bc0df2"
       ]
     },
     "lessons-system-claude-code-s-pretooluse-hook": {
@@ -4080,6 +4187,20 @@
       "triggers": [
         "t-glob-0b59f983",
         "t-cmd-56d79bf7"
+      ]
+    },
+    "lessons-system-copy-each-host-s-hook": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "Copy each host's hook payload and answer shape from that host's docs: Copilot camelCase payloads have no hook_event_name (detect by sessionId plus source or toolName/error) and need exit code 2 on postToolUseFailure; Cursor answers with top-level additional_context and sends conversation_id (session_id only on sessionStart); Gemini's BeforeAgent is its prompt event. The CLI must pass the hook's exit code through: doHook hard-coded 0, so Copilot ignored the nudge.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-a3db7abc",
+        "t-glob-f084e574",
+        "t-glob-4eefad64"
       ]
     },
     "lessons-system-differential-test-every-claimed-javascri": {
@@ -4440,6 +4561,19 @@
         "t-kw-34b00283"
       ]
     },
+    "lessons-system-key-a-failed-shell-command": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "Key a failed shell command on the segment that runs the real program: split on &&, ||, ; and | outside quotes, and skip cd, env assignments and known global flags (keying on the first word put 22 failures under cmd:cd). Build the capture trigger hint from the same class as \\bprog\\b.*\\bsub\\b, or it never matches the command that failed.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-00ddf156",
+        "t-glob-7a4844fc"
+      ]
+    },
     "lessons-system-keyword-match-s-derived-haystack": {
       "createdAt": "2026-07-05",
       "evidence": [
@@ -4500,6 +4634,18 @@
       ],
       "triggers": [
         "t-glob-0465888e"
+      ]
+    },
+    "lessons-system-make-a-bounded-file-walk": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "Make a bounded file walk return null (unknown) when it hits its cap, never the partial list: a 'no match' verdict over a partial list marks live globs dead.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-d27bc29c"
       ]
     },
     "lessons-system-make-legacy-auto-migration-check": {
@@ -4575,6 +4721,58 @@
         "t-glob-300bbdba"
       ]
     },
+    "lessons-system-mark-recalled-lessons-as-seen": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "Mark recalled lessons as seen only after every output cap is applied: the CLI renderer cut rules past 32,000 characters after dedup had committed them, so with --session they were never delivered. Trim to the printed payload in the handler, before commitSeen.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-9c525d4d",
+        "t-glob-4669d772"
+      ]
+    },
+    "lessons-system-merge-a-lesson-s-list": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "Merge a lesson's list fields (triggers, topics, evidence) as base-aware sets in the three-way merge; taking one side's whole record silently drops the other side's triggers and evidence.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-163a9800",
+        "t-glob-b4f18da9"
+      ]
+    },
+    "lessons-system-never-compile-an-author-supplied": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "Never compile an author-supplied lessons file_glob with picomatch on any path: recall, validate, prune, capture guardrails or effectiveness. picomatch passes (…), | and +-after-) through as a backtracking regex even with noextglob, and the synchronous hang cannot be stopped by a test timeout. Use getGlobMatcher from src/lessons/glob-safety.ts and treat null as never matching.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-b06bb957",
+        "t-glob-09987b10",
+        "t-glob-8ac603bd"
+      ]
+    },
+    "lessons-system-never-configure-a-git-merge": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "Never configure a git merge driver whose program is not on PATH: git cannot start it, keeps %A as it is with no conflict markers, and the next git add silently drops the other branch's lessons. Check the launcher exists first and report the setup as failed.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-96d1a399"
+      ]
+    },
     "lessons-system-never-infer-that-a-recalled": {
       "createdAt": "2026-07-17",
       "evidence": [
@@ -4589,6 +4787,19 @@
         "t-glob-82cf3af5",
         "t-glob-d40017a0",
         "t-kw-313d1d49"
+      ]
+    },
+    "lessons-system-never-limit-a-git-log": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "Never limit a git log -M rename scan with a pathspec: a rename whose new path is outside the pathspec is reported as a plain delete, so a renamed file looks deleted.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-73cdbf31",
+        "t-cmd-386c44c4"
       ]
     },
     "lessons-system-preserve-documented-regex-semantics-in": {
@@ -4662,6 +4873,18 @@
       "triggers": [
         "t-glob-d3ba8a40",
         "t-kw-d4f6d2ba"
+      ]
+    },
+    "lessons-system-read-stdout-stderr-or-a": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "Read stdout, stderr or a string tool_response as failure text only when the hook payload carries a failure signal; success events carry output too, and reading it unconditionally records successful commands as failures.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-a930701b"
       ]
     },
     "lessons-system-recalllessons-capturelesson-take-project": {
@@ -4791,14 +5014,28 @@
         "src/targets/projection/lessons-always.ts"
       ],
       "rule": "scope:'always' lessons are delivered RULE-PARITY: renderAlwaysLessonsBlock (lessons-always.ts) is projected at GENERATE time by the root-instruction-decorator into every target's root instruction as binding directives — NOT by trigger recall (they have no trigger). Graph schema is v2 with LAZY version stamping (graphSchemaVersion: v2 only when a lesson has a scope, else v1) so a project that never uses --always keeps a v1 graph older CLIs still read; the schema version accepts 1|2. The always-block MUST be stripped on import (stripAlwaysLessonsBlock in import-metadata-core) or it round-trips into canonical _root.md. applyAlwaysLessonsBlock is a VERBATIM no-op when there's no block and none present, so projects without always-lessons keep byte-identical generated output.",
+      "status": "superseded",
+      "supersededBy": "lessons-system-scope-always-lessons-are-delivered-2",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-f6905ae6"
+      ]
+    },
+    "lessons-system-scope-always-lessons-are-delivered-2": {
+      "createdAt": "2026-09-22",
+      "evidence": [
+        "7589475d"
+      ],
+      "rule": "scope:always lessons are delivered DYNAMICALLY, never projected into generated instruction files: the UserPromptSubmit hook calls recallAlwaysLessons (src/lessons/recall-always.ts, fixed ~600-token budget that config.json cannot raise), and agents without hooks fetch them with `lessons query --always` or MCP lessons_query always:true, as the always-on paragraph instructs. There is no generate-time always-block (no renderAlwaysLessonsBlock, no lessons-always.ts); a static digest baked into _root.md was rejected because it cannot be complete, bounded and current at once.",
       "status": "active",
       "topics": [
         "lessons-system"
       ],
       "triggers": [
-        "t-glob-f6905ae6",
-        "t-glob-b1aaff05",
-        "t-kw-f169d21b"
+        "t-glob-a93a3ef5",
+        "t-kw-8b8943f1"
       ]
     },
     "lessons-system-session-recall-dedup-seen-cache": {
@@ -4978,6 +5215,18 @@
       "triggers": [
         "t-glob-8e1b0ea0",
         "t-cmd-56d79bf7"
+      ]
+    },
+    "lessons-system-treat-legacy-lessons-index-paths": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "Treat legacy lessons index paths as untrusted: they must normalize to a path inside .agentsmesh/lessons/ (reject absolute, drive, UNC, .. and symlink escapes) before any read, since first recall migrates automatically.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-81a938c7"
       ]
     },
     "lessons-system-validate-any-lessons-graph-consolidation": {
@@ -6035,6 +6284,18 @@
         "t-kw-baecf908"
       ]
     },
+    "process-locks-never-delete-a-process-lock": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "Never delete a process lock by path after judging its holder stale: another process may take the lock between the judgement and the delete. Remove only your exact owner-<token> marker, tear down only after winning that removal, and delete holder.json only when its token matches.",
+      "status": "active",
+      "topics": [
+        "process-locks"
+      ],
+      "triggers": [
+        "t-glob-611b8b3a"
+      ]
+    },
     "process-locks-when-wiring-any-process-lock": {
       "createdAt": "2026-06-10",
       "evidence": [],
@@ -6372,6 +6633,18 @@
         "t-kw-f821d655",
         "t-kw-4df0ba9f",
         "t-kw-27b89f58"
+      ]
+    },
+    "shell-quoting-never-pipe-a-json-payload": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "Never pipe a JSON payload through echo in zsh: zsh's echo turns \\n escapes inside JSON strings into real newlines, the JSON becomes invalid, and a hook fed that way silently prints nothing, which looks like a product bug. Use printf '%s\\n' \"$payload\" (or print -r --).",
+      "status": "active",
+      "topics": [
+        "shell-quoting"
+      ],
+      "triggers": [
+        "t-cmd-22179979"
       ]
     },
     "shell-quoting-rule-1": {
@@ -7773,6 +8046,19 @@
         "t-glob-0c53fb31"
       ]
     },
+    "targets-gemini-cli-hook-matchers-are": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "Gemini CLI hook matchers are unanchored regexes over Gemini's own tool names: translate canonical matchers (Edit|Write|Bash) to Gemini tool names, never copy them verbatim.",
+      "status": "active",
+      "topics": [
+        "targets"
+      ],
+      "triggers": [
+        "t-glob-4004e38e",
+        "t-glob-f1781429"
+      ]
+    },
     "targets-import-into-a-shared-canonical": {
       "createdAt": "2026-09-01",
       "evidence": [],
@@ -8062,6 +8348,18 @@
         "t-cmd-e4182599"
       ]
     },
+    "test-execution-when-a-vitest-run-hangs": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "When a vitest run hangs in synchronous code (catastrophic regex or glob backtracking), killing the vitest main process leaves its forks worker orphaned at ~100% CPU under PPID 1. Also kill the workers (pgrep -f vitest/dist/workers/forks.js, check PPID 1) before the next run, or they slow and skew every later timing.",
+      "status": "active",
+      "topics": [
+        "test-execution"
+      ],
+      "triggers": [
+        "t-cmd-b1d895c9"
+      ]
+    },
     "test-execution-when-the-pnpm-shim-tries": {
       "createdAt": "2026-06-17",
       "evidence": [
@@ -8163,6 +8461,19 @@
         "t-cmd-742e7c60"
       ]
     },
+    "testing-temp-git-repos-in-tests": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "Temp git repos in tests must be isolated from the host: unset GIT_DIR, GIT_INDEX_FILE and GIT_WORK_TREE (hooks export them), point GIT_CONFIG_GLOBAL at a missing file with GIT_CONFIG_NOSYSTEM=1, pass -c commit.gpgsign=false, and set GIT_AUTHOR_*/GIT_COMMITTER_*. Otherwise git acts on the wrong repo, or a host merge driver or signing setup changes the result.",
+      "status": "active",
+      "topics": [
+        "testing"
+      ],
+      "triggers": [
+        "t-glob-ae40a94c",
+        "t-glob-8bdc3684"
+      ]
+    },
     "testing-the-bash-tool-s-working": {
       "createdAt": "2026-09-04",
       "evidence": [],
@@ -8235,6 +8546,19 @@
         "t-kw-0d406f2b",
         "t-kw-34bf7cbb",
         "t-kw-f2699760"
+      ]
+    },
+    "testing-when-init-or-generate-starts": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "When init or generate starts writing per-clone state (like the lessons merge-driver git config), fix tests that assume the old state: the merge-conflict integration test's 'without the driver' case passed only on machines where agentsmesh was not on PATH. Reset that state explicitly in the test.",
+      "status": "active",
+      "topics": [
+        "testing"
+      ],
+      "triggers": [
+        "t-glob-8148e382",
+        "t-glob-57d155f8"
       ]
     },
     "testing-when-measuring-per-file-coverage": {
@@ -9823,6 +10147,10 @@
       "kind": "command_pattern",
       "pattern": " --global"
     },
+    "t-cmd-22179979": {
+      "kind": "command_pattern",
+      "pattern": "\\becho\\b.*\\|\\s*(node|agentsmesh|npx)\\b.*\\bhook\\b"
+    },
     "t-cmd-2398d904": {
       "kind": "command_pattern",
       "pattern": "agentsmesh install"
@@ -9850,6 +10178,10 @@
     "t-cmd-34d713b6": {
       "kind": "command_pattern",
       "pattern": "install --sync"
+    },
+    "t-cmd-386c44c4": {
+      "kind": "command_pattern",
+      "pattern": "\\bgit\\s+log\\b.*\\s-M"
     },
     "t-cmd-38934d6c": {
       "kind": "command_pattern",
@@ -9922,6 +10254,10 @@
     "t-cmd-69dc7d4e": {
       "kind": "command_pattern",
       "pattern": "<<-"
+    },
+    "t-cmd-6b608027": {
+      "kind": "command_pattern",
+      "pattern": "\\bgit\\s+stash\\b"
     },
     "t-cmd-6ea72461": {
       "kind": "command_pattern",
@@ -10038,6 +10374,10 @@
     "t-cmd-ae15e5eb": {
       "kind": "command_pattern",
       "pattern": "vitest run .*e2e"
+    },
+    "t-cmd-b1d895c9": {
+      "kind": "command_pattern",
+      "pattern": "\\b(pkill|kill)\\b.*vitest"
     },
     "t-cmd-b25b679a": {
       "kind": "command_pattern",
@@ -10199,6 +10539,10 @@
       "kind": "file_glob",
       "pattern": "src/targets/qwen-code/**"
     },
+    "t-glob-00ddf156": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/command-class.ts"
+    },
     "t-glob-01a25e93": {
       "kind": "file_glob",
       "pattern": "src/targets/zed/**"
@@ -10319,6 +10663,10 @@
       "kind": "file_glob",
       "pattern": "src/core/generate/json-owned-keys.ts"
     },
+    "t-glob-163a9800": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/merge-graph.ts"
+    },
     "t-glob-17bd0955": {
       "kind": "file_glob",
       "pattern": "src/targets/*/generator.ts"
@@ -10355,10 +10703,6 @@
       "kind": "file_glob",
       "pattern": "src/cli/index.ts"
     },
-    "t-glob-1b989d0e": {
-      "kind": "file_glob",
-      "pattern": "tests/**/*lessons*"
-    },
     "t-glob-1bd6cdf4": {
       "kind": "file_glob",
       "pattern": "src/core/generate/collision.ts"
@@ -10394,6 +10738,14 @@
     "t-glob-21f9729c": {
       "kind": "file_glob",
       "pattern": "server.json"
+    },
+    "t-glob-22a25a4b": {
+      "kind": "file_glob",
+      "pattern": "src/targets/copilot/hook-format.ts"
+    },
+    "t-glob-23ebed0d": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/auto-prune.ts"
     },
     "t-glob-2511e880": {
       "kind": "file_glob",
@@ -10519,6 +10871,10 @@
       "kind": "file_glob",
       "pattern": "src/targets/augment-code/**"
     },
+    "t-glob-4004e38e": {
+      "kind": "file_glob",
+      "pattern": "src/targets/gemini-cli/hook-map.ts"
+    },
     "t-glob-40333e0c": {
       "kind": "file_glob",
       "pattern": "tests/**/reference-rewrite*.test.ts"
@@ -10558,6 +10914,10 @@
     "t-glob-49e2783c": {
       "kind": "file_glob",
       "pattern": "src/canonical/**/*.ts"
+    },
+    "t-glob-4ac421f1": {
+      "kind": "file_glob",
+      "pattern": "src/cli/renderers/lessons-render-diagnostics.ts"
     },
     "t-glob-4ba3bf59": {
       "kind": "file_glob",
@@ -10599,6 +10959,10 @@
       "kind": "file_glob",
       "pattern": "src/core/reference/link-rebaser-helpers.ts"
     },
+    "t-glob-55cef0b5": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/effectiveness.ts"
+    },
     "t-glob-55ff9a58": {
       "kind": "file_glob",
       "pattern": "src/targets/**/rules-import.ts"
@@ -10614,6 +10978,10 @@
     "t-glob-570abc49": {
       "kind": "file_glob",
       "pattern": "src/targets/continue/index.ts"
+    },
+    "t-glob-57d155f8": {
+      "kind": "file_glob",
+      "pattern": "src/cli/commands/generate-lessons.ts"
     },
     "t-glob-581b70ac": {
       "kind": "file_glob",
@@ -10674,6 +11042,10 @@
     "t-glob-60971e07": {
       "kind": "file_glob",
       "pattern": "src/targets/import/import-orchestrator.ts"
+    },
+    "t-glob-611b8b3a": {
+      "kind": "file_glob",
+      "pattern": "src/utils/filesystem/process-lock*.ts"
     },
     "t-glob-6184efaf": {
       "kind": "file_glob",
@@ -10743,6 +11115,10 @@
       "kind": "file_glob",
       "pattern": "src/mcp/writers/*document*.ts"
     },
+    "t-glob-6df22239": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/file-glob-liveness.ts"
+    },
     "t-glob-6e3bf4c6": {
       "kind": "file_glob",
       "pattern": "website/src/content/docs/reference/alternatives.mdx"
@@ -10783,9 +11159,17 @@
       "kind": "file_glob",
       "pattern": "src/lessons/hook*.ts"
     },
+    "t-glob-730e2b43": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/prune*.ts"
+    },
     "t-glob-7346acca": {
       "kind": "file_glob",
       "pattern": "tests/unit/targets/**/descriptor*.test.ts"
+    },
+    "t-glob-73cdbf31": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/git-path-history.ts"
     },
     "t-glob-74262634": {
       "kind": "file_glob",
@@ -10822,6 +11206,10 @@
     "t-glob-7a175889": {
       "kind": "file_glob",
       "pattern": "src/lessons/keyword-match.ts"
+    },
+    "t-glob-7a4844fc": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/capture-trigger-hint.ts"
     },
     "t-glob-7ba39ec1": {
       "kind": "file_glob",
@@ -10931,6 +11319,10 @@
       "kind": "file_glob",
       "pattern": "src/cli/commands/generate-handlers.ts"
     },
+    "t-glob-8ac603bd": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/action-match.ts"
+    },
     "t-glob-8ac72756": {
       "kind": "file_glob",
       "pattern": "src/targets/*/rules-import.ts"
@@ -10938,6 +11330,14 @@
     "t-glob-8ade9a3e": {
       "kind": "file_glob",
       "pattern": "vitest.config.ts"
+    },
+    "t-glob-8bbff52e": {
+      "kind": "file_glob",
+      "pattern": "src/cli/commands/lessons.ts"
+    },
+    "t-glob-8bdc3684": {
+      "kind": "file_glob",
+      "pattern": "tests/integration/lessons-*.integration.test.ts"
     },
     "t-glob-8ce6202e": {
       "kind": "file_glob",
@@ -11031,6 +11431,10 @@
       "kind": "file_glob",
       "pattern": "src/core/generate/feature-loop.ts"
     },
+    "t-glob-a2bc0df2": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/error-class.ts"
+    },
     "t-glob-a2e61f30": {
       "kind": "file_glob",
       "pattern": "src/targets/opencode/**"
@@ -11042,6 +11446,10 @@
     "t-glob-a386fcc3": {
       "kind": "file_glob",
       "pattern": "src/targets/deepagents-cli/generator.ts"
+    },
+    "t-glob-a3db7abc": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/hook-hosts.ts"
     },
     "t-glob-a4ff119a": {
       "kind": "file_glob",
@@ -11058,6 +11466,10 @@
     "t-glob-a86844dd": {
       "kind": "file_glob",
       "pattern": "src/targets/codex-cli/codex-rule-paths.ts"
+    },
+    "t-glob-a930701b": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/failure-text.ts"
     },
     "t-glob-a93a3ef5": {
       "kind": "file_glob",
@@ -11107,6 +11519,14 @@
       "kind": "file_glob",
       "pattern": "src/core/generate/collision-agents.ts"
     },
+    "t-glob-ae40a94c": {
+      "kind": "file_glob",
+      "pattern": "tests/helpers/*git*.ts"
+    },
+    "t-glob-b06bb957": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/*glob*.ts"
+    },
     "t-glob-b13cc3e2": {
       "kind": "file_glob",
       "pattern": "tests/**/*windows*"
@@ -11114,10 +11534,6 @@
     "t-glob-b180e7b2": {
       "kind": "file_glob",
       "pattern": "src/targets/**"
-    },
-    "t-glob-b1aaff05": {
-      "kind": "file_glob",
-      "pattern": "src/core/generate/root-instruction-decorator.ts"
     },
     "t-glob-b39eff4f": {
       "kind": "file_glob",
@@ -11138,6 +11554,10 @@
     "t-glob-b4b3fc5c": {
       "kind": "file_glob",
       "pattern": "src/core/lint/shared/**/*.ts"
+    },
+    "t-glob-b4f18da9": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/merge-lesson.ts"
     },
     "t-glob-b571700c": {
       "kind": "file_glob",
@@ -11202,6 +11622,10 @@
     "t-glob-c47c9030": {
       "kind": "file_glob",
       "pattern": "src/targets/catalog/builtin-targets.ts"
+    },
+    "t-glob-c5046cbd": {
+      "kind": "file_glob",
+      "pattern": "src/targets/copilot/hook-assets.ts"
     },
     "t-glob-c6e66385": {
       "kind": "file_glob",
@@ -11278,6 +11702,10 @@
     "t-glob-d27835e3": {
       "kind": "file_glob",
       "pattern": "tests/contract/capability-ledger-conformance.test.ts"
+    },
+    "t-glob-d27bc29c": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/project-files.ts"
     },
     "t-glob-d3ba8a40": {
       "kind": "file_glob",
@@ -11423,9 +11851,17 @@
       "kind": "file_glob",
       "pattern": "src/targets/**/import-global-exports*.ts"
     },
+    "t-glob-f084e574": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/hook-prompt.ts"
+    },
     "t-glob-f0ab48c5": {
       "kind": "file_glob",
       "pattern": "website/src/components/home/ToolWall.astro"
+    },
+    "t-glob-f1781429": {
+      "kind": "file_glob",
+      "pattern": "src/targets/gemini-cli/generator/hooks.ts"
     },
     "t-glob-f238075d": {
       "kind": "file_glob",
@@ -11490,10 +11926,6 @@
     "t-kw-01a1d77f": {
       "kind": "keyword",
       "pattern": "capability finding source verification"
-    },
-    "t-kw-04b69ea5": {
-      "kind": "keyword",
-      "pattern": "UNREACHABLE_LESSON"
     },
     "t-kw-0560ceb4": {
       "kind": "keyword",
@@ -11714,10 +12146,6 @@
     "t-kw-3bf61ef5": {
       "kind": "keyword",
       "pattern": "augment permissions scope"
-    },
-    "t-kw-3c5328a3": {
-      "kind": "keyword",
-      "pattern": "Lessons graph: ok"
     },
     "t-kw-3cbd6157": {
       "kind": "keyword",
@@ -11950,6 +12378,10 @@
     "t-kw-8a80159c": {
       "kind": "keyword",
       "pattern": "hash drift"
+    },
+    "t-kw-8b8943f1": {
+      "kind": "keyword",
+      "pattern": "scope always"
     },
     "t-kw-8be8afaf": {
       "kind": "keyword",
@@ -12262,10 +12694,6 @@
     "t-kw-ef1e743a": {
       "kind": "keyword",
       "pattern": "stale cleanup provenance supersededFiles"
-    },
-    "t-kw-f169d21b": {
-      "kind": "keyword",
-      "pattern": "always lesson"
     },
     "t-kw-f2699760": {
       "kind": "keyword",

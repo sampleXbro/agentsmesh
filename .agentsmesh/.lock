@@ -1,7 +1,7 @@
 # Auto-generated. DO NOT EDIT MANUALLY.
 # Tracks the state of all config files for team conflict resolution.
 
-generated_at: 2026-09-23T05:52:29.113Z
+generated_at: 2026-09-23T06:16:28.822Z
 generated_by: serhii
 lib_version: 0.40.0
 checksums:
@@ -16,7 +16,7 @@ checksums:
   commands/commit.md: sha256:3e6dcc5871ad157c36efe19c162b43cdc0d723a8695fb0d45c1f90cc28fa931c
   commands/review.md: sha256:ba3053410e7cc3271f41ba329056df07c6ccd2f07e2ed3dda601c56e46a77d54
   commands/test.md: sha256:a60932b216ff9eb407c2b38e4459ac4b9606a3aed275f4af84a646eb6c2937e7
-  hooks.yaml: sha256:38d7e165c57f970ea0676074e138787f89119e02826db0c3314634c873e68f5d
+  hooks.yaml: sha256:0ad7856b2ae6a8112bada18d58b00112a5b6d2d46fbbe10d66ddcaa94385635c
   ignore: sha256:53ad60cb2c945a41619fbb5dd0d43559c8461e4cb35e30f4d98b901c73766e12
   mcp.json: sha256:963782b54cbea4ef4686fd036e87332e1a61042579916222991429e359654921
   permissions.yaml: sha256:c806acb62daf533af836dc113be37e9840a2a9b3e21b984c5909fcfb16eb52f2
@@ -4151,7 +4151,7 @@ outputs:
   kilo.jsonc: sha256:630c265b1463315e3060b5e25e25c34b6ffc3f2f0d4dc22d2b814275f1049ed1
   .factory/settings.json: sha256:44127052c3853d12af2d34d7cc8bce0807a2f5927e642bdcfc9a91e99faa52a5
   .pi/settings.json: sha256:ded948deafe0744a31515b27ab1ae292e838477bc7281d9dc8724dc163b3e7f1
-  .claude/settings.json: sha256:dd7d3e251384b292e314c391710a4e97f58f069a00451fce774ec3a5b904ff8d
+  .claude/settings.json: sha256:85b340ba469f45a906a354e7797ad257e3eb6295da1c12e2a87b858234198f57
   .cursor/hooks.json: sha256:214e703fed5a525c16796249a78e314bb1d1abd44cc02640df215c6d117890a0
   .github/hooks/agentsmesh.json: sha256:b86d4deaa71edd2ece0f26edb695848a1ed5b15615f5f108ede42849585bd896
   .github/hooks/scripts/pretooluse-0.sh: sha256:8a6ca51d7b410e798636df4e93186b652333d8ea9241079ef44aeda216475a69
@@ -4159,24 +4159,24 @@ outputs:
   .github/hooks/scripts/posttoolusefailure-0.sh: sha256:311ecc2e65ecc09ff3e08000f8237657c0e3456624ddb8b6fd1578c9b538a41f
   .github/hooks/scripts/sessionstart-0.sh: sha256:311ecc2e65ecc09ff3e08000f8237657c0e3456624ddb8b6fd1578c9b538a41f
   .cline/hooks/pretooluse-0.sh: sha256:84a67dd4de7287f0b365197e1418fafb2a55198694e485c1f5198b58300d7f3c
-  .cline/hooks/pretooluse-1.sh: sha256:0b8a1c6c1f0de58c47466ad716bb4077fd646b985f1065cb8582e73f737b3909
+  .cline/hooks/pretooluse-1.sh: sha256:ec4b9e0f6a95e21a80caed6cbc90864ef1eefb617887ffbf41811a94aefb57e3
   .cline/hooks/posttooluse-0.sh: sha256:1289538f8fad54e23bb2b47065f875ed4e6822998a9045308f0b3042b013b668
   .cline/hooks/userpromptsubmit-0.sh: sha256:7b80dfe9c4232393acfdecc31500fdfbc66782f05e3ca5af5fd99782770dabe8
   .cline/hooks/posttoolusefailure-0.sh: sha256:71e4d9e2b8a3c0e18a87c9bb12cbafc84d850870f1001c8193b86ddf557a2faf
   .cline/hooks/sessionstart-0.sh: sha256:7f166713a9d610e8148cc7b49db0c15800bf4a04176ae22b51bc859b74c000ae
-  .codex/hooks.json: sha256:ba98ef505129308e9fd067fb251d48b3a5d06b2e102d83e82fb045b48806d403
+  .codex/hooks.json: sha256:8ba8f653420ed29f71910ed2b8ecf66ae3be3b03eae6775b63072dd008ac1a2d
   .windsurf/hooks.json: sha256:0254127ad8ac9445c952123800f3e85ed592e615770e54e2e1c8896bcd6b85cf
-  .continue/settings.json: sha256:89162c6acee871d4cec4087f918a8ff155b0d82a7d02580f3d2c85167588edf3
-  .agents/hooks.json: sha256:a70487093675f527a55cc8c4e30dc2198dcc9211ee5ddb68cfa359281d0f528a
+  .continue/settings.json: sha256:728bcf841f9f21dbc9aa892fbe527807461b7d5bd96d10ca48353e619f1b5708
+  .agents/hooks.json: sha256:5ec8c4b8602c40aa0edb24d3c0e11a92e6446cced464807e39a43ceecc3a2a5b
   .kiro/hooks/pre-tool-use-1.json: sha256:eb7a57379357419113f3496ecf2fb9cb3c535984ccad94ab6bdf5cb786cc4c2f
-  .kiro/hooks/pre-tool-use-2.json: sha256:4ec3b4f5d26437726f9f7bfc2e912b06f6d24a4504d368838ddcb375b10dd9ee
+  .kiro/hooks/pre-tool-use-2.json: sha256:13699b920f5b33152a006e663933d7b58ebd3c70bc518fdfb06c2dd3c8ceebd9
   .kiro/hooks/post-tool-use-1.json: sha256:ff4d3d49f423dc43e82e9306cb83e7fb8a5f42f0a96055ba1de5400cfbe41c82
   .kiro/hooks/user-prompt-submit-1.json: sha256:cea32221e54fdf91851a62d8d351d9961be52761a9b7bf1b9c8cce24bea16040
-  .agents/plugins/agentsmesh/hooks/hooks.json: sha256:89162c6acee871d4cec4087f918a8ff155b0d82a7d02580f3d2c85167588edf3
-  crush.json: sha256:02bbb7111ffd5f929b96291de4e5788585da5ad42b34cc255a7a589ed67f4929
-  .qwen/settings.json: sha256:9b0cf597465e69a0777aa96801b079d833a1c876204e4ccfd327011ff3686125
-  .trae/hooks.json: sha256:8e323d8c48f5236e5d9efbe6234a2d9c100ff503ca9624fe22630ad2212f6593
-  .factory/hooks.json: sha256:89162c6acee871d4cec4087f918a8ff155b0d82a7d02580f3d2c85167588edf3
+  .agents/plugins/agentsmesh/hooks/hooks.json: sha256:728bcf841f9f21dbc9aa892fbe527807461b7d5bd96d10ca48353e619f1b5708
+  crush.json: sha256:c67f8112a1286c9ce2875dbccab72ccb183dc8d4d77a9fc5933088ae296f4bda
+  .qwen/settings.json: sha256:8b2b50e4c858e4e1c20289a79220e8e5e7b5fb9cd70f646a4e7c6fd0f8b17948
+  .trae/hooks.json: sha256:34ad4a532264d1cc3b96156c7896bc2f0f72f8cc38f74e7629ca7cbe6442345b
+  .factory/hooks.json: sha256:728bcf841f9f21dbc9aa892fbe527807461b7d5bd96d10ca48353e619f1b5708
   .claudeignore: sha256:53ad60cb2c945a41619fbb5dd0d43559c8461e4cb35e30f4d98b901c73766e12
   .cursorignore: sha256:53ad60cb2c945a41619fbb5dd0d43559c8461e4cb35e30f4d98b901c73766e12
   .geminiignore: sha256:53ad60cb2c945a41619fbb5dd0d43559c8461e4cb35e30f4d98b901c73766e12
@@ -4212,14 +4212,14 @@ outputs:
   .amp/settings.json: sha256:6e4cf0d284153cac726c6018d58bca6195c552d052c6af0f774f22e1e07e8a8a
   .zed/settings.json: sha256:8eb6f12988863348ec57058db461869f6abe8c447facd796c0cf40b8506a99a9
   .aider.conf.yml: sha256:9c0aec04e8821683cba3386a751c97beef53dd49714d72307002edd57dbfd6ef
-  .amazonq/cli-agents/code-reviewer.json: sha256:d7603c0d4e3bcdc97b49a9150013b17fd93b32354df788b75b1d2e740a5d9bbb
-  .amazonq/cli-agents/test-runner.json: sha256:33c1dd6e04750a1030b69b19270b9f792d9fb1ff656f7f68993fc8b2dbd4bf0f
-  .amazonq/cli-agents/security-auditor.json: sha256:25daa0f059dccec7452ab326d6d07f5a3242dd6e08cc217631e478b68939ffdb
-  .amazonq/cli-agents/test-engineer.json: sha256:e33a0e0b5700fdd70f1b88d6566cd337fb87885f7bb1bb1ab4180654e3f86ede
-  .amazonq/cli-agents/code-debugger.json: sha256:00653748a077493bc8936aedcbf7d5b9eef76fccaff9f734d80fc08442383a9a
-  .amazonq/cli-agents/code-documenter.json: sha256:6805c4796691618231c4ba8ee9bc22d5b0bf1bc9367e81811d3b1174a0a97bc0
-  .amazonq/cli-agents/code-refactor.json: sha256:ef1dda6134590acebc22c08322999c809cf2d0cb02ae1acb77b30b7dbe93b654
-  .amazonq/cli-agents/code-security-auditor.json: sha256:221183a2b8664012b588bb4663d7a72f8a72573c1b9b3f9cd101b33002dc35a9
-  .amazonq/cli-agents/code-standards-enforcer.json: sha256:1b357c5546cfe71da1f75f61406b76031bc30e61a3b8f7f551b36ba2b96e531a
-  .amazonq/cli-agents/typescript-developer.json: sha256:1351c5962ae7ef75b523668dd5cfa3ef4db37ee10ceddf5369950ffa99a192bb
-  .augment/settings.json: sha256:75e24f9bd2e458a77087aed287ecb013a4719f77e27eeac79b03608f78e96bb3
+  .amazonq/cli-agents/code-reviewer.json: sha256:b3f941bed4c924b1cf961db67ef67997d46edf7e8840c57e2c87b40336967d05
+  .amazonq/cli-agents/test-runner.json: sha256:b47280cb8a138f55ceb541377989e2e4a4fd599d6e37fe9cdd723a7b66274d2e
+  .amazonq/cli-agents/security-auditor.json: sha256:84602560260900ce65abdc574217398be673bf953582d889ac616993a8449766
+  .amazonq/cli-agents/test-engineer.json: sha256:ffc44cbb3f0c223db4a10851e0660da149e2fe3be68a5758416d0996d73eb29e
+  .amazonq/cli-agents/code-debugger.json: sha256:282294bf1caa041cf8bc5ea217d3edf949f3bda0fcb30ef460ac3f8c77022332
+  .amazonq/cli-agents/code-documenter.json: sha256:7e24508fdf42026d178f87a5c8731193660020cc34b7b8a6ad6ed2f7a191b310
+  .amazonq/cli-agents/code-refactor.json: sha256:780280355114f8a4bea0b489110e2164ccd850d96bd5a1d528430f757799a198
+  .amazonq/cli-agents/code-security-auditor.json: sha256:483d89596861582cf0e72fa82a25be1763d5867593e5af620fb58537afaa980c
+  .amazonq/cli-agents/code-standards-enforcer.json: sha256:2351c7a615cb38dd14471d52217207da8a8175c6f5d526bf489c3afcbeef9b61
+  .amazonq/cli-agents/typescript-developer.json: sha256:fb6ea01eac91b725c9adaa99c07eb6baab36f45198e06b973d56ef94e77397c7
+  .augment/settings.json: sha256:b22a594e1f819e87eb4c8afcdb3e6ca665eb223a7d857d29e09ba232c9f5654d
