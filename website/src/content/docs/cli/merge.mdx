@@ -54,7 +54,7 @@ git commit -m "merge: resolve agentsmesh config conflicts"
 
 `agentsmesh merge` reads the current canonical files in `.agentsmesh/` (or `~/.agentsmesh/` with `--global`) and rewrites the matching lock file with fresh canonical-source checksums computed from the current state.
 
-It does not modify any canonical or generated files — it only fixes the lock file. The rewrite intentionally omits the `outputs` map (a merge changes canonical inputs), so `agentsmesh check` reports generated-output verification as skipped until you run `agentsmesh generate` to regenerate and refresh the lock — which the workflow above already does.
+It does not modify any canonical or generated files — it only fixes the lock file. It keeps the `outputs` map of generated-file checksums: the entries of both branches are combined, and where both branches recorded the same file, your branch's checksum is kept. That checksum can be out of date for a file the other branch changed, so `agentsmesh check` may report that file as modified until you run `agentsmesh generate`, which records the real checksums. The workflow above already does this. Only when neither branch's lock had an `outputs` map does the rebuilt lock have none, and then `check` skips output verification until you generate.
 
 ## Collaboration strategies
 

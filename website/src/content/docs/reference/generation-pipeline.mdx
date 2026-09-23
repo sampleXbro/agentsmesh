@@ -155,6 +155,6 @@ outputs:
 
 `agentsmesh generate` rewrites the lock only when `checksums`, `extends`, `packs` or `outputs` change. A run that changes nothing leaves the file byte-for-byte as it was, so your git tree stays clean after `generate`, and a teammate's run doesn't create a lock diff. `generated_at`, `generated_by` and `lib_version` therefore describe the last run that changed the lock, not the latest run.
 
-Filtered generates (`--targets`/`--features`) merge their outputs per-path into the existing `outputs` map without pruning stale entries; a full `agentsmesh generate` replaces the map, which is when entries for disabled targets drop off. `agentsmesh merge` omits the `outputs` map entirely, so output verification is reported as skipped until you regenerate.
+Filtered generates (`--targets`/`--features`) merge their outputs per-path into the existing `outputs` map without pruning stale entries; a full `agentsmesh generate` replaces the map, which is when entries for disabled targets drop off. `agentsmesh merge` keeps the `outputs` map: it combines the entries of both branches, and where both branches recorded the same file, your branch's hash wins. That hash can be out of date for a file the other branch changed, so until you run `agentsmesh generate`, `check` can report that file as modified. Only when neither branch's lock had an `outputs` map does the merged lock have none, and then `check` skips output verification until you regenerate.
 
 The lock file is committed to git. It should not be edited manually.

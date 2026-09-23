@@ -48,7 +48,7 @@ Locks written before generated-output tracking existed have no `outputs` map. Fo
 Generated-output verification skipped; run 'agentsmesh generate' to refresh the lock and enable it.
 ```
 
-Running `agentsmesh generate` once upgrades the lock and enables output verification on subsequent checks. A run of `agentsmesh merge` intentionally omits the `outputs` map (a merge changes canonical inputs), so verification is reported as skipped until you regenerate.
+Running `agentsmesh generate` once upgrades the lock and enables output verification on subsequent checks. `agentsmesh merge` keeps the `outputs` map when either branch's lock had one, so a merge does not turn verification off. After a merge, `check` can report a generated file that only the other branch changed as modified, because the merged lock may keep your branch's older checksum for it; run `agentsmesh generate` to record the real checksums. Only a merge of two locks without an `outputs` map gives a lock in this old format.
 
 ## Unreadable lessons graph
 
