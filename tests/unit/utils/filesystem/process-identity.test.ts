@@ -42,6 +42,13 @@ describe('processIdentity', () => {
     expect(await processIdentity(process.pid, 'win32')).toBeNull();
   });
 
+  // Linux runners have ps too, so the macOS probe is tested there as well.
+  it.skipIf(process.platform === 'win32')('reads the start time with ps on macOS', async () => {
+    const first = await processIdentity(process.pid, 'darwin');
+    expect(first).toMatch(/^[A-Z][a-z]{2} [A-Z][a-z]{2} +\d{1,2} \d{2}:\d{2}:\d{2} \d{4}$/);
+    expect(await processIdentity(process.pid, 'darwin')).toBe(first);
+  });
+
   it.skipIf(process.platform === 'win32')(
     'gives the running process a stable, non-empty identity',
     async () => {

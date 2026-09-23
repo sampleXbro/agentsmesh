@@ -49,6 +49,17 @@ describe('commitSeen under overlap', () => {
     expect(existsSync(lock)).toBe(false);
   });
 
+  it('writes anyway once a lock that never frees has waited 2 seconds', () => {
+    const lock = `${seenStorePath(session, root)}.lock`;
+    mkdirSync(lock, { recursive: true });
+    const started = Date.now();
+
+    commitSeen(openSessionDedup({ explicit: session, projectRoot: root })!, ['a']);
+
+    expect(Date.now() - started).toBeGreaterThanOrEqual(2_000);
+    expect([seenNow(), existsSync(lock)]).toEqual([['a'], true]);
+  });
+
   it('keeps every id when 12 processes commit at once', async () => {
     const script = join(root, 'commit.mts');
     const seenCache = resolve('src/lessons/seen-cache.ts');
