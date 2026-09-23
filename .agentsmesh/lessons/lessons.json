@@ -7215,6 +7215,20 @@
         "t-kw-b975b1b2"
       ]
     },
+    "subagent-delegation-when-a-subagent-runs-a": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "When a subagent runs a CLI that writes relative to its working directory (lessons add, generate, init), tell it to start EVERY command with 'cd <its temp dir> || exit 1' and to put 'set -e' or a cd guard inside any script it writes: the Bash tool resets cwd to the repo between calls, and a failed cd inside a script keeps running there. A QA subagent's crash script wrote 16 test lessons into this repo's real lessons graph that way; check 'git status' after every QA fan-out.",
+      "status": "active",
+      "topics": [
+        "subagent-delegation"
+      ],
+      "triggers": [
+        "t-cmd-80957347",
+        "t-kw-e143f3f6",
+        "t-kw-1b41258f"
+      ]
+    },
     "subagent-delegation-when-partitioning-consolidation-audit-wo": {
       "createdAt": "2026-07-21",
       "evidence": [
@@ -10446,6 +10460,10 @@
       "kind": "command_pattern",
       "pattern": "generate --check"
     },
+    "t-cmd-80957347": {
+      "kind": "command_pattern",
+      "pattern": "\\bmktemp\\b"
+    },
     "t-cmd-813423e2": {
       "kind": "command_pattern",
       "pattern": "<<'EOF'"
@@ -12186,6 +12204,10 @@
       "kind": "keyword",
       "pattern": "refactor"
     },
+    "t-kw-1b41258f": {
+      "kind": "keyword",
+      "pattern": "exploratory qa"
+    },
     "t-kw-1d0e5147": {
       "kind": "keyword",
       "pattern": "strip markers"
@@ -12805,6 +12827,10 @@
     "t-kw-e10b834c": {
       "kind": "keyword",
       "pattern": "AGENTS.md"
+    },
+    "t-kw-e143f3f6": {
+      "kind": "keyword",
+      "pattern": "qa subagent"
     },
     "t-kw-e2160d81": {
       "kind": "keyword",
