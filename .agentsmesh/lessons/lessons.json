@@ -3926,6 +3926,21 @@
       ],
       "rationale": "Conflating valid command_patterns with verified file-glob reachability overstates graph health.",
       "rule": "A command_pattern trigger's reachability cannot be verified statically the way a file_glob's can: a file_glob is dead/live against the working tree (deadFileGlobIds matches real files), but a command_pattern only has \"compiles/valid\" (isSafeRegexPattern) — there is no command corpus to test \"matches a real command.\" Any lessons reachability/liveness audit MUST keep these tiers separate (file-reachable = verified vs the tree, command-pattern = valid-but-unverified), never sum them into one \"reachable\" bucket.",
+      "status": "superseded",
+      "supersededBy": "lessons-system-a-command-pattern-trigger-s-2",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-09987b10",
+        "t-kw-26b43334",
+        "t-kw-ace667f6"
+      ]
+    },
+    "lessons-system-a-command-pattern-trigger-s-2": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "A command_pattern trigger's reachability cannot be verified statically the way a file_glob's can: a file_glob is judged against the working tree and git history (fileGlobLiveness in validate-liveness.ts), but a command_pattern only has 'compiles/valid' (isSafeRegexPattern); there is no command corpus to test 'matches a real command'. Any lessons reachability/liveness audit MUST keep these tiers separate (file-reachable = verified vs the tree, command-pattern = valid-but-unverified), never sum them into one 'reachable' bucket.",
       "status": "active",
       "topics": [
         "lessons-system"
@@ -4561,6 +4576,18 @@
         "t-kw-34b00283"
       ]
     },
+    "lessons-system-keep-the-nested-per-lesson": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "Keep the nested per-lesson Map memo in action-match.ts: flattening it to one Map keyed by lessonId + separator + contextKey made effectiveness() on a 5000-event log about 50 ms instead of 20 ms (a new string per lookup on the recall hot path), and outcome-log lesson ids are not validated, so a separator key could clash.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-8ac603bd"
+      ]
+    },
     "lessons-system-key-a-failed-shell-command": {
       "createdAt": "2026-09-23",
       "evidence": [],
@@ -4800,6 +4827,19 @@
       "triggers": [
         "t-glob-73cdbf31",
         "t-cmd-386c44c4"
+      ]
+    },
+    "lessons-system-never-swap-merge-code-s": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "Never swap merge code's version-1 empty graph (absentGraph in merge-sides.ts) for emptyGraph(): emptyGraph() stamps CURRENT_GRAPH_VERSION and mergeGraphs keeps the higher version, so an absent side would silently upgrade a v1 graph on merge.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-9e939911",
+        "t-glob-163a9800"
       ]
     },
     "lessons-system-preserve-documented-regex-semantics-in": {
@@ -5102,11 +5142,27 @@
       ],
       "rationale": "Added an effectiveness/benefit block to lessons stats; the outcome-log signal now has three consumers and one shared threshold, and the held-rate metric must stay honestly labeled.",
       "rule": "The effectiveness derivation (effectiveness() in outcome-log.ts) now feeds THREE outputs that must stay consistent: recall down-ranking (loadEffectiveness → ranking), the validate health view (collectHealthFindings), and the lessons-stats effectiveness block (summarizeEffectiveness). The ineffective threshold is single-sourced as INEFFECTIVE_MIN_DELIVERIES (exported from validate-health) — reuse it, don't re-hardcode. Stats presents 'held rate' as a COARSE upper bound (a delivery with no recorded repeat ≠ proof of prevention) — never label it as mistakes prevented.",
+      "status": "superseded",
+      "supersededBy": "lessons-system-the-effectiveness-derivation-effectivene-2",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-c88404c0",
+        "t-glob-5c14835c",
+        "t-glob-e3bd9564"
+      ]
+    },
+    "lessons-system-the-effectiveness-derivation-effectivene-2": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "The effectiveness derivation (effectiveness() in effectiveness.ts) feeds THREE outputs that must stay consistent: recall down-ranking (loadEffectiveness -> ranking), the validate health view (collectHealthFindings) and the lessons stats block (summarizeEffectiveness). The 'ineffective' rule lives once in effectiveness.ts as isIneffective() with INEFFECTIVE_MIN_DELIVERIES; reuse them, never re-hardcode. Stats presents 'held rate' as a COARSE upper bound (a delivery with no recorded repeat is not proof of prevention); never label it as mistakes prevented.",
       "status": "active",
       "topics": [
         "lessons-system"
       ],
       "triggers": [
+        "t-glob-55cef0b5",
         "t-glob-c88404c0",
         "t-glob-5c14835c",
         "t-glob-e3bd9564"
@@ -5133,6 +5189,20 @@
       ],
       "rationale": "Advisory escalation that re-runs the body's query double-injects unless the preface's deliveries are committed to the per-session dedup cache.",
       "rule": "The PreToolUse recurrence-gate escalation and the recall body query the SAME action, so the gate MUST record+commit its shown covering lesson ids to the session seen-cache (recurrence-gate.ts recurrenceEscalation) — that is what makes emitRecall's recall body dedup them. Skip it and the identical covering rule is injected twice in one hook output (preface + body). Assert each covering rule appears exactly once; a `toContain` check cannot detect the duplicate.",
+      "status": "superseded",
+      "supersededBy": "lessons-system-the-pretooluse-recurrence-gate-escalatio-2",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-eb1e5fce",
+        "t-glob-2e029bcd"
+      ]
+    },
+    "lessons-system-the-pretooluse-recurrence-gate-escalatio-2": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "The PreToolUse recurrence-gate escalation and the recall body query the SAME action, so the gate MUST record and commit its shown covering lesson ids to the session seen-cache (recurrence-gate.ts recurrenceEscalation); that is what makes the recall body (collectRecall/renderRecall in hook-emit.ts) dedup them. Skip it and the identical covering rule is injected twice in one hook output (preface + body). Assert each covering rule appears exactly once; a toContain check cannot detect the duplicate.",
       "status": "active",
       "topics": [
         "lessons-system"
@@ -5164,6 +5234,19 @@
       ],
       "rationale": "Effectiveness was blind because failures came only from the Claude-specific PostToolUseFailure event; broadening detection to any error-bearing payload makes it portable and fixes a latent delivery mis-record.",
       "rule": "The recall hook (hook.ts) detects a tool FAILURE by EITHER hook_event_name==='PostToolUseFailure' OR a non-empty tool_error in the payload — so failure recording is portable to harnesses that signal errors on a normally-named tool-call event, not just Claude Code's dedicated failure event. A detected failure MUST route to the failure branch (recordFailure + capture nudge), never fall through to emitRecall, or the failed action is mis-recorded as a successful DELIVERY — inflating deliveries and corrupting the effectiveness held-rate.",
+      "status": "superseded",
+      "supersededBy": "lessons-system-the-recall-hook-hook-ts-2",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-71b4b110"
+      ]
+    },
+    "lessons-system-the-recall-hook-hook-ts-2": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "The recall hook (hook.ts) treats a call as a FAILURE when hook_event_name is PostToolUseFailure OR the payload carries failure text (failureText: error or tool_error), so failure recording works on hosts that report errors on a normally named event. A detected failure MUST route to the failure branch (recordFailure + capture nudge, hook-failure.ts), never fall through to recall (collectRecall), or the failed action is recorded as a successful DELIVERY, inflating deliveries and corrupting the held rate.",
       "status": "active",
       "topics": [
         "lessons-system"
@@ -5186,6 +5269,19 @@
         "t-glob-db7e480d",
         "t-glob-ed0be781",
         "t-kw-0af10961"
+      ]
+    },
+    "lessons-system-to-mimic-a-hand-written": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "To mimic a hand-written split on / and backslash, use posix.basename(word.replaceAll('\\\\', '/')), not path.win32.basename: win32 treats a drive prefix as a device root (C:git becomes git, C:\\\\ stays C:\\\\). And stripVTControlCharacters is not an SGR-only strip: it also removes cursor and OSC sequences, which changes the error classes shown in hook output.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-00ddf156",
+        "t-glob-a2bc0df2"
       ]
     },
     "lessons-system-treat-any-existing-lessons-graph": {
@@ -6601,6 +6697,19 @@
       "triggers": [
         "t-cmd-a03e5640",
         "t-kw-67b582a5"
+      ]
+    },
+    "shell-quoting-in-zsh-bash-calls-never-2": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "In zsh Bash calls, never keep a command or a list of paths in one variable and expand it unquoted: zsh does not word-split, so C='node dist/cli.js'; $C runs a command literally named 'node dist/cli.js' (command not found, easily hidden by a grep), and prettier $files receives one giant path (ENAMETOOLONG). Use a shell function, an array, or xargs.",
+      "status": "active",
+      "topics": [
+        "shell-quoting"
+      ],
+      "triggers": [
+        "t-cmd-7a7a7007",
+        "t-kw-6399aaee"
       ]
     },
     "shell-quoting-never-delete-a-ts-function": {
@@ -8115,6 +8224,19 @@
         "t-glob-a9a4fad0"
       ]
     },
+    "targets-recall-hook-projection-happens-only": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "Recall-hook projection happens only in the engine (withTargetRecallHooks in src/targets/catalog/recall-hook-targets.ts, applied to generate, postProcess, emitScopedSettings and scopeExtras). Target hook generators receive hooks that are already projected, so a unit test that calls a builtin hooks generator directly must pass withTargetRecallHooks(canonical, '<id>'), and must import the catalog before the target index.js to dodge the BUILTIN_TARGETS cycle.",
+      "status": "active",
+      "topics": [
+        "targets"
+      ],
+      "triggers": [
+        "t-glob-796629d0",
+        "t-glob-3ae2ea62"
+      ]
+    },
     "targets-the-plugin-bundle-serves-two": {
       "createdAt": "2026-09-22",
       "evidence": [
@@ -8881,6 +9003,31 @@
       "triggers": [
         "t-cmd-d75c3b91",
         "t-cmd-f68bf5e2"
+      ]
+    },
+    "verification-tsc-noemit-the-typecheck-script": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "tsc --noEmit (the typecheck script) checks src only: tsconfig.json excludes **/*.test.ts and does not include tests/, and vitest strips types without checking them. After editing test files, typecheck them with a temporary tsconfig that extends the root one and includes the edited tests, or type errors in tests pile up unseen.",
+      "status": "active",
+      "topics": [
+        "verification"
+      ],
+      "triggers": [
+        "t-cmd-b8f3d5d6"
+      ]
+    },
+    "verification-verify-every-equivalence-claim-in": {
+      "createdAt": "2026-09-23",
+      "evidence": [],
+      "rule": "Verify every equivalence claim in a ponytail or cleanup review before applying it. In the 2026-09-23 pass, 5 of about 60 'same behavior' findings were not: stripVTControlCharacters removes more than colour codes, path.win32.basename treats C: as a device root, emptyGraph() stamps version 2 where merge code needed version 1, a flat string-keyed memo Map was 2.5x slower than the nested one, and a looser semver regex accepted 1.2.3.4. Compare old and new on real inputs (and time hot paths) before swapping.",
+      "status": "active",
+      "topics": [
+        "verification"
+      ],
+      "triggers": [
+        "t-kw-0d26f586",
+        "t-kw-92a3ef4a"
       ]
     },
     "verification-workflow-after-splitting-a-module-repoint": {
@@ -10287,6 +10434,10 @@
       "kind": "command_pattern",
       "pattern": "pnpm (vitest|test)( |$)"
     },
+    "t-cmd-7a7a7007": {
+      "kind": "command_pattern",
+      "pattern": "\\b[A-Za-z_]+=\"[^\"]* [^\"]*\"\\s*;"
+    },
     "t-cmd-7c1c43ea": {
       "kind": "command_pattern",
       "pattern": "git commit"
@@ -10394,6 +10545,10 @@
     "t-cmd-b7e554e6": {
       "kind": "command_pattern",
       "pattern": "node -e"
+    },
+    "t-cmd-b8f3d5d6": {
+      "kind": "command_pattern",
+      "pattern": "\\btsc\\b.*--noEmit"
     },
     "t-cmd-bde9db6b": {
       "kind": "command_pattern",
@@ -10847,6 +11002,10 @@
       "kind": "file_glob",
       "pattern": "src/cli/commands/lessons-types.ts"
     },
+    "t-glob-3ae2ea62": {
+      "kind": "file_glob",
+      "pattern": "tests/unit/targets/*/recall-hooks.test.ts"
+    },
     "t-glob-3ce2b476": {
       "kind": "file_glob",
       "pattern": "src/core/reference/pack-skill-artifact-paths.ts"
@@ -11203,6 +11362,10 @@
       "kind": "file_glob",
       "pattern": "src/cli/json-output.ts"
     },
+    "t-glob-796629d0": {
+      "kind": "file_glob",
+      "pattern": "src/targets/catalog/recall-hook-targets.ts"
+    },
     "t-glob-7a175889": {
       "kind": "file_glob",
       "pattern": "src/lessons/keyword-match.ts"
@@ -11422,6 +11585,10 @@
     "t-glob-9df02130": {
       "kind": "file_glob",
       "pattern": "src/mcp/tool-tables/lessons-tools.ts"
+    },
+    "t-glob-9e939911": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/merge-sides.ts"
     },
     "t-glob-9f0a5990": {
       "kind": "file_glob",
@@ -11955,6 +12122,10 @@
       "kind": "keyword",
       "pattern": "goose hooks"
     },
+    "t-kw-0d26f586": {
+      "kind": "keyword",
+      "pattern": "ponytail"
+    },
     "t-kw-0d406f2b": {
       "kind": "keyword",
       "pattern": "duplication"
@@ -12271,6 +12442,10 @@
       "kind": "keyword",
       "pattern": "revoke owned keys"
     },
+    "t-kw-6399aaee": {
+      "kind": "keyword",
+      "pattern": "zsh"
+    },
     "t-kw-67b582a5": {
       "kind": "keyword",
       "pattern": "zsh separator echo equals"
@@ -12406,6 +12581,10 @@
     "t-kw-925d9b8d": {
       "kind": "keyword",
       "pattern": "checksum"
+    },
+    "t-kw-92a3ef4a": {
+      "kind": "keyword",
+      "pattern": "pure refactor"
     },
     "t-kw-92d6db38": {
       "kind": "keyword",
