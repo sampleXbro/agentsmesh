@@ -1280,6 +1280,21 @@
         "t-glob-5cc82d35"
       ]
     },
+    "fixture-and-assertion-discipline-never-build-a-test-fixture": {
+      "createdAt": "2026-09-23",
+      "evidence": [
+        "3d7f8099"
+      ],
+      "rule": "Never build a test fixture with 'as SomeType': the cast hides required fields the type gained later (the lessonsInit helper lacked rootRuleMerged, mergeDriver and recallHookTeamHint for months). Annotate the return or variable type instead, so tsc checks the fixture.",
+      "status": "active",
+      "topics": [
+        "fixture-and-assertion-discipline"
+      ],
+      "triggers": [
+        "t-glob-38e360ee",
+        "t-glob-666d7d1c"
+      ]
+    },
     "fixture-and-assertion-discipline-opencode-declares-additionalrules-mcp-pe": {
       "createdAt": "2026-06-24",
       "evidence": [
@@ -9330,6 +9345,20 @@
         "t-cmd-8a0598a5"
       ]
     },
+    "verification-a-tsconfig-exclude-does-not": {
+      "createdAt": "2026-09-23",
+      "evidence": [
+        "3d7f8099"
+      ],
+      "rule": "A tsconfig 'exclude' does not stop tsc from checking an excluded file that an included file imports, so a baseline of known-bad test files fails as long as a clean test imports one of them. Fix the imported helpers (tests/e2e/helpers here) instead of growing the baseline to every importer.",
+      "status": "active",
+      "topics": [
+        "verification"
+      ],
+      "triggers": [
+        "t-glob-91e8e620"
+      ]
+    },
     "verification-after-any-multi-agent-fix": {
       "createdAt": "2026-07-18",
       "evidence": [
@@ -9347,6 +9376,22 @@
         "t-kw-745cab00",
         "t-kw-1171e894",
         "t-cmd-ec116ffc"
+      ]
+    },
+    "verification-after-editing-test-files-run": {
+      "createdAt": "2026-09-23",
+      "evidence": [
+        "3d7f8099"
+      ],
+      "rule": "After editing test files, run node_modules/.bin/tsc -p tsconfig.tests.json (package script typecheck:tests): tsc --noEmit checks src only and vitest strips types. It checks every test file except the baseline listed in tsconfig.tests.json; when a baseline file typechecks, delete its line, and never add a line to hide a new error.",
+      "status": "active",
+      "topics": [
+        "verification"
+      ],
+      "triggers": [
+        "t-glob-91e8e620",
+        "t-glob-4c29ad88",
+        "t-cmd-b344d784"
       ]
     },
     "verification-never-pipe-verification-commands-pnpm": {
@@ -9368,13 +9413,12 @@
       "createdAt": "2026-09-23",
       "evidence": [],
       "rule": "tsc --noEmit (the typecheck script) checks src only: tsconfig.json excludes **/*.test.ts and does not include tests/, and vitest strips types without checking them. After editing test files, typecheck them with a temporary tsconfig that extends the root one and includes the edited tests, or type errors in tests pile up unseen.",
-      "status": "active",
+      "status": "superseded",
+      "supersededBy": "verification-after-editing-test-files-run",
       "topics": [
         "verification"
       ],
-      "triggers": [
-        "t-cmd-b8f3d5d6"
-      ]
+      "triggers": []
     },
     "verification-verify-every-equivalence-claim-in": {
       "createdAt": "2026-09-23",
@@ -10907,6 +10951,10 @@
       "kind": "command_pattern",
       "pattern": "pnpm install"
     },
+    "t-cmd-b344d784": {
+      "kind": "command_pattern",
+      "pattern": "\\btsc\\b"
+    },
     "t-cmd-b5d550c1": {
       "kind": "command_pattern",
       "pattern": "eslint"
@@ -10922,10 +10970,6 @@
     "t-cmd-b7e554e6": {
       "kind": "command_pattern",
       "pattern": "node -e"
-    },
-    "t-cmd-b8f3d5d6": {
-      "kind": "command_pattern",
-      "pattern": "\\btsc\\b.*--noEmit"
     },
     "t-cmd-bde9db6b": {
       "kind": "command_pattern",
@@ -11391,6 +11435,10 @@
       "kind": "file_glob",
       "pattern": "src/mcp/tool-tables/*.ts"
     },
+    "t-glob-38e360ee": {
+      "kind": "file_glob",
+      "pattern": "tests/**/*helpers*.ts"
+    },
     "t-glob-3932d5a5": {
       "kind": "file_glob",
       "pattern": "src/**/path*.ts"
@@ -11658,6 +11706,10 @@
     "t-glob-65f0c371": {
       "kind": "file_glob",
       "pattern": "**/*.test.ts"
+    },
+    "t-glob-666d7d1c": {
+      "kind": "file_glob",
+      "pattern": "tests/**/helpers/*.ts"
     },
     "t-glob-681dc980": {
       "kind": "file_glob",
@@ -11938,6 +11990,10 @@
     "t-glob-8fe4e96b": {
       "kind": "file_glob",
       "pattern": "**/SKILL.md"
+    },
+    "t-glob-91e8e620": {
+      "kind": "file_glob",
+      "pattern": "tsconfig.tests.json"
     },
     "t-glob-9213e8f5": {
       "kind": "file_glob",
