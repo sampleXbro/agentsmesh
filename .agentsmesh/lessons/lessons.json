@@ -4166,6 +4166,21 @@
         "t-glob-c88404c0"
       ]
     },
+    "lessons-system-appendjsonl-trims-a-log-that": {
+      "createdAt": "2026-09-23",
+      "evidence": [
+        "b2bfc569"
+      ],
+      "rule": "appendJsonl trims a log that crosses trimTriggerBytes down to half of it (and drops any line bigger than that), not only to maxRecords. A test that forces trimming with a tiny trigger (1 byte) now keeps nothing; use a trigger whose half still holds the records the test expects.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-29cd251c",
+        "t-glob-72980a2d"
+      ]
+    },
     "lessons-system-apply-the-same-legacy-auto": {
       "createdAt": "2026-06-06",
       "evidence": [
@@ -4340,6 +4355,20 @@
       "triggers": [
         "t-glob-0b59f983",
         "t-cmd-56d79bf7"
+      ]
+    },
+    "lessons-system-copilot-s-vs-code-compatible": {
+      "createdAt": "2026-09-23",
+      "evidence": [
+        "b2bfc569"
+      ],
+      "rule": "Copilot's VS Code compatible hook format sends hook_event_name 'SessionStart' (PascalCase, like Claude Code) with snake_case fields, initial_prompt and a string timestamp; Claude Code sends neither initial_prompt nor timestamp. Detect the VS Code variant by those two fields, never by the event name alone (docs.github.com/en/copilot/reference/hooks-configuration).",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-a3db7abc"
       ]
     },
     "lessons-system-copy-each-host-s-hook": {
@@ -8827,6 +8856,20 @@
         "t-cmd-e4182599"
       ]
     },
+    "test-execution-when-a-new-test-passes": {
+      "createdAt": "2026-09-23",
+      "evidence": [
+        "b2bfc569"
+      ],
+      "rule": "When a new test passes before the fix, read the vitest output for 'Failed Suites' or 'Transform failed' first: a syntax error in an edited test file stops ALL of its tests from running while the summary still counts the other files' passes, so a missing red looks like an already-fixed bug.",
+      "status": "active",
+      "topics": [
+        "test-execution"
+      ],
+      "triggers": [
+        "t-cmd-913756a7"
+      ]
+    },
     "test-execution-when-a-vitest-run-hangs": {
       "createdAt": "2026-09-23",
       "evidence": [],
@@ -10895,6 +10938,10 @@
       "kind": "command_pattern",
       "pattern": "git log v"
     },
+    "t-cmd-913756a7": {
+      "kind": "command_pattern",
+      "pattern": "\\bvitest\\b"
+    },
     "t-cmd-9adfb98c": {
       "kind": "command_pattern",
       "pattern": "^pnpm (precommit|test:coverage)$"
@@ -11774,6 +11821,10 @@
     "t-glob-72977c26": {
       "kind": "file_glob",
       "pattern": "src/cli/commands/lessons-merge-driver-handler.ts"
+    },
+    "t-glob-72980a2d": {
+      "kind": "file_glob",
+      "pattern": "tests/unit/lessons/jsonl-log*.test.ts"
     },
     "t-glob-72a39ab6": {
       "kind": "file_glob",
