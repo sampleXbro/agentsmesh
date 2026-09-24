@@ -1,5 +1,6 @@
 import type { CanonicalFiles, CanonicalRule } from '../../../core/types.js';
 import { appendEmbeddedRulesBlock } from '../../projection/managed-blocks.js';
+import { renderEmbeddedRuleEntries } from '../../projection/embedded-rule-entries.js';
 import { AGENTS_MD, CODEX_RULES_DIR } from '../constants.js';
 import { codexNestedAgentsPath } from '../codex-rule-paths.js';
 import type { RulesOutput } from './types.js';
@@ -87,12 +88,11 @@ export function generateRules(canonical: CanonicalFiles): RulesOutput[] {
     });
   }
 
+  // Each rule is an embedded-rule entry, so import can restore it to its own
+  // canonical file instead of adding a `<dir>.md` rule (#140).
   const nested = advisory.filter((rule) => !isRootEmbedded(rule));
   for (const [path, rules] of groupByNestedPath(nested)) {
-    const content = rules
-      .map((rule) => rule.body.trim())
-      .filter((body) => body.length > 0)
-      .join('\n\n');
+    const content = renderEmbeddedRuleEntries(rules.filter((rule) => rule.body.trim().length > 0));
     outputs.push({ path, content });
   }
 

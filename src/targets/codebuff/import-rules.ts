@@ -24,7 +24,7 @@ import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
 import { mkdirp, readFileSafe, writeFileAtomic } from '../../utils/filesystem/fs.js';
 import { parseFrontmatter } from '../../utils/text/markdown.js';
 import { serializeImportedRuleWithFallback } from '../import/import-metadata.js';
-import { splitEmbeddedRulesToCanonical } from '../import/embedded-rules.js';
+import { splitEmbeddedRulesToCanonical, splitNestedAgentsFile } from '../import/embedded-rules.js';
 import { importFileDirectory } from '../import/import-orchestrator.js';
 import { shouldImportScopedAgentsRule } from '../import/scoped-agents-import.js';
 import { CODEBUFF_TARGET, CODEBUFF_ROOT_FILE, CODEBUFF_GLOBAL_ROOT_FILE } from './constants.js';
@@ -89,34 +89,48 @@ async function importNestedRules(
   normalize: Normalizer,
 ): Promise<ImportResult[]> {
   const destDir = join(projectRoot, AB_RULES);
-  return importFileDirectory({
+  const embedded: ImportResult[] = [];
+  const results = await importFileDirectory({
     srcDir: projectRoot,
     destDir,
     extensions: [CODEBUFF_ROOT_FILE],
     fromTool: CODEBUFF_TARGET,
     normalize,
-    mapEntry: ({ srcPath, normalizeTo }) => {
+    mapEntry: async ({ srcPath, content, normalizeTo }) => {
       if (basename(srcPath) !== CODEBUFF_ROOT_FILE) return null;
       const relDir = relative(projectRoot, dirname(srcPath)).replace(/\\/g, '/');
       if (!relDir || relDir === '.') return null;
       if (!shouldImportScopedAgentsRule(relDir)) return null;
       if (isVendored(relDir)) return null;
+      const ownText = await splitNestedAgentsFile(
+        {
+          content,
+          projectRoot,
+          rulesDir: AB_RULES,
+          sourcePath: srcPath,
+          fromTool: CODEBUFF_TARGET,
+          normalize,
+        },
+        embedded,
+      );
+      if (ownText === null) return null;
 
       const ruleName = relDir.replace(/\//g, '-');
       const destPath = join(destDir, `${ruleName}.md`);
-      const { frontmatter, body } = parseFrontmatter(normalizeTo(destPath));
-      return serializeImportedRuleWithFallback(
-        destPath,
-        { ...frontmatter, root: false, globs: [`${relDir}/**`] },
-        body,
-      ).then((content) => ({
+      const { frontmatter, body } = parseFrontmatter(normalizeTo(destPath, ownText));
+      return {
         destPath,
         toPath: `${AB_RULES}/${ruleName}.md`,
         feature: 'rules',
-        content,
-      }));
+        content: await serializeImportedRuleWithFallback(
+          destPath,
+          { ...frontmatter, root: false, globs: [`${relDir}/**`] },
+          body,
+        ),
+      };
     },
   });
+  return [...results, ...embedded];
 }
 
 export async function importCodebuffRules(

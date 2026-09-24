@@ -10,7 +10,7 @@ import {
 } from '../../utils/filesystem/fs.js';
 import { parseFrontmatter } from '../../utils/text/markdown.js';
 import { serializeImportedRuleWithFallback } from '../import/import-metadata.js';
-import { splitEmbeddedRulesToCanonical } from '../import/embedded-rules.js';
+import { splitEmbeddedRulesToCanonical, splitNestedAgentsFile } from '../import/embedded-rules.js';
 import { importFileDirectory } from '../import/import-orchestrator.js';
 import {
   shouldImportScopedAgentsRule,
@@ -101,6 +101,7 @@ export async function importCodexRules(
   results.push(...(await importCodexNonRootRuleFiles(projectRoot, destDir, normalize)));
 
   if (layoutScope !== 'global') {
+    const embedded: ImportResult[] = [];
     results.push(
       ...(await importFileDirectory({
         srcDir: projectRoot,
@@ -108,7 +109,7 @@ export async function importCodexRules(
         extensions: ['AGENTS.md', 'AGENTS.override.md'],
         fromTool: 'codex-cli',
         normalize,
-        mapEntry: async ({ srcPath, normalizeTo }) => {
+        mapEntry: async ({ srcPath, content, normalizeTo }) => {
           const relDir = relative(projectRoot, dirname(srcPath)).replace(/\\/g, '/');
           const fileName = basename(srcPath);
           const isOverride = fileName === 'AGENTS.override.md';
@@ -119,26 +120,36 @@ export async function importCodexRules(
             await removePathIfExists(join(destDir, `${ruleName}.md`));
             return null;
           }
+          const variant = isOverride ? { codex_instruction: 'override' } : {};
+          const ownText = await splitNestedAgentsFile(
+            {
+              content,
+              projectRoot,
+              rulesDir: AB_RULES,
+              sourcePath: srcPath,
+              fromTool: 'codex-cli',
+              normalize,
+              frontmatter: variant,
+            },
+            embedded,
+          );
+          if (ownText === null) return null;
           const destPath = join(destDir, `${ruleName}.md`);
-          const { frontmatter, body } = parseFrontmatter(normalizeTo(destPath));
+          const { frontmatter, body } = parseFrontmatter(normalizeTo(destPath, ownText));
           return {
             destPath,
             toPath: `${AB_RULES}/${ruleName}.md`,
             feature: 'rules',
             content: await serializeImportedRuleWithFallback(
               destPath,
-              {
-                ...frontmatter,
-                root: false,
-                globs: [`${relDir}/**`],
-                ...(isOverride ? { codex_instruction: 'override' } : {}),
-              },
+              { ...frontmatter, root: false, globs: [`${relDir}/**`], ...variant },
               body,
             ),
           };
         },
       })),
     );
+    results.push(...embedded);
   }
 }
 

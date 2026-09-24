@@ -40,7 +40,9 @@ const EXPECTED_IMPORTED = [
   '.agentsmesh/ignore',
   '.agentsmesh/mcp.json',
   '.agentsmesh/rules/_root.md',
-  '.agentsmesh/rules/src.md',
+  // The nested src/AGENTS.md carries an embedded-rule block, so the rule
+  // returns to its own canonical file instead of a new src.md (#140).
+  '.agentsmesh/rules/typescript.md',
   '.agentsmesh/skills/api-generator/SKILL.md',
   '.agentsmesh/skills/api-generator/references/route-checklist.md',
   '.agentsmesh/skills/api-generator/template.ts',

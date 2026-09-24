@@ -12,6 +12,7 @@ import {
   renderCodebuffGlobalInstructions,
 } from '../../../../src/targets/codebuff/generator.js';
 import { generateRules as generateCodexRules } from '../../../../src/targets/codex-cli/generator/rules.js';
+import { renderEmbeddedRuleEntries } from '../../../../src/targets/projection/embedded-rule-entries.js';
 import {
   CODEBUFF_ROOT_FILE,
   CODEBUFF_SKILLS_DIR,
@@ -65,21 +66,15 @@ describe('generateRules (codebuff)', () => {
   });
 
   it('nests a scoped rule as <dir>/AGENTS.md derived from its first glob', () => {
-    const results = generateRules(
-      makeCanonical({
-        rules: [
-          rootRule,
-          makeRule({
-            source: '/proj/.agentsmesh/rules/typescript.md',
-            globs: ['src/**/*.ts'],
-            body: '# TypeScript\n\n- No any',
-          }),
-        ],
-      }),
-    );
+    const typescript = makeRule({
+      source: '/proj/.agentsmesh/rules/typescript.md',
+      globs: ['src/**/*.ts'],
+      body: '# TypeScript\n\n- No any',
+    });
+    const results = generateRules(makeCanonical({ rules: [rootRule, typescript] }));
 
     expect(results.map((r) => r.path)).toEqual([CODEBUFF_ROOT_FILE, 'src/AGENTS.md']);
-    expect(results[1]?.content).toBe('# TypeScript\n\n- No any');
+    expect(results[1]?.content).toBe(renderEmbeddedRuleEntries([typescript]));
   });
 
   it('falls back to the rule slug when no glob yields a directory', () => {
@@ -90,17 +85,14 @@ describe('generateRules (codebuff)', () => {
     expect(results.map((r) => r.path)).toEqual(['style/AGENTS.md']);
   });
 
-  it('joins rules that collide on one nested path', () => {
-    const results = generateRules(
-      makeCanonical({
-        rules: [
-          makeRule({ source: '/a/one.md', globs: ['src/**'], body: 'One' }),
-          makeRule({ source: '/a/two.md', globs: ['src/**'], body: 'Two' }),
-        ],
-      }),
-    );
+  it('writes rules that collide on one nested path as rule entries', () => {
+    const rules = [
+      makeRule({ source: '/a/one.md', globs: ['src/**'], body: 'One' }),
+      makeRule({ source: '/a/two.md', globs: ['src/**'], body: 'Two' }),
+    ];
+    const results = generateRules(makeCanonical({ rules }));
 
-    expect(results).toEqual([{ path: 'src/AGENTS.md', content: 'One\n\nTwo' }]);
+    expect(results).toEqual([{ path: 'src/AGENTS.md', content: renderEmbeddedRuleEntries(rules) }]);
   });
 
   it('skips rules scoped to other targets', () => {

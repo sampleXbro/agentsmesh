@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { cleanup, createTestProject } from './helpers/setup.js';
 import { runCli } from './helpers/run-cli.js';
@@ -211,19 +211,13 @@ describe('codex-cli format contract roundtrip', () => {
     expect(importResult.exitCode, importResult.stderr).toBe(0);
 
     fileContains(join(dir, '.agentsmesh', 'rules', '_root.md'), 'root: true');
-    // Nested AGENTS.md files round-trip renamed to their directory (Codex has no
-    // concept of the original canonical slug — see codex-rule-paths.ts / importer-rules.ts).
-    fileContains(join(dir, '.agentsmesh', 'rules', 'src.md'), 'globs:');
-    fileContains(join(dir, '.agentsmesh', 'rules', 'src.md'), '  - src/**');
-    fileContains(
-      join(dir, '.agentsmesh', 'rules', 'services-payments.md'),
-      'codex_instruction: override',
-    );
-    fileContains(join(dir, '.agentsmesh', 'rules', 'services-payments.md'), 'globs:');
-    fileContains(
-      join(dir, '.agentsmesh', 'rules', 'services-payments.md'),
-      '  - services/payments/**',
-    );
+    // Nested AGENTS.md files carry an embedded-rule entry per rule, so each
+    // rule returns to its own canonical file with its own globs (#140).
+    fileContains(join(dir, '.agentsmesh', 'rules', 'typescript.md'), '  - src/**/*.ts');
+    fileContains(join(dir, '.agentsmesh', 'rules', 'payments.md'), 'codex_instruction: override');
+    fileContains(join(dir, '.agentsmesh', 'rules', 'payments.md'), '  - services/payments/**');
+    expect(existsSync(join(dir, '.agentsmesh', 'rules', 'src.md'))).toBe(false);
+    expect(existsSync(join(dir, '.agentsmesh', 'rules', 'services-payments.md'))).toBe(false);
     fileContains(join(dir, '.agentsmesh', 'rules', 'default.md'), 'codex_emit: execution');
     fileContains(join(dir, '.agentsmesh', 'rules', 'default.md'), 'prefix_rule(');
 

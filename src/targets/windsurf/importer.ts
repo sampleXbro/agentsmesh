@@ -10,7 +10,7 @@
  */
 
 import { AB_IGNORE, AB_RULES } from '../../core/canonical-paths.js';
-import { basename, join, dirname, relative } from 'node:path';
+import { join } from 'node:path';
 import type { ImportResult } from '../../core/types.js';
 import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
 import { createImportReferenceNormalizer } from '../../core/reference/import-rewriter.js';
@@ -18,10 +18,7 @@ import { readFileSafe, writeFileAtomic, mkdirp } from '../../utils/filesystem/fs
 import { parseFrontmatter } from '../../utils/text/markdown.js';
 import { serializeImportedRuleWithFallback } from '../import/import-metadata.js';
 import { importFileDirectory } from '../import/import-orchestrator.js';
-import {
-  removePathIfExists,
-  shouldImportScopedAgentsRule,
-} from '../import/scoped-agents-import.js';
+import { importWindsurfNestedAgents } from './import-nested-agents.js';
 import {
   WINDSURF_TARGET,
   WINDSURF_RULES_ROOT,
@@ -93,35 +90,7 @@ export async function importFromWindsurf(
   }
 
   if (layoutScope !== 'global') {
-    results.push(
-      ...(await importFileDirectory({
-        srcDir: projectRoot,
-        destDir: destRulesDir,
-        extensions: ['AGENTS.md'],
-        fromTool: 'windsurf',
-        normalize,
-        mapEntry: async ({ srcPath, normalizeTo }) => {
-          const relDir = relative(projectRoot, dirname(srcPath)).replace(/\\/g, '/');
-          if (!relDir || relDir === '.' || basename(srcPath) !== 'AGENTS.md') return null;
-          const ruleName = relDir.replace(/\//g, '-');
-          if (!shouldImportScopedAgentsRule(relDir)) {
-            await removePathIfExists(join(destRulesDir, `${ruleName}.md`));
-            return null;
-          }
-          const destPath = join(destRulesDir, `${ruleName}.md`);
-          return {
-            destPath,
-            toPath: `${AB_RULES}/${ruleName}.md`,
-            feature: 'rules',
-            content: await serializeImportedRuleWithFallback(
-              destPath,
-              { root: false, globs: [`${relDir}/**`] },
-              normalizeTo(destPath),
-            ),
-          };
-        },
-      })),
-    );
+    results.push(...(await importWindsurfNestedAgents(projectRoot, normalize)));
   }
 
   const rulesDir = join(projectRoot, WINDSURF_RULES_DIR);
