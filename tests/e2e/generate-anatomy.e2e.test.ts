@@ -79,7 +79,7 @@ describe('generate anatomy variants', () => {
     expect(result.exitCode).toBe(0);
     // Windsurf also reads src/AGENTS.md as a src/** rule, so one glob rule is enough.
     expect(readFileSync(join(dir, '.windsurf', 'rules', 'src.md'), 'utf-8')).toBe(
-      '---\ndescription: Src rules\ntrigger: glob\nglob: src/**/*.ts\n---\n\n# Src windsurf rules\nUse strict mode.',
+      '---\ndescription: Src rules\ntrigger: glob\nglobs: src/**/*.ts\n---\n\n# Src windsurf rules\nUse strict mode.',
     );
     expect(existsSync(join(dir, 'src', 'AGENTS.md'))).toBe(false);
   });

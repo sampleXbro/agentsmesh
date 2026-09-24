@@ -104,8 +104,9 @@ describe('windsurf generateRules — root + targets filter', () => {
   });
 });
 
-describe('windsurf generateRules — frontmatter glob/globs branches', () => {
-  it('uses singular `glob` field with one glob', () => {
+describe('windsurf generateRules — frontmatter globs', () => {
+  // Windsurf reads only `globs`, a comma-joined string; a singular `glob` is ignored.
+  it('writes one glob as the `globs` string', () => {
     const result = generateRules(
       makeCanonical({
         rules: [
@@ -123,12 +124,12 @@ describe('windsurf generateRules — frontmatter glob/globs branches', () => {
     );
     const single = result.find((r) => r.path === `${WINDSURF_RULES_DIR}/single.md`);
     expect(single).toBeDefined();
-    expect(single!.content).toContain('description: TS rules');
-    expect(single!.content).toContain('glob: src/**/*.ts');
-    expect(single!.content).not.toMatch(/^globs:/m);
+    expect(single!.content).toBe(
+      '---\ndescription: TS rules\ntrigger: glob\nglobs: src/**/*.ts\n---\n\nB',
+    );
   });
 
-  it('uses plural `globs` field with multiple globs', () => {
+  it('writes several globs as one comma-joined `globs` string', () => {
     const result = generateRules(
       makeCanonical({
         rules: [
@@ -146,8 +147,7 @@ describe('windsurf generateRules — frontmatter glob/globs branches', () => {
     );
     const multi = result.find((r) => r.path === `${WINDSURF_RULES_DIR}/multi.md`);
     expect(multi).toBeDefined();
-    expect(multi!.content).toContain('globs:');
-    expect(multi!.content).not.toMatch(/^glob:/m);
+    expect(multi!.content).toBe('---\ntrigger: glob\nglobs: src/**/*.ts,tests/**/*.ts\n---\n\nB');
   });
 
   it('emits plain body (no frontmatter) when description+trigger+globs are all empty', () => {
@@ -197,7 +197,7 @@ describe('windsurf generateRules — scoped rules', () => {
       { path: 'AGENTS.md', content: '# Root\n\nRoot body.' },
       {
         path: `${WINDSURF_RULES_DIR}/src-scope.md`,
-        content: '---\ndescription: Src\ntrigger: glob\nglob: src/**/*.ts\n---\n\nsrc-body',
+        content: '---\ndescription: Src\ntrigger: glob\nglobs: src/**/*.ts\n---\n\nsrc-body',
       },
     ]);
   });

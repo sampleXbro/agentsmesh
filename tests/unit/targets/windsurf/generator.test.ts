@@ -84,7 +84,8 @@ describe('generateRules (windsurf)', () => {
     expect(perRule).toBeDefined();
     expect(perRule?.content).toContain('description: TS rules');
     expect(perRule?.content).toContain('trigger: glob');
-    expect(perRule?.content).toContain('glob: src/**/*.ts');
+    expect(perRule?.content).toContain('\nglobs: src/**/*.ts\n');
+    expect(perRule?.content).not.toContain('\nglob:');
     expect(perRule?.content).toContain('Use strict TS.');
   });
 
@@ -302,7 +303,7 @@ describe('generateRules (windsurf) — AGENTS.md + trigger', () => {
     const results = generateRules(canonical);
     const rule = results.find((r) => r.path === '.windsurf/rules/no-trigger.md');
     expect(rule?.content).toContain('trigger: glob');
-    expect(rule?.content).toContain('glob: "**/*.ts"');
+    expect(rule?.content).toContain('\nglobs: "**/*.ts"\n');
   });
 });
 

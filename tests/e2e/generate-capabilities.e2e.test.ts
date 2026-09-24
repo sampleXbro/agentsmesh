@@ -483,9 +483,9 @@ features: [rules, commands, skills, hooks, mcp]
     fileNotContains(join(dir, 'AGENTS.md'), 'root: true');
     fileNotContains(join(dir, 'AGENTS.md'), '---');
 
-    // Rules use trigger-based Windsurf frontmatter with glob for single-pattern scope.
+    // Rules use trigger-based Windsurf frontmatter; Windsurf reads the scope from `globs`.
     fileContains(join(dir, '.windsurf', 'rules', 'typescript.md'), 'trigger: glob');
-    fileContains(join(dir, '.windsurf', 'rules', 'typescript.md'), 'glob: src/**/*.ts');
+    fileContains(join(dir, '.windsurf', 'rules', 'typescript.md'), '\nglobs: src/**/*.ts\n');
     fileContains(join(dir, '.windsurf', 'rules', 'typescript.md'), 'description: TypeScript');
 
     // Workflows include command description as intro + body content.

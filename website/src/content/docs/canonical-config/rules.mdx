@@ -89,7 +89,7 @@ Always run `pnpm typecheck` before committing.
 
 Rules are mapped to each tool's native format during generation. See the **Rules** row in the [supported tools matrix](../../reference/supported-tools/) for per-target support levels and the [generate output locations](../../cli/generate/#output-locations) for target directory mappings.
 
-A rule with `globs` goes to Windsurf once, as `.windsurf/rules/<name>.md` with `trigger: glob`. Windsurf also reads a `<dir>/AGENTS.md` as a rule for that whole folder, so AgentsMesh does not write one for Windsurf: it would load the rule twice and apply it to more files than its globs name. `agentsmesh import --from windsurf` still reads a `<dir>/AGENTS.md` you wrote by hand as a rule for that folder.
+A rule with `globs` goes to Windsurf once, as `.windsurf/rules/<name>.md` with `trigger: glob` and a `globs:` line: Windsurf reads the scope from `globs` (one string, several patterns joined by commas) and ignores a singular `glob:`. `agentsmesh import --from windsurf` reads `globs` as a string or a list, and the older `glob:`, and keeps a brace pattern such as `*.{ts,tsx}` whole. Windsurf also reads a `<dir>/AGENTS.md` as a rule for that whole folder, so AgentsMesh does not write one for Windsurf: it would load the rule twice and apply it to more files than its globs name. `agentsmesh import --from windsurf` still reads a `<dir>/AGENTS.md` you wrote by hand as a rule for that folder.
 
 Some targets fold additional rules into a root or aggregate instruction file. In those cases AgentsMesh wraps each embedded rule in a [managed embedding block](../../reference/managed-embedding/) so repeated generation does not append duplicates and import can restore the rule to `.agentsmesh/rules/*.md`.
 

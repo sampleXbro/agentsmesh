@@ -4,6 +4,7 @@ import { serializeFrontmatter } from '../../../utils/text/markdown.js';
 import { appendEmbeddedRulesBlock } from '../../projection/managed-blocks.js';
 import { WINDSURF_RULES_DIR, WINDSURF_AGENTS_MD } from '../constants.js';
 import type { RulesOutput } from './types.js';
+import { formatWindsurfGlobs } from '../rule-globs.js';
 
 function ruleSlug(source: string): string {
   const name = basename(source, '.md');
@@ -28,8 +29,8 @@ export function generateRules(canonical: CanonicalFiles): RulesOutput[] {
     const frontmatter: Record<string, unknown> = {
       description: rule.description || undefined,
       trigger: normalizedTrigger,
-      glob: rule.globs.length === 1 ? rule.globs[0] : undefined,
-      globs: rule.globs.length > 1 ? rule.globs : undefined,
+      // Windsurf reads `globs` as one comma-joined string; it ignores `glob`.
+      globs: rule.globs.length > 0 ? formatWindsurfGlobs(rule.globs) : undefined,
     };
     Object.keys(frontmatter).forEach((k) => {
       if (frontmatter[k] === undefined) delete frontmatter[k];

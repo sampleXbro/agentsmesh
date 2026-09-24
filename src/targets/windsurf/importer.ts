@@ -15,7 +15,9 @@ import type { ImportResult } from '../../core/types.js';
 import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
 import { createImportReferenceNormalizer } from '../../core/reference/import-rewriter.js';
 import { readFileSafe, writeFileAtomic, mkdirp } from '../../utils/filesystem/fs.js';
-import { parseFrontmatter } from '../../utils/text/markdown.js';
+import { tryParseFrontmatter } from '../../utils/text/markdown.js';
+import { logger } from '../../utils/output/logger.js';
+import { parseWindsurfGlobs, quoteWindsurfGlobValues } from './rule-globs.js';
 import { serializeImportedRuleWithFallback } from '../import/import-metadata.js';
 import { importFileDirectory } from '../import/import-orchestrator.js';
 import { importWindsurfNestedAgents } from './import-nested-agents.js';
@@ -101,15 +103,22 @@ export async function importFromWindsurf(
       extensions: ['.md'],
       fromTool: 'windsurf',
       normalize,
-      mapEntry: async ({ relativePath, normalizeTo }) => {
+      mapEntry: async ({ relativePath, content, normalizeTo }) => {
         if (relativePath === '_root.md' && rootContent !== null) return null;
         const destPath = join(destRulesDir, relativePath);
-        const { frontmatter, body } = parseFrontmatter(normalizeTo(destPath));
-        const normalizedFrontmatter: Record<string, unknown> = { ...frontmatter };
-        if (typeof normalizedFrontmatter.glob === 'string' && normalizedFrontmatter.glob.trim()) {
-          normalizedFrontmatter.globs = [normalizedFrontmatter.glob];
-          delete normalizedFrontmatter.glob;
+        const sourceLabel = `${WINDSURF_RULES_DIR}/${relativePath}`;
+        const parsed = tryParseFrontmatter(
+          normalizeTo(destPath, quoteWindsurfGlobValues(content)),
+          sourceLabel,
+        );
+        if (!parsed.ok) {
+          logger.warn(`Skipping ${sourceLabel}: ${parsed.error.message}`);
+          return null;
         }
+        const { frontmatter, body } = parsed.value;
+        const { glob, ...normalizedFrontmatter } = frontmatter;
+        const globs = parseWindsurfGlobs(frontmatter.globs ?? glob);
+        if (globs.length > 0) normalizedFrontmatter.globs = globs;
         return {
           destPath,
           toPath: `${AB_RULES}/${relativePath}`,
