@@ -1,5 +1,6 @@
 import { readLine } from '../prompts/prompt-io.js';
 import type { PromptAdapter } from '../prompts/prompt-types.js';
+import { writeOutput } from '../../utils/output/logger.js';
 
 /** Uninstall names from `a,b c` style args; split from run-uninstall.ts for the 200-line limit. */
 export function parseUninstallNames(args: readonly string[]): string[] {
@@ -21,6 +22,6 @@ export function parseUninstallNames(args: readonly string[]): string[] {
 export function defaultUninstallAdapter(): PromptAdapter {
   return {
     ask: (prompt: string) => readLine(prompt),
-    write: (chunk: string) => process.stdout.write(chunk),
+    write: writeOutput,
   };
 }

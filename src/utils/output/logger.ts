@@ -33,6 +33,14 @@ function out(text: string): void {
   outStream().write(text);
 }
 
+/**
+ * Raw text on the logger's stream: stderr under `agentsmesh mcp` (stdout is the
+ * JSON-RPC channel), nothing under `--json`. Use it instead of process.stdout.
+ */
+export function writeOutput(text: string): void {
+  if (!muted) out(text);
+}
+
 function c(code: string, text: string, stream: NodeJS.WriteStream): string {
   return colorEnabled(stream) ? `${code}${text}${C.reset}` : text;
 }

@@ -22,7 +22,7 @@ import { readLine } from '../prompts/prompt-io.js';
 import { runBrokenLinkPrompt, type BrokenLinkDecision } from '../prompts/broken-link-prompt.js';
 import { runBulkPrompt, type BulkCandidates, type BulkSelection } from '../prompts/bulk-prompt.js';
 import type { PromptAdapter } from '../prompts/prompt-types.js';
-import { logger } from '../../utils/output/logger.js';
+import { logger, writeOutput } from '../../utils/output/logger.js';
 import { applyBrokenLinkDecisions } from '../../sources/anthropic-skill-pack/apply-decisions.js';
 import type { AggregateResult } from '../../sources/anthropic-skill-pack/aggregate.js';
 import { ruleSlug } from '../core/validate-resources.js';
@@ -47,7 +47,7 @@ export interface SkillPackPromptFlowResult {
 function defaultAdapter(): PromptAdapter {
   return {
     ask: (prompt: string) => readLine(prompt),
-    write: (chunk: string) => process.stdout.write(chunk),
+    write: writeOutput,
   };
 }
 
