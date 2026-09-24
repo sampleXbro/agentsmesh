@@ -7444,6 +7444,20 @@
         "t-kw-6399aaee"
       ]
     },
+    "shell-quoting-in-zsh-bash-calls-never-3": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "bacd9016"
+      ],
+      "rule": "In zsh Bash calls, never name a loop or read variable path (or fpath, cdpath): zsh ties path to PATH, so 'while read -r repo path' wipes the command search path and every later command (awk, head, tr) fails with 'command not found' while the loop still runs. Use another name such as rel.",
+      "status": "active",
+      "topics": [
+        "shell-quoting"
+      ],
+      "triggers": [
+        "t-cmd-c69a2607"
+      ]
+    },
     "shell-quoting-never-delete-a-ts-function": {
       "createdAt": "2026-09-22",
       "evidence": [
@@ -8932,6 +8946,21 @@
         "t-glob-8ac72756"
       ]
     },
+    "targets-any-reader-of-windsurf-rule": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "bacd9016"
+      ],
+      "rule": "Any reader of Windsurf rule files must quote an unquoted globs/glob value before YAML parsing (quoteWindsurfGlobValues in src/targets/windsurf/rule-globs.ts): Windsurf's documented form 'globs: **/*.test.ts' is a YAML alias and made the strict parser abort the whole import. Split globs on commas outside braces (parseWindsurfGlobs) so *.{ts,tsx} stays one pattern.",
+      "status": "active",
+      "topics": [
+        "targets"
+      ],
+      "triggers": [
+        "t-glob-6af95f98",
+        "t-glob-593e3d22"
+      ]
+    },
     "targets-check-a-target-s-rule": {
       "createdAt": "2026-09-24",
       "evidence": [
@@ -9172,6 +9201,20 @@
       "triggers": [
         "t-glob-706a24db",
         "t-kw-12b92504"
+      ]
+    },
+    "targets-when-windsurf-s-docs-leave": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "bacd9016"
+      ],
+      "rule": "When Windsurf's docs leave a rule or config field unclear, check its real parser: the Windsurf JetBrains plugin ships the Cascade language server at ~/Library/Application Support/JetBrains/<IDE>/plugins/codeium/<hash>/language_server_macos_arm; its Go function names (exa/cortex/memories.parseRuleFrontmatter, globStringToGlobList, triggerStringToCortexMemoryTrigger) and protobuf tags show which keys and value shapes it reads. Search it with python over the raw bytes or strings output; grep here is ugrep and rejects long context patterns.",
+      "status": "active",
+      "topics": [
+        "targets"
+      ],
+      "triggers": [
+        "t-glob-a566b381"
       ]
     },
     "targets-zed-s-file-scan-exclusions": {
@@ -11572,6 +11615,10 @@
       "kind": "command_pattern",
       "pattern": "git push origin"
     },
+    "t-cmd-c69a2607": {
+      "kind": "command_pattern",
+      "pattern": "read -r"
+    },
     "t-cmd-c6b5fd8b": {
       "kind": "command_pattern",
       "pattern": "git reset --hard"
@@ -12256,6 +12303,10 @@
       "kind": "file_glob",
       "pattern": "tests/helpers/**"
     },
+    "t-glob-593e3d22": {
+      "kind": "file_glob",
+      "pattern": "src/targets/windsurf/rule-globs.ts"
+    },
     "t-glob-5995acad": {
       "kind": "file_glob",
       "pattern": "src/targets/**/generator*.ts"
@@ -12367,6 +12418,10 @@
     "t-glob-68c54751": {
       "kind": "file_glob",
       "pattern": "tests/integration/init-wizard.integration.test.ts"
+    },
+    "t-glob-6af95f98": {
+      "kind": "file_glob",
+      "pattern": "src/targets/windsurf/import*.ts"
     },
     "t-glob-6b98951d": {
       "kind": "file_glob",
@@ -12799,6 +12854,10 @@
     "t-glob-a4ff119a": {
       "kind": "file_glob",
       "pattern": "src/cli/commands/init-templates.ts"
+    },
+    "t-glob-a566b381": {
+      "kind": "file_glob",
+      "pattern": "src/targets/windsurf/**"
     },
     "t-glob-a5fc7764": {
       "kind": "file_glob",
