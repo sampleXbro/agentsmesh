@@ -125,6 +125,20 @@
         "t-kw-ab6ac577"
       ]
     },
+    "agent-orchestration-when-waiting-in-the-bash": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "2abb9a92"
+      ],
+      "rule": "When waiting in the Bash tool, keep 'sleep' well under the tool timeout (about 70%), and prefer a loop of short sleeps that exits on a done-marker, or the ccd_pr get_status tool for CI. On a loaded machine a 'sleep 580' with a 600000 ms timeout overshot and was killed twice.",
+      "status": "active",
+      "topics": [
+        "agent-orchestration"
+      ],
+      "triggers": [
+        "t-cmd-54a0df9f"
+      ]
+    },
     "agent-orchestration-when-you-change-what-a": {
       "createdAt": "2026-09-23",
       "evidence": [],
@@ -6774,12 +6788,29 @@
         "cab70b64"
       ],
       "rule": "On Windows, rmdir or rename of a dir another process is removing at the same moment fails with EPERM, EACCES or EBUSY for a short time, not ENOENT. Lock and cleanup code that races other processes must retry those codes with a short bounded backoff (like renameWithRetry and removeOwner), treat ENOENT as already gone, and still throw an error that does not clear.",
-      "status": "active",
+      "status": "superseded",
+      "supersededBy": "process-locks-route-every-mkdir-rmdir-or",
       "topics": [
         "process-locks"
       ],
       "triggers": [
         "t-glob-611b8b3a"
+      ]
+    },
+    "process-locks-route-every-mkdir-rmdir-or": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "2abb9a92"
+      ],
+      "rule": "Route every mkdir, rmdir or rename that can race another process through retryTransient / retryTransientSync (src/utils/filesystem/transient-fs.ts). On Windows a folder or file another process is removing or reading fails with EPERM, EACCES or EBUSY for a moment ('delete pending'): mkdir of a lock folder crashes the claim, a lock mkdir that treats EPERM as 'broken' writes unlocked and loses updates, and a swallowed rename EPERM silently drops a write. Treat ENOENT/EEXIST as the real answer and let a lasting error throw.",
+      "status": "active",
+      "topics": [
+        "process-locks"
+      ],
+      "triggers": [
+        "t-glob-611b8b3a",
+        "t-glob-20c188ac",
+        "t-glob-b7eb318e"
       ]
     },
     "process-locks-when-wiring-any-process-lock": {
@@ -10995,6 +11026,10 @@
       "kind": "command_pattern",
       "pattern": "agentsmesh lessons query"
     },
+    "t-cmd-54a0df9f": {
+      "kind": "command_pattern",
+      "pattern": "\\bsleep\\s+[0-9]{3,}"
+    },
     "t-cmd-56d79bf7": {
       "kind": "command_pattern",
       "pattern": "agentsmesh lessons add"
@@ -11530,6 +11565,10 @@
     "t-glob-20330f9b": {
       "kind": "file_glob",
       "pattern": "scripts/flake-check-watch.ts"
+    },
+    "t-glob-20c188ac": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/seen-store.ts"
     },
     "t-glob-21a3924d": {
       "kind": "file_glob",
@@ -12466,6 +12505,10 @@
     "t-glob-b571700c": {
       "kind": "file_glob",
       "pattern": "src/lessons/lexical-retrieval.ts"
+    },
+    "t-glob-b7eb318e": {
+      "kind": "file_glob",
+      "pattern": "src/utils/filesystem/transient-fs.ts"
     },
     "t-glob-b80b011c": {
       "kind": "file_glob",
