@@ -7800,6 +7800,20 @@
         "t-cmd-69dc7d4e"
       ]
     },
+    "shell-quoting-when-a-script-renames-a": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "f65a95da"
+      ],
+      "rule": "When a script renames a variable to a call across test files (root -> root()), handle object shorthand ({ root } must become { root: root() }), skip string literals and test names as well as comments, and prune now-unused imports by real code use, not a word search (a comment saying 'joined' kept an unused join import). Run tsc -p tsconfig.tests.json, eslint and a grep for the new call inside quotes before trusting the rewrite.",
+      "status": "active",
+      "topics": [
+        "shell-quoting"
+      ],
+      "triggers": [
+        "t-cmd-d441ad48"
+      ]
+    },
     "shell-quoting-when-a-scripted-str-replace": {
       "createdAt": "2026-09-24",
       "evidence": [
