@@ -1831,6 +1831,21 @@
         "t-glob-49133422"
       ]
     },
+    "frontmatter-and-canonical-shapes-every-canonical-file-reader-must": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "7a8aea33"
+      ],
+      "rule": "Every canonical file reader must skip symlinks, the way readDirRecursiveNoSymlinks and copyDir do: a direct readFileSafe(join(dir, 'SKILL.md')) followed links, so install, installed packs AND generate (a project's own .agentsmesh/skills) copied any local file into packs and generated .claude/.cursor skills (GHSA-pxf6-493h-83j5). Read SKILL.md through readSkillFile in canonical/features/skills.ts, and lstat any new fixed-name file read before using its content.",
+      "status": "active",
+      "topics": [
+        "frontmatter-and-canonical-shapes"
+      ],
+      "triggers": [
+        "t-glob-e508af7d",
+        "t-glob-89c6bc75"
+      ]
+    },
     "frontmatter-and-canonical-shapes-rule-1": {
       "createdAt": "2026-06-05",
       "evidence": [
@@ -12372,6 +12387,10 @@
       "kind": "file_glob",
       "pattern": "src/cli/commands/generate-handlers.ts"
     },
+    "t-glob-89c6bc75": {
+      "kind": "file_glob",
+      "pattern": "src/canonical/load/*.ts"
+    },
     "t-glob-8ac603bd": {
       "kind": "file_glob",
       "pattern": "src/lessons/action-match.ts"
@@ -12911,6 +12930,10 @@
     "t-glob-e3bd9564": {
       "kind": "file_glob",
       "pattern": "src/lessons/validate-health.ts"
+    },
+    "t-glob-e508af7d": {
+      "kind": "file_glob",
+      "pattern": "src/canonical/features/*.ts"
     },
     "t-glob-e5b597c8": {
       "kind": "file_glob",
