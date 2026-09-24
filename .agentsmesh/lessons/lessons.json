@@ -1831,6 +1831,22 @@
         "t-glob-49133422"
       ]
     },
+    "frontmatter-and-canonical-shapes-a-single-winner-field-chosen": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "8b51999c"
+      ],
+      "rule": "A single-winner field chosen with find() over merged layers depends on merge ORDER, not precedence: mergeByKey keeps base positions and APPENDS new names, so the highest-precedence layer's entries land last, and rules.find((r) => r.root) picked a pack's or extend's root: true rule over the project's _root.md (GHSA-4m36-whwv-q74c). After any merge change, keep the root settled by settleRootRule (canonical/load/root-precedence.ts): one root, the project's own, else a pack's, else an extend's.",
+      "status": "active",
+      "topics": [
+        "frontmatter-and-canonical-shapes"
+      ],
+      "triggers": [
+        "t-glob-3c315a53",
+        "t-glob-c21ba0b0",
+        "t-glob-40c513ae"
+      ]
+    },
     "frontmatter-and-canonical-shapes-every-canonical-file-reader-must": {
       "createdAt": "2026-09-24",
       "evidence": [
@@ -11906,6 +11922,10 @@
     "t-glob-406306ec": {
       "kind": "file_glob",
       "pattern": "tests/unit/lessons/import-legacy.test.ts"
+    },
+    "t-glob-40c513ae": {
+      "kind": "file_glob",
+      "pattern": "src/canonical/load/root-precedence.ts"
     },
     "t-glob-414c9b17": {
       "kind": "file_glob",
