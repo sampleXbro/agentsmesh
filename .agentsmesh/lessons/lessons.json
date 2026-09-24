@@ -1708,6 +1708,21 @@
         "t-kw-09d05099"
       ]
     },
+    "fixture-and-assertion-discipline-tests-unit-cli-renderers-init": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "982f61df"
+      ],
+      "rule": "tests/unit/cli/renderers/init.test.ts (and other renderer tests listed in tsconfig.tests.json exclude) build InitData fixtures that omit required fields. When you add a required array field that a renderer iterates, add it to every fixture that reaches that branch and to renderer-test-helpers.ts, or keep the loop inside a branch those fixtures never reach; tsc will not catch the gap and the render throws 'is not iterable'.",
+      "status": "active",
+      "topics": [
+        "fixture-and-assertion-discipline"
+      ],
+      "triggers": [
+        "t-glob-a9c88b6d",
+        "t-glob-dbe11674"
+      ]
+    },
     "fixture-and-assertion-discipline-to-cover-the-1-arm": {
       "createdAt": "2026-06-07",
       "evidence": [
@@ -3285,7 +3300,7 @@
       ],
       "rule": "Canonical paths are last-import-wins EXCEPT .agentsmesh/rules/_root.md and mcp.json, which accumulate. Root rule merging lives in the single shared serializer serializeImportedRuleWithFallback (src/targets/import/import-metadata-core.ts) because all ~45 root write sites across 33 targets funnel through it — never patch per-target importers for root-rule behavior. When changing it, remember the init placeholder body (src/canonical/root-rule-placeholder.ts) must count as unwritten or every import stacks under scaffold boilerplate.",
       "status": "superseded",
-      "supersededBy": "install-import-pickers-canonical-permissions-yaml-ignore-and",
+      "supersededBy": "install-import-pickers-import-merge-rules-permissions-yaml",
       "topics": [
         "install-import-pickers"
       ],
@@ -3297,7 +3312,8 @@
         "e61d9575"
       ],
       "rule": "Canonical permissions.yaml, ignore and mcp.json accumulate across imports through runTargetImport (src/targets/import/run-target-import.ts), which snapshots them before importFrom and adds back dropped entries; _root.md accumulates through serializeImportedRuleWithFallback; every other canonical path is last-import-wins. Route any new import entry point through runTargetImport instead of calling descriptor.generators.importFrom directly, and never patch per-target importers for merge behaviour: four importers already bypassed writeMcpWithMerge (#131).",
-      "status": "active",
+      "status": "superseded",
+      "supersededBy": "install-import-pickers-import-merge-rules-permissions-yaml",
       "topics": [
         "install-import-pickers"
       ],
@@ -3319,6 +3335,24 @@
       "triggers": [
         "t-glob-f394f32c",
         "t-glob-72016213"
+      ]
+    },
+    "install-import-pickers-import-merge-rules-permissions-yaml": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "982f61df"
+      ],
+      "rule": "Import merge rules: permissions.yaml, ignore and mcp.json accumulate across imports through runTargetImport (src/targets/import/run-target-import.ts); _root.md accumulates through serializeImportedRuleWithFallback; in one init --yes run, same-name rules, commands and agents from two tools are both kept by importKeepingSameName (src/cli/commands/init-same-name.ts), the later one as <name>-<tool>.md; separate import --from runs stay last-import-wins for them. Route new import entry points through runTargetImport (and multi-tool runs through importKeepingSameName), never call descriptor.generators.importFrom directly, and never patch per-target importers for merge behaviour.",
+      "status": "active",
+      "topics": [
+        "install-import-pickers"
+      ],
+      "triggers": [
+        "t-glob-36b511b8",
+        "t-glob-90ecaacd",
+        "t-glob-6b98951d",
+        "t-glob-24b8cd6b",
+        "t-glob-84b6c902"
       ]
     },
     "install-import-pickers-install-sync-refresh-re-run": {
@@ -7690,6 +7724,35 @@
         "t-cmd-69dc7d4e"
       ]
     },
+    "shell-quoting-when-a-scripted-str-replace": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "982f61df"
+      ],
+      "rule": "When a scripted str.replace inserts a line after a key in several files, never use a shorter-indent pattern that is a suffix of a deeper-indent line: '      rootRuleMerged: false,' also matches inside '        rootRuleMerged: false,', so the insert lands twice (TS1117 duplicate property). Anchor the pattern on the preceding newline ('\\\\n      key') or assert the exact match count per file before writing.",
+      "status": "superseded",
+      "supersededBy": "shell-quoting-when-a-scripted-str-replace-2",
+      "topics": [
+        "shell-quoting"
+      ],
+      "triggers": [
+        "t-cmd-d441ad48"
+      ]
+    },
+    "shell-quoting-when-a-scripted-str-replace-2": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "982f61df"
+      ],
+      "rule": "When a scripted str.replace inserts a line after a key in several files, never use a shorter-indent pattern that is a suffix of a deeper-indent line: '      rootRuleMerged: false,' also matches inside '        rootRuleMerged: false,', so the insert lands twice (TS1117 duplicate property). Start the pattern with the newline before the line (a real newline, written \\n in the Python string) or assert the exact match count per file before writing.",
+      "status": "active",
+      "topics": [
+        "shell-quoting"
+      ],
+      "triggers": [
+        "t-cmd-d441ad48"
+      ]
+    },
     "skill-path-resolution-resolve-skill-paths-from-the": {
       "createdAt": "2026-06-08",
       "evidence": [
@@ -11437,6 +11500,10 @@
       "kind": "command_pattern",
       "pattern": "sed|cat"
     },
+    "t-cmd-d441ad48": {
+      "kind": "command_pattern",
+      "pattern": "python3 -"
+    },
     "t-cmd-d75c3b91": {
       "kind": "command_pattern",
       "pattern": "pnpm (test|lint|typecheck)[^|]*\\|\\s*(tail|head|grep)"
@@ -11784,6 +11851,10 @@
     "t-glob-23ebed0d": {
       "kind": "file_glob",
       "pattern": "src/lessons/auto-prune.ts"
+    },
+    "t-glob-24b8cd6b": {
+      "kind": "file_glob",
+      "pattern": "src/cli/commands/init-same-name.ts"
     },
     "t-glob-2511e880": {
       "kind": "file_glob",
@@ -12653,6 +12724,10 @@
       "kind": "file_glob",
       "pattern": "src/targets/*/layout.ts"
     },
+    "t-glob-a9c88b6d": {
+      "kind": "file_glob",
+      "pattern": "src/cli/renderers/**"
+    },
     "t-glob-a9eb0502": {
       "kind": "file_glob",
       "pattern": "src/utils/filesystem/*lock*.ts"
@@ -12936,6 +13011,10 @@
     "t-glob-db7e480d": {
       "kind": "file_glob",
       "pattern": "src/lessons/paths.ts"
+    },
+    "t-glob-dbe11674": {
+      "kind": "file_glob",
+      "pattern": "src/cli/command-result.ts"
     },
     "t-glob-dc08e1d8": {
       "kind": "file_glob",
