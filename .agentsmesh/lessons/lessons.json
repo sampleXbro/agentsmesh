@@ -3974,6 +3974,21 @@
         "t-cmd-e097d363"
       ]
     },
+    "install-import-pickers-when-copying-entity-files-from": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "96ce5605"
+      ],
+      "rule": "When copying entity files from an install source, lstat every file (SKILL.md included) and skip symlinks: in 0.41.0 a skills/<name>/SKILL.md symlink was followed, copying an arbitrary local file into .agentsmesh/packs, .claude/skills and .cursor/skills, which get committed. Code that the MCP server can reach must never call process.stdout.write directly (use the logger, which MCP redirects to stderr): run-install-prompts.ts and run-uninstall.ts wrote warnings into the JSON-RPC stream.",
+      "status": "active",
+      "topics": [
+        "install-import-pickers"
+      ],
+      "triggers": [
+        "t-glob-25ede31e",
+        "t-kw-233098a2"
+      ]
+    },
     "install-import-pickers-when-fixing-how-a-re": {
       "createdAt": "2026-09-23",
       "evidence": [
@@ -6649,6 +6664,22 @@
       ],
       "triggers": [
         "t-glob-4c8d45b0"
+      ]
+    },
+    "mcp-path-containment-every-folder-under-agentsmesh-that": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "96ce5605"
+      ],
+      "rule": "Every folder under .agentsmesh that agentsmesh writes, replaces or deletes (packs/, lessons/, not only rules/commands/agents/skills) must pass the realpath containment guard against the project root: git keeps symlinks, and in 0.41.0 a cloned repo's '.agentsmesh/packs -> ../../outside' made install replace an outside folder (deleting its files) and uninstall delete outside the project, via both the CLI and MCP.",
+      "status": "active",
+      "topics": [
+        "mcp-path-containment"
+      ],
+      "triggers": [
+        "t-glob-25ede31e",
+        "t-glob-35153049",
+        "t-kw-d3093e8e"
       ]
     },
     "mcp-path-containment-mcp-path-containment-canonicalize-recons": {
@@ -11632,6 +11663,10 @@
       "kind": "file_glob",
       "pattern": "AGENTS.md"
     },
+    "t-glob-25ede31e": {
+      "kind": "file_glob",
+      "pattern": "src/install/**/*.ts"
+    },
     "t-glob-2841b685": {
       "kind": "file_glob",
       "pattern": "src/core/generate/*-owned-keys.ts"
@@ -11691,6 +11726,10 @@
     "t-glob-341a7fe1": {
       "kind": "file_glob",
       "pattern": "src/targets/*/permissions-import.ts"
+    },
+    "t-glob-35153049": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/graph-store.ts"
     },
     "t-glob-35a0a200": {
       "kind": "file_glob",
@@ -13068,6 +13107,10 @@
       "kind": "keyword",
       "pattern": "regression"
     },
+    "t-kw-233098a2": {
+      "kind": "keyword",
+      "pattern": "SKILL.md symlink"
+    },
     "t-kw-233ef987": {
       "kind": "keyword",
       "pattern": "NFA state"
@@ -13667,6 +13710,10 @@
     "t-kw-d2cb2e25": {
       "kind": "keyword",
       "pattern": "UserPromptSubmit"
+    },
+    "t-kw-d3093e8e": {
+      "kind": "keyword",
+      "pattern": "symlink"
     },
     "t-kw-d3364734": {
       "kind": "keyword",
