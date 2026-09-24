@@ -3304,6 +3304,22 @@
         "t-glob-eb1e5fce"
       ]
     },
+    "install-import-pickers-put-a-path-boundary-check": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "00e63373"
+      ],
+      "rule": "Put a path-boundary check in a command with per-item failure isolation (uninstall) as a pre-flight, before prompts and also under --dry-run: inside the per-item apply step it is caught as one 'failed' entry while other items continue, and the dry-run preview approves what the real run refuses. Place it once at the command's choke point (installAsPack for every install path incl. --sync and refresh; runUninstall), not in helpers that 40 tests call.",
+      "status": "active",
+      "topics": [
+        "install-import-pickers"
+      ],
+      "triggers": [
+        "t-glob-7d01f666",
+        "t-glob-6c742b74",
+        "t-glob-d8ba983b"
+      ]
+    },
     "install-import-pickers-rule-1": {
       "createdAt": "2026-06-05",
       "evidence": [
@@ -12203,6 +12219,10 @@
       "kind": "file_glob",
       "pattern": "src/install/prompts/prompt-io.ts"
     },
+    "t-glob-7d01f666": {
+      "kind": "file_glob",
+      "pattern": "src/install/uninstall/*.ts"
+    },
     "t-glob-7d39ded4": {
       "kind": "file_glob",
       "pattern": "src/config/core/conversions.ts"
@@ -12774,6 +12794,10 @@
     "t-glob-d8072e60": {
       "kind": "file_glob",
       "pattern": "src/install/source/git-pin.ts"
+    },
+    "t-glob-d8ba983b": {
+      "kind": "file_glob",
+      "pattern": "src/install/pack/pack-containment.ts"
     },
     "t-glob-d8e040bc": {
       "kind": "file_glob",
