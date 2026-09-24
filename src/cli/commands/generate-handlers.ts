@@ -109,6 +109,7 @@ export async function handleGenerateOrDryRun(
         resolvedExtends,
         buildOutputChecksums(results),
         isFilteredRun(flags),
+        inactiveTargets,
       );
     }
   } finally {

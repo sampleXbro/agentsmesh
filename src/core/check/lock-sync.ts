@@ -52,6 +52,7 @@ export async function checkLockSync(opts: CheckLockSyncOptions): Promise<LockSyn
       outputsModified: [],
       outputsRemoved: [],
       outputsStale: [],
+      staleTargets: [],
       outputsUntracked: [],
       outputsChecked: false,
     };
@@ -133,10 +134,16 @@ export async function checkLockSync(opts: CheckLockSyncOptions): Promise<LockSyn
         })
       : [];
 
+  const configured = [...config.targets, ...(config.pluginTargets ?? [])];
+  const staleTargets = (lock.staleTargets ?? []).filter((target) => configured.includes(target));
+
   const canonicalDrift =
     modified.length > 0 || added.length > 0 || removed.length > 0 || extendsModified.length > 0;
   const outputDrift =
-    outputsModified.length > 0 || outputsRemoved.length > 0 || outputsStale.length > 0;
+    outputsModified.length > 0 ||
+    outputsRemoved.length > 0 ||
+    outputsStale.length > 0 ||
+    staleTargets.length > 0;
   const inSync = !canonicalDrift && !outputDrift;
 
   return {
@@ -153,6 +160,7 @@ export async function checkLockSync(opts: CheckLockSyncOptions): Promise<LockSyn
     outputsModified,
     outputsRemoved,
     outputsStale,
+    staleTargets,
     outputsUntracked,
     outputsChecked,
   };

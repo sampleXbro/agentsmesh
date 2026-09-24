@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from 'vitest';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createCanonicalProject } from './helpers/canonical.js';
 import { createTestProject, cleanup } from './helpers/setup.js';
@@ -38,7 +38,7 @@ features: [rules, agents]
     expect(String(reviewer!.roleDefinition ?? '')).toContain('code reviewer');
   });
 
-  it('windsurf: directory-scoped glob rule generates src/AGENTS.md', async () => {
+  it('windsurf: a directory-scoped glob rule is written once, with no src/AGENTS.md', async () => {
     dir = createTestProject();
     mkdirSync(join(dir, '.agentsmesh', 'rules'), { recursive: true });
     writeFileSync(
@@ -56,7 +56,8 @@ features: [rules, agents]
 
     const gen = await runCli('generate --targets windsurf', dir);
     expect(gen.exitCode, gen.stderr).toBe(0);
-    fileExists(join(dir, 'src', 'AGENTS.md'));
-    fileContains(join(dir, 'src', 'AGENTS.md'), 'Src-specific guidance');
+    fileContains(join(dir, '.windsurf', 'rules', 'src-guide.md'), 'Src-specific guidance');
+    expect(existsSync(join(dir, '.windsurf', 'rules', 'src.md'))).toBe(false);
+    expect(existsSync(join(dir, 'src', 'AGENTS.md'))).toBe(false);
   });
 });

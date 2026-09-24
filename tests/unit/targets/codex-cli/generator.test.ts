@@ -12,6 +12,7 @@ import {
 } from '../../../../src/targets/codex-cli/generator.js';
 import type { CanonicalFiles } from '../../../../src/core/types.js';
 import { appendEmbeddedRulesBlock } from '../../../../src/targets/projection/managed-blocks.js';
+import { renderEmbeddedRuleEntries } from '../../../../src/targets/projection/embedded-rule-entries.js';
 import {
   AGENTS_MD,
   CODEX_AGENTS_DIR,
@@ -122,7 +123,7 @@ describe('generateRules (codex-cli)', () => {
     expect(rootFile!.content).toBe('# Root');
     const tsRule = results.find((r) => r.path === 'src/AGENTS.md');
     expect(tsRule).toBeDefined();
-    expect(tsRule!.content).toBe('Use strict mode.');
+    expect(tsRule!.content).toBe(renderEmbeddedRuleEntries([canonical.rules[1]!]));
   });
 
   it('embeds **/*.ts rules (no directory prefix) into the root AGENTS.md instead of a slug dir', () => {
@@ -152,7 +153,7 @@ describe('generateRules (codex-cli)', () => {
     expect(results[0]!.content).toContain('Strict types.');
   });
 
-  it('writes unscoped override rules to the root AGENTS.override.md, joined', () => {
+  it('writes unscoped override rules to the root AGENTS.override.md, as rule entries', () => {
     const canonical = makeCanonical({
       rules: [
         {
@@ -175,10 +176,12 @@ describe('generateRules (codex-cli)', () => {
         },
       ],
     });
-    expect(generateRules(canonical)).toEqual([{ path: 'AGENTS.override.md', content: 'A\n\nB' }]);
+    expect(generateRules(canonical)).toEqual([
+      { path: 'AGENTS.override.md', content: renderEmbeddedRuleEntries(canonical.rules) },
+    ]);
   });
 
-  it('joins multiple rules that resolve to the same nested AGENTS.md', () => {
+  it('writes multiple rules that resolve to the same nested AGENTS.md as rule entries', () => {
     const canonical = makeCanonical({
       rules: [
         {
@@ -202,7 +205,7 @@ describe('generateRules (codex-cli)', () => {
     const results = generateRules(canonical);
     expect(results).toHaveLength(1);
     expect(results[0]!.path).toBe('src/AGENTS.md');
-    expect(results[0]!.content).toBe('First.\n\nSecond.');
+    expect(results[0]!.content).toBe(renderEmbeddedRuleEntries(canonical.rules));
   });
 
   it('writes AGENTS.override.md for override-variant rules', () => {

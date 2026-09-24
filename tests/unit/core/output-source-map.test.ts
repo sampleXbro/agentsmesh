@@ -55,10 +55,19 @@ function canonical(): CanonicalFiles {
 }
 
 describe('buildOutputSourceMap', () => {
-  it('uses descriptor-declared rule extra outputs for source ownership', () => {
+  it('maps windsurf root and rule outputs, and no nested AGENTS.md it no longer writes', () => {
     const sourceMap = buildOutputSourceMap('windsurf', canonical(), config('windsurf'));
 
     expect(sourceMap.get('AGENTS.md')).toBe(join('/repo/.agentsmesh/rules/_root.md'));
+    expect(sourceMap.get('.windsurf/rules/typescript.md')).toBe(
+      join('/repo/.agentsmesh/rules/typescript.md'),
+    );
+    expect(sourceMap.has('src/AGENTS.md')).toBe(false);
+  });
+
+  it('uses descriptor-declared rule extra outputs for source ownership', () => {
+    const sourceMap = buildOutputSourceMap('codex-cli', canonical(), config('codex-cli'));
+
     expect(sourceMap.get('src/AGENTS.md')).toBe(join('/repo/.agentsmesh/rules/typescript.md'));
   });
 

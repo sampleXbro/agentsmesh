@@ -2,6 +2,8 @@ import { getVersion } from '../cli/version.js';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
+  type CallToolRequest,
+  type CallToolResult,
   CallToolRequestSchema,
   ListToolsRequestSchema,
   ListResourcesRequestSchema,
@@ -13,6 +15,7 @@ import { readResource, toMcpError } from './resources.js';
 import { McpError } from './errors.js';
 import { enrichValidationIssues } from './validation-errors.js';
 import { mcpServerInstructions } from './instructions.js';
+import { createCallQueue } from './call-queue.js';
 
 export async function startServer(): Promise<void> {
   const server = new Server(
@@ -34,7 +37,10 @@ export async function startServer(): Promise<void> {
     })),
   }));
 
-  server.setRequestHandler(CallToolRequestSchema, async (req) => {
+  const inOrder = createCallQueue();
+  server.setRequestHandler(CallToolRequestSchema, (req) => inOrder(() => callTool(req)));
+
+  async function callTool(req: CallToolRequest): Promise<CallToolResult> {
     const desc = TOOL_DESCRIPTORS.find((d) => d.name === req.params.name);
     if (!desc) {
       return {
@@ -69,7 +75,7 @@ export async function startServer(): Promise<void> {
         content: [{ type: 'text' as const, text: JSON.stringify(env) }],
       };
     }
-  });
+  }
 
   server.setRequestHandler(ListResourcesRequestSchema, async () => ({
     resources: RESOURCE_DESCRIPTORS.map((r) => ({

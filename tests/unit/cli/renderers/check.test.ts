@@ -22,6 +22,7 @@ describe('renderCheck', () => {
         outputsModified: [],
         outputsRemoved: [],
         outputsStale: [],
+        staleTargets: [],
         outputsUntracked: [],
         outputsChecked: false,
       },
@@ -47,6 +48,7 @@ describe('renderCheck', () => {
         outputsModified: [],
         outputsRemoved: [],
         outputsStale: [],
+        staleTargets: [],
         outputsUntracked: [],
         outputsChecked: true,
       },
@@ -72,6 +74,7 @@ describe('renderCheck', () => {
         outputsModified: [],
         outputsRemoved: [],
         outputsStale: [],
+        staleTargets: [],
         outputsUntracked: [],
         outputsChecked: true,
       },
@@ -87,6 +90,34 @@ describe('renderCheck', () => {
     expect(errors).toContain('skills/old/SKILL.md was removed [LOCKED]');
     expect(errors).toContain('skills/open/SKILL.md was removed\n');
     expect(output.stdout()).toContain("run 'agentsmesh generate --force' to accept the change");
+  });
+
+  it('names each target a filtered generate left stale', () => {
+    renderCheck({
+      exitCode: 1,
+      data: {
+        hasLock: true,
+        lockConflict: false,
+        canonicalDrift: false,
+        outputDrift: true,
+        inSync: false,
+        modified: [],
+        added: [],
+        removed: [],
+        extendsModified: [],
+        lockedViolations: [],
+        outputsModified: [],
+        outputsRemoved: [],
+        outputsStale: [],
+        staleTargets: ['claude-code'],
+        outputsUntracked: [],
+        outputsChecked: true,
+      },
+    });
+
+    expect(output.stderr()).toContain(
+      '  target "claude-code" was not generated after the last canonical change',
+    );
   });
 
   it('renders generated-output drift with forward-slash paths', () => {
@@ -106,6 +137,7 @@ describe('renderCheck', () => {
         outputsModified: ['.cursor/rules/_root.mdc', 'AGENTS.md'],
         outputsRemoved: ['.claude/CLAUDE.md'],
         outputsStale: ['.cursor/rules/orphaned.mdc'],
+        staleTargets: [],
         outputsUntracked: [],
         outputsChecked: true,
       },
@@ -138,6 +170,7 @@ describe('renderCheck', () => {
         outputsModified: [],
         outputsRemoved: [],
         outputsStale: [],
+        staleTargets: [],
         outputsUntracked: [],
         outputsChecked: false,
       },
@@ -164,6 +197,7 @@ describe('renderCheck', () => {
         outputsModified: [],
         outputsRemoved: [],
         outputsStale: [],
+        staleTargets: [],
         outputsUntracked: [],
         outputsChecked: true,
       },
@@ -190,6 +224,7 @@ describe('renderCheck', () => {
         outputsModified: [],
         outputsRemoved: [],
         outputsStale: [],
+        staleTargets: [],
         outputsUntracked: [],
         outputsChecked: false,
       },

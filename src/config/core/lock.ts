@@ -11,6 +11,7 @@ import {
 import { hashFile, hashContent } from '../../utils/crypto/hash.js';
 import type { LockFile } from '../../core/types.js';
 import { listPacks } from '../../install/pack/pack-reader.js';
+import { parseStaleTargets } from './lock-stale-targets.js';
 
 const LOCK_FILENAME = '.lock';
 
@@ -42,11 +43,7 @@ const FEATURE_PATTERNS: Record<string, (path: string) => boolean> = {
   ignore: (path) => path === 'ignore',
 };
 
-/**
- * Read lock file from .agentsmesh directory.
- * @param abDir - Absolute path to .agentsmesh
- * @returns Parsed LockFile or null if missing
- */
+/** Read `.agentsmesh/.lock`; null when it is missing or cannot be parsed. */
 export async function readLock(abDir: string): Promise<LockFile | null> {
   const lockPath = join(abDir, LOCK_FILENAME);
   const content = await readFileSafe(lockPath);
@@ -61,6 +58,7 @@ export async function readLock(abDir: string): Promise<LockFile | null> {
       extends?: Record<string, string>;
       packs?: Record<string, string>;
       outputs?: Record<string, string>;
+      stale_targets?: unknown;
     };
     if (!raw || typeof raw !== 'object') return null;
     return {
@@ -72,17 +70,14 @@ export async function readLock(abDir: string): Promise<LockFile | null> {
       packs: raw.packs && typeof raw.packs === 'object' ? raw.packs : {},
       // undefined (not {}) when absent → old-format lock; skips output check.
       outputs: raw.outputs && typeof raw.outputs === 'object' ? raw.outputs : undefined,
+      staleTargets: parseStaleTargets(raw.stale_targets),
     };
   } catch {
     return null;
   }
 }
 
-/**
- * Write lock file to .agentsmesh directory.
- * @param abDir - Absolute path to .agentsmesh
- * @param lock - Lock file data
- */
+/** Write `.agentsmesh/.lock` from `lock`. */
 export async function writeLock(abDir: string, lock: LockFile): Promise<void> {
   const lockPath = join(abDir, LOCK_FILENAME);
   const raw = {
@@ -94,6 +89,7 @@ export async function writeLock(abDir: string, lock: LockFile): Promise<void> {
     packs: lock.packs,
     // Omit the key entirely when undefined (old-format lock).
     ...(lock.outputs !== undefined ? { outputs: lock.outputs } : {}),
+    ...(lock.staleTargets !== undefined ? { stale_targets: lock.staleTargets } : {}),
   };
   const content =
     '# Auto-generated. DO NOT EDIT MANUALLY.\n# Tracks the state of all config files for team conflict resolution.\n\n' +

@@ -5,7 +5,6 @@ export const windsurfContract: TargetPathContract = {
     '.codeiumignore',
     '.windsurf/hooks.json',
     '.windsurf/mcp_config.example.json',
-    '.windsurf/rules/src.md',
     '.windsurf/rules/typescript.md',
     '.windsurf/skills/am-agent-code-reviewer/SKILL.md',
     '.windsurf/skills/am-agent-researcher/SKILL.md',
@@ -14,7 +13,6 @@ export const windsurfContract: TargetPathContract = {
     '.windsurf/skills/api-generator/template.ts',
     '.windsurf/workflows/review.md',
     'AGENTS.md',
-    'src/AGENTS.md',
   ],
   imported: [
     '.agentsmesh/agents/code-reviewer.md',
@@ -24,7 +22,6 @@ export const windsurfContract: TargetPathContract = {
     '.agentsmesh/ignore',
     '.agentsmesh/mcp.json',
     '.agentsmesh/rules/_root.md',
-    '.agentsmesh/rules/src.md',
     '.agentsmesh/rules/typescript.md',
     '.agentsmesh/skills/api-generator/SKILL.md',
     '.agentsmesh/skills/api-generator/references/route-checklist.md',

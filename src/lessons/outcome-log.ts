@@ -3,6 +3,7 @@ import { effectivenessScores } from './effectiveness.js';
 import type { LessonsGraph } from './graph-schema.js';
 import { appendJsonl, logExists, readJsonl } from './jsonl-log.js';
 import { isOutcomeEvent } from './log-record-guards.js';
+import { lessonsDirInsideProject } from './lessons-dir-guard.js';
 import { lessonsPaths } from './paths.js';
 import { isOutcomeLogEnabled, sessionId } from './telemetry.js';
 
@@ -56,7 +57,7 @@ export function appendOutcomeEvent(
   event: OutcomeEvent,
   env: NodeJS.ProcessEnv = process.env,
 ): void {
-  if (!isOutcomeLogEnabled(env, projectRoot)) return;
+  if (!isOutcomeLogEnabled(env, projectRoot) || !lessonsDirInsideProject(projectRoot)) return;
   appendJsonl(outcomeLogPath(projectRoot), event, {
     maxRecords: MAX_OUTCOME_LOG_RECORDS,
     trimTriggerBytes: OUTCOME_LOG_TRIM_TRIGGER_BYTES,

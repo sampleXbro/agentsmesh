@@ -14,7 +14,11 @@ import {
 import { toToolsArray } from '../import/shared-import-helpers.js';
 import type { ImportEntryMapper } from '../catalog/import-descriptor.js';
 
-/** Non-root Claude rules pass frontmatter through and force `root: false`. */
+/**
+ * Non-root Claude rules pass frontmatter through and force `root: false`.
+ * Claude Code scopes a rule with `paths` (list or comma-separated string), so
+ * that becomes canonical `globs`; an older generated `globs` is still read.
+ */
 export const claudeRuleMapper: ImportEntryMapper = async ({
   relativePath,
   normalizeTo,
@@ -22,12 +26,14 @@ export const claudeRuleMapper: ImportEntryMapper = async ({
 }) => {
   const destPath = join(destDir, relativePath);
   const { frontmatter, body } = parseFrontmatter(normalizeTo(destPath));
+  const { paths, ...rest } = frontmatter;
+  const scoped = paths === undefined ? {} : { globs: toToolsArray(paths) };
   return {
     destPath,
     toPath: `${AB_RULES}/${relativePath}`,
     content: await serializeImportedRuleWithFallback(
       destPath,
-      { ...frontmatter, root: false },
+      { ...rest, ...scoped, root: false },
       body,
     ),
   };

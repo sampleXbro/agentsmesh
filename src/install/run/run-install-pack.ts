@@ -5,6 +5,7 @@
 import { join } from 'node:path';
 import { materializePack } from '../pack/pack-writer.js';
 import { readPackMetadata } from '../pack/pack-reader.js';
+import { assertPackPathInsideProject } from '../pack/pack-containment.js';
 import { mergeIntoPack } from '../pack/pack-merge.js';
 import { cleanInstallCache } from '../pack/cache-cleanup.js';
 import { collectPreservedRootFiles } from '../source/collect-preserved-root.js';
@@ -45,6 +46,7 @@ export async function installAsPack(args: InstallAsPackArgs): Promise<string> {
   } = args;
 
   const packsDir = join(canonicalDir, 'packs');
+  await assertPackPathInsideProject(canonicalDir, packsDir);
   const selectedCanonical = applySelection(narrowed, selected);
   const preservedRootFiles = contentRoot ? await collectPreservedRootFiles(contentRoot) : [];
   const now = new Date().toISOString();
@@ -69,6 +71,8 @@ export async function installAsPack(args: InstallAsPackArgs): Promise<string> {
   let persistedPath = pathInRepo;
   let persistedPaths: string[] | undefined;
   const packMeta = packTarget?.found.meta;
+  // The pack folder itself can be a link out of the project; check it before any write.
+  await assertPackPathInsideProject(canonicalDir, packTarget?.found.packDir ?? join(packsDir, packName));
   if (!packMeta && !forceFreshMaterialize && (await readPackMetadata(join(packsDir, packName)))) {
     throw packNameCollision(packName, explicitName === true);
   }

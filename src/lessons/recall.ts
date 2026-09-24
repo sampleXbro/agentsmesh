@@ -51,6 +51,11 @@ export interface RecallOptions {
    * compact/clear, which is the exact signal a wall-clock TTL only approximates.
    */
   readonly ttlMs?: number;
+  /**
+   * Migrate a legacy store first (default true). The hook passes false: the
+   * migration deletes files, so it only runs from a command the user runs.
+   */
+  readonly autoMigrate?: boolean;
 }
 
 export interface RecallResult {
@@ -92,7 +97,7 @@ export async function recallLessons(
   // files intact for an explicit `lessons import-md` to surface the error.
   // WRITE paths keep failing loudly so a fresh graph never strands the legacy.
   try {
-    await maybeAutoMigrateLessons(projectRoot);
+    if (options.autoMigrate !== false) await maybeAutoMigrateLessons(projectRoot);
   } catch {
     // Degrade; see above.
   }

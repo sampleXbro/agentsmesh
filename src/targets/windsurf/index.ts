@@ -39,15 +39,6 @@ import { buildWindsurfImportPaths } from '../../core/reference/import-map-builde
 import { shouldConvertAgentsToSkills } from '../../config/core/conversions.js';
 import { projectedAgentSkillDirName } from '../projection/projected-agent-skill.js';
 
-function directoryScopedRuleDir(globs: readonly string[]): string | null {
-  if (globs.length === 0) return null;
-  const dirs = globs
-    .map((glob) => glob.split('/')[0] ?? '')
-    .filter((segment) => /^[A-Za-z0-9._-]+$/.test(segment));
-  if (dirs.length !== globs.length) return null;
-  return dirs.every((dir) => dir === dirs[0]) ? dirs[0]! : null;
-}
-
 export const target: TargetGenerators = {
   name: 'windsurf',
   primaryRootInstructionPath: WINDSURF_AGENTS_MD,
@@ -65,9 +56,7 @@ export const target: TargetGenerators = {
 const project: TargetLayout = {
   rootInstructionPath: WINDSURF_AGENTS_MD,
   extraRuleOutputPaths(rule) {
-    if (rule.root) return [WINDSURF_AGENTS_MD];
-    const dir = directoryScopedRuleDir(rule.globs);
-    return dir !== null ? [`${dir}/AGENTS.md`] : [];
+    return rule.root ? [WINDSURF_AGENTS_MD] : [];
   },
   skillDir: WINDSURF_SKILLS_DIR,
   managedOutputs: {

@@ -39,10 +39,10 @@ describe('importLegacyLessons', async () => {
     expect(got).toBe(expected);
   });
 
-  it('DELETES every legacy artifact by default (clean-break upgrade)', async () => {
+  it('deletes the migrated legacy artifacts by default and keeps journal.md', async () => {
     const report = await importLegacyLessons(root, { migratedAt: MIGRATED_AT });
     expect(existsSync(join(root, '.agentsmesh/lessons/index.yaml'))).toBe(false);
-    expect(existsSync(join(root, '.agentsmesh/lessons/journal.md'))).toBe(false);
+    expect(existsSync(join(root, '.agentsmesh/lessons/journal.md'))).toBe(true);
     expect(existsSync(join(root, '.agentsmesh/lessons/topics'))).toBe(false);
     expect(report.deletedPaths.length).toBeGreaterThan(0);
   });

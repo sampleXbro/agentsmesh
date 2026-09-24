@@ -68,6 +68,7 @@ function lockResult(report: Awaited<ReturnType<typeof checkLockSync>>): CheckCom
       outputsModified: [...report.outputsModified],
       outputsRemoved: [...report.outputsRemoved],
       outputsStale: [...report.outputsStale],
+      staleTargets: [...report.staleTargets],
       outputsUntracked: [...report.outputsUntracked],
       outputsChecked: report.outputsChecked,
     },

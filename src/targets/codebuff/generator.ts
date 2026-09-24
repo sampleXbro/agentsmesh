@@ -22,6 +22,7 @@ import type { FeatureGeneratorOutput } from '../catalog/target.interface.js';
 import type { CanonicalFiles } from '../../core/types.js';
 import { generateEmbeddedSkills } from '../import/embedded-skill.js';
 import { appendEmbeddedRulesBlock } from '../projection/managed-blocks.js';
+import { renderEmbeddedRuleEntries } from '../projection/embedded-rule-entries.js';
 import { commandSkillDirName, serializeCommandSkill } from '../codex-cli/command-skill.js';
 import { eligibleRules, groupByNestedPath } from './nested-rules.js';
 import { serializeCodebuffMcp } from './mcp-format.js';
@@ -40,11 +41,10 @@ export function generateRules(canonical: CanonicalFiles): CodebuffOutput[] {
   const rootBody = canonical.rules.find((rule) => rule.root)?.body.trim() ?? '';
   if (rootBody) outputs.push({ path: CODEBUFF_ROOT_FILE, content: rootBody });
 
+  // Embedded-rule entries in Codex's order, so Codex's file stays a prefix of
+  // this one and import restores each rule to its own canonical file.
   for (const [path, rules] of groupByNestedPath(eligibleRules(canonical))) {
-    const content = rules
-      .map((rule) => rule.body.trim())
-      .filter((body) => body.length > 0)
-      .join('\n\n');
+    const content = renderEmbeddedRuleEntries(rules.filter((rule) => rule.body.trim().length > 0));
     if (content) outputs.push({ path, content });
   }
 

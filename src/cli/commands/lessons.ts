@@ -33,9 +33,9 @@ export type { LessonsCommandResult } from './lessons-types.js';
 
 /**
  * Pre-dispatch legacy migration. `import-md` migrates explicitly (never here).
- * The RECALL subcommands (`query`, `hook`) must never crash — a corrupt legacy
- * store degrades to an unmigrated (usually absent) graph, leaving the legacy
- * files intact for an explicit `import-md` to surface the error loudly. Every
+ * `query` must never crash — a corrupt legacy store degrades to an unmigrated
+ * (usually absent) graph, leaving the legacy files intact for an explicit
+ * `import-md` to surface the error loudly. Every
  * other subcommand keeps the throw: failing a write loudly prevents a fresh
  * empty graph from permanently stranding an unmigrated legacy store.
  */
@@ -45,14 +45,14 @@ async function migrateForSubcommand(
 ): Promise<{ migrated: boolean; error?: string }> {
   // `resolve` and the git merge driver work on a conflicted graph mid-merge;
   // migrating first could write over it or fail the merge.
-  if (subcommand === 'import-md' || subcommand === 'resolve' || subcommand === 'merge-driver') {
-    return { migrated: false };
-  }
-  if (subcommand === 'query' || subcommand === 'hook') {
+  // The hook runs before every tool call and prints nothing a user reads, so
+  // it never migrates: a migration deletes files and must be seen (#138).
+  const skip = ['import-md', 'resolve', 'merge-driver', 'hook'];
+  if (skip.includes(subcommand)) return { migrated: false };
+  if (subcommand === 'query') {
     try {
       return { migrated: await maybeAutoMigrateLessons(projectRoot) };
     } catch (err) {
-      // `query` reports it; the hook stays silent.
       return { migrated: false, error: err instanceof Error ? err.message : String(err) };
     }
   }

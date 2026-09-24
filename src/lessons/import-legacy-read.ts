@@ -10,11 +10,8 @@ import { parse as parseYaml } from 'yaml';
 import { assertPathInsideRoot } from '../utils/filesystem/path-containment.js';
 import type { AddLessonInput } from './add.js';
 import type { Lesson, Topic, Trigger } from './graph-schema.js';
-import {
-  collectClusterTriggerIds,
-  LegacyIndexSchema,
-  parseRulesSection,
-} from './import-legacy-parse.js';
+import { collectClusterTriggerIds, LegacyIndexSchema } from './import-legacy-parse.js';
+import { parseRulesSection } from './import-legacy-rules.js';
 import { lessonsPaths } from './paths.js';
 
 const LESSONS_DIR = '.agentsmesh/lessons';
@@ -92,9 +89,15 @@ export async function readLegacySource(
       );
     }
 
-    for (const { index: ruleIndex, body, evidence } of parseRulesSection(
-      readFileSync(topicFile, 'utf8'),
-    )) {
+    const parsed = parseRulesSection(readFileSync(topicFile, 'utf8'));
+    if (parsed.strayLine !== null) {
+      throw new Error(
+        `Legacy lessons were not migrated: ${cluster.file} line ${parsed.strayLine} is a list ` +
+          'item outside a "## Rules" or "## Lessons" section. Move it under one of them or ' +
+          'delete it, then run `agentsmesh lessons import-md`. Nothing was changed.',
+      );
+    }
+    for (const { index: ruleIndex, body, evidence } of parsed.rules) {
       const lessonEvidence = [
         `legacy:${cluster.file}#rule-${ruleIndex}`,
         ...evidence.map((e) => `legacy:${e}`),

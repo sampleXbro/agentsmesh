@@ -146,9 +146,9 @@ describe('runInit — structured result', () => {
     expect(result.data.imported.length).toBeGreaterThan(0);
   });
 
-  it('returns scaffoldType full when existing configs but no --yes', async () => {
+  it('returns scaffoldType full when an existing config is left out of the targets', async () => {
     writeFileSync(join(TEST_DIR, 'CLAUDE.md'), '# Rules\n');
-    const result = await runInit(TEST_DIR);
+    const result = await runInit(TEST_DIR, { targets: ['cursor'] });
     expect(result.data.scaffoldType).toBe('full');
     expect(result.data.imported).toEqual([]);
   });
@@ -319,26 +319,26 @@ describe('runInit — scaffold (no existing configs)', () => {
   });
 });
 
-describe('runInit — existing configs detected, no --yes', () => {
-  it('creates scaffold (not imported content) when existing configs but no --yes', async () => {
+describe('runInit — existing configs detected', () => {
+  it('creates scaffold (not imported content) when the existing config is not a target', async () => {
     writeFileSync(join(TEST_DIR, 'CLAUDE.md'), '# Rules\n');
-    await runInit(TEST_DIR);
+    await runInit(TEST_DIR, { targets: ['cursor'] });
     const content = readFileSync(join(TEST_DIR, '.agentsmesh', 'rules', '_root.md'), 'utf-8');
     expect(content).toContain('root: true');
     expect(content).not.toContain('# Rules');
   });
 
-  it('creates all scaffold files when existing configs but no --yes', async () => {
+  it('creates all scaffold files when the existing config is not a target', async () => {
     writeFileSync(join(TEST_DIR, 'CLAUDE.md'), '# Rules\n');
-    await runInit(TEST_DIR);
+    await runInit(TEST_DIR, { targets: ['cursor'] });
     expect(existsSync(join(TEST_DIR, '.agentsmesh', 'commands', '_example.md'))).toBe(true);
     expect(existsSync(join(TEST_DIR, '.agentsmesh', 'agents', '_example.md'))).toBe(true);
     expect(existsSync(join(TEST_DIR, '.agentsmesh', 'mcp.json'))).toBe(true);
   });
 
-  it('creates agentsmesh.yaml scoped to the detected tool when no --yes', async () => {
+  it('creates agentsmesh.yaml scoped to the detected tool', async () => {
     writeFileSync(join(TEST_DIR, 'CLAUDE.md'), '# Rules\n');
-    await runInit(TEST_DIR);
+    await runInit(TEST_DIR, { yes: true });
     const content = readFileSync(join(TEST_DIR, 'agentsmesh.yaml'), 'utf-8');
     expect(content).toContain('version: 1');
     expect(content).toContain('claude-code');
@@ -349,7 +349,7 @@ describe('runInit — existing configs detected, no --yes', () => {
 
   it('enables the whole starter set only when asked with --all-targets', async () => {
     writeFileSync(join(TEST_DIR, 'CLAUDE.md'), '# Rules\n');
-    await runInit(TEST_DIR, { allTargets: true });
+    await runInit(TEST_DIR, { allTargets: true, yes: true });
     const content = readFileSync(join(TEST_DIR, 'agentsmesh.yaml'), 'utf-8');
     expect(content).toContain('claude-code');
     expect(content).toContain('kiro');
@@ -544,7 +544,7 @@ describe('runInit — global mode', () => {
     const detected = await detectExistingConfigs(homeDir, 'global');
     expect(detected).toContain('claude-code');
 
-    const result = await runInit(join(TEST_DIR, 'workspace'), { global: true });
+    const result = await runInit(join(TEST_DIR, 'workspace'), { global: true, yes: true });
 
     expect(result.exitCode).toBe(0);
     expect(result.data.scope).toBe('global');

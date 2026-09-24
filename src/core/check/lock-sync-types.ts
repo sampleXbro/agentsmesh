@@ -13,7 +13,7 @@ export interface LockSyncReport {
   readonly lockConflict: boolean;
   /** True when canonical files or extends differ from the lock. */
   readonly canonicalDrift: boolean;
-  /** True when a generated output is modified, removed, or stale. */
+  /** True when a generated output is modified, removed, or stale, or a target is stale. */
   readonly outputDrift: boolean;
   /** Canonical files whose checksum differs from the lock. */
   readonly modified: readonly string[];
@@ -34,6 +34,11 @@ export interface LockSyncReport {
   readonly outputsRemoved: readonly string[];
   /** Managed generated outputs present on disk but absent from the lock. */
   readonly outputsStale: readonly string[];
+  /**
+   * Enabled targets a `generate --targets` run left out after canonical
+   * sources changed, so their outputs were not regenerated from them.
+   */
+  readonly staleTargets: readonly string[];
   /**
    * Files inside a managed directory the lock does not claim — the tool's own
    * output or something hand-authored. Informational: deliberately excluded

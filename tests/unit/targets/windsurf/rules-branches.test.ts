@@ -104,8 +104,9 @@ describe('windsurf generateRules — root + targets filter', () => {
   });
 });
 
-describe('windsurf generateRules — frontmatter glob/globs branches', () => {
-  it('uses singular `glob` field with one glob', () => {
+describe('windsurf generateRules — frontmatter globs', () => {
+  // Windsurf reads only `globs`, a comma-joined string; a singular `glob` is ignored.
+  it('writes one glob as the `globs` string', () => {
     const result = generateRules(
       makeCanonical({
         rules: [
@@ -123,12 +124,12 @@ describe('windsurf generateRules — frontmatter glob/globs branches', () => {
     );
     const single = result.find((r) => r.path === `${WINDSURF_RULES_DIR}/single.md`);
     expect(single).toBeDefined();
-    expect(single!.content).toContain('description: TS rules');
-    expect(single!.content).toContain('glob: src/**/*.ts');
-    expect(single!.content).not.toMatch(/^globs:/m);
+    expect(single!.content).toBe(
+      '---\ndescription: TS rules\ntrigger: glob\nglobs: src/**/*.ts\n---\n\nB',
+    );
   });
 
-  it('uses plural `globs` field with multiple globs', () => {
+  it('writes several globs as one comma-joined `globs` string', () => {
     const result = generateRules(
       makeCanonical({
         rules: [
@@ -146,8 +147,7 @@ describe('windsurf generateRules — frontmatter glob/globs branches', () => {
     );
     const multi = result.find((r) => r.path === `${WINDSURF_RULES_DIR}/multi.md`);
     expect(multi).toBeDefined();
-    expect(multi!.content).toContain('globs:');
-    expect(multi!.content).not.toMatch(/^glob:/m);
+    expect(multi!.content).toBe('---\ntrigger: glob\nglobs: src/**/*.ts,tests/**/*.ts\n---\n\nB');
   });
 
   it('emits plain body (no frontmatter) when description+trigger+globs are all empty', () => {
@@ -173,8 +173,11 @@ describe('windsurf generateRules — frontmatter glob/globs branches', () => {
   });
 });
 
-describe('windsurf generateRules — directoryScopedRuleDir branches', () => {
-  it('mirrors a directory-scoped rule into both .windsurf/rules and {dir}/AGENTS.md', () => {
+describe('windsurf generateRules — scoped rules', () => {
+  // Windsurf applies a `trigger: glob` rule to the files its globs match and
+  // also reads a `<dir>/AGENTS.md` as a rule for that folder, so a scoped rule
+  // is written once: a `<dir>.md` copy or a nested AGENTS.md loaded it twice.
+  it('writes a directory-scoped rule once, as its own glob rule', () => {
     const result = generateRules(
       makeCanonical({
         rules: [
@@ -190,38 +193,16 @@ describe('windsurf generateRules — directoryScopedRuleDir branches', () => {
         ],
       }),
     );
-    const paths = result.map((r) => r.path);
-    expect(paths).toContain(`${WINDSURF_RULES_DIR}/src-scope.md`);
-    // dir != slug ('src' vs 'src-scope') → second mirror added
-    expect(paths).toContain(`${WINDSURF_RULES_DIR}/src.md`);
-    expect(paths).toContain(`src/AGENTS.md`);
-    const agentsMirror = result.find((r) => r.path === 'src/AGENTS.md');
-    expect(agentsMirror!.content).toBe('src-body');
+    expect(result).toEqual([
+      { path: 'AGENTS.md', content: '# Root\n\nRoot body.' },
+      {
+        path: `${WINDSURF_RULES_DIR}/src-scope.md`,
+        content: '---\ndescription: Src\ntrigger: glob\nglobs: src/**/*.ts\n---\n\nsrc-body',
+      },
+    ]);
   });
 
-  it('does not double-emit rules dir copy when slug equals dir', () => {
-    const result = generateRules(
-      makeCanonical({
-        rules: [
-          rootRule(),
-          {
-            source: '/p/.agentsmesh/rules/src.md',
-            root: false,
-            targets: [],
-            description: '',
-            globs: ['src/**/*.ts'],
-            body: 'b',
-          },
-        ],
-      }),
-    );
-    // path "src/AGENTS.md" should appear (dir mirror), but only one src.md under rules/.
-    const rulesCopies = result.filter((r) => r.path === `${WINDSURF_RULES_DIR}/src.md`);
-    expect(rulesCopies).toHaveLength(1);
-    expect(result.some((r) => r.path === 'src/AGENTS.md')).toBe(true);
-  });
-
-  it('does NOT mirror when globs span multiple top-level directories', () => {
+  it('writes a rule scoped to several folders once, with all its globs', () => {
     const result = generateRules(
       makeCanonical({
         rules: [
@@ -237,30 +218,7 @@ describe('windsurf generateRules — directoryScopedRuleDir branches', () => {
         ],
       }),
     );
-    const paths = result.map((r) => r.path);
-    expect(paths).not.toContain('src/AGENTS.md');
-    expect(paths).not.toContain('tests/AGENTS.md');
-  });
-
-  it('does NOT mirror when a glob has no leading directory segment', () => {
-    const result = generateRules(
-      makeCanonical({
-        rules: [
-          rootRule(),
-          {
-            source: '/p/.agentsmesh/rules/glob-only.md',
-            root: false,
-            targets: [],
-            description: '',
-            globs: ['*.md'],
-            body: 'b',
-          },
-        ],
-      }),
-    );
-    // The first segment '*.md' has '*' which fails the [A-Za-z0-9._-] regex
-    // → directoryScopedRuleDir returns null → no AGENTS.md mirror.
-    expect(result.some((r) => r.path === '*.md/AGENTS.md')).toBe(false);
+    expect(result.map((r) => r.path)).toEqual(['AGENTS.md', `${WINDSURF_RULES_DIR}/mix.md`]);
   });
 
   it('uses "root" slug when source is _root.md (still skipped because rule.root=true)', () => {

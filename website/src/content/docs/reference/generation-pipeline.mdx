@@ -57,6 +57,8 @@ Internal file references are rewritten from canonical paths to target-relative p
 
 This keeps cross-file links valid in each tool's native directory.
 
+A root instruction file that two enabled targets both write (for example `AGENTS.md` for Codex CLI and Cursor) keeps canonical references instead, so both copies are identical and merge into one file. Its Markdown links are still rebased: `[TS rule](./typescript.md)` in `.agentsmesh/rules/_root.md` becomes `[TS rule](.agentsmesh/rules/typescript.md)` in `AGENTS.md`, a file that exists for every target.
+
 Generated-only managed blocks and canonical embedded payloads are protected from rewriting when their contents must stay literal. So are URLs — including a URL whose path contains parentheses, such as a Next.js route group (`apps/(marketing)/package.json`).
 
 Generated Markdown is then checked for broken local links. Three shapes are deliberately not treated as links, so ordinary prose never fails a run: link syntax quoted inside inline code (`` `[label](path.md)` ``, which is how a rule documents the syntax), GFM footnote definitions (`[^1]: prose`), and anything inside a fenced code block. Note that a path written inside backticks is still *rebased* — only the broken-link check skips it.
@@ -150,10 +152,11 @@ outputs:
 
 - `checksums` — hashes of the canonical `.agentsmesh/` sources (paths relative to `.agentsmesh/`).
 - `outputs` — hashes of every generated file written or verified at generate time (paths relative to the project root, forward-slashed).
+- `stale_targets` — only present after `agentsmesh generate --targets …` left out an enabled target when the canonical sources had changed. Those targets' files were not regenerated from the `checksums` above, so `check` fails until they are generated again. A full `agentsmesh generate` removes the key.
 
 `agentsmesh check` reads this file and re-hashes both maps against what's currently on disk. A canonical mismatch or a changed/deleted generated output is reported as drift.
 
-`agentsmesh generate` rewrites the lock only when `checksums`, `extends`, `packs` or `outputs` change. A run that changes nothing leaves the file byte-for-byte as it was, so your git tree stays clean after `generate`, and a teammate's run doesn't create a lock diff. `generated_at`, `generated_by` and `lib_version` therefore describe the last run that changed the lock, not the latest run.
+`agentsmesh generate` rewrites the lock only when `checksums`, `extends`, `packs`, `outputs` or `stale_targets` change. A run that changes nothing leaves the file byte-for-byte as it was, so your git tree stays clean after `generate`, and a teammate's run doesn't create a lock diff. `generated_at`, `generated_by` and `lib_version` therefore describe the last run that changed the lock, not the latest run.
 
 Filtered generates (`--targets`/`--features`) merge their outputs per-path into the existing `outputs` map without pruning stale entries; a full `agentsmesh generate` replaces the map, which is when entries for disabled targets drop off. `agentsmesh merge` keeps the `outputs` map: it combines the entries of both branches, and where both branches recorded the same file, your branch's hash wins. That hash can be out of date for a file the other branch changed, so until you run `agentsmesh generate`, `check` can report that file as modified. Only when neither branch's lock had an `outputs` map does the merged lock have none, and then `check` skips output verification until you regenerate.
 

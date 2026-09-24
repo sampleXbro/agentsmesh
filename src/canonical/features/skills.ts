@@ -3,7 +3,7 @@
  */
 
 import { basename, join } from 'node:path';
-import { readdir } from 'node:fs/promises';
+import { lstat, readdir } from 'node:fs/promises';
 import type { CanonicalSkill, SkillSupportingFile } from '../../core/types.js';
 import { readFileSafe } from '../../utils/filesystem/fs.js';
 import { readDirRecursiveNoSymlinks } from '../../utils/filesystem/fs-traverse.js';
@@ -19,6 +19,20 @@ async function readContent(path: string): Promise<string> {
 }
 
 const SKILL_FILE = 'SKILL.md';
+
+/**
+ * SKILL.md content, or null when missing or a symlink: like every other
+ * canonical entry (readDirRecursiveNoSymlinks, copyDir), a link is not followed,
+ * or it would copy any local file into packs and generated skills.
+ */
+async function readSkillFile(skillPath: string): Promise<string | null> {
+  try {
+    if ((await lstat(skillPath)).isSymbolicLink()) return null;
+  } catch {
+    return null;
+  }
+  return readFileSafe(skillPath);
+}
 
 /** Markdown / plain-text doc filenames the markdown-boilerplate filter applies to. */
 const DOC_EXTENSIONS = new Set(['.md', '.mdx', '.rst', '.txt']);
@@ -89,7 +103,7 @@ export async function parseSkillDirectory(
   opts: ParseFrontmatterOptions = {},
 ): Promise<CanonicalSkill | null> {
   const skillPath = join(skillDir, SKILL_FILE);
-  const content = await readFileSafe(skillPath);
+  const content = await readSkillFile(skillPath);
   if (!content) return null;
   const parsed = parseOrSkipFrontmatter(content, skillPath, opts.onParseError);
   // SKILL.md frontmatter parse error skips the entire skill directory: a skill
@@ -127,7 +141,7 @@ export async function parseSkills(
     assertCanonicalName('skill', ent.name);
     const skillDir = join(skillsDir, ent.name);
     const skillPath = join(skillDir, SKILL_FILE);
-    const content = await readFileSafe(skillPath);
+    const content = await readSkillFile(skillPath);
     if (!content) continue;
     const parsed = parseOrSkipFrontmatter(content, skillPath, opts.onParseError);
     if (!parsed) continue;

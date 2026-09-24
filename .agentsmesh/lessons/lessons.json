@@ -366,6 +366,21 @@
         "t-glob-1120a27d"
       ]
     },
+    "ci-and-release-security-a-ci-smoke-job-whose": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "ee2db028"
+      ],
+      "rule": "A CI smoke job whose step stays in_progress far past its normal time (the linux-arm64 binary smoke takes about 10 seconds) is a stuck runner, not slow code: compare with the same job on the same code, then 'gh run cancel <run>' and 'gh run rerun <run> --failed', which reuses the passed jobs and their artifacts. Also, a PR the changesets bot opens gets no CI (GITHUB_TOKEN events start no workflows): close and reopen it with gh to run CI before merging the version PR.",
+      "status": "active",
+      "topics": [
+        "ci-and-release-security"
+      ],
+      "triggers": [
+        "t-kw-4ae47aa8",
+        "t-kw-3d6b253a"
+      ]
+    },
     "ci-and-release-security-before-submitting-to-the-mcp": {
       "createdAt": "2026-09-22",
       "evidence": [
@@ -696,6 +711,22 @@
         "t-cmd-8776ee66",
         "t-cmd-e00abc0c",
         "t-cmd-6ea72461"
+      ]
+    },
+    "ci-and-release-security-this-repo-is-public-and": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "fe12d01c"
+      ],
+      "rule": "This repo is public and SECURITY.md routes vulnerabilities to private advisories: file exploitable findings (writes outside the project, file leaks, untrusted content taking over instructions) as DRAFT security advisories with 'gh api -X POST repos/sampleXbro/agentsmesh/security-advisories --input <json>' (summary, description, severity, cwe_ids, vulnerabilities: npm agentsmesh with vulnerable_version_range), never as public issues with repro steps. Plain bugs go to public issues with the bug label.",
+      "status": "active",
+      "topics": [
+        "ci-and-release-security"
+      ],
+      "triggers": [
+        "t-cmd-e0e8fc9f",
+        "t-kw-6d405b45",
+        "t-kw-e0471170"
       ]
     },
     "cli-presentation-a-clack-clack-prompts-spinner": {
@@ -1250,6 +1281,36 @@
         "t-glob-aa8ef603"
       ]
     },
+    "fixture-and-assertion-discipline-in-a-test-that-lists": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "543b348b"
+      ],
+      "rule": "In a test that lists generated files with readdirSync(root, { recursive: true }), leave out .agentsmeshcache: generate creates it as a symlink to the shared remote cache, so the walk passes alone but lists other tests' cached repos in the full parallel run.",
+      "status": "active",
+      "topics": [
+        "fixture-and-assertion-discipline"
+      ],
+      "triggers": [
+        "t-glob-808c4019",
+        "t-glob-c731ac40"
+      ]
+    },
+    "fixture-and-assertion-discipline-in-init-yes-tests-init": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "e61d9575"
+      ],
+      "rule": "In init --yes tests, init detects Cursor only by its descriptor detectionPaths (.cursor/rules, .cursor/mcp.json, etc.), not by .cursor/cli.json or .cursorignore alone; without a rule file Cursor is never imported and a merge test fails as if the product were broken. Add .cursor/rules/<name>.mdc to the fixture, and check the init --json detectedConfigs before blaming the code.",
+      "status": "active",
+      "topics": [
+        "fixture-and-assertion-discipline"
+      ],
+      "triggers": [
+        "t-glob-1377e63f",
+        "t-glob-75a81240"
+      ]
+    },
     "fixture-and-assertion-discipline-in-path-equality-endswith-test": {
       "createdAt": "2026-07-07",
       "evidence": [
@@ -1662,6 +1723,21 @@
         "t-kw-09d05099"
       ]
     },
+    "fixture-and-assertion-discipline-tests-unit-cli-renderers-init": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "982f61df"
+      ],
+      "rule": "tests/unit/cli/renderers/init.test.ts (and other renderer tests listed in tsconfig.tests.json exclude) build InitData fixtures that omit required fields. When you add a required array field that a renderer iterates, add it to every fixture that reaches that branch and to renderer-test-helpers.ts, or keep the loop inside a branch those fixtures never reach; tsc will not catch the gap and the render throws 'is not iterable'.",
+      "status": "active",
+      "topics": [
+        "fixture-and-assertion-discipline"
+      ],
+      "triggers": [
+        "t-glob-a9c88b6d",
+        "t-glob-dbe11674"
+      ]
+    },
     "fixture-and-assertion-discipline-to-cover-the-1-arm": {
       "createdAt": "2026-06-07",
       "evidence": [
@@ -1798,6 +1874,37 @@
       ],
       "triggers": [
         "t-glob-49133422"
+      ]
+    },
+    "frontmatter-and-canonical-shapes-a-single-winner-field-chosen": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "8b51999c"
+      ],
+      "rule": "A single-winner field chosen with find() over merged layers depends on merge ORDER, not precedence: mergeByKey keeps base positions and APPENDS new names, so the highest-precedence layer's entries land last, and rules.find((r) => r.root) picked a pack's or extend's root: true rule over the project's _root.md (GHSA-4m36-whwv-q74c). After any merge change, keep the root settled by settleRootRule (canonical/load/root-precedence.ts): one root, the project's own, else a pack's, else an extend's.",
+      "status": "active",
+      "topics": [
+        "frontmatter-and-canonical-shapes"
+      ],
+      "triggers": [
+        "t-glob-3c315a53",
+        "t-glob-c21ba0b0",
+        "t-glob-40c513ae"
+      ]
+    },
+    "frontmatter-and-canonical-shapes-every-canonical-file-reader-must": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "7a8aea33"
+      ],
+      "rule": "Every canonical file reader must skip symlinks, the way readDirRecursiveNoSymlinks and copyDir do: a direct readFileSafe(join(dir, 'SKILL.md')) followed links, so install, installed packs AND generate (a project's own .agentsmesh/skills) copied any local file into packs and generated .claude/.cursor skills (GHSA-pxf6-493h-83j5). Read SKILL.md through readSkillFile in canonical/features/skills.ts, and lstat any new fixed-name file read before using its content.",
+      "status": "active",
+      "topics": [
+        "frontmatter-and-canonical-shapes"
+      ],
+      "triggers": [
+        "t-glob-e508af7d",
+        "t-glob-89c6bc75"
       ]
     },
     "frontmatter-and-canonical-shapes-rule-1": {
@@ -2487,6 +2594,23 @@
       "triggers": [
         "t-glob-d458a5b8",
         "t-glob-861a9bdb"
+      ]
+    },
+    "generation-collision-source-maps-write-rules-into-a-shared": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "aaeeabe1"
+      ],
+      "rule": "Write rules into a shared nested <dir>/AGENTS.md as bare embedded-rule entries (renderEmbeddedRuleEntries), never as an embedded-rules block: the outer block is a protected range, so its relative links are not rewritten and break once the rule sits in the nested file, and bare entries keep codex-cli's text a prefix of codebuff's so the shared path still resolves by containment. Every importer of nested AGENTS.md must split entries back with splitNestedAgentsFile.",
+      "status": "active",
+      "topics": [
+        "generation-collision-source-maps"
+      ],
+      "triggers": [
+        "t-glob-b3216045",
+        "t-glob-36b69836",
+        "t-glob-7f7c09ee",
+        "t-glob-8c8ae089"
       ]
     },
     "generation-safety-a-key-scoped-merger-must": {
@@ -3207,13 +3331,29 @@
         "4d5c0a51"
       ],
       "rule": "Canonical paths are last-import-wins EXCEPT .agentsmesh/rules/_root.md and mcp.json, which accumulate. Root rule merging lives in the single shared serializer serializeImportedRuleWithFallback (src/targets/import/import-metadata-core.ts) because all ~45 root write sites across 33 targets funnel through it — never patch per-target importers for root-rule behavior. When changing it, remember the init placeholder body (src/canonical/root-rule-placeholder.ts) must count as unwritten or every import stacks under scaffold boilerplate.",
-      "status": "active",
+      "status": "superseded",
+      "supersededBy": "install-import-pickers-import-merge-rules-permissions-yaml",
+      "topics": [
+        "install-import-pickers"
+      ],
+      "triggers": []
+    },
+    "install-import-pickers-canonical-permissions-yaml-ignore-and": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "e61d9575"
+      ],
+      "rule": "Canonical permissions.yaml, ignore and mcp.json accumulate across imports through runTargetImport (src/targets/import/run-target-import.ts), which snapshots them before importFrom and adds back dropped entries; _root.md accumulates through serializeImportedRuleWithFallback; every other canonical path is last-import-wins. Route any new import entry point through runTargetImport instead of calling descriptor.generators.importFrom directly, and never patch per-target importers for merge behaviour: four importers already bypassed writeMcpWithMerge (#131).",
+      "status": "superseded",
+      "supersededBy": "install-import-pickers-import-merge-rules-permissions-yaml",
       "topics": [
         "install-import-pickers"
       ],
       "triggers": [
-        "t-glob-f98a792a",
-        "t-glob-cfe44da2"
+        "t-glob-36b511b8",
+        "t-glob-90ecaacd",
+        "t-glob-6b98951d",
+        "t-glob-84b6c902"
       ]
     },
     "install-import-pickers-every-per-target-mcp-importer": {
@@ -3227,6 +3367,24 @@
       "triggers": [
         "t-glob-f394f32c",
         "t-glob-72016213"
+      ]
+    },
+    "install-import-pickers-import-merge-rules-permissions-yaml": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "982f61df"
+      ],
+      "rule": "Import merge rules: permissions.yaml, ignore and mcp.json accumulate across imports through runTargetImport (src/targets/import/run-target-import.ts); _root.md accumulates through serializeImportedRuleWithFallback; in one init --yes run, same-name rules, commands and agents from two tools are both kept by importKeepingSameName (src/cli/commands/init-same-name.ts), the later one as <name>-<tool>.md; separate import --from runs stay last-import-wins for them. Route new import entry points through runTargetImport (and multi-tool runs through importKeepingSameName), never call descriptor.generators.importFrom directly, and never patch per-target importers for merge behaviour.",
+      "status": "active",
+      "topics": [
+        "install-import-pickers"
+      ],
+      "triggers": [
+        "t-glob-36b511b8",
+        "t-glob-90ecaacd",
+        "t-glob-6b98951d",
+        "t-glob-24b8cd6b",
+        "t-glob-84b6c902"
       ]
     },
     "install-import-pickers-install-sync-refresh-re-run": {
@@ -3271,6 +3429,22 @@
       "triggers": [
         "t-glob-72c19fb3",
         "t-glob-eb1e5fce"
+      ]
+    },
+    "install-import-pickers-put-a-path-boundary-check": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "00e63373"
+      ],
+      "rule": "Put a path-boundary check in a command with per-item failure isolation (uninstall) as a pre-flight, before prompts and also under --dry-run: inside the per-item apply step it is caught as one 'failed' entry while other items continue, and the dry-run preview approves what the real run refuses. Place it once at the command's choke point (installAsPack for every install path incl. --sync and refresh; runUninstall), not in helpers that 40 tests call.",
+      "status": "active",
+      "topics": [
+        "install-import-pickers"
+      ],
+      "triggers": [
+        "t-glob-7d01f666",
+        "t-glob-6c742b74",
+        "t-glob-d8ba983b"
       ]
     },
     "install-import-pickers-rule-1": {
@@ -3959,6 +4133,21 @@
         "t-cmd-e097d363"
       ]
     },
+    "install-import-pickers-when-copying-entity-files-from": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "96ce5605"
+      ],
+      "rule": "When copying entity files from an install source, lstat every file (SKILL.md included) and skip symlinks: in 0.41.0 a skills/<name>/SKILL.md symlink was followed, copying an arbitrary local file into .agentsmesh/packs, .claude/skills and .cursor/skills, which get committed. Code that the MCP server can reach must never call process.stdout.write directly (use the logger, which MCP redirects to stderr): run-install-prompts.ts and run-uninstall.ts wrote warnings into the JSON-RPC stream.",
+      "status": "active",
+      "topics": [
+        "install-import-pickers"
+      ],
+      "triggers": [
+        "t-glob-25ede31e",
+        "t-kw-233098a2"
+      ]
+    },
     "install-import-pickers-when-fixing-how-a-re": {
       "createdAt": "2026-09-23",
       "evidence": [
@@ -3973,6 +4162,20 @@
         "t-glob-c424af85",
         "t-glob-6c742b74",
         "t-glob-a1c12fe6"
+      ]
+    },
+    "install-import-pickers-when-init-enables-a-tool": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "1b6e186a"
+      ],
+      "rule": "When init enables a tool because it detected that tool's existing config, it must also import that config, or stop: enabling without importing lets the first generate replace the unimported config (in --global mode ~/.claude/CLAUDE.md and ~/.claude.json MCP servers, which git cannot restore; issue #130). Non-interactive init without --yes now throws before writing when a detected tool is in the resolved targets; keep any new target-selection path behind the same check.",
+      "status": "active",
+      "topics": [
+        "install-import-pickers"
+      ],
+      "triggers": [
+        "t-glob-2c569101"
       ]
     },
     "kilo-code-config-surface-for-kilo-code-current-kilo": {
@@ -5333,6 +5536,21 @@
       ],
       "triggers": []
     },
+    "lessons-system-run-agentsmesh-lessons-query-once": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "2b483ccf"
+      ],
+      "rule": "Run 'agentsmesh lessons query' once per file: --file is a single-value flag, and passing it twice exits 2 ('--file was given 2 times') so no recall runs at all. Loop over the files (for f in ...; do lessons query --file \"$f\" --session auto; done) and treat a non-zero exit from recall as recall not done.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-cmd-b7a21d14",
+        "t-kw-17e3a485"
+      ]
+    },
     "lessons-system-run-agentsmesh-lessons-subcommand-help": {
       "createdAt": "2026-07-17",
       "evidence": [
@@ -6558,6 +6776,22 @@
         "t-glob-40333e0c"
       ]
     },
+    "lock-file-format-never-hold-back-agentsmesh-lock": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "f23984f2"
+      ],
+      "rule": "Never hold back .agentsmesh/.lock checksums or skip writing the lock to mark a filtered generate as incomplete: the lock's outputs map is the provenance the stale-output sweep gates on, and its checksums gate collaboration strategy: lock violations, so both broke (the target contract matrix caught it). Record per-target staleness separately, as stale_targets, and run tests/contract/target-contract.matrix.test.ts before committing any change to what the lock records.",
+      "status": "active",
+      "topics": [
+        "lock-file-format"
+      ],
+      "triggers": [
+        "t-glob-f9f526aa",
+        "t-glob-e6cc94f4",
+        "t-glob-b31c4e39"
+      ]
+    },
     "lock-file-format-readlock-returns-null-for-a": {
       "createdAt": "2026-09-23",
       "evidence": [
@@ -6634,6 +6868,22 @@
       ],
       "triggers": [
         "t-glob-4c8d45b0"
+      ]
+    },
+    "mcp-path-containment-every-folder-under-agentsmesh-that": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "96ce5605"
+      ],
+      "rule": "Every folder under .agentsmesh that agentsmesh writes, replaces or deletes (packs/, lessons/, not only rules/commands/agents/skills) must pass the realpath containment guard against the project root: git keeps symlinks, and in 0.41.0 a cloned repo's '.agentsmesh/packs -> ../../outside' made install replace an outside folder (deleting its files) and uninstall delete outside the project, via both the CLI and MCP.",
+      "status": "active",
+      "topics": [
+        "mcp-path-containment"
+      ],
+      "triggers": [
+        "t-glob-25ede31e",
+        "t-glob-35153049",
+        "t-kw-d3093e8e"
       ]
     },
     "mcp-path-containment-mcp-path-containment-canonicalize-recons": {
@@ -6871,6 +7121,20 @@
         "t-glob-4f36b2c0"
       ]
     },
+    "readme-authoring-never-hand-edit-the-per": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "543b348b"
+      ],
+      "rule": "Never hand-edit the per-target sections of website/src/content/docs/reference/supported-tools.mdx: everything between agentsmesh:tool-details:start and :end (and the support-matrix blocks) is rendered from descriptors by scripts/support-matrix-blocks.ts, and tests/integration/matrix-drift-guard.integration.test.ts fails on any drift. Put target-specific prose in the feature pages (for example canonical-config/rules.mdx) and run node_modules/.bin/tsx scripts/render-support-matrix.ts --verify.",
+      "status": "active",
+      "topics": [
+        "readme-authoring"
+      ],
+      "triggers": [
+        "t-glob-3af8d08b"
+      ]
+    },
     "readme-authoring-when-trimming-or-rewriting-readme": {
       "createdAt": "2026-06-23",
       "evidence": [],
@@ -6941,6 +7205,21 @@
         "t-glob-581b70ac"
       ]
     },
+    "release-changesets-after-the-release-workflow-s": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "ee2db028"
+      ],
+      "rule": "After the release workflow's changeset publish reports success, npm can take about 5 minutes to serve the new version (0.41.0: published 06:52, visible 06:57; the dist-tags and version documents returned the old data and 404 meanwhile, even with a cache-busting query). Wait and re-check https://registry.npmjs.org/agentsmesh/<version> before treating the publish as failed; the update-tap job, which downloads the npm tarball, is the end-to-end confirmation.",
+      "status": "active",
+      "topics": [
+        "release-changesets"
+      ],
+      "triggers": [
+        "t-kw-b2687e53",
+        "t-kw-50918cd2"
+      ]
+    },
     "release-changesets-before-a-release-audit-v": {
       "createdAt": "2026-09-23",
       "evidence": [
@@ -6956,6 +7235,21 @@
         "t-glob-4004e38e",
         "t-kw-b8f19a54",
         "t-kw-0182f2d9"
+      ]
+    },
+    "release-changesets-before-a-release-run-node": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "6abd853e"
+      ],
+      "rule": "Before a release, run node dist/cli.js generate --check on this repo and read the diff of every generated file it would change: a generate-side change can pass the whole test suite and still corrupt real output. The #139 identity translation for shared root files turned the backticked .agentsmesh/skills/post-feature-qa/ in AGENTS.md into skills/post-feature-qa/, and no test saw it because the broken-link check skips inline code. When a rewriter change widens which tokens are rewritten, add a test that asserts backticked and prose paths stay byte-for-byte.",
+      "status": "active",
+      "topics": [
+        "release-changesets"
+      ],
+      "triggers": [
+        "t-glob-f935b2a8",
+        "t-cmd-44e0c062"
       ]
     },
     "release-changesets-before-cutting-a-release-from": {
@@ -7163,6 +7457,20 @@
       "triggers": [
         "t-cmd-7a7a7007",
         "t-kw-6399aaee"
+      ]
+    },
+    "shell-quoting-in-zsh-bash-calls-never-3": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "bacd9016"
+      ],
+      "rule": "In zsh Bash calls, never name a loop or read variable path (or fpath, cdpath): zsh ties path to PATH, so 'while read -r repo path' wipes the command search path and every later command (awk, head, tr) fails with 'command not found' while the loop still runs. Use another name such as rel.",
+      "status": "active",
+      "topics": [
+        "shell-quoting"
+      ],
+      "triggers": [
+        "t-cmd-c69a2607"
       ]
     },
     "shell-quoting-never-delete-a-ts-function": {
@@ -7505,6 +7813,49 @@
         "t-cmd-43e6903e",
         "t-cmd-813423e2",
         "t-cmd-69dc7d4e"
+      ]
+    },
+    "shell-quoting-when-a-script-renames-a": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "f65a95da"
+      ],
+      "rule": "When a script renames a variable to a call across test files (root -> root()), handle object shorthand ({ root } must become { root: root() }), skip string literals and test names as well as comments, and prune now-unused imports by real code use, not a word search (a comment saying 'joined' kept an unused join import). Run tsc -p tsconfig.tests.json, eslint and a grep for the new call inside quotes before trusting the rewrite.",
+      "status": "active",
+      "topics": [
+        "shell-quoting"
+      ],
+      "triggers": [
+        "t-cmd-d441ad48"
+      ]
+    },
+    "shell-quoting-when-a-scripted-str-replace": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "982f61df"
+      ],
+      "rule": "When a scripted str.replace inserts a line after a key in several files, never use a shorter-indent pattern that is a suffix of a deeper-indent line: '      rootRuleMerged: false,' also matches inside '        rootRuleMerged: false,', so the insert lands twice (TS1117 duplicate property). Anchor the pattern on the preceding newline ('\\\\n      key') or assert the exact match count per file before writing.",
+      "status": "superseded",
+      "supersededBy": "shell-quoting-when-a-scripted-str-replace-2",
+      "topics": [
+        "shell-quoting"
+      ],
+      "triggers": [
+        "t-cmd-d441ad48"
+      ]
+    },
+    "shell-quoting-when-a-scripted-str-replace-2": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "982f61df"
+      ],
+      "rule": "When a scripted str.replace inserts a line after a key in several files, never use a shorter-indent pattern that is a suffix of a deeper-indent line: '      rootRuleMerged: false,' also matches inside '        rootRuleMerged: false,', so the insert lands twice (TS1117 duplicate property). Start the pattern with the newline before the line (a real newline, written \\n in the Python string) or assert the exact match count per file before writing.",
+      "status": "active",
+      "topics": [
+        "shell-quoting"
+      ],
+      "triggers": [
+        "t-cmd-d441ad48"
       ]
     },
     "skill-path-resolution-resolve-skill-paths-from-the": {
@@ -8252,6 +8603,22 @@
         "t-kw-603ecbc4"
       ]
     },
+    "target-capability-audits-when-a-generator-stops-writing": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "543b348b"
+      ],
+      "rule": "When a generator stops writing an output, check whether upgraded projects lose the old copy: the stale sweep deletes only paths inside the target's managedOutputs dirs or files that the previous lock records, so an old nested <dir>/AGENTS.md stays on disk forever. Make the importer ignore such a leftover (for example text equal to a native rule body) and say in the changeset that users can delete it.",
+      "status": "active",
+      "topics": [
+        "target-capability-audits"
+      ],
+      "triggers": [
+        "t-glob-0605e241",
+        "t-glob-17bd0955",
+        "t-glob-98419953"
+      ]
+    },
     "target-capability-audits-when-a-target-declares-a": {
       "createdAt": "2026-06-24",
       "evidence": [
@@ -8608,6 +8975,35 @@
         "t-glob-8ac72756"
       ]
     },
+    "targets-any-reader-of-windsurf-rule": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "bacd9016"
+      ],
+      "rule": "Any reader of Windsurf rule files must quote an unquoted globs/glob value before YAML parsing (quoteWindsurfGlobValues in src/targets/windsurf/rule-globs.ts): Windsurf's documented form 'globs: **/*.test.ts' is a YAML alias and made the strict parser abort the whole import. Split globs on commas outside braces (parseWindsurfGlobs) so *.{ts,tsx} stays one pattern.",
+      "status": "active",
+      "topics": [
+        "targets"
+      ],
+      "triggers": [
+        "t-glob-6af95f98",
+        "t-glob-593e3d22"
+      ]
+    },
+    "targets-check-a-target-s-rule": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "75daebd9"
+      ],
+      "rule": "Check a target's rule frontmatter field names against the tool's own docs before generating or importing them: Claude Code reads only paths from a .claude/rules/*.md rule (a YAML list or a comma-separated string), so writing canonical globs as globs: silently made every scoped rule global and import dropped paths.",
+      "status": "active",
+      "topics": [
+        "targets"
+      ],
+      "triggers": [
+        "t-glob-fadbbc47"
+      ]
+    },
     "targets-codex-marketplace-catalogs-reject-policy": {
       "createdAt": "2026-09-22",
       "evidence": [
@@ -8834,6 +9230,20 @@
       "triggers": [
         "t-glob-706a24db",
         "t-kw-12b92504"
+      ]
+    },
+    "targets-when-windsurf-s-docs-leave": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "bacd9016"
+      ],
+      "rule": "When Windsurf's docs leave a rule or config field unclear, check its real parser: the Windsurf JetBrains plugin ships the Cascade language server at ~/Library/Application Support/JetBrains/<IDE>/plugins/codeium/<hash>/language_server_macos_arm; its Go function names (exa/cortex/memories.parseRuleFrontmatter, globStringToGlobList, triggerStringToCortexMemoryTrigger) and protobuf tags show which keys and value shapes it reads. Search it with python over the raw bytes or strings output; grep here is ugrep and rejects long context patterns.",
+      "status": "active",
+      "topics": [
+        "targets"
+      ],
+      "triggers": [
+        "t-glob-a566b381"
       ]
     },
     "targets-zed-s-file-scan-exclusions": {
@@ -11006,6 +11416,10 @@
       "kind": "command_pattern",
       "pattern": "<<EOF"
     },
+    "t-cmd-44e0c062": {
+      "kind": "command_pattern",
+      "pattern": "changeset"
+    },
     "t-cmd-45d8ae56": {
       "kind": "command_pattern",
       "pattern": "install --all"
@@ -11210,6 +11624,10 @@
       "kind": "command_pattern",
       "pattern": "install github:"
     },
+    "t-cmd-b7a21d14": {
+      "kind": "command_pattern",
+      "pattern": "lessons query.*--file.*--file"
+    },
     "t-cmd-b7e554e6": {
       "kind": "command_pattern",
       "pattern": "node -e"
@@ -11230,6 +11648,10 @@
       "kind": "command_pattern",
       "pattern": "git push origin"
     },
+    "t-cmd-c69a2607": {
+      "kind": "command_pattern",
+      "pattern": "read -r"
+    },
     "t-cmd-c6b5fd8b": {
       "kind": "command_pattern",
       "pattern": "git reset --hard"
@@ -11249,6 +11671,10 @@
     "t-cmd-d4222599": {
       "kind": "command_pattern",
       "pattern": "sed|cat"
+    },
+    "t-cmd-d441ad48": {
+      "kind": "command_pattern",
+      "pattern": "python3 -"
     },
     "t-cmd-d75c3b91": {
       "kind": "command_pattern",
@@ -11281,6 +11707,10 @@
     "t-cmd-e097d363": {
       "kind": "command_pattern",
       "pattern": "cli\\.js install\\b"
+    },
+    "t-cmd-e0e8fc9f": {
+      "kind": "command_pattern",
+      "pattern": "gh issue create"
     },
     "t-cmd-e243ffa3": {
       "kind": "command_pattern",
@@ -11390,6 +11820,10 @@
       "kind": "file_glob",
       "pattern": "src/lessons/telemetry.ts"
     },
+    "t-glob-0605e241": {
+      "kind": "file_glob",
+      "pattern": "src/targets/*/generator/**"
+    },
     "t-glob-07cf19c0": {
       "kind": "file_glob",
       "pattern": "src/lessons/**/*.ts"
@@ -11477,6 +11911,10 @@
     "t-glob-12b9dee9": {
       "kind": "file_glob",
       "pattern": "src/targets/catalog/registry.ts"
+    },
+    "t-glob-1377e63f": {
+      "kind": "file_glob",
+      "pattern": "tests/**/*init*.test.ts"
     },
     "t-glob-13a07989": {
       "kind": "file_glob",
@@ -11590,6 +12028,10 @@
       "kind": "file_glob",
       "pattern": "src/lessons/auto-prune.ts"
     },
+    "t-glob-24b8cd6b": {
+      "kind": "file_glob",
+      "pattern": "src/cli/commands/init-same-name.ts"
+    },
     "t-glob-2511e880": {
       "kind": "file_glob",
       "pattern": ".claude-plugin/**"
@@ -11601,6 +12043,10 @@
     "t-glob-25cdb7ed": {
       "kind": "file_glob",
       "pattern": "AGENTS.md"
+    },
+    "t-glob-25ede31e": {
+      "kind": "file_glob",
+      "pattern": "src/install/**/*.ts"
     },
     "t-glob-2841b685": {
       "kind": "file_glob",
@@ -11662,6 +12108,10 @@
       "kind": "file_glob",
       "pattern": "src/targets/*/permissions-import.ts"
     },
+    "t-glob-35153049": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/graph-store.ts"
+    },
     "t-glob-35a0a200": {
       "kind": "file_glob",
       "pattern": "tests/e2e/generate-capabilities.e2e.test.ts"
@@ -11669,6 +12119,14 @@
     "t-glob-3614774b": {
       "kind": "file_glob",
       "pattern": "scripts/seed-capability-ledger.ts"
+    },
+    "t-glob-36b511b8": {
+      "kind": "file_glob",
+      "pattern": "src/targets/import/**"
+    },
+    "t-glob-36b69836": {
+      "kind": "file_glob",
+      "pattern": "src/targets/codebuff/generator.ts"
     },
     "t-glob-36d72b33": {
       "kind": "file_glob",
@@ -11701,6 +12159,10 @@
     "t-glob-3ae2ea62": {
       "kind": "file_glob",
       "pattern": "tests/unit/targets/*/recall-hooks.test.ts"
+    },
+    "t-glob-3af8d08b": {
+      "kind": "file_glob",
+      "pattern": "website/src/content/docs/reference/supported-tools.mdx"
     },
     "t-glob-3bfccedc": {
       "kind": "file_glob",
@@ -11753,6 +12215,10 @@
     "t-glob-406306ec": {
       "kind": "file_glob",
       "pattern": "tests/unit/lessons/import-legacy.test.ts"
+    },
+    "t-glob-40c513ae": {
+      "kind": "file_glob",
+      "pattern": "src/canonical/load/root-precedence.ts"
     },
     "t-glob-414c9b17": {
       "kind": "file_glob",
@@ -11870,6 +12336,10 @@
       "kind": "file_glob",
       "pattern": "tests/helpers/**"
     },
+    "t-glob-593e3d22": {
+      "kind": "file_glob",
+      "pattern": "src/targets/windsurf/rule-globs.ts"
+    },
     "t-glob-5995acad": {
       "kind": "file_glob",
       "pattern": "src/targets/**/generator*.ts"
@@ -11982,6 +12452,10 @@
       "kind": "file_glob",
       "pattern": "tests/integration/init-wizard.integration.test.ts"
     },
+    "t-glob-6af95f98": {
+      "kind": "file_glob",
+      "pattern": "src/targets/windsurf/import*.ts"
+    },
     "t-glob-6b98951d": {
       "kind": "file_glob",
       "pattern": "src/cli/commands/init-apply.ts"
@@ -12074,6 +12548,10 @@
       "kind": "file_glob",
       "pattern": "tests/unit/targets/per-target-lint-branches.test.ts"
     },
+    "t-glob-75a81240": {
+      "kind": "file_glob",
+      "pattern": "tests/unit/cli/commands/import-keeps-settings.test.ts"
+    },
     "t-glob-75de7d28": {
       "kind": "file_glob",
       "pattern": "src/core/path-helpers.ts"
@@ -12114,6 +12592,10 @@
       "kind": "file_glob",
       "pattern": "src/install/prompts/prompt-io.ts"
     },
+    "t-glob-7d01f666": {
+      "kind": "file_glob",
+      "pattern": "src/install/uninstall/*.ts"
+    },
     "t-glob-7d39ded4": {
       "kind": "file_glob",
       "pattern": "src/config/core/conversions.ts"
@@ -12138,6 +12620,10 @@
       "kind": "file_glob",
       "pattern": "src/targets/import/shared/skill-import-pipeline.ts"
     },
+    "t-glob-7f7c09ee": {
+      "kind": "file_glob",
+      "pattern": "src/targets/projection/**"
+    },
     "t-glob-7fc51540": {
       "kind": "file_glob",
       "pattern": "src/public/lessons.ts"
@@ -12153,6 +12639,10 @@
     "t-glob-805035af": {
       "kind": "file_glob",
       "pattern": "src/mcp/instructions.ts"
+    },
+    "t-glob-808c4019": {
+      "kind": "file_glob",
+      "pattern": "tests/unit/targets/**"
     },
     "t-glob-8148e382": {
       "kind": "file_glob",
@@ -12230,6 +12720,10 @@
       "kind": "file_glob",
       "pattern": "src/cli/commands/generate-handlers.ts"
     },
+    "t-glob-89c6bc75": {
+      "kind": "file_glob",
+      "pattern": "src/canonical/load/*.ts"
+    },
     "t-glob-8ac603bd": {
       "kind": "file_glob",
       "pattern": "src/lessons/action-match.ts"
@@ -12254,6 +12748,10 @@
       "kind": "file_glob",
       "pattern": "tests/integration/lessons-*.integration.test.ts"
     },
+    "t-glob-8c8ae089": {
+      "kind": "file_glob",
+      "pattern": "src/targets/*/import-nested-agents.ts"
+    },
     "t-glob-8ce6202e": {
       "kind": "file_glob",
       "pattern": "src/core/reference/output-source-map.ts"
@@ -12269,6 +12767,10 @@
     "t-glob-8fe4e96b": {
       "kind": "file_glob",
       "pattern": "**/SKILL.md"
+    },
+    "t-glob-90ecaacd": {
+      "kind": "file_glob",
+      "pattern": "src/cli/commands/import.ts"
     },
     "t-glob-91e8e620": {
       "kind": "file_glob",
@@ -12386,6 +12888,10 @@
       "kind": "file_glob",
       "pattern": "src/cli/commands/init-templates.ts"
     },
+    "t-glob-a566b381": {
+      "kind": "file_glob",
+      "pattern": "src/targets/windsurf/**"
+    },
     "t-glob-a5fc7764": {
       "kind": "file_glob",
       "pattern": "tests/**/*posix*"
@@ -12425,6 +12931,10 @@
     "t-glob-a9a4fad0": {
       "kind": "file_glob",
       "pattern": "src/targets/*/layout.ts"
+    },
+    "t-glob-a9c88b6d": {
+      "kind": "file_glob",
+      "pattern": "src/cli/renderers/**"
     },
     "t-glob-a9eb0502": {
       "kind": "file_glob",
@@ -12477,6 +12987,14 @@
     "t-glob-b180e7b2": {
       "kind": "file_glob",
       "pattern": "src/targets/**"
+    },
+    "t-glob-b31c4e39": {
+      "kind": "file_glob",
+      "pattern": "src/core/check/lock-sync*.ts"
+    },
+    "t-glob-b3216045": {
+      "kind": "file_glob",
+      "pattern": "src/targets/codex-cli/generator/**"
     },
     "t-glob-b39eff4f": {
       "kind": "file_glob",
@@ -12582,6 +13100,10 @@
       "kind": "file_glob",
       "pattern": "src/targets/*/generator/hooks.ts"
     },
+    "t-glob-c731ac40": {
+      "kind": "file_glob",
+      "pattern": "tests/unit/cli/commands/**"
+    },
     "t-glob-c7eb35ad": {
       "kind": "file_glob",
       "pattern": "src/targets/catalog/init-starter-targets.ts"
@@ -12625,10 +13147,6 @@
     "t-glob-cf079804": {
       "kind": "file_glob",
       "pattern": "src/core/generate/*-merge.ts"
-    },
-    "t-glob-cfe44da2": {
-      "kind": "file_glob",
-      "pattern": "src/canonical/root-rule-placeholder.ts"
     },
     "t-glob-d044343b": {
       "kind": "file_glob",
@@ -12686,6 +13204,10 @@
       "kind": "file_glob",
       "pattern": "src/install/source/git-pin.ts"
     },
+    "t-glob-d8ba983b": {
+      "kind": "file_glob",
+      "pattern": "src/install/pack/pack-containment.ts"
+    },
     "t-glob-d8e040bc": {
       "kind": "file_glob",
       "pattern": "tests/unit/utils/filesystem/rename-retry.test.ts"
@@ -12709,6 +13231,10 @@
     "t-glob-db7e480d": {
       "kind": "file_glob",
       "pattern": "src/lessons/paths.ts"
+    },
+    "t-glob-dbe11674": {
+      "kind": "file_glob",
+      "pattern": "src/cli/command-result.ts"
     },
     "t-glob-dc08e1d8": {
       "kind": "file_glob",
@@ -12765,6 +13291,10 @@
     "t-glob-e3bd9564": {
       "kind": "file_glob",
       "pattern": "src/lessons/validate-health.ts"
+    },
+    "t-glob-e508af7d": {
+      "kind": "file_glob",
+      "pattern": "src/canonical/features/*.ts"
     },
     "t-glob-e5b597c8": {
       "kind": "file_glob",
@@ -12854,13 +13384,13 @@
       "kind": "file_glob",
       "pattern": "src/targets/continue/hooks.ts"
     },
+    "t-glob-f935b2a8": {
+      "kind": "file_glob",
+      "pattern": "src/core/reference/**"
+    },
     "t-glob-f9578eb1": {
       "kind": "file_glob",
       "pattern": "src/utils/filesystem/rename-retry.ts"
-    },
-    "t-glob-f98a792a": {
-      "kind": "file_glob",
-      "pattern": "src/targets/import/*.ts"
     },
     "t-glob-f9f526aa": {
       "kind": "file_glob",
@@ -12869,6 +13399,10 @@
     "t-glob-fa2e6273": {
       "kind": "file_glob",
       "pattern": "src/lessons/hook-payload.ts"
+    },
+    "t-glob-fadbbc47": {
+      "kind": "file_glob",
+      "pattern": "src/targets/claude-code/**"
     },
     "t-glob-fb5c7dc9": {
       "kind": "file_glob",
@@ -12994,6 +13528,10 @@
       "kind": "keyword",
       "pattern": "astro dev-only page sitemap"
     },
+    "t-kw-17e3a485": {
+      "kind": "keyword",
+      "pattern": "recall before edit"
+    },
     "t-kw-18a1de9b": {
       "kind": "keyword",
       "pattern": "refactor"
@@ -13037,6 +13575,10 @@
     "t-kw-218f2eba": {
       "kind": "keyword",
       "pattern": "regression"
+    },
+    "t-kw-233098a2": {
+      "kind": "keyword",
+      "pattern": "SKILL.md symlink"
     },
     "t-kw-233ef987": {
       "kind": "keyword",
@@ -13146,6 +13688,10 @@
       "kind": "keyword",
       "pattern": "continue permissions hooks capability"
     },
+    "t-kw-3d6b253a": {
+      "kind": "keyword",
+      "pattern": "version packages"
+    },
     "t-kw-3d736288": {
       "kind": "keyword",
       "pattern": "mergeGeneratedOutputContent"
@@ -13197,6 +13743,10 @@
     "t-kw-492df4f9": {
       "kind": "keyword",
       "pattern": "web search parser failure"
+    },
+    "t-kw-4ae47aa8": {
+      "kind": "keyword",
+      "pattern": "smoke test"
     },
     "t-kw-4b851069": {
       "kind": "keyword",
@@ -13305,6 +13855,10 @@
     "t-kw-6c51ce04": {
       "kind": "keyword",
       "pattern": "readFileSafe directory EISDIR"
+    },
+    "t-kw-6d405b45": {
+      "kind": "keyword",
+      "pattern": "security advisory"
     },
     "t-kw-6d98db32": {
       "kind": "keyword",
@@ -13526,6 +14080,10 @@
       "kind": "keyword",
       "pattern": "comparator coverage"
     },
+    "t-kw-b2687e53": {
+      "kind": "keyword",
+      "pattern": "npm publish"
+    },
     "t-kw-b2d1f670": {
       "kind": "keyword",
       "pattern": "atomic file write"
@@ -13626,6 +14184,10 @@
       "kind": "keyword",
       "pattern": "UserPromptSubmit"
     },
+    "t-kw-d3093e8e": {
+      "kind": "keyword",
+      "pattern": "symlink"
+    },
     "t-kw-d3364734": {
       "kind": "keyword",
       "pattern": "ReDoS"
@@ -13661,6 +14223,10 @@
     "t-kw-ddc1bdcc": {
       "kind": "keyword",
       "pattern": "antigravity permissions capability"
+    },
+    "t-kw-e0471170": {
+      "kind": "keyword",
+      "pattern": "file issues"
     },
     "t-kw-e0aa2fb2": {
       "kind": "keyword",

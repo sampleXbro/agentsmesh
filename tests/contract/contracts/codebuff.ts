@@ -16,7 +16,7 @@ export const codebuffContract: TargetPathContract = {
     '.agentsmesh/ignore',
     '.agentsmesh/mcp.json',
     '.agentsmesh/rules/_root.md',
-    '.agentsmesh/rules/src.md',
+    '.agentsmesh/rules/typescript.md',
     '.agentsmesh/skills/api-generator/SKILL.md',
     '.agentsmesh/skills/api-generator/references/route-checklist.md',
     '.agentsmesh/skills/api-generator/template.ts',

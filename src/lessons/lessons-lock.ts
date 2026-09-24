@@ -15,6 +15,7 @@ import {
   type LockOptions,
 } from '../utils/filesystem/process-lock.js';
 import { logger } from '../utils/output/logger.js';
+import { assertLessonsDirInsideProject } from './lessons-dir-guard.js';
 
 export const LESSONS_LOCK_FILENAME = '.lessons.lock';
 
@@ -40,6 +41,7 @@ export async function acquireLessonsLock(
   projectRoot: string,
   opts: LockOptions = {},
 ): Promise<HeldLock> {
+  assertLessonsDirInsideProject(projectRoot);
   return acquireProcessLock(lessonsLockPath(projectRoot), {
     retries: opts.retries ?? LESSONS_LOCK_OPTIONS.retries,
     retryDelayMs: opts.retryDelayMs ?? LESSONS_LOCK_OPTIONS.retryDelayMs,

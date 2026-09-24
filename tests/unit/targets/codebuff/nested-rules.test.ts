@@ -18,6 +18,10 @@ import { generateRules } from '../../../../src/targets/codebuff/generator.js';
 import { generateRules as generateCodexRules } from '../../../../src/targets/codex-cli/generator/rules.js';
 import { lintRules } from '../../../../src/targets/codebuff/linter.js';
 import { makeCanonical, makeRule } from './factories.js';
+import {
+  renderEmbeddedRuleEntries,
+  takeEmbeddedRuleEntries,
+} from '../../../../src/targets/projection/embedded-rule-entries.js';
 
 function nested(outputs: { path: string; content: string }[], path: string): string {
   return outputs.find((output) => output.path === path)?.content ?? '';
@@ -43,7 +47,7 @@ describe('nested AGENTS.md stays byte-compatible with codex-cli', () => {
     const codex = nested(generateCodexRules(canonical), 'src/AGENTS.md');
     const codebuff = nested(generateRules(canonical), 'src/AGENTS.md');
 
-    expect(codex).toBe('AAA\n\nBBB');
+    expect(codex).toBe(renderEmbeddedRuleEntries([canonical.rules[0]!, canonical.rules[2]!]));
     expect(codebuff).toContain('OOO');
     expect(codebuff).toContain(codex);
   });
@@ -60,7 +64,7 @@ describe('nested AGENTS.md stays byte-compatible with codex-cli', () => {
     const codex = nested(generateCodexRules(canonical), 'src/AGENTS.md');
     const codebuff = nested(generateRules(canonical), 'src/AGENTS.md');
 
-    expect(codex).toBe('AAA\n\nBBB');
+    expect(codex).toBe(renderEmbeddedRuleEntries([canonical.rules[0]!, canonical.rules[2]!]));
     expect(codebuff).toContain(codex);
   });
 
@@ -76,7 +80,7 @@ describe('nested AGENTS.md stays byte-compatible with codex-cli', () => {
     const codex = nested(generateCodexRules(canonical), 'src/AGENTS.md');
     const codebuff = nested(generateRules(canonical), 'src/AGENTS.md');
 
-    expect(codex).toBe('AAA\n\nBBB');
+    expect(codex).toBe(renderEmbeddedRuleEntries([canonical.rules[0]!, canonical.rules[2]!]));
     expect(codebuff).toContain(codex);
   });
 
@@ -95,12 +99,12 @@ describe('nested AGENTS.md stays byte-compatible with codex-cli', () => {
       ],
     });
 
-    expect(nested(generateRules(canonical), 'src/AGENTS.md').split('\n\n').sort()).toEqual([
-      'AAA',
-      'BBB',
-      'OOO',
-      'XXX',
-    ]);
+    const content = nested(generateRules(canonical), 'src/AGENTS.md');
+    expect(
+      takeEmbeddedRuleEntries(content)
+        .rules.map((rule) => rule.body)
+        .sort(),
+    ).toEqual(['AAA', 'BBB', 'OOO', 'XXX']);
   });
 
   it('excludes a rule targeted away from codebuff', () => {

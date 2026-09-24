@@ -56,7 +56,7 @@ agentsmesh generate   # write each tool's native config from the one source
 agentsmesh check      # CI drift gate against .agentsmesh/.lock
 ```
 
-On a terminal, `init` runs a short wizard: pick targets, import detected configs (`.cursor/`, `.claude/`, `.github/copilot-instructions.md`, and more), enable lessons, and optionally generate right away. Nothing is written until you finish. Use `--yes` for the non-interactive default, `--global` for your user-level config under `~/.agentsmesh/`, and `npx agentsmesh` if you installed it as a dev dependency.
+On a terminal, `init` runs a short wizard: pick targets, import detected configs (`.cursor/`, `.claude/`, `.github/copilot-instructions.md`, and more), enable lessons, and optionally generate right away. Nothing is written until you finish. Use `--yes` for the non-interactive default (in a script, `init` without `--yes` stops when it finds existing tool config, so `generate` never replaces config you have not imported), `--global` for your user-level config under `~/.agentsmesh/`, and `npx agentsmesh` if you installed it as a dev dependency.
 
 `init` enables the tools you actually use, not all of them: whatever this project already has config for, else whatever is installed on your machine, else a minimal set of Claude Code, Cursor and Copilot. It prints what it picked. Pass `--targets a,b` to choose, or `--all-targets` for everything.
 
@@ -145,7 +145,7 @@ Built to be depended on: 12,000+ tests on Linux, macOS, and Windows CI, JSON-Sch
 
 - **Lossless two-way sync.** When a tool has no native slot for a feature, it is embedded with round-trip metadata instead of dropped. [Managed embedding](https://samplexbro.github.io/agentsmesh/reference/managed-embedding/)
 - **Automatic link rebasing.** `.agentsmesh/skills/api-gen/template.hbs` becomes `.claude/skills/...` or `.cursor/skills/...` in each generated file. [Generation pipeline](https://samplexbro.github.io/agentsmesh/reference/generation-pipeline/)
-- **Safe adoption.** `import`, then `diff`, then `generate`, then `check`; nothing is overwritten blind. When several tools have a root rule, they are merged into one `_root.md` rather than the last one winning. [Existing-project guide](https://samplexbro.github.io/agentsmesh/guides/existing-project/)
+- **Safe adoption.** `import`, then `diff`, then `generate`, then `check`; nothing is overwritten blind. When several tools have a root rule, they are merged into one `_root.md` rather than the last one winning, their permissions, ignore patterns and MCP servers add up instead of replacing each other, and `init --yes` keeps both versions of a same-name rule, command or agent. [Existing-project guide](https://samplexbro.github.io/agentsmesh/guides/existing-project/)
 - **Output directory safety.** `generate` and `convert` reject output directories that resolve outside the project (or home directory with `--global`), checked before any write and under `--dry-run` too. Stale-file cleanup enforces the same boundary.
 - **Safe updates.** Explicitly empty Claude permission, hook, and MCP configurations clear their generated entries. MCP edits preserve untouched server fields and reject malformed files; skill updates validate supporting files before writing.
 - **Migrate between tools.** `convert --from <a> --to <b>` rewrites one tool's config directly into another's. [convert](https://samplexbro.github.io/agentsmesh/cli/convert/)

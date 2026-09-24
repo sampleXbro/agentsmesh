@@ -43,6 +43,7 @@ describe('mcp generate — lockfile persistence', () => {
       outputsModified: [],
       outputsRemoved: [],
       outputsStale: [],
+      staleTargets: [],
       outputsChecked: true,
     });
   });

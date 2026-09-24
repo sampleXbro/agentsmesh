@@ -71,58 +71,10 @@ function makeTriggerId(spec: TriggerSpec): string {
   return `t-${TRIGGER_PREFIX[spec.kind]}-${hash}`;
 }
 
-export interface ParsedRule {
-  readonly index: number;
-  readonly body: string;
-  readonly evidence: string[];
-}
-
-const RULE_HEADING_RE = /^##\s+Rules\b.*$/i;
-const NEXT_HEADING_RE = /^##\s+/;
-const RULE_LINE_RE = /^(\d+)\.\s+(.+?)\s*$/;
-const EVIDENCE_TAIL_RE = /\s*\(Evidence:?\s+([^)]+)\)\s*$/;
-const EVIDENCE_REF_RE = /L\d+/g;
-
-export function parseRulesSection(markdown: string): ParsedRule[] {
-  const lines = markdown.split(/\r?\n/);
-  let inRules = false;
-  const rules: ParsedRule[] = [];
-
-  for (const line of lines) {
-    if (!inRules) {
-      if (RULE_HEADING_RE.test(line)) inRules = true;
-      continue;
-    }
-    if (NEXT_HEADING_RE.test(line)) break;
-
-    const m = RULE_LINE_RE.exec(line);
-    if (m === null) continue;
-
-    const ruleIndex = Number(m[1]);
-    // Group 2 `(.+?)` is mandatory in RULE_HEADING's line regex, so it is always
-    // present when the line matched; same for the EVIDENCE tail's `([^)]+)`.
-    let body = m[2]!;
-    const evidence: string[] = [];
-
-    let tail = EVIDENCE_TAIL_RE.exec(body);
-    while (tail !== null) {
-      const refs = tail[1]!;
-      const matches = refs.match(EVIDENCE_REF_RE);
-      if (matches !== null) evidence.unshift(...matches);
-      body = body.slice(0, tail.index).trimEnd();
-      tail = EVIDENCE_TAIL_RE.exec(body);
-    }
-
-    rules.push({ index: ruleIndex, body, evidence });
-  }
-
-  return rules;
-}
-
+// journal.md and journal.legacy.md are kept: their notes are not rules, so
+// the migration cannot turn them into lessons, and deleting them lost them (#138).
 const LEGACY_ARTIFACT_REL = [
   'index.yaml',
-  'journal.md',
-  'journal.legacy.md',
   'topics',
   'distill-ledger.yaml',
   'distill-proposal.md',

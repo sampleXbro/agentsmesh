@@ -142,7 +142,7 @@ export function outputPaths(target: TargetName): OutputPathGroups {
           : target === 'junie'
             ? ['.junie/rules/typescript.md']
             : target === 'windsurf'
-              ? ['.windsurf/rules/typescript.md', 'src/AGENTS.md']
+              ? ['.windsurf/rules/typescript.md']
               : [
                   target === 'aider'
                     ? 'CONVENTIONS.md'
@@ -290,7 +290,7 @@ export function expectedRefs(target: TargetName, path?: string): Record<string, 
                                     ? '.rules'
                                     : 'AGENTS.md';
   // From `src/AGENTS.md`, the rewriter points at repo-root AGENTS as `../AGENTS.md`.
-  if ((target === 'windsurf' || target === 'codex-cli') && path === 'src/AGENTS.md') {
+  if (target === 'codex-cli' && path === 'src/AGENTS.md') {
     rootRule = '../AGENTS.md';
   }
   const rule =

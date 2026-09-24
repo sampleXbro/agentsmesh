@@ -9,7 +9,10 @@ import type { LessonsQueryData, LessonsQueryFormat } from '../commands/lessons-t
 
 export function renderQuery(data: LessonsQueryData, format: LessonsQueryFormat): void {
   if (data.autoMigrated) {
-    logger.warn('lessons.json was auto-migrated from index.yaml on first invocation.');
+    logger.warn(
+      'lessons.json was auto-migrated from index.yaml on first invocation. journal.md, if ' +
+        'present, was kept: add the notes you still need with `agentsmesh lessons add`.',
+    );
   }
   if (data.warning !== undefined && data.warning.length > 0) {
     logger.warn(data.warning);

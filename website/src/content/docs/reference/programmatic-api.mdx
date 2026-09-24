@@ -130,6 +130,8 @@ When two targets emit the same output path with the same content (e.g. Codex CLI
 
 Imports a tool's native config back into canonical form on disk under `.agentsmesh/`. Returns one `ImportResult` per file imported.
 
+Like `agentsmesh import`, it adds to the canonical permissions, ignore patterns and MCP servers already on disk instead of replacing them. See [Importing more than one tool](../../cli/import/#importing-more-than-one-tool).
+
 ```ts
 import { importFrom, type ImportResult } from 'agentsmesh';
 
@@ -238,6 +240,8 @@ if (!report.inSync) {
 ```
 
 `LockSyncReport.lockedViolations` is the subset of changes that violate `collaboration.lock_features` — useful for distinguishing "drift the team allows" from "drift that should fail CI".
+
+`LockSyncReport.staleTargets` lists enabled targets that a `generate --targets` run left out after the canonical sources changed. Their files were not regenerated, so `inSync` is `false` (and `outputDrift` is `true`) until they are generated again.
 
 `LockSyncReport.lockConflict` is `true` when `.lock` still has git conflict markers. Such a lock cannot be read, so `hasLock` is `false` too. Check `lockConflict` first: the fix is `agentsmesh merge`, not `generate`.
 

@@ -16,7 +16,7 @@ agentsmesh generate [flags]
 
 | Flag | Description |
 |------|-------------|
-| `--targets <csv>` | Comma-separated list of target IDs to generate for. Defaults to all configured targets. |
+| `--targets <csv>` | Comma-separated list of target IDs to generate for. Defaults to all configured targets. If the canonical sources changed, the enabled targets the run left out are recorded in the lock as `stale_targets`, and `agentsmesh check` fails until each of them is generated again. |
 | `--global` | Generate user-level config from `~/.agentsmesh/` instead of project-local config (e.g. `claude-code`, `antigravity`, `codex-cli`; Cursor writes full `~/.cursor/` global surfaces including `rules/`, `AGENTS.md`, hooks, ignore, MCP, skills, agents, commands). |
 | `--dry-run` | Preview changes without writing any files. |
 | `--check` | Verify sync status only. Exit code 1 if out of sync, or if the project's lessons graph cannot be read. |
@@ -93,7 +93,7 @@ Forces a re-fetch of all remote `extends` sources. Without this flag, AgentsMesh
 3. **Generate per target** — for each enabled target, run target-specific generators for rules, commands, agents, skills, MCP, hooks, ignore, and permissions.
 4. **Rewrite references** — internal `.agentsmesh/` file paths are rewritten to target-relative paths.
 5. **Resolve collisions** — detect overlapping output paths, prefer native over embedded.
-6. **Write output** — create target directories, write all files, update the lock file (canonical-source checksums plus an `outputs` map of every generated file's checksum, so `agentsmesh check` can later detect direct edits to generated files). Filtered runs (`--targets`) merge outputs per-path into the existing map; a full run replaces it. The lock is rewritten only when this content changes: a run that changes nothing leaves `.agentsmesh/.lock` untouched, so the git tree stays clean.
+6. **Write output** — create target directories, write all files, update the lock file (canonical-source checksums plus an `outputs` map of every generated file's checksum, so `agentsmesh check` can later detect direct edits to generated files). Filtered runs (`--targets`) merge outputs per-path into the existing map; a full run replaces it. A filtered run after a canonical change records the enabled targets it left out as `stale_targets`, because they were not regenerated from the new sources. The lock is rewritten only when this content changes: a run that changes nothing leaves `.agentsmesh/.lock` untouched, so the git tree stays clean.
 7. **Clean stale files** — remove previously generated files no longer in the output set. This also runs when a full run produces no files at all, so uninstalling the last pack removes its generated outputs and resets the lock's `outputs` map.
 
 ## Lessons upkeep

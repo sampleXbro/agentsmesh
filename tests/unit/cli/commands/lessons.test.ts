@@ -262,15 +262,15 @@ describe('runLessons query', () => {
     expect(r.data.warning).toMatch(/config\.json/);
   });
 
-  it('auto-migrates from legacy index.yaml on first query and DELETES legacy artifacts', async () => {
+  it('auto-migrates from legacy index.yaml on first query, deletes it and topics, keeps journal.md', async () => {
     cpSync(LEGACY_FIXTURE, join(root, '.agentsmesh/lessons'), { recursive: true });
     expect(existsSync(join(root, '.agentsmesh/lessons/lessons.json'))).toBe(false);
 
     const r = await runLessons({ keyword: 'alpha' }, ['query'], root);
     expect(existsSync(join(root, '.agentsmesh/lessons/lessons.json'))).toBe(true);
-    // Clean-break: legacy files are gone after auto-migration.
+    // The migrated index and topics are gone; the journal's notes are kept (#138).
     expect(existsSync(join(root, '.agentsmesh/lessons/index.yaml'))).toBe(false);
-    expect(existsSync(join(root, '.agentsmesh/lessons/journal.md'))).toBe(false);
+    expect(existsSync(join(root, '.agentsmesh/lessons/journal.md'))).toBe(true);
     expect(existsSync(join(root, '.agentsmesh/lessons/topics'))).toBe(false);
 
     if (r.subcommand !== 'query') return;

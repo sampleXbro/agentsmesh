@@ -56,6 +56,8 @@ The server reads `projectRoot` from the process working directory at startup, wa
 
 The server exposes **50 tools** grouped by category. All tool errors return a structured envelope `{ code, message, details? }` (see [Error codes](#error-codes)).
 
+The server runs tool calls one at a time, in the order they arrive. A client can send several calls without waiting for the replies: parallel write calls to the same file (for example three `add_mcp_server` calls) all keep their changes.
+
 ### Canonical reads (8)
 
 | Tool | Description |

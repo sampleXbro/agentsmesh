@@ -32,6 +32,11 @@ export interface InitData {
   importedToolCount: number;
   /** Two or more detected tools' root rules were combined into one canonical root. */
   rootRuleMerged: boolean;
+  /**
+   * Rules, commands or agents two tools both had, with different text. The
+   * earlier tool's file kept its name; the later tool's text was saved as `copy`.
+   */
+  sameNameCopies: Array<{ path: string; copy: string; tool: string }>;
   scaffoldType: 'full' | 'gap-fill' | 'none';
   gitignoreUpdated: boolean;
   /**
@@ -91,6 +96,8 @@ export interface CheckData {
   outputsRemoved: string[];
   /** Managed generated outputs present on disk but absent from the lock. */
   outputsStale: string[];
+  /** Targets a `generate --targets` run left out after canonical sources changed. */
+  staleTargets: string[];
   /** Managed-dir files agentsmesh did not write; informational, never drift. */
   outputsUntracked: string[];
   /**

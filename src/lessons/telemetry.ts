@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { stripBom } from '../utils/filesystem/fs-text-encoding.js';
 import { appendJsonl, logExists, readJsonl } from './jsonl-log.js';
 import { isRecallRecord } from './log-record-guards.js';
+import { lessonsDirInsideProject } from './lessons-dir-guard.js';
 import { lessonsPaths } from './paths.js';
 
 /** Keep at most this many recall records; older ones are dropped on truncation. */
@@ -171,7 +172,7 @@ export function appendRecallRecord(
   record: RecallTelemetryRecord,
   env: NodeJS.ProcessEnv = process.env,
 ): void {
-  if (!isTelemetryEnabled(env, projectRoot)) return;
+  if (!isTelemetryEnabled(env, projectRoot) || !lessonsDirInsideProject(projectRoot)) return;
   appendJsonl(recallLogPath(projectRoot), record, {
     maxRecords: MAX_RECALL_LOG_RECORDS,
     trimTriggerBytes: RECALL_LOG_TRIM_TRIGGER_BYTES,

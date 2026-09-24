@@ -66,13 +66,17 @@ On import, AgentsMesh removes that block from the root file and restores the rul
 
 The marker metadata restores the rule description, globs, and target scoping. The generated target filename is not used as the canonical source.
 
+### Nested `AGENTS.md` files
+
+Codex CLI and Codebuff scope a rule by writing it into a nested `<dir>/AGENTS.md` (for example `src/AGENTS.md` for `globs: ["src/**/*.ts"]`). There, each rule is written as a bare `agentsmesh:embedded-rule` entry, without the `embedded-rules` container. The entry still names its canonical source, so `import` restores `.agentsmesh/rules/typescript.md` instead of creating a `src.md` rule, and repeated import and generate cycles do not duplicate the text. Links inside a bare entry are rewritten for the nested file like any other generated text. Text in a nested `AGENTS.md` outside the entries (for example lines you wrote by hand) is imported as the directory's own rule, `.agentsmesh/rules/<dir>.md`.
+
 ## Current block types
 
 | Block | Used for | Round-trip behavior |
 |-------|----------|---------------------|
 | `agentsmesh:root-generation-contract` | The generated root instruction paragraph that tells agents to edit `.agentsmesh/` instead of generated files. | Stripped on import. |
 | `agentsmesh:embedded-rules` | Outer container for additional rules embedded in an aggregate/root instruction file. | Removed from root content after extraction. |
-| `agentsmesh:embedded-rule` | One additional rule inside `embedded-rules`. | Restored to `.agentsmesh/<source>`. |
+| `agentsmesh:embedded-rule` | One additional rule inside `embedded-rules`, or on its own in a nested `<dir>/AGENTS.md`. | Restored to `.agentsmesh/<source>`. |
 | `agentsmesh:codex-rule-index` | Generated Codex index of additional instruction files. | Stripped on Codex import. |
 | `agentsmesh:lessons-contract` | The always-on lessons recall/capture ritual, written into `.agentsmesh/rules/_root.md` by `init --lessons` and carried to every target through ordinary rule generation. | Canonical content, so it round-trips byte-stable; the sentinels let `scaffoldLessons` refresh the wording from one constant. |
 

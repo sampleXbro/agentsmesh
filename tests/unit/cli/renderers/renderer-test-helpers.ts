@@ -51,6 +51,7 @@ export function lessonsInit(lessons: Partial<ScaffoldLessonsResult> = {}): InitC
       imported: [],
       importedToolCount: 0,
       rootRuleMerged: false,
+      sameNameCopies: [],
       targets: [],
       targetSource: 'explicit',
       scaffoldType: 'none',

@@ -10,6 +10,7 @@ import { join, relative } from 'node:path';
 import { writeFileAtomic } from '../../utils/filesystem/fs.js';
 import { ensureGitignoreEntries } from '../../utils/filesystem/gitignore.js';
 import { BUILTIN_TARGETS } from '../../targets/catalog/builtin-targets.js';
+import { runTargetImport } from '../../targets/import/run-target-import.js';
 import type { ImportResult } from '../../core/types.js';
 import { buildConfig, LOCAL_TEMPLATE } from './init-templates.js';
 import { writeScaffoldFull, writeScaffoldGapFill } from './init-scaffold.js';
@@ -17,10 +18,8 @@ import type { ConfigScope, ScopeContext } from '../../config/core/scope.js';
 import { scaffoldLessons } from '../../lessons/init.js';
 import type { InitData } from '../command-result.js';
 import type { InitTargetSource } from './init-target-resolution.js';
-import {
-  readRootRuleBody,
-  rootRuleBodyGrew,
-} from '../../targets/import/root-rule-body-merge.js';
+import { importKeepingSameName } from './init-same-name.js';
+import { readRootRuleBody, rootRuleBodyGrew } from '../../targets/import/root-rule-body-merge.js';
 
 export interface InitCommandResult {
   exitCode: number;
@@ -44,7 +43,7 @@ const IMPORTERS: Record<string, (root: string, scope: ConfigScope) => Promise<Im
   Object.fromEntries(
     BUILTIN_TARGETS.map((d) => [
       d.id,
-      (root: string, scope: ConfigScope) => d.generators.importFrom(root, { scope }),
+      (root: string, scope: ConfigScope) => runTargetImport(d, root, scope),
     ]),
   );
 
@@ -71,14 +70,20 @@ async function importDetectedTools(
   imported: Array<{ from: string; to: string }>;
   importedToolCount: number;
   rootRuleMerged: boolean;
+  sameNameCopies: InitData['sameNameCopies'];
 }> {
   const imported: Array<{ from: string; to: string }> = [];
+  const sameNameCopies: InitData['sameNameCopies'] = [];
+  const owned = new Set<string>();
   let rootRuleMerged = false;
   for (const toolId of toolIds) {
     const importerFn = IMPORTERS[toolId];
     if (!importerFn) continue;
     const rootBefore = readRootRuleBody(rootBase);
-    const results = await importerFn(rootBase, scope);
+    const { results, copies } = await importKeepingSameName(rootBase, toolId, owned, () =>
+      importerFn(rootBase, scope),
+    );
+    sameNameCopies.push(...copies);
     if (rootRuleBodyGrew(rootBefore, readRootRuleBody(rootBase))) rootRuleMerged = true;
     for (const r of results) {
       imported.push({
@@ -87,7 +92,7 @@ async function importDetectedTools(
       });
     }
   }
-  return { imported, importedToolCount: toolIds.length, rootRuleMerged };
+  return { imported, importedToolCount: toolIds.length, rootRuleMerged, sameNameCopies };
 }
 
 /** Apply an InitPlan and return the structured InitData. */
@@ -101,6 +106,7 @@ export async function applyInitPlan(
   let imported: Array<{ from: string; to: string }> = [];
   let importedToolCount = 0;
   let rootRuleMerged = false;
+  let sameNameCopies: InitData['sameNameCopies'] = [];
   let scaffoldType: 'full' | 'gap-fill';
 
   if (plan.doImport) {
@@ -108,6 +114,7 @@ export async function applyInitPlan(
     imported = res.imported;
     importedToolCount = res.importedToolCount;
     rootRuleMerged = res.rootRuleMerged;
+    sameNameCopies = res.sameNameCopies;
     await writeScaffoldGapFill(context.canonicalDir);
     scaffoldType = 'gap-fill';
   } else {
@@ -137,6 +144,7 @@ export async function applyInitPlan(
     targets: [...plan.targets],
     targetSource: plan.targetSource,
     rootRuleMerged,
+    sameNameCopies,
     imported,
     importedToolCount,
     scaffoldType,

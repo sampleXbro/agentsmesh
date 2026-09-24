@@ -126,7 +126,6 @@ export function rewriteGeneratedReferences(
   const sourceCache = new Map<string, Map<string, string>>();
 
   return results.map((result) => {
-    if (skipPaths?.has(result.path)) return result;
     const smKey = sourceMapCacheKey(result.target, activeTargets);
     const sourceMap =
       sourceCache.get(smKey) ??
@@ -138,22 +137,28 @@ export function rewriteGeneratedReferences(
     const sourceFile = sourceMap.get(result.path);
     if (!sourceFile) return result;
 
+    // A root file two targets share keeps canonical references, so its copies
+    // stay identical and merge. Its Markdown link destinations are still rebased
+    // onto the canonical file they name (left as-is they point nowhere, #139);
+    // every other path token stays exactly as written.
+    const shared = skipPaths?.has(result.path) === true;
     const artifactMapTarget = artifactMapTargetForResult(result, scope, activeTargets);
     const cacheKey = artifactCacheKey(result, scope, activeTargets);
-    const artifactMap =
-      artifactCache.get(cacheKey) ??
-      (() => {
-        const built = buildArtifactPathMap(
-          artifactMapTarget,
-          canonical,
-          config,
-          projectRoot,
-          result.path,
-          { scope },
-        );
-        artifactCache.set(cacheKey, built);
-        return built;
-      })();
+    const artifactMap = shared
+      ? new Map<string, string>()
+      : (artifactCache.get(cacheKey) ??
+        (() => {
+          const built = buildArtifactPathMap(
+            artifactMapTarget,
+            canonical,
+            config,
+            projectRoot,
+            result.path,
+            { scope },
+          );
+          artifactCache.set(cacheKey, built);
+          return built;
+        })());
     const rewritten = rewriteFileLinks({
       content: result.content,
       projectRoot,
@@ -163,6 +168,7 @@ export function rewriteGeneratedReferences(
       pathExists: (absolutePath) => plannedPaths.has(absolutePath) || existsSync(absolutePath),
       explicitCurrentDirLinks: true,
       rewriteBarePathTokens: true,
+      markdownLinksOnly: shared,
       scope,
       pathIsDirectory: (absolutePath) => {
         try {

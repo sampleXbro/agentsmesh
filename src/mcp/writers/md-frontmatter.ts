@@ -1,21 +1,25 @@
 import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
+import { splitFrontmatter } from '../../utils/text/markdown.js';
 
-const FRONT_RE = /^---\r?\n([\s\S]*?)\r?\n---\r?\n\r?\n?([\s\S]*)$/;
-
+/**
+ * Split a canonical markdown file with the same delimiter rules the canonical
+ * loaders use, so MCP reads and `generate` agree on where frontmatter ends.
+ */
 export function parseMd(src: string): { frontmatter: Record<string, unknown>; body: string } {
-  const m = FRONT_RE.exec(src);
-  if (!m) return { frontmatter: {}, body: src };
-  // Regex groups 1 and 2 are non-optional captures, so on match they're
-  // always strings. `parseYaml('')` returns undefined → fall back to {}.
-  const [, fmRaw, body] = m as RegExpExecArray & [string, string, string];
+  const split = splitFrontmatter(src);
+  if (split === null) return { frontmatter: {}, body: src };
   return {
-    frontmatter: (parseYaml(fmRaw) ?? {}) as Record<string, unknown>,
-    body,
+    frontmatter: (parseYaml(split.yaml) ?? {}) as Record<string, unknown>,
+    // Drop the closer's newline and the one blank line serializeMd adds.
+    body: src.slice(split.prefix.length).replace(/^\r?\n(?:\r?\n)?/, ''),
   };
 }
 
 export function serializeMd(frontmatter: Record<string, unknown>, body: string): string {
-  if (Object.keys(frontmatter).length === 0) return body;
+  if (Object.keys(frontmatter).length === 0) {
+    // An empty block keeps a body that starts with `---` as body text (#135).
+    return splitFrontmatter(body) === null ? body : `---\n---\n\n${body}`;
+  }
   const yaml = stringifyYaml(frontmatter).trimEnd();
   return `---\n${yaml}\n---\n\n${body}`;
 }

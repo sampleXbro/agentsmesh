@@ -10,6 +10,7 @@ import type { ResolvedExtend } from '../../config/resolve/resolver.js';
 import { resolveExtendPaths } from '../../config/resolve/resolver.js';
 import { loadCanonicalFiles } from '../load/loader.js';
 import { combineHooks, mergeCanonicalFiles } from '../load/merge.js';
+import { demotedRootMessage, settleRootRule } from '../load/root-precedence.js';
 import { loadCanonicalForExtend } from './extend-load.js';
 import { applyExtendPick } from './extend-pick.js';
 import { gateExtendElevatedArtifacts } from './extend-elevated.js';
@@ -94,6 +95,15 @@ export async function loadCanonicalWithExtends(
 
   const localCanonical = await loadCanonicalFiles(canonicalDir);
   merged = mergeCanonicalFiles(merged, localCanonical);
+  const { rules, root, demoted } = settleRootRule(
+    merged.rules,
+    localCanonical.rules,
+    packsCanonical.rules,
+  );
+  if (root !== undefined) {
+    for (const rule of demoted) logger.warn(demotedRootMessage(rule, root, configDir));
+  }
+  merged = { ...merged, rules };
   // A local event overrides extends hooks, but an installed pack's hooks stay
   // (e.g. `init --lessons` adding the recall hook must not drop them).
   merged = { ...merged, hooks: combineHooks(merged.hooks, packsCanonical.hooks) };

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { logger, muteLogger, unmuteLogger } from '../../../src/utils/output/logger.js';
+import { logger, muteLogger, unmuteLogger, writeOutput } from '../../../src/utils/output/logger.js';
 
 describe('logger', () => {
   beforeEach(() => {
@@ -137,6 +137,14 @@ describe('logger', () => {
     expect(process.stdout.write).not.toHaveBeenCalled();
     expect(process.stderr.write).not.toHaveBeenCalled();
     unmuteLogger();
+  });
+
+  it('writeOutput writes raw text to the output stream, and nothing when muted', () => {
+    writeOutput('raw\n');
+    muteLogger();
+    writeOutput('hidden\n');
+    unmuteLogger();
+    expect(vi.mocked(process.stdout.write).mock.calls.map(([chunk]) => chunk)).toEqual(['raw\n']);
   });
 
   it('unmuteLogger restores output', () => {

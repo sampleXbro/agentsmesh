@@ -3,6 +3,7 @@ import { dirname, join } from 'node:path';
 import { maybeAutoMigrateLessons } from './auto-migrate.js';
 import { captureLogPath } from './capture-telemetry.js';
 import { lessonsLockPath } from './lessons-lock.js';
+import { assertLessonsDirInsideProject } from './lessons-dir-guard.js';
 import { outcomeLogPath } from './outcome-log.js';
 import { mutateLessonsGraphLocked } from './mutate.js';
 import { lessonsPaths, toRelPath } from './paths.js';
@@ -66,6 +67,7 @@ export async function scaffoldLessons(projectRoot: string): Promise<ScaffoldLess
   const updated: string[] = [];
   const skipped: string[] = [];
 
+  assertLessonsDirInsideProject(projectRoot);
   mkdirSync(paths.base, { recursive: true });
   // Migrate a legacy store before scaffolding so a retrofit does not create an
   // empty graph over still-unmigrated lessons (which would strand them forever).

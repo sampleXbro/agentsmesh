@@ -97,6 +97,7 @@ function cancelledResult(scope: ScopeContext['scope']): InitCommandResult {
       imported: [],
       importedToolCount: 0,
       rootRuleMerged: false,
+      sameNameCopies: [],
       targets: [],
       targetSource: 'explicit',
       scaffoldType: 'none',

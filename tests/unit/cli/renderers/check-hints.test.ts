@@ -25,6 +25,7 @@ const IN_SYNC: CheckData = {
   outputsModified: [],
   outputsRemoved: [],
   outputsStale: [],
+  staleTargets: [],
   outputsUntracked: [],
   outputsChecked: true,
 };
