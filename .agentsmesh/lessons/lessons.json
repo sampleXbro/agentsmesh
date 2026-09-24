@@ -2581,6 +2581,23 @@
         "t-glob-861a9bdb"
       ]
     },
+    "generation-collision-source-maps-write-rules-into-a-shared": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "aaeeabe1"
+      ],
+      "rule": "Write rules into a shared nested <dir>/AGENTS.md as bare embedded-rule entries (renderEmbeddedRuleEntries), never as an embedded-rules block: the outer block is a protected range, so its relative links are not rewritten and break once the rule sits in the nested file, and bare entries keep codex-cli's text a prefix of codebuff's so the shared path still resolves by containment. Every importer of nested AGENTS.md must split entries back with splitNestedAgentsFile.",
+      "status": "active",
+      "topics": [
+        "generation-collision-source-maps"
+      ],
+      "triggers": [
+        "t-glob-b3216045",
+        "t-glob-36b69836",
+        "t-glob-7f7c09ee",
+        "t-glob-8c8ae089"
+      ]
+    },
     "generation-safety-a-key-scoped-merger-must": {
       "createdAt": "2026-09-03",
       "evidence": [
@@ -6744,6 +6761,22 @@
         "t-glob-40333e0c"
       ]
     },
+    "lock-file-format-never-hold-back-agentsmesh-lock": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "f23984f2"
+      ],
+      "rule": "Never hold back .agentsmesh/.lock checksums or skip writing the lock to mark a filtered generate as incomplete: the lock's outputs map is the provenance the stale-output sweep gates on, and its checksums gate collaboration strategy: lock violations, so both broke (the target contract matrix caught it). Record per-target staleness separately, as stale_targets, and run tests/contract/target-contract.matrix.test.ts before committing any change to what the lock records.",
+      "status": "active",
+      "topics": [
+        "lock-file-format"
+      ],
+      "triggers": [
+        "t-glob-f9f526aa",
+        "t-glob-e6cc94f4",
+        "t-glob-b31c4e39"
+      ]
+    },
     "lock-file-format-readlock-returns-null-for-a": {
       "createdAt": "2026-09-23",
       "evidence": [
@@ -8852,6 +8885,20 @@
       ],
       "triggers": [
         "t-glob-8ac72756"
+      ]
+    },
+    "targets-check-a-target-s-rule": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "75daebd9"
+      ],
+      "rule": "Check a target's rule frontmatter field names against the tool's own docs before generating or importing them: Claude Code reads only paths from a .claude/rules/*.md rule (a YAML list or a comma-separated string), so writing canonical globs as globs: silently made every scoped rule global and import dropped paths.",
+      "status": "active",
+      "topics": [
+        "targets"
+      ],
+      "triggers": [
+        "t-glob-fadbbc47"
       ]
     },
     "targets-codex-marketplace-catalogs-reject-policy": {
@@ -11948,6 +11995,10 @@
       "kind": "file_glob",
       "pattern": "src/targets/import/**"
     },
+    "t-glob-36b69836": {
+      "kind": "file_glob",
+      "pattern": "src/targets/codebuff/generator.ts"
+    },
     "t-glob-36d72b33": {
       "kind": "file_glob",
       "pattern": "tests/consumer-smoke/src/smoke.ts"
@@ -12428,6 +12479,10 @@
       "kind": "file_glob",
       "pattern": "src/targets/import/shared/skill-import-pipeline.ts"
     },
+    "t-glob-7f7c09ee": {
+      "kind": "file_glob",
+      "pattern": "src/targets/projection/**"
+    },
     "t-glob-7fc51540": {
       "kind": "file_glob",
       "pattern": "src/public/lessons.ts"
@@ -12547,6 +12602,10 @@
     "t-glob-8bdc3684": {
       "kind": "file_glob",
       "pattern": "tests/integration/lessons-*.integration.test.ts"
+    },
+    "t-glob-8c8ae089": {
+      "kind": "file_glob",
+      "pattern": "src/targets/*/import-nested-agents.ts"
     },
     "t-glob-8ce6202e": {
       "kind": "file_glob",
@@ -12779,6 +12838,14 @@
     "t-glob-b180e7b2": {
       "kind": "file_glob",
       "pattern": "src/targets/**"
+    },
+    "t-glob-b31c4e39": {
+      "kind": "file_glob",
+      "pattern": "src/core/check/lock-sync*.ts"
+    },
+    "t-glob-b3216045": {
+      "kind": "file_glob",
+      "pattern": "src/targets/codex-cli/generator/**"
     },
     "t-glob-b39eff4f": {
       "kind": "file_glob",
@@ -13175,6 +13242,10 @@
     "t-glob-fa2e6273": {
       "kind": "file_glob",
       "pattern": "src/lessons/hook-payload.ts"
+    },
+    "t-glob-fadbbc47": {
+      "kind": "file_glob",
+      "pattern": "src/targets/claude-code/**"
     },
     "t-glob-fb5c7dc9": {
       "kind": "file_glob",
