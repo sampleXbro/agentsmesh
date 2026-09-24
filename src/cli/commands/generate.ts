@@ -119,6 +119,7 @@ export async function runGenerate(
           root,
           options,
           activeTargets,
+          configuredTargets: allTargets,
         })
       : checkOnly
         ? buildCheckResult(results, scope)

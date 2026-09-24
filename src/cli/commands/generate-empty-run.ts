@@ -33,6 +33,8 @@ export interface EmptyResultsArgs {
   root: string;
   options: RunGenerateOptions;
   activeTargets: string[];
+  /** Every target in the config, so the lock knows which ones this run skipped. */
+  configuredTargets: string[];
 }
 
 /**
@@ -61,6 +63,7 @@ function resolveEmptyReason(
 export async function handleEmptyResults(args: EmptyResultsArgs): Promise<GenerateCommandResult> {
   const { mode, scope, dryRun, context, resolvedExtends, flags, root, options, activeTargets } =
     args;
+  const skippedTargets = args.configuredTargets.filter((t) => !activeTargets.includes(t));
   const data: GenerateData = {
     scope,
     mode,
@@ -100,7 +103,7 @@ export async function handleEmptyResults(args: EmptyResultsArgs): Promise<Genera
       if (prunes) await cleanupStaleGeneratedOutputs(sweep);
       // Full run: the outputs map becomes empty. Filtered run: `writeLockFile`
       // merges `{}` into the previous map, so earlier provenance survives.
-      lockWritten = await writeLockFile(context, resolvedExtends, {}, !prunes);
+      lockWritten = await writeLockFile(context, resolvedExtends, {}, !prunes, skippedTargets);
     } finally {
       await release();
     }

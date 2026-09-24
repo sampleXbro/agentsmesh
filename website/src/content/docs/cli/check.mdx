@@ -33,6 +33,7 @@ The `.agentsmesh/` sources no longer match the checksums recorded in `.agentsmes
 - Someone edited `.agentsmesh/` but forgot to run `agentsmesh generate`
 - A pull request merged changes to canonical config without regenerating
 - An `extends` source changed and the project hasn't refreshed
+- `agentsmesh generate --targets …` ran after a canonical change but left out an enabled target. That target's files were not regenerated, so the lock keeps the older checksums and `check` fails until a full `agentsmesh generate`
 
 ### Generated-output drift
 

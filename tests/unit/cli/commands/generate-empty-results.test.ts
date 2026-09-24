@@ -112,6 +112,7 @@ describe('handleEmptyResults: empty reason in global scope', () => {
     root: testDir,
     options: { printMatrix: false },
     activeTargets,
+    configuredTargets: activeTargets,
   });
 
   it('names no-global-support when every active target is cloud-only', async () => {

@@ -37,23 +37,43 @@ function sameContent(previous: LockFile, next: LockContent): boolean {
   );
 }
 
-/** Write `.agentsmesh/.lock` when its content changed; returns whether it did. */
+async function currentSources(
+  canonicalDir: string,
+  resolvedExtends: ResolvedExtend[],
+): Promise<Pick<LockFile, 'checksums' | 'extends' | 'packs'>> {
+  return {
+    checksums: await buildChecksums(canonicalDir),
+    extends: resolvedExtends.length > 0 ? await buildExtendChecksums(resolvedExtends) : {},
+    packs: await buildPackChecksums(join(canonicalDir, 'packs')),
+  };
+}
+
+/**
+ * Write `.agentsmesh/.lock` when its content changed; returns whether it did.
+ * `skippedTargets` are enabled targets a `--targets` run did not generate.
+ */
 export async function writeLockFile(
   context: { canonicalDir: string; configDir: string },
   resolvedExtends: ResolvedExtend[],
   runOutputs: Record<string, string>,
   filtered: boolean,
+  skippedTargets: readonly string[] = [],
 ): Promise<boolean> {
-  const checksums = await buildChecksums(context.canonicalDir);
-  const extendChecksums =
-    resolvedExtends.length > 0 ? await buildExtendChecksums(resolvedExtends) : {};
-  const packChecksums = await buildPackChecksums(join(context.canonicalDir, 'packs'));
   const previous = await readLock(context.canonicalDir);
+  // A skipped target was not regenerated, so the lock keeps the sources its
+  // outputs came from and `check` fails until a full run (#136). With no lock
+  // yet, write none: `check` then asks for a full generate as well.
+  const skipped = skippedTargets.length > 0;
+  if (skipped && previous === null) return false;
+  const sources =
+    skipped && previous !== null
+      ? { checksums: previous.checksums, extends: previous.extends, packs: previous.packs }
+      : await currentSources(context.canonicalDir, resolvedExtends);
   // Full generate replaces the outputs map (dropping disabled targets' entries).
   // Filtered generate merges per-path so untouched targets' entries survive; it
   // never prunes stale entries — an accepted limitation until the next full run.
   const outputs = filtered ? { ...(previous?.outputs ?? {}), ...runOutputs } : runOutputs;
-  const content = { checksums, extends: extendChecksums, packs: packChecksums, outputs };
+  const content = { ...sources, outputs };
   // Time, user and version describe the last run that changed the content.
   // Rewriting them on a no-op run dirtied the git tree after every generate.
   const changed = previous === null || !sameContent(previous, content);
