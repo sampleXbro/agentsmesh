@@ -2,6 +2,8 @@
  * Windsurf reads a nested `<dir>/AGENTS.md` as a rule for that directory.
  * Embedded rule blocks in it (written by Codex CLI or Codebuff) go back to
  * their own canonical files; only the text outside them is the directory rule.
+ * A nested file whose text is a `.windsurf/rules/*.md` rule's body is the copy
+ * older versions also wrote, so it is skipped instead of becoming a new rule.
  */
 
 import { basename, dirname, join, relative } from 'node:path';
@@ -14,8 +16,23 @@ import {
   removePathIfExists,
   shouldImportScopedAgentsRule,
 } from '../import/scoped-agents-import.js';
+import { readDirRecursiveNoSymlinks, readFileSafe } from '../../utils/filesystem/fs.js';
+import { splitFrontmatter } from '../../utils/text/markdown.js';
+import { WINDSURF_RULES_DIR } from './constants.js';
 
 type Normalizer = (content: string, sourceFile: string, destinationFile: string) => string;
+
+const bodyKey = (text: string): string => text.replace(/\r\n?/g, '\n').trim();
+
+async function windsurfRuleBodies(projectRoot: string): Promise<Set<string>> {
+  const files = await readDirRecursiveNoSymlinks(join(projectRoot, WINDSURF_RULES_DIR));
+  const bodies = new Set<string>();
+  for (const file of files.filter((path) => path.endsWith('.md'))) {
+    const content = await readFileSafe(file);
+    if (content !== null) bodies.add(bodyKey(splitFrontmatter(content)?.body ?? content));
+  }
+  return bodies;
+}
 
 export async function importWindsurfNestedAgents(
   projectRoot: string,
@@ -23,6 +40,7 @@ export async function importWindsurfNestedAgents(
 ): Promise<ImportResult[]> {
   const destRulesDir = join(projectRoot, AB_RULES);
   const embedded: ImportResult[] = [];
+  const ruleBodies = await windsurfRuleBodies(projectRoot);
   const results = await importFileDirectory({
     srcDir: projectRoot,
     destDir: destRulesDir,
@@ -48,7 +66,7 @@ export async function importWindsurfNestedAgents(
         },
         embedded,
       );
-      if (ownText === null) return null;
+      if (ownText === null || ruleBodies.has(bodyKey(ownText))) return null;
       const destPath = join(destRulesDir, `${ruleName}.md`);
       return {
         destPath,

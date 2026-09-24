@@ -567,7 +567,7 @@ describe('rewriteGeneratedReferences', () => {
     );
   });
 
-  it('rewrites windsurf shared and scoped AGENTS outputs from their canonical rule sources', () => {
+  it('rewrites windsurf root AGENTS and scoped rule outputs from their canonical rule sources', () => {
     const projectRoot = '/proj';
     const canonical = makeCanonical(projectRoot);
     const results: GenerateResult[] = [
@@ -579,14 +579,8 @@ describe('rewriteGeneratedReferences', () => {
       },
       {
         target: 'windsurf',
-        path: 'src/AGENTS.md',
-        content: 'Use .agentsmesh/skills/api-gen/SKILL.md.',
-        status: 'created',
-      },
-      {
-        target: 'windsurf',
         path: '.windsurf/rules/typescript.md',
-        content: '',
+        content: 'Use .agentsmesh/skills/api-gen/SKILL.md.',
         status: 'created',
       },
       {
@@ -613,7 +607,7 @@ describe('rewriteGeneratedReferences', () => {
     expect(rewritten[0]!.content).toContain('skills/api-gen/');
     expect(rewritten[0]!.content).toContain('skills/api-gen/references/');
     // Canonical anchor projects to the colocated windsurf skill counterpart.
-    expect(rewritten[1]!.content).toContain('.windsurf/skills/api-gen/SKILL.md');
+    expect(rewritten[1]!.content).toBe('Use ../skills/api-gen/SKILL.md.');
   });
 
   it('reuses one artifact map for multiple outputs of the same target', () => {

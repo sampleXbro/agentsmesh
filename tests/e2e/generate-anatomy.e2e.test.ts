@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { mkdirSync, writeFileSync, readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { cleanup, createTestProject } from './helpers/setup.js';
 import { runCli } from './helpers/run-cli.js';
@@ -58,7 +58,7 @@ describe('generate anatomy variants', () => {
     fileContains(join(dir, 'src', 'AGENTS.md'), 'Use strict mode.');
   });
 
-  it('generates Windsurf subdirectory AGENTS.md from scoped canonical rules', async () => {
+  it('generates a Windsurf glob rule, not a subdirectory AGENTS.md, from a scoped rule', async () => {
     dir = createTestProject();
     mkdirSync(join(dir, '.agentsmesh', 'rules'), { recursive: true });
     writeFileSync(
@@ -77,6 +77,10 @@ describe('generate anatomy variants', () => {
     const result = await runCli('generate', dir);
 
     expect(result.exitCode).toBe(0);
-    fileContains(join(dir, 'src', 'AGENTS.md'), 'Src windsurf rules');
+    // Windsurf also reads src/AGENTS.md as a src/** rule, so one glob rule is enough.
+    expect(readFileSync(join(dir, '.windsurf', 'rules', 'src.md'), 'utf-8')).toBe(
+      '---\ndescription: Src rules\ntrigger: glob\nglob: src/**/*.ts\n---\n\n# Src windsurf rules\nUse strict mode.',
+    );
+    expect(existsSync(join(dir, 'src', 'AGENTS.md'))).toBe(false);
   });
 });
