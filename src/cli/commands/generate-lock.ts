@@ -10,6 +10,7 @@ import {
   readLock,
   writeLock,
 } from '../../config/core/lock.js';
+import { nextStaleTargets } from '../../config/core/lock-stale-targets.js';
 import { getCacheDir } from '../../config/remote/remote-fetcher.js';
 import { ensureCacheSymlink } from '../../utils/filesystem/fs.js';
 import { logger } from '../../utils/output/logger.js';
@@ -17,7 +18,8 @@ import { getVersion } from '../version.js';
 import type { ResolvedExtend } from '../../config/resolve/resolver.js';
 import type { LockFile } from '../../core/types.js';
 
-type LockContent = Pick<LockFile, 'checksums' | 'extends' | 'packs' | 'outputs'>;
+type LockSources = Pick<LockFile, 'checksums' | 'extends' | 'packs'>;
+type LockContent = LockSources & Pick<LockFile, 'outputs' | 'staleTargets'>;
 
 function sameMap(
   a: Record<string, string> | undefined,
@@ -28,19 +30,26 @@ function sameMap(
   return keys.length === Object.keys(b).length && keys.every((key) => a[key] === b[key]);
 }
 
-function sameContent(previous: LockFile, next: LockContent): boolean {
+function sameSources(previous: LockFile, next: LockSources): boolean {
   return (
     sameMap(previous.checksums, next.checksums) &&
     sameMap(previous.extends, next.extends) &&
-    sameMap(previous.packs, next.packs) &&
-    sameMap(previous.outputs, next.outputs)
+    sameMap(previous.packs, next.packs)
+  );
+}
+
+function sameContent(previous: LockFile, next: LockContent): boolean {
+  return (
+    sameSources(previous, next) &&
+    sameMap(previous.outputs, next.outputs) &&
+    (previous.staleTargets ?? []).join('\n') === (next.staleTargets ?? []).join('\n')
   );
 }
 
 async function currentSources(
   canonicalDir: string,
   resolvedExtends: ResolvedExtend[],
-): Promise<Pick<LockFile, 'checksums' | 'extends' | 'packs'>> {
+): Promise<LockSources> {
   return {
     checksums: await buildChecksums(canonicalDir),
     extends: resolvedExtends.length > 0 ? await buildExtendChecksums(resolvedExtends) : {},
@@ -60,20 +69,17 @@ export async function writeLockFile(
   skippedTargets: readonly string[] = [],
 ): Promise<boolean> {
   const previous = await readLock(context.canonicalDir);
-  // A skipped target was not regenerated, so the lock keeps the sources its
-  // outputs came from and `check` fails until a full run (#136). With no lock
-  // yet, write none: `check` then asks for a full generate as well.
-  const skipped = skippedTargets.length > 0;
-  if (skipped && previous === null) return false;
-  const sources =
-    skipped && previous !== null
-      ? { checksums: previous.checksums, extends: previous.extends, packs: previous.packs }
-      : await currentSources(context.canonicalDir, resolvedExtends);
+  const sources = await currentSources(context.canonicalDir, resolvedExtends);
+  const staleTargets = nextStaleTargets(
+    previous?.staleTargets,
+    skippedTargets,
+    previous === null || !sameSources(previous, sources),
+  );
   // Full generate replaces the outputs map (dropping disabled targets' entries).
   // Filtered generate merges per-path so untouched targets' entries survive; it
   // never prunes stale entries — an accepted limitation until the next full run.
   const outputs = filtered ? { ...(previous?.outputs ?? {}), ...runOutputs } : runOutputs;
-  const content = { ...sources, outputs };
+  const content = { ...sources, outputs, ...(staleTargets ? { staleTargets } : {}) };
   // Time, user and version describe the last run that changed the content.
   // Rewriting them on a no-op run dirtied the git tree after every generate.
   const changed = previous === null || !sameContent(previous, content);

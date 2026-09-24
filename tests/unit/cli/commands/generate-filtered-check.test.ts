@@ -1,12 +1,11 @@
 /**
- * A `generate --targets` run that leaves out an enabled target must not move
- * the lock's canonical checksums forward: the skipped target's outputs were
- * not regenerated, so `check` must fail until a full generate (#136).
+ * A `generate --targets` run that leaves out an enabled target after canonical
+ * sources changed did not regenerate it. The lock lists it in `stale_targets`,
+ * so `check` fails until that target is generated again (#136).
  */
 
 import {
   appendFileSync,
-  existsSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -19,6 +18,8 @@ import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { runCheck } from '../../../../src/cli/commands/check.js';
 import { runGenerate } from '../../../../src/cli/commands/generate.js';
+import { loadConfigFromDir } from '../../../../src/config/core/loader.js';
+import { checkLockSync } from '../../../../src/core/check/lock-sync.js';
 
 let root: string;
 const ROOT_RULE = (): string => join(root, '.agentsmesh', 'rules', '_root.md');
@@ -69,9 +70,29 @@ describe('check after generate --targets', () => {
     expect(await checkExit()).toBe(0);
   });
 
-  it('does not create a lock on a first run that skips a target', async () => {
+  it('passes after two filtered runs that together cover every target', async () => {
+    await generate();
+    appendFileSync(ROOT_RULE(), '\n- NEW LINE XYZ\n');
+
+    await generate({ targets: 'cursor' });
+    await generate({ targets: 'claude-code' });
+
+    expect(await checkExit()).toBe(0);
+  });
+
+  it('records the skipped targets on a first filtered run, and check names them', async () => {
     await generate({ targets: 'cursor' });
 
-    expect([existsSync(join(root, '.agentsmesh', '.lock')), await checkExit()]).toEqual([false, 1]);
+    const lock = readFileSync(join(root, '.agentsmesh', '.lock'), 'utf8');
+    const report = await checkLockSync({
+      config: (await loadConfigFromDir(root)).config,
+      configDir: root,
+      canonicalDir: join(root, '.agentsmesh'),
+      rootBase: root,
+    });
+
+    expect(lock).toContain('stale_targets:\n  - claude-code\n');
+    expect([report.inSync, report.staleTargets]).toEqual([false, ['claude-code']]);
+    expect(await checkExit()).toBe(1);
   });
 });

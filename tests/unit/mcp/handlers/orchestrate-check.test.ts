@@ -30,6 +30,7 @@ const IN_SYNC: CheckData = {
   outputsModified: [],
   outputsRemoved: [],
   outputsStale: [],
+  staleTargets: [],
   outputsUntracked: [],
   outputsChecked: true,
 };
@@ -59,6 +60,7 @@ describe('orchestrateHandlers.check', () => {
         outputsModified: ['AGENTS.md'],
         outputsRemoved: ['.claude/CLAUDE.md'],
         outputsStale: ['.cursor/rules/orphaned.mdc'],
+        staleTargets: [],
       },
     });
 
@@ -74,6 +76,7 @@ describe('orchestrateHandlers.check', () => {
       outputsModified: ['AGENTS.md'],
       outputsRemoved: ['.claude/CLAUDE.md'],
       outputsStale: ['.cursor/rules/orphaned.mdc'],
+      staleTargets: [],
       outputsChecked: true,
     });
   });

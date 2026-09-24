@@ -14,4 +14,6 @@ export interface LockFile {
    * detection skips output verification in that case.
    */
   outputs?: Record<string, string>;
+  /** Targets a `generate --targets` run left out after sources changed; see lock-stale-targets.ts. */
+  staleTargets?: string[];
 }

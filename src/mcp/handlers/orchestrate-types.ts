@@ -35,6 +35,8 @@ export interface CheckHandlerResult {
   outputsRemoved: string[];
   /** Managed generated outputs present on disk but absent from the lock. */
   outputsStale: string[];
+  /** Targets a `generate --targets` run left out after canonical sources changed. */
+  staleTargets: string[];
   /**
    * True when generated-output drift was verified; false for old-format locks
    * without an `outputs` map.

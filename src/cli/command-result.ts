@@ -96,6 +96,8 @@ export interface CheckData {
   outputsRemoved: string[];
   /** Managed generated outputs present on disk but absent from the lock. */
   outputsStale: string[];
+  /** Targets a `generate --targets` run left out after canonical sources changed. */
+  staleTargets: string[];
   /** Managed-dir files agentsmesh did not write; informational, never drift. */
   outputsUntracked: string[];
   /**

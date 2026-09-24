@@ -33,11 +33,10 @@ The `.agentsmesh/` sources no longer match the checksums recorded in `.agentsmes
 - Someone edited `.agentsmesh/` but forgot to run `agentsmesh generate`
 - A pull request merged changes to canonical config without regenerating
 - An `extends` source changed and the project hasn't refreshed
-- `agentsmesh generate --targets …` ran after a canonical change but left out an enabled target. That target's files were not regenerated, so the lock keeps the older checksums and `check` fails until a full `agentsmesh generate`
 
 ### Generated-output drift
 
-A generated file (`.claude/`, `.cursor/`, `AGENTS.md`, etc.) was hand-edited, deleted, or added unexpectedly under a configured target's managed output locations. When `agentsmesh generate` runs, it records an `outputs` map in the lock — a checksum of every generated file it wrote or verified. `agentsmesh check` re-hashes those files on disk and reports any that were changed (`outputsModified`) or deleted (`outputsRemoved`), then scans managed locations for files absent from the lock (`outputsStale`). This catches generated-output drift without running the generators. If a managed location resolves outside the project through a symlink, `check` stops with an error naming where it resolves to instead of reporting drift.
+A generated file (`.claude/`, `.cursor/`, `AGENTS.md`, etc.) was hand-edited, deleted, or added unexpectedly under a configured target's managed output locations. When `agentsmesh generate` runs, it records an `outputs` map in the lock — a checksum of every generated file it wrote or verified. `agentsmesh check` re-hashes those files on disk and reports any that were changed (`outputsModified`) or deleted (`outputsRemoved`), then scans managed locations for files absent from the lock (`outputsStale`). It also reports every enabled target that `agentsmesh generate --targets …` left out after a canonical change (`staleTargets`): its files were not regenerated from the new sources, so `check` fails until that target is generated again. This catches generated-output drift without running the generators. If a managed location resolves outside the project through a symlink, `check` stops with an error naming where it resolves to instead of reporting drift.
 
 JSON output exposes the two drift classes directly as `canonicalDrift` and `outputDrift`; the per-path arrays remain available for actionable diagnostics.
 
@@ -109,7 +108,7 @@ jobs:
 | `0` | Canonical sources and recorded generated outputs both match the lock. |
 | `1` | Drift detected — canonical sources or generated outputs are out of sync — or the project's lessons graph cannot be read. |
 
-The MCP `check` tool mirrors this in its result payload, exposing `canonicalDrift`, `outputDrift`, `outputsModified`, `outputsRemoved`, `outputsStale`, `outputsChecked`, `lockConflict` (true when the lock has git conflict markers; run `agentsmesh merge`), and `lessonsGraphError`. That field holds the same text as the CLI JSON `error` when `.agentsmesh/lessons/lessons.json` cannot be read, so the MCP tool and `agentsmesh check` fail on the same things; it is `null` otherwise.
+The MCP `check` tool mirrors this in its result payload, exposing `canonicalDrift`, `outputDrift`, `outputsModified`, `outputsRemoved`, `outputsStale`, `staleTargets`, `outputsChecked`, `lockConflict` (true when the lock has git conflict markers; run `agentsmesh merge`), and `lessonsGraphError`. That field holds the same text as the CLI JSON `error` when `.agentsmesh/lessons/lessons.json` cannot be read, so the MCP tool and `agentsmesh check` fail on the same things; it is `null` otherwise.
 
 ## Difference between `check` and `generate --check`
 

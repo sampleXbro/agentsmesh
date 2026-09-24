@@ -106,6 +106,7 @@ async function check(ctx: McpContext): Promise<CheckHandlerResult> {
       outputsModified: data.outputsModified,
       outputsRemoved: data.outputsRemoved,
       outputsStale: data.outputsStale,
+      staleTargets: data.staleTargets,
       outputsChecked: data.outputsChecked,
     };
   } catch (e) {

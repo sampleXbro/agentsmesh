@@ -55,6 +55,9 @@ export function renderCheck(result: CheckCommandResult): void {
   for (const p of data.outputsStale) {
     ui.error(`  generated output "${fwd(p)}" is stale`);
   }
+  for (const target of data.staleTargets) {
+    ui.error(`  target "${target}" was not generated after the last canonical change`);
+  }
   ui.note('Generated files are out of sync.', 'Check');
   ui.info(driftHint(data));
   renderUntracked(data);
