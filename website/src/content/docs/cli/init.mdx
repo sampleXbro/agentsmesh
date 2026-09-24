@@ -117,6 +117,8 @@ Only two init steps are project-only: the `.gitignore` update and the lessons sc
 
 During init, AgentsMesh scans the project for existing AI tool configs from every [supported target](../../reference/supported-tools/) — `.claude/`, `.cursor/`, `.github/copilot-instructions.md`, and the rest. The wizard offers to import everything it finds (a single yes/no); `--yes` imports all of them non-interactively. In a script or CI shell without `--yes`, init refuses instead of enabling a tool whose config it did not import, so nothing is overwritten by accident.
 
+When two tools have a rule, command or agent with the same name, the import keeps both texts. If the texts are the same, one canonical file is kept. If they differ, the first tool's file keeps its name, and the later tool's version is saved as `<name>-<tool>.md` (for example `.agentsmesh/rules/typescript-cursor.md`). Each file keeps only its own frontmatter, and init prints a warning for each copy. Review both, then merge or delete one before you run `agentsmesh generate`.
+
 ## Examples
 
 ### Interactive mode

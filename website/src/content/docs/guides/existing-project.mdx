@@ -53,7 +53,10 @@ If your project already has AI tool configs scattered across `.claude/`, `.curso
      and the CLI tells you the root rule was merged. Nothing is dropped, but nothing is
      reconciled either: read the merged file and delete anything the tools said twice.
      Permissions, ignore patterns and MCP servers add up the same way, entry by entry.
-     Every other canonical path (commands, skills, hooks) is last-import-wins.
+     When two tools have a rule, command or agent with the same name and different text,
+     `init --yes` keeps both and saves the later one as `<name>-<tool>.md`; review them.
+     With separate `agentsmesh import` runs, commands, skills, hooks and same-name rules
+     are last-import-wins.
    </Aside>
 
 3. **Configure agentsmesh.yaml**

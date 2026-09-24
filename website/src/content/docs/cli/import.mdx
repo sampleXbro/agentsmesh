@@ -133,6 +133,9 @@ This keeps cross-references valid after import.
 
 Most canonical paths are last-import-wins: if two tools each define a command named
 `ship`, the second import replaces the first, because both describe the same entity.
+`agentsmesh init --yes` is different: it imports all tools in one run, so it keeps both
+texts and saves the later tool's version as `ship-<tool>.md`. See
+[Auto-detection](../init/#auto-detection).
 
 Permissions, ignore patterns and MCP servers are different: each is a list of separate
 entries, not one entity. A second import **adds** its entries to what is already in

@@ -38,6 +38,13 @@ export function renderInit(result: InitCommandResult): void {
         `  More than one tool had a root rule — all of them were merged into .agentsmesh/rules/_root.md. Review it before running 'agentsmesh generate'.`,
       );
     }
+    for (const { path, copy, tool } of data.sameNameCopies) {
+      logger.warn(
+        `${path}: another tool had a different text with the same name, so ${tool}'s version ` +
+          `was saved as ${copy}. Review both, then merge or delete one before running ` +
+          `'agentsmesh generate'.`,
+      );
+    }
   }
 
   const targetsSuffix =
