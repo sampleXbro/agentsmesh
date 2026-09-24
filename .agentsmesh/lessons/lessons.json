@@ -713,6 +713,22 @@
         "t-cmd-6ea72461"
       ]
     },
+    "ci-and-release-security-this-repo-is-public-and": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "fe12d01c"
+      ],
+      "rule": "This repo is public and SECURITY.md routes vulnerabilities to private advisories: file exploitable findings (writes outside the project, file leaks, untrusted content taking over instructions) as DRAFT security advisories with 'gh api -X POST repos/sampleXbro/agentsmesh/security-advisories --input <json>' (summary, description, severity, cwe_ids, vulnerabilities: npm agentsmesh with vulnerable_version_range), never as public issues with repro steps. Plain bugs go to public issues with the bug label.",
+      "status": "active",
+      "topics": [
+        "ci-and-release-security"
+      ],
+      "triggers": [
+        "t-cmd-e0e8fc9f",
+        "t-kw-6d405b45",
+        "t-kw-e0471170"
+      ]
+    },
     "cli-presentation-a-clack-clack-prompts-spinner": {
       "createdAt": "2026-06-23",
       "evidence": [],
@@ -11343,6 +11359,10 @@
       "kind": "command_pattern",
       "pattern": "cli\\.js install\\b"
     },
+    "t-cmd-e0e8fc9f": {
+      "kind": "command_pattern",
+      "pattern": "gh issue create"
+    },
     "t-cmd-e243ffa3": {
       "kind": "command_pattern",
       "pattern": "astro (dev|preview)"
@@ -13387,6 +13407,10 @@
       "kind": "keyword",
       "pattern": "readFileSafe directory EISDIR"
     },
+    "t-kw-6d405b45": {
+      "kind": "keyword",
+      "pattern": "security advisory"
+    },
     "t-kw-6d98db32": {
       "kind": "keyword",
       "pattern": "branch coverage"
@@ -13750,6 +13774,10 @@
     "t-kw-ddc1bdcc": {
       "kind": "keyword",
       "pattern": "antigravity permissions capability"
+    },
+    "t-kw-e0471170": {
+      "kind": "keyword",
+      "pattern": "file issues"
     },
     "t-kw-e0aa2fb2": {
       "kind": "keyword",
