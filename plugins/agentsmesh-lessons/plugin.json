@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "agentsmesh-lessons",
-  "version": "0.40.0",
+  "version": "0.41.0",
   "description": "A git-tracked memory for this repo: Claude recalls the rule before it edits a file or runs a command, and captures one after a failure. Reviewable in a pull request, shared with the team, and portable to every other AI coding tool.",
   "author": {
     "name": "sampleXbro",
