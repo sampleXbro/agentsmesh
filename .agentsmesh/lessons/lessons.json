@@ -7237,6 +7237,21 @@
         "t-kw-0182f2d9"
       ]
     },
+    "release-changesets-before-a-release-run-node": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "6abd853e"
+      ],
+      "rule": "Before a release, run node dist/cli.js generate --check on this repo and read the diff of every generated file it would change: a generate-side change can pass the whole test suite and still corrupt real output. The #139 identity translation for shared root files turned the backticked .agentsmesh/skills/post-feature-qa/ in AGENTS.md into skills/post-feature-qa/, and no test saw it because the broken-link check skips inline code. When a rewriter change widens which tokens are rewritten, add a test that asserts backticked and prose paths stay byte-for-byte.",
+      "status": "active",
+      "topics": [
+        "release-changesets"
+      ],
+      "triggers": [
+        "t-glob-f935b2a8",
+        "t-cmd-44e0c062"
+      ]
+    },
     "release-changesets-before-cutting-a-release-from": {
       "createdAt": "2026-09-23",
       "evidence": [
@@ -11401,6 +11416,10 @@
       "kind": "command_pattern",
       "pattern": "<<EOF"
     },
+    "t-cmd-44e0c062": {
+      "kind": "command_pattern",
+      "pattern": "changeset"
+    },
     "t-cmd-45d8ae56": {
       "kind": "command_pattern",
       "pattern": "install --all"
@@ -13364,6 +13383,10 @@
     "t-glob-f6c50a2d": {
       "kind": "file_glob",
       "pattern": "src/targets/continue/hooks.ts"
+    },
+    "t-glob-f935b2a8": {
+      "kind": "file_glob",
+      "pattern": "src/core/reference/**"
     },
     "t-glob-f9578eb1": {
       "kind": "file_glob",
