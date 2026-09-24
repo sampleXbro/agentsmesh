@@ -1281,6 +1281,21 @@
         "t-glob-aa8ef603"
       ]
     },
+    "fixture-and-assertion-discipline-in-a-test-that-lists": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "543b348b"
+      ],
+      "rule": "In a test that lists generated files with readdirSync(root, { recursive: true }), leave out .agentsmeshcache: generate creates it as a symlink to the shared remote cache, so the walk passes alone but lists other tests' cached repos in the full parallel run.",
+      "status": "active",
+      "topics": [
+        "fixture-and-assertion-discipline"
+      ],
+      "triggers": [
+        "t-glob-808c4019",
+        "t-glob-c731ac40"
+      ]
+    },
     "fixture-and-assertion-discipline-in-init-yes-tests-init": {
       "createdAt": "2026-09-24",
       "evidence": [
@@ -7106,6 +7121,20 @@
         "t-glob-4f36b2c0"
       ]
     },
+    "readme-authoring-never-hand-edit-the-per": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "543b348b"
+      ],
+      "rule": "Never hand-edit the per-target sections of website/src/content/docs/reference/supported-tools.mdx: everything between agentsmesh:tool-details:start and :end (and the support-matrix blocks) is rendered from descriptors by scripts/support-matrix-blocks.ts, and tests/integration/matrix-drift-guard.integration.test.ts fails on any drift. Put target-specific prose in the feature pages (for example canonical-config/rules.mdx) and run node_modules/.bin/tsx scripts/render-support-matrix.ts --verify.",
+      "status": "active",
+      "topics": [
+        "readme-authoring"
+      ],
+      "triggers": [
+        "t-glob-3af8d08b"
+      ]
+    },
     "readme-authoring-when-trimming-or-rewriting-readme": {
       "createdAt": "2026-06-23",
       "evidence": [],
@@ -8529,6 +8558,22 @@
       "triggers": [
         "t-glob-62ce3dcb",
         "t-kw-603ecbc4"
+      ]
+    },
+    "target-capability-audits-when-a-generator-stops-writing": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "543b348b"
+      ],
+      "rule": "When a generator stops writing an output, check whether upgraded projects lose the old copy: the stale sweep deletes only paths inside the target's managedOutputs dirs or files that the previous lock records, so an old nested <dir>/AGENTS.md stays on disk forever. Make the importer ignore such a leftover (for example text equal to a native rule body) and say in the changeset that users can delete it.",
+      "status": "active",
+      "topics": [
+        "target-capability-audits"
+      ],
+      "triggers": [
+        "t-glob-0605e241",
+        "t-glob-17bd0955",
+        "t-glob-98419953"
       ]
     },
     "target-capability-audits-when-a-target-declares-a": {
@@ -11695,6 +11740,10 @@
       "kind": "file_glob",
       "pattern": "src/lessons/telemetry.ts"
     },
+    "t-glob-0605e241": {
+      "kind": "file_glob",
+      "pattern": "src/targets/*/generator/**"
+    },
     "t-glob-07cf19c0": {
       "kind": "file_glob",
       "pattern": "src/lessons/**/*.ts"
@@ -12030,6 +12079,10 @@
     "t-glob-3ae2ea62": {
       "kind": "file_glob",
       "pattern": "tests/unit/targets/*/recall-hooks.test.ts"
+    },
+    "t-glob-3af8d08b": {
+      "kind": "file_glob",
+      "pattern": "website/src/content/docs/reference/supported-tools.mdx"
     },
     "t-glob-3bfccedc": {
       "kind": "file_glob",
@@ -12499,6 +12552,10 @@
       "kind": "file_glob",
       "pattern": "src/mcp/instructions.ts"
     },
+    "t-glob-808c4019": {
+      "kind": "file_glob",
+      "pattern": "tests/unit/targets/**"
+    },
     "t-glob-8148e382": {
       "kind": "file_glob",
       "pattern": "src/lessons/init.ts"
@@ -12950,6 +13007,10 @@
     "t-glob-c6e66385": {
       "kind": "file_glob",
       "pattern": "src/targets/*/generator/hooks.ts"
+    },
+    "t-glob-c731ac40": {
+      "kind": "file_glob",
+      "pattern": "tests/unit/cli/commands/**"
     },
     "t-glob-c7eb35ad": {
       "kind": "file_glob",
