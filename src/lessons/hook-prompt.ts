@@ -22,14 +22,14 @@ export async function taskRecall(
   sessionId: string | undefined,
   taskText: string | undefined,
 ): Promise<RecallHookResult> {
-  const always = await recallAlwaysLessons(projectRoot, { sessionId });
+  const always = await recallAlwaysLessons(projectRoot, { sessionId, autoMigrate: false });
   const keyword =
     taskText === undefined
       ? undefined
       : await recallLessons(
           projectRoot,
           { keyword: taskText },
-          { sessionId, limit: HOOK_INJECT_LIMIT },
+          { sessionId, limit: HOOK_INJECT_LIMIT, autoMigrate: false },
         );
   // No task text, no keyword recall: read the graph health directly so an
   // unreadable graph is still reported on a prompt-less session start.

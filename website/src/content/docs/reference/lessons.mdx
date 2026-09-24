@@ -237,15 +237,18 @@ The practical consequence is for **cloned third-party repositories**: a lesson g
 
 Earlier releases stored lessons as `.agentsmesh/lessons/index.yaml` plus
 per-topic Markdown files plus an append-only `journal.md`. On upgrade, the
-migrator collapses all three into `lessons.json` and **deletes the legacy
-files**:
+migrator turns every list item under a `## Rules` or `## Lessons` heading of a
+topic file into a lesson in `lessons.json` (numbered or bullet, with the lines
+that wrap onto it) and **deletes `index.yaml` and `topics/`**. A list item under
+any other heading stops the migration with nothing changed. `journal.md` is kept,
+because its notes are not rules:
 
 ```bash
 agentsmesh lessons import-md
 ```
 
 It also runs lazily on the first `lessons` subcommand when `lessons.json`
-is absent and `index.yaml` exists. New projects skip this entirely.
+is absent and `index.yaml` exists. The recall hook never runs it. New projects skip this entirely.
 
 Every topic file path in the legacy index must stay inside
 `.agentsmesh/lessons/`. If one points anywhere else, the migration is refused

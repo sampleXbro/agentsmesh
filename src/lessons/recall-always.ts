@@ -39,13 +39,15 @@ export async function recallAlwaysLessons(
     readonly sessionId?: string;
     /** Skip session dedup: deliver already-seen lessons and mark nothing seen. */
     readonly noDedup?: boolean;
+    /** Migrate a legacy store first (default); see RecallOptions.autoMigrate. */
+    readonly autoMigrate?: boolean;
     /** Bound suppression for callers with no context-reset signal — see RecallOptions.ttlMs. */
     readonly ttlMs?: number;
   } = {},
 ): Promise<AlwaysRecallResult> {
   // Mirror recallLessons: migrate if needed, and never throw on a blocking path.
   try {
-    await maybeAutoMigrateLessons(projectRoot);
+    if (options.autoMigrate !== false) await maybeAutoMigrateLessons(projectRoot);
   } catch {
     // Degrade to whatever graph state exists.
   }

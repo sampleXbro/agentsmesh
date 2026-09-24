@@ -199,12 +199,17 @@ If you're coming from a previous release that used `index.yaml` +
 
 ```bash
 $ agentsmesh lessons query --file src/x.ts
-⚠ lessons.json was auto-migrated from index.yaml on first invocation.
+⚠ lessons.json was auto-migrated from index.yaml on first invocation. journal.md, if present, was kept: add the notes you still need with `agentsmesh lessons add`.
 …
 ```
 
-Auto-migration **deletes the legacy files** after a successful import so the
-project lands in a clean state. Run `agentsmesh lessons import-md` explicitly
+Auto-migration **deletes `index.yaml` and `topics/`** after a successful import so the
+project lands in a clean state. Every list item under a `## Rules` or `## Lessons`
+heading in a topic file becomes a lesson, numbered or bullet, including lines that
+wrap onto it. If a topic file has a list item under any other heading, the migration
+stops, names the file and line, and changes nothing. `journal.md` is kept: its notes
+are not rules, so add the ones you still need with `agentsmesh lessons add`. The recall
+hook never migrates; the first `lessons` command you run does, and says so. Run `agentsmesh lessons import-md` explicitly
 if you prefer to migrate at a specific point in time. New projects skip this
 entirely — `agentsmesh init --lessons` creates the graph directly, alongside
 `.agentsmesh/lessons/config.json` with every tunable at its default

@@ -10,11 +10,8 @@ import { parse as parseYaml } from 'yaml';
 import { assertPathInsideRoot } from '../utils/filesystem/path-containment.js';
 import type { AddLessonInput } from './add.js';
 import type { Lesson, Topic, Trigger } from './graph-schema.js';
-import {
-  collectClusterTriggerIds,
-  LegacyIndexSchema,
-  parseRulesSection,
-} from './import-legacy-parse.js';
+import { collectClusterTriggerIds, LegacyIndexSchema } from './import-legacy-parse.js';
+import { parseRulesSection } from './import-legacy-rules.js';
 import { lessonsPaths } from './paths.js';
 
 const LESSONS_DIR = '.agentsmesh/lessons';
@@ -27,6 +24,19 @@ export class LegacyTopicPathError extends Error {
       `Legacy topic file path is outside .agentsmesh/lessons/: ${file}. Refusing to migrate (legacy artifacts left intact).`,
     );
     this.name = 'LegacyTopicPathError';
+  }
+}
+
+/** Thrown when a legacy topic file has a list item the migration cannot place. */
+export class LegacyStrayRuleError extends Error {
+  readonly code = 'LEGACY_STRAY_RULE';
+  constructor(file: string, line: number) {
+    super(
+      `Legacy lessons were not migrated: ${file} line ${line} is a list item outside a ` +
+        '"## Rules" or "## Lessons" section. Move it under one of them or delete it, then run ' +
+        '`agentsmesh lessons import-md`. Nothing was changed.',
+    );
+    this.name = 'LegacyStrayRuleError';
   }
 }
 
@@ -92,9 +102,9 @@ export async function readLegacySource(
       );
     }
 
-    for (const { index: ruleIndex, body, evidence } of parseRulesSection(
-      readFileSync(topicFile, 'utf8'),
-    )) {
+    const parsed = parseRulesSection(readFileSync(topicFile, 'utf8'));
+    if (parsed.strayLine !== null) throw new LegacyStrayRuleError(cluster.file, parsed.strayLine);
+    for (const { index: ruleIndex, body, evidence } of parsed.rules) {
       const lessonEvidence = [
         `legacy:${cluster.file}#rule-${ruleIndex}`,
         ...evidence.map((e) => `legacy:${e}`),

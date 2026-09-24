@@ -64,7 +64,11 @@ export async function collectRecall(
   for (const query of queries) {
     const room = HOOK_INJECT_LIMIT - rules.length;
     if (room <= 0) break;
-    const r = await recallLessons(projectRoot, query, { sessionId, limit: room });
+    const r = await recallLessons(projectRoot, query, {
+      sessionId,
+      limit: room,
+      autoMigrate: false,
+    });
     if (r.corrupt === true) return { rules, hidden, corrupt: true };
     if (r.newerVersion !== undefined) return { rules, hidden, newerVersion: r.newerVersion };
     hidden += hiddenByCap(r.totalMatches, r.suppressed, r.lessons.length);
