@@ -27,8 +27,9 @@ describe('claude-code doc format roundtrip', () => {
 
     const rule = readFileSync(join(dir, '.claude', 'rules', 'typescript.md'), 'utf-8');
     expect(rule).toContain('description: TypeScript specific rules');
-    expect(rule).toContain('globs:');
-    expect(rule).toContain('src/**/*.ts');
+    // `paths` is the only field Claude Code reads from a rule (#137).
+    expect(rule).toContain('paths:\n  - src/**/*.ts');
+    expect(rule).not.toContain('globs:');
     expect(rule).toContain('# TypeScript');
 
     const command = readFileSync(join(dir, '.claude', 'commands', 'review.md'), 'utf-8');

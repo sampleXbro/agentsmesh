@@ -46,7 +46,8 @@ export function generateRules(canonical: CanonicalFiles): RulesOutput[] {
     const slug = basename(rule.source, '.md');
     const frontmatter: Record<string, unknown> = {};
     if (rule.description) frontmatter.description = rule.description;
-    if (rule.globs.length > 0) frontmatter.globs = rule.globs;
+    // `paths` is the only field Claude Code reads from a rule.
+    if (rule.globs.length > 0) frontmatter.paths = rule.globs;
     const content = serializeFrontmatter(frontmatter, rule.body.trim() || '');
     outputs.push({ path: `${CLAUDE_RULES_DIR}/${slug}.md`, content });
   }

@@ -80,7 +80,7 @@ Always run `pnpm typecheck` before committing.
 | `root` | `boolean` | Always-applied rule. Required for `_root.md`. |
 | `description` | `string` | Human-readable rule name shown in tool menus. |
 | `targets` | `string[]` | Limit rule to specific tools. Empty = all targets. See the [supported tools matrix](../../reference/supported-tools/) for valid IDs. |
-| `globs` | `string[]` | File patterns this rule applies to (tool-dependent). Uses gitignore-style glob syntax. |
+| `globs` | `string[]` | File patterns this rule applies to (tool-dependent). Uses gitignore-style glob syntax. Claude Code reads a rule's scope from `paths:`, so `generate` writes `globs` there as `paths`, and `import --from claude-code` reads `paths` (a list or a comma-separated string) back into `globs`. |
 | `trigger` | `string` | Windsurf activation mode: `always_on`, `model_decision`, `glob`, `manual`. |
 | `codex_emit` | `string` | Codex CLI instruction type: `advisory` or `execution`. |
 | `codex_instruction` | `string` | Codex nested instruction format: set to `override` to opt in; omit for the default. |
