@@ -12,4 +12,18 @@ describe('md-frontmatter', () => {
   it('handles missing frontmatter', () => {
     expect(parseMd('plain body\n')).toEqual({ frontmatter: {}, body: 'plain body\n' });
   });
+  it('writes an empty block before a body that starts with ---, and reads it back', () => {
+    const body = '---\nroot: true\n---\nBODY\n';
+    const src = serializeMd({}, body);
+
+    expect(src).toBe(`---\n---\n\n${body}`);
+    expect(parseMd(src)).toEqual({ frontmatter: {}, body });
+  });
+  it('reads an empty block and a closer at the end of the file', () => {
+    expect(parseMd('---\n---\n\nbody\n')).toEqual({ frontmatter: {}, body: 'body\n' });
+    expect(parseMd('---\ndescription: x\n---')).toEqual({
+      frontmatter: { description: 'x' },
+      body: '',
+    });
+  });
 });
