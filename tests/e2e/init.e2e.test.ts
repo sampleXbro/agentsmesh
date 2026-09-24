@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect, afterEach } from 'vitest';
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { runCli } from './helpers/run-cli.js';
 import { createTestProject, cleanup } from './helpers/setup.js';
@@ -26,11 +26,13 @@ describe('init', () => {
     fileContains(join(dir, '.agentsmesh', 'rules', '_root.md'), 'root');
   });
 
-  it('init detects Claude config — copy claude fixture, run init → stdout mentions found configs', async () => {
+  it('init detects Claude config — without --yes it refuses instead of overwriting it', async () => {
     dir = createTestProject('claude-code-project');
     const r = await runCli('init', dir);
-    expect(r.exitCode).toBe(0);
-    expect(r.stdout).toContain('claude-code');
+    expect(r.exitCode).toBe(1);
+    expect(r.stderr).toContain('Found existing configurations: claude-code.');
+    expect(r.stderr).toContain('agentsmesh init --yes');
+    expect(existsSync(join(dir, 'agentsmesh.yaml'))).toBe(false);
   });
 
   it('init detects multiple tools — copy claude + cursor fixtures, run init in fresh empty dir with both', async () => {
@@ -40,8 +42,8 @@ describe('init', () => {
     mkdirSync(cursorRulesDir, { recursive: true });
     writeFileSync(join(cursorRulesDir, 'root.mdc'), '---\nalwaysApply: true\n---\n# Cursor');
     const r = await runCli('init', dir);
-    expect(r.exitCode).toBe(0);
-    expect(r.stdout + r.stderr).toMatch(/claude-code|cursor|Found existing/);
+    expect(r.exitCode).toBe(1);
+    expect(r.stderr).toContain('Found existing configurations: claude-code, cursor.');
   });
 
   it('init refuses if config exists — create yaml first → run init → exit 1', async () => {

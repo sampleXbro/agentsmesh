@@ -27,7 +27,9 @@ export const COMMANDS: HelpCommand[] = [
       'Create agentsmesh.yaml, agentsmesh.local.yaml, and canonical .agentsmesh scaffold. ' +
       'On a TTY runs an interactive wizard (targets, import, generate; plus lessons in project scope, ' +
       'never in --global); --yes, --json, and non-TTY/CI run non-interactively. Targets default to the ' +
-      'tools found in the project, else those installed on this machine, else a minimal set.',
+      'tools found in the project, else those installed on this machine, else a minimal set. Without ' +
+      '--yes, a non-interactive init stops if a tool it would enable already has config (import it ' +
+      'with --yes, or leave it out with --targets).',
     flags: [
       {
         name: '--global',

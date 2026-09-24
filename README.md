@@ -56,7 +56,7 @@ agentsmesh generate   # write each tool's native config from the one source
 agentsmesh check      # CI drift gate against .agentsmesh/.lock
 ```
 
-On a terminal, `init` runs a short wizard: pick targets, import detected configs (`.cursor/`, `.claude/`, `.github/copilot-instructions.md`, and more), enable lessons, and optionally generate right away. Nothing is written until you finish. Use `--yes` for the non-interactive default, `--global` for your user-level config under `~/.agentsmesh/`, and `npx agentsmesh` if you installed it as a dev dependency.
+On a terminal, `init` runs a short wizard: pick targets, import detected configs (`.cursor/`, `.claude/`, `.github/copilot-instructions.md`, and more), enable lessons, and optionally generate right away. Nothing is written until you finish. Use `--yes` for the non-interactive default (in a script, `init` without `--yes` stops when it finds existing tool config, so `generate` never replaces config you have not imported), `--global` for your user-level config under `~/.agentsmesh/`, and `npx agentsmesh` if you installed it as a dev dependency.
 
 `init` enables the tools you actually use, not all of them: whatever this project already has config for, else whatever is installed on your machine, else a minimal set of Claude Code, Cursor and Copilot. It prints what it picked. Pass `--targets a,b` to choose, or `--all-targets` for everything.
 

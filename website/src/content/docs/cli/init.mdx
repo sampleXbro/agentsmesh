@@ -40,7 +40,7 @@ Every step after the first offers a **↩ Back** choice to return to the previou
 | project | All four steps above. |
 | `--global` | Target list limited to global-capable tools; the **Lessons step is omitted** (lessons is project-only). |
 
-The wizard is **skipped** — and the original non-interactive behavior runs — with `--yes`, `--json`, or in a non-TTY/CI shell. Scripted and CI usage is unchanged.
+The wizard is **skipped** — and the non-interactive behavior runs — with `--yes`, `--json`, or in a non-TTY/CI shell. Without `--yes`, a non-interactive `init` stops with exit code 1 when it finds existing config for a tool it would enable: it would not import that config, so the next `agentsmesh generate` would replace it (in `--global` mode, files in your home folder that git cannot restore). Run `agentsmesh init --yes` to import it first, or pass `--targets` to leave that tool out.
 
 ## Already initialized
 
@@ -115,7 +115,7 @@ Only two init steps are project-only: the `.gitignore` update and the lessons sc
 
 ## Auto-detection
 
-During init, AgentsMesh scans the project for existing AI tool configs from every [supported target](../../reference/supported-tools/) — `.claude/`, `.cursor/`, `.github/copilot-instructions.md`, and the rest. The wizard offers to import everything it finds (a single yes/no); `--yes` imports all of them non-interactively.
+During init, AgentsMesh scans the project for existing AI tool configs from every [supported target](../../reference/supported-tools/) — `.claude/`, `.cursor/`, `.github/copilot-instructions.md`, and the rest. The wizard offers to import everything it finds (a single yes/no); `--yes` imports all of them non-interactively. In a script or CI shell without `--yes`, init refuses instead of enabling a tool whose config it did not import, so nothing is overwritten by accident.
 
 ## Examples
 

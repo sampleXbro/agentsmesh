@@ -132,6 +132,18 @@ export async function runInit(
     allowed: scope === 'global' ? GLOBAL_INIT_TARGETS : undefined,
   });
 
+  // Without --yes nothing is imported, so enabling a tool that already has
+  // config would let the next generate replace it (in global mode, home files
+  // git cannot restore). Stop before writing anything.
+  const notImported = existing.filter((target) => resolved.targets.includes(target));
+  if (!doImport && notImported.length > 0) {
+    throw new Error(
+      `Found existing configurations: ${notImported.join(', ')}. Without --yes, init does not ` +
+        'import them, and the next `agentsmesh generate` would replace them. Run ' +
+        '`agentsmesh init --yes` to import them first, or pass --targets to leave those tools out.',
+    );
+  }
+
   const plan: InitPlan = {
     scope,
     targets: resolved.targets,
