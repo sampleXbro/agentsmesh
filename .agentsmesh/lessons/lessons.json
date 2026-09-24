@@ -5395,6 +5395,21 @@
       ],
       "triggers": []
     },
+    "lessons-system-run-agentsmesh-lessons-query-once": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "2b483ccf"
+      ],
+      "rule": "Run 'agentsmesh lessons query' once per file: --file is a single-value flag, and passing it twice exits 2 ('--file was given 2 times') so no recall runs at all. Loop over the files (for f in ...; do lessons query --file \"$f\" --session auto; done) and treat a non-zero exit from recall as recall not done.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-cmd-b7a21d14",
+        "t-kw-17e3a485"
+      ]
+    },
     "lessons-system-run-agentsmesh-lessons-subcommand-help": {
       "createdAt": "2026-07-17",
       "evidence": [
@@ -11303,6 +11318,10 @@
       "kind": "command_pattern",
       "pattern": "install github:"
     },
+    "t-cmd-b7a21d14": {
+      "kind": "command_pattern",
+      "pattern": "lessons query.*--file.*--file"
+    },
     "t-cmd-b7e554e6": {
       "kind": "command_pattern",
       "pattern": "node -e"
@@ -13106,6 +13125,10 @@
     "t-kw-176143df": {
       "kind": "keyword",
       "pattern": "astro dev-only page sitemap"
+    },
+    "t-kw-17e3a485": {
+      "kind": "keyword",
+      "pattern": "recall before edit"
     },
     "t-kw-18a1de9b": {
       "kind": "keyword",
