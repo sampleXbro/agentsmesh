@@ -1,7 +1,7 @@
 /**
  * Windows fails a filesystem call for a moment with EPERM, EACCES or EBUSY
  * while another process has the same path open or is removing it. The retry
- * helpers wait that out, stop at once on any other error, and give up after
+ * helper waits that out, stops at once on any other error, and gives up after
  * five attempts so a real permission problem still surfaces.
  */
 
@@ -37,18 +37,14 @@ describe('retryTransient', () => {
     expect(op).toHaveBeenCalledTimes(3);
   });
 
-  it('throws any other error at once', async () => {
-    const op = vi.fn<() => Promise<void>>().mockRejectedValue(fail('ENOENT'));
+  it('throws any other error at once, and a lasting one after 5 attempts', async () => {
+    const other = vi.fn<() => Promise<void>>().mockRejectedValue(fail('ENOENT'));
+    await expect(retryTransient(other)).rejects.toMatchObject({ code: 'ENOENT' });
+    expect(other).toHaveBeenCalledTimes(1);
 
-    await expect(retryTransient(op)).rejects.toMatchObject({ code: 'ENOENT' });
-    expect(op).toHaveBeenCalledTimes(1);
-  });
-
-  it('throws a transient error that does not clear after 5 attempts', async () => {
-    const op = vi.fn<() => Promise<void>>().mockRejectedValue(fail('EACCES'));
-
-    await expect(retryTransient(op)).rejects.toMatchObject({ code: 'EACCES' });
-    expect(op).toHaveBeenCalledTimes(5);
+    const lasting = vi.fn<() => Promise<void>>().mockRejectedValue(fail('EACCES'));
+    await expect(retryTransient(lasting)).rejects.toMatchObject({ code: 'EACCES' });
+    expect(lasting).toHaveBeenCalledTimes(5);
   });
 });
 

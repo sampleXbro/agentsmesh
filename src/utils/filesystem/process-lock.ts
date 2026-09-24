@@ -21,6 +21,7 @@ import { dirname } from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { LockAcquisitionError } from '../../core/errors.js';
 import { selfIdentity } from './process-identity.js';
+import { isTransientFsError } from './transient-fs.js';
 import { evict, evictOwners, releaseOwnedSync, tryAcquire } from './process-lock-ops.js';
 import {
   describeHolder,
@@ -37,6 +38,7 @@ const DEFAULT_RETRIES = 30;
 const DEFAULT_RETRY_DELAY_MS = 200;
 // Evictions and vanished locks retry at once; this caps a run of them.
 const MAX_IMMEDIATE_RETRIES = 100;
+const MAX_TRANSIENT_ERRORS = 5; // short Windows errors in a row before one counts as real
 
 export interface LockOptions {
   /** Maximum retry attempts before throwing LockAcquisitionError. */
@@ -94,11 +96,20 @@ export async function acquireProcessLock(
   let immediate = 0;
   const waitingSince = Date.now();
   let noticed = false;
+  let transient = 0;
   while (true) {
-    const holder = newHolder(procStart);
-    if (await tryAcquire(lockPath, holder)) return holdLock(lockPath, holder.token);
-
-    const state = await inspectLock(lockPath);
+    let state: LockState;
+    try {
+      const holder = newHolder(procStart);
+      if (await tryAcquire(lockPath, holder)) return holdLock(lockPath, holder.token);
+      state = await inspectLock(lockPath);
+      transient = 0;
+    } catch (err) {
+      // Windows: claiming or reading a lock dir another process is removing fails for a moment.
+      if (!isTransientFsError(err) || ++transient >= MAX_TRANSIENT_ERRORS) throw err;
+      await sleep(lockRetryDelayMs(transient, opts));
+      continue;
+    }
     // A vanished or just-evicted lock is bookkeeping, not a wait: no retry budget used.
     if (immediate < MAX_IMMEDIATE_RETRIES && (await clearedNow(lockPath, state, staleMs, probes))) {
       immediate++;

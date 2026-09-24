@@ -29,8 +29,7 @@ export async function tryAcquire(
   meta: LockMetadata & { token: string },
 ): Promise<boolean> {
   try {
-    // Windows: a lock dir another process is removing fails mkdir with EPERM for a moment.
-    await retryTransient(() => mkdir(lockPath));
+    await mkdir(lockPath);
   } catch (err) {
     if (errorCode(err) === 'EEXIST') return false;
     throw err;
@@ -98,6 +97,7 @@ export async function evictOwners(lockPath: string, tokens: readonly string[]): 
 
 async function removeOwner(lockPath: string, token: string): Promise<boolean> {
   try {
+    // Windows: a marker another evictor is removing fails rmdir with EPERM for a moment.
     await retryTransient(() => rmdir(ownerPath(lockPath, token)));
     return true;
   } catch (err) {
