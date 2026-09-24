@@ -4,24 +4,19 @@
  * deny rule or a server the first import brought in is never dropped (#131).
  */
 
-import { mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { mkdirSync } from 'node:fs';
+import { join } from 'node:path';
 import { parse as parseYaml } from 'yaml';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { useTempProject } from '../../../helpers/temp-project.js';
 import { runImport } from '../../../../src/cli/commands/import.js';
 import { runInit } from '../../../../src/cli/commands/init.js';
 
 const PERMS = '.agentsmesh/permissions.yaml';
 const IGNORE = '.agentsmesh/ignore';
 
-let root: string;
+const { root, write, read } = useTempProject('am-import-keep-');
 
-const write = (rel: string, text: string): void => {
-  mkdirSync(dirname(join(root, rel)), { recursive: true });
-  writeFileSync(join(root, rel), text);
-};
-const read = (rel: string): string => readFileSync(join(root, rel), 'utf8');
 const perms = (): unknown => parseYaml(read(PERMS));
 
 function claudeAndCursor(): void {
@@ -37,20 +32,16 @@ function claudeAndCursor(): void {
   write('.cursorignore', 'build/\n');
 }
 
-beforeEach(() => {
-  root = realpathSync(mkdtempSync(join(tmpdir(), 'am-import-keep-')));
-});
 afterEach(() => {
   vi.unstubAllEnvs();
-  rmSync(root, { recursive: true, force: true });
 });
 
 describe('importing a second tool', () => {
   it('keeps the first tool deny rules and ignore patterns', async () => {
     claudeAndCursor();
 
-    await runImport({ from: 'claude-code' }, root);
-    await runImport({ from: 'cursor' }, root);
+    await runImport({ from: 'claude-code' }, root());
+    await runImport({ from: 'cursor' }, root());
 
     expect(perms()).toEqual({
       allow: ['Bash(npm test)', 'Shell(ls)'],
@@ -62,8 +53,8 @@ describe('importing a second tool', () => {
   it('keeps them in the other order too', async () => {
     claudeAndCursor();
 
-    await runImport({ from: 'cursor' }, root);
-    await runImport({ from: 'claude-code' }, root);
+    await runImport({ from: 'cursor' }, root());
+    await runImport({ from: 'claude-code' }, root());
 
     expect(perms()).toEqual({
       allow: ['Shell(ls)', 'Bash(npm test)'],
@@ -84,8 +75,8 @@ describe('importing a second tool', () => {
       JSON.stringify({ mcpServers: { geminionly: { command: 'b' }, shared: { command: 'g' } } }),
     );
 
-    await runImport({ from: 'claude-code' }, root);
-    await runImport({ from: 'gemini-cli' }, root);
+    await runImport({ from: 'claude-code' }, root());
+    await runImport({ from: 'gemini-cli' }, root());
 
     const servers = (
       JSON.parse(read('.agentsmesh/mcp.json')) as {
@@ -103,10 +94,10 @@ describe('importing a second tool', () => {
 
   it('leaves the files byte-identical when the same tool is imported again', async () => {
     claudeAndCursor();
-    await runImport({ from: 'claude-code' }, root);
+    await runImport({ from: 'claude-code' }, root());
     const first = [read(PERMS), read(IGNORE)];
 
-    await runImport({ from: 'claude-code' }, root);
+    await runImport({ from: 'claude-code' }, root());
 
     expect([read(PERMS), read(IGNORE)]).toEqual(first);
   });
@@ -116,12 +107,12 @@ describe('importing a second tool', () => {
     // init detects Cursor by its rules, not by cli.json.
     write('.cursor/rules/style.mdc', '---\ndescription: Style\n---\n# Style\n');
     // init reads HOME to pick targets; keep this machine's tools out of it.
-    const home = join(root, 'home');
+    const home = join(root(), 'home');
     mkdirSync(home);
     vi.stubEnv('HOME', home);
     vi.stubEnv('USERPROFILE', home);
 
-    await runInit(root, { yes: true });
+    await runInit(root(), { yes: true });
 
     const merged = perms() as { allow: string[]; deny: string[] };
     expect([[...merged.allow].sort(), [...merged.deny].sort()]).toEqual([

@@ -7,16 +7,12 @@ export function parseUninstallNames(args: readonly string[]): string[] {
   // Preserves duplicates so `planUninstall`'s `detectDuplicates` guard can
   // raise the documented "probably a typo or scripted-loop bug" error
   // instead of being silenced here.
-  const out: string[] = [];
-  for (const arg of args) {
-    for (const part of arg
+  return args.flatMap((arg) =>
+    arg
       .split(',')
       .map((s) => s.trim())
-      .filter(Boolean)) {
-      out.push(part);
-    }
-  }
-  return out;
+      .filter(Boolean),
+  );
 }
 
 export function defaultUninstallAdapter(): PromptAdapter {

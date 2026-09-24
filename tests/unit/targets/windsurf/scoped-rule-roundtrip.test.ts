@@ -6,45 +6,31 @@
  * `<dir>/AGENTS.md` loaded it twice and made import add a `<dir>.md` rule.
  */
 
-import {
-  mkdirSync,
-  mkdtempSync,
-  readdirSync,
-  readFileSync,
-  realpathSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs';
-import { tmpdir } from 'node:os';
-import { dirname, join, relative } from 'node:path';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { readdirSync } from 'node:fs';
+import { join, relative } from 'node:path';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { useTempProject } from '../../../helpers/temp-project.js';
 import { runGenerate } from '../../../../src/cli/commands/generate.js';
 import { runImport } from '../../../../src/cli/commands/import.js';
 
-let root: string;
+const { root, write, read } = useTempProject('am-windsurf-scoped-');
 
-const write = (rel: string, text: string): void => {
-  mkdirSync(dirname(join(root, rel)), { recursive: true });
-  writeFileSync(join(root, rel), text);
-};
-const read = (rel: string): string => readFileSync(join(root, rel), 'utf8');
-const rules = (): string[] => readdirSync(join(root, '.agentsmesh', 'rules')).sort();
-const generate = (): Promise<unknown> => runGenerate({}, root, { printMatrix: false });
+const rules = (): string[] => readdirSync(join(root(), '.agentsmesh', 'rules')).sort();
+const generate = (): Promise<unknown> => runGenerate({}, root(), { printMatrix: false });
 
 /**
  * Every generated file outside `.agentsmesh/` and the config, forward-slashed.
  * `.agentsmeshcache` is generate's link to the shared remote cache, not output.
  */
 function outputs(): string[] {
-  return readdirSync(root, { recursive: true, withFileTypes: true })
+  return readdirSync(root(), { recursive: true, withFileTypes: true })
     .filter((entry) => entry.isFile())
-    .map((entry) => relative(root, join(entry.parentPath, entry.name)).replaceAll('\\', '/'))
+    .map((entry) => relative(root(), join(entry.parentPath, entry.name)).replaceAll('\\', '/'))
     .filter((path) => !/^(?:\.agentsmesh\/|\.agentsmeshcache\/|agentsmesh)/.test(path))
     .sort();
 }
 
 beforeEach(() => {
-  root = realpathSync(mkdtempSync(join(tmpdir(), 'am-windsurf-scoped-')));
   write('agentsmesh.yaml', 'version: 1\ntargets: [windsurf]\nfeatures: [rules]\n');
   write('.agentsmesh/rules/_root.md', '---\nroot: true\n---\n# Root\n');
   write(
@@ -52,7 +38,6 @@ beforeEach(() => {
     '---\ndescription: ts\nglobs: ["src/**/*.ts"]\n---\n# TS\nSCOPED_TEXT\n',
   );
 });
-afterEach(() => rmSync(root, { recursive: true, force: true }));
 
 describe('windsurf scoped rule', () => {
   it('is written once, as its own glob rule', async () => {
@@ -66,7 +51,7 @@ describe('windsurf scoped rule', () => {
     const first = read('.windsurf/rules/typescript.md');
 
     for (let cycle = 0; cycle < 2; cycle++) {
-      await runImport({ from: 'windsurf' }, root);
+      await runImport({ from: 'windsurf' }, root());
       await generate();
     }
 
@@ -79,7 +64,7 @@ describe('windsurf scoped rule', () => {
     await generate();
     write('src/AGENTS.md', '# TS\nSCOPED_TEXT');
 
-    await runImport({ from: 'windsurf' }, root);
+    await runImport({ from: 'windsurf' }, root());
 
     expect(rules()).toEqual(['_root.md', 'typescript.md']);
   });
@@ -89,7 +74,7 @@ describe('windsurf scoped rule', () => {
     write('.windsurf/rules/notes.md', 'PLAIN_NOTE\n');
     write('docs/AGENTS.md', 'PLAIN_NOTE');
 
-    await runImport({ from: 'windsurf' }, root);
+    await runImport({ from: 'windsurf' }, root());
 
     expect(rules()).toEqual(['_root.md', 'notes.md', 'typescript.md']);
   });
@@ -98,7 +83,7 @@ describe('windsurf scoped rule', () => {
     await generate();
     write('src/AGENTS.md', '# Src\nHAND_WRITTEN\n');
 
-    await runImport({ from: 'windsurf' }, root);
+    await runImport({ from: 'windsurf' }, root());
 
     expect(rules()).toEqual(['_root.md', 'src.md', 'typescript.md']);
     expect(read('.agentsmesh/rules/src.md')).toContain('HAND_WRITTEN');

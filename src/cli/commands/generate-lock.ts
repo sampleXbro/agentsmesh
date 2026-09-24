@@ -46,17 +46,6 @@ function sameContent(previous: LockFile, next: LockContent): boolean {
   );
 }
 
-async function currentSources(
-  canonicalDir: string,
-  resolvedExtends: ResolvedExtend[],
-): Promise<LockSources> {
-  return {
-    checksums: await buildChecksums(canonicalDir),
-    extends: resolvedExtends.length > 0 ? await buildExtendChecksums(resolvedExtends) : {},
-    packs: await buildPackChecksums(join(canonicalDir, 'packs')),
-  };
-}
-
 /**
  * Write `.agentsmesh/.lock` when its content changed; returns whether it did.
  * `skippedTargets` are enabled targets a `--targets` run did not generate.
@@ -69,7 +58,11 @@ export async function writeLockFile(
   skippedTargets: readonly string[] = [],
 ): Promise<boolean> {
   const previous = await readLock(context.canonicalDir);
-  const sources = await currentSources(context.canonicalDir, resolvedExtends);
+  const sources: LockSources = {
+    checksums: await buildChecksums(context.canonicalDir),
+    extends: resolvedExtends.length > 0 ? await buildExtendChecksums(resolvedExtends) : {},
+    packs: await buildPackChecksums(join(context.canonicalDir, 'packs')),
+  };
   const staleTargets = nextStaleTargets(
     previous?.staleTargets,
     skippedTargets,

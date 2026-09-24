@@ -27,19 +27,6 @@ export class LegacyTopicPathError extends Error {
   }
 }
 
-/** Thrown when a legacy topic file has a list item the migration cannot place. */
-export class LegacyStrayRuleError extends Error {
-  readonly code = 'LEGACY_STRAY_RULE';
-  constructor(file: string, line: number) {
-    super(
-      `Legacy lessons were not migrated: ${file} line ${line} is a list item outside a ` +
-        '"## Rules" or "## Lessons" section. Move it under one of them or delete it, then run ' +
-        '`agentsmesh lessons import-md`. Nothing was changed.',
-    );
-    this.name = 'LegacyStrayRuleError';
-  }
-}
-
 /**
  * Resolve a project-relative legacy topic path, refusing absolute paths, drive
  * or UNC paths (on any host OS), traversal after normalization, and symlinks
@@ -103,7 +90,13 @@ export async function readLegacySource(
     }
 
     const parsed = parseRulesSection(readFileSync(topicFile, 'utf8'));
-    if (parsed.strayLine !== null) throw new LegacyStrayRuleError(cluster.file, parsed.strayLine);
+    if (parsed.strayLine !== null) {
+      throw new Error(
+        `Legacy lessons were not migrated: ${cluster.file} line ${parsed.strayLine} is a list ` +
+          'item outside a "## Rules" or "## Lessons" section. Move it under one of them or ' +
+          'delete it, then run `agentsmesh lessons import-md`. Nothing was changed.',
+      );
+    }
     for (const { index: ruleIndex, body, evidence } of parsed.rules) {
       const lessonEvidence = [
         `legacy:${cluster.file}#rule-${ruleIndex}`,

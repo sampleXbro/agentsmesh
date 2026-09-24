@@ -15,14 +15,10 @@ export async function writeMcpWithMerge(
   imported: Record<string, McpServer>,
 ): Promise<void> {
   const destPath = join(projectRoot, canonicalPath);
-  const existing = await readExistingServers(destPath);
+  const existing = parseMcpServers(await readFileSafe(destPath));
   const merged: Record<string, McpServer> = { ...existing, ...imported };
   await mkdirp(dirname(destPath));
   await writeFileAtomic(destPath, JSON.stringify({ mcpServers: merged }, null, 2));
-}
-
-async function readExistingServers(path: string): Promise<Record<string, McpServer>> {
-  return parseMcpServers(await readFileSafe(path));
 }
 
 /** Servers in canonical mcp.json text; `{}` when it is missing or not valid. */

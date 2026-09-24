@@ -6,19 +6,11 @@
  * (#138).
  */
 
-import {
-  existsSync,
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  realpathSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs';
-import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { Readable } from 'node:stream';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
+import { useTempProject } from '../../helpers/temp-project.js';
 import { maybeAutoMigrateLessons } from '../../../src/lessons/auto-migrate.js';
 import { runLessons } from '../../../src/cli/commands/lessons.js';
 
@@ -28,15 +20,11 @@ const INDEX =
   '    summary: Testing.\n    triggers:\n      file_globs: []\n      command_patterns: []\n' +
   '      keywords: [testing]\n';
 
-let root: string;
+const { root, write } = useTempProject('am-legacy-lossless-');
 
-const write = (rel: string, text: string): void => {
-  mkdirSync(dirname(join(root, rel)), { recursive: true });
-  writeFileSync(join(root, rel), text);
-};
-const has = (rel: string): boolean => existsSync(join(root, rel));
+const has = (rel: string): boolean => existsSync(join(root(), rel));
 const rules = (): string[] => {
-  const graph = JSON.parse(readFileSync(join(root, LESSONS, 'lessons.json'), 'utf8')) as {
+  const graph = JSON.parse(readFileSync(join(root(), LESSONS, 'lessons.json'), 'utf8')) as {
     lessons: Record<string, { rule: string }>;
   };
   return Object.values(graph.lessons).map((lesson) => lesson.rule);
@@ -52,13 +40,9 @@ function legacy(topic: string): void {
   );
 }
 
-beforeEach(() => {
-  root = realpathSync(mkdtempSync(join(tmpdir(), 'am-legacy-lossless-')));
-});
 const realStdin = Object.getOwnPropertyDescriptor(process, 'stdin');
 afterEach(() => {
   if (realStdin !== undefined) Object.defineProperty(process, 'stdin', realStdin);
-  rmSync(root, { recursive: true, force: true });
 });
 
 describe('legacy lessons migration', () => {
@@ -68,7 +52,7 @@ describe('legacy lessons migration', () => {
         '- Bullet rule\n',
     );
 
-    expect(await maybeAutoMigrateLessons(root)).toBe(true);
+    expect(await maybeAutoMigrateLessons(root())).toBe(true);
 
     expect(rules()).toEqual(['Rule one', 'Wrapped rule with key detail.', 'Bullet rule']);
     expect([
@@ -81,7 +65,7 @@ describe('legacy lessons migration', () => {
   it('reads rules under a ## Lessons heading and keeps same-number rules from two sections', async () => {
     legacy('# T\n\n## Rules\n1. Alpha\n2. Beta\n\n## Lessons\n1. Gamma\n');
 
-    await maybeAutoMigrateLessons(root);
+    await maybeAutoMigrateLessons(root());
 
     expect(rules()).toEqual(['Alpha', 'Beta', 'Gamma']);
   });
@@ -89,7 +73,7 @@ describe('legacy lessons migration', () => {
   it('refuses, changing nothing, when a list item sits outside a rules section', async () => {
     legacy('# T\n\n## Rules\n1. Alpha\n\n## Notes\n- Stray note\n');
 
-    await expect(maybeAutoMigrateLessons(root)).rejects.toThrow(
+    await expect(maybeAutoMigrateLessons(root())).rejects.toThrow(
       'Legacy lessons were not migrated: .agentsmesh/lessons/topics/testing.md line 7 is a list ' +
         'item outside a "## Rules" or "## Lessons" section. Move it under one of them or delete ' +
         'it, then run `agentsmesh lessons import-md`. Nothing was changed.',
@@ -107,7 +91,7 @@ describe('legacy lessons migration', () => {
     const payload = {
       session_id: 'm',
       hook_event_name: 'SessionStart',
-      cwd: root,
+      cwd: root(),
       source: 'startup',
     };
     Object.defineProperty(process, 'stdin', {
@@ -115,7 +99,7 @@ describe('legacy lessons migration', () => {
       value: Readable.from([Buffer.from(JSON.stringify(payload))]),
     });
 
-    await runLessons({}, ['hook'], root);
+    await runLessons({}, ['hook'], root());
 
     expect([has(`${LESSONS}/lessons.json`), has(`${LESSONS}/index.yaml`)]).toEqual([false, true]);
   });

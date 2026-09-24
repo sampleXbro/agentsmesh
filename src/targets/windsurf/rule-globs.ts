@@ -5,9 +5,7 @@
  * agentsmesh output) and a YAML list, which some real rules use.
  */
 
-export function formatWindsurfGlobs(globs: readonly string[]): string {
-  return globs.join(',');
-}
+import { toToolsArray } from '../import/shared-import-helpers.js';
 
 /** Split on commas outside `{…}`, so a brace pattern like `*.{ts,tsx}` stays whole. */
 function splitTopLevelCommas(value: string): string[] {
@@ -30,11 +28,7 @@ function splitTopLevelCommas(value: string): string[] {
 
 export function parseWindsurfGlobs(value: unknown): string[] {
   if (typeof value === 'string') return splitTopLevelCommas(value);
-  if (!Array.isArray(value)) return [];
-  return value
-    .filter((entry): entry is string => typeof entry === 'string')
-    .map((entry) => entry.trim())
-    .filter(Boolean);
+  return Array.isArray(value) ? toToolsArray(value) : [];
 }
 
 const UNQUOTED_GLOBS_LINE = /^(\s*globs?\s*:[ \t]*)([^\s"'[{|>#][^\r\n]*?)[ \t]*(\r?)$/;

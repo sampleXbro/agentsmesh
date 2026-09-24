@@ -4,20 +4,14 @@
  * the later tool's copy gets a `-<tool>` name, and nothing is mixed (#132).
  */
 
-import { mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { mkdirSync } from 'node:fs';
+import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { useTempProject } from '../../../helpers/temp-project.js';
 import { runGenerate } from '../../../../src/cli/commands/generate.js';
 import { runInit } from '../../../../src/cli/commands/init.js';
 
-let root: string;
-
-const write = (rel: string, text: string): void => {
-  mkdirSync(dirname(join(root, rel)), { recursive: true });
-  writeFileSync(join(root, rel), text);
-};
-const read = (rel: string): string => readFileSync(join(root, rel), 'utf8');
+const { root, write, read } = useTempProject('am-init-same-');
 
 const CLAUDE_TS = '---\nroot: false\ndescription: ts\nglobs: []\n---\n\n# TS\nCLAUDE_TS_TEXT';
 const CURSOR_TS =
@@ -34,16 +28,14 @@ function sameNameRules(): void {
 }
 
 beforeEach(() => {
-  root = realpathSync(mkdtempSync(join(tmpdir(), 'am-init-same-')));
   // init reads HOME to pick targets; keep this machine's tools out of it.
-  const home = join(root, 'home');
+  const home = join(root(), 'home');
   mkdirSync(home);
   vi.stubEnv('HOME', home);
   vi.stubEnv('USERPROFILE', home);
 });
 afterEach(() => {
   vi.unstubAllEnvs();
-  rmSync(root, { recursive: true, force: true });
 });
 
 describe('init --yes with same-name entries in two tools', () => {
@@ -51,7 +43,7 @@ describe('init --yes with same-name entries in two tools', () => {
     sameNameRules();
     write('.claude/rules/claude-only.md', '---\ndescription: c\n---\nCLAUDE_ONLY\n');
 
-    const { data } = await runInit(root, { yes: true });
+    const { data } = await runInit(root(), { yes: true });
 
     expect(data.detectedConfigs).toEqual(['claude-code', 'cursor']);
     expect(read('.agentsmesh/rules/typescript.md')).toBe(CLAUDE_TS);
@@ -72,9 +64,9 @@ describe('init --yes with same-name entries in two tools', () => {
 
   it('generate then writes both texts to both tools', async () => {
     sameNameRules();
-    await runInit(root, { yes: true });
+    await runInit(root(), { yes: true });
 
-    await runGenerate({}, root, { printMatrix: false });
+    await runGenerate({}, root(), { printMatrix: false });
 
     expect(read('.claude/rules/typescript.md')).toContain('CLAUDE_TS_TEXT');
     expect(read('.claude/rules/typescript-cursor.md')).toContain('CURSOR_TS_TEXT');
@@ -88,7 +80,7 @@ describe('init --yes with same-name entries in two tools', () => {
     write('.cursor/commands/deploy.md', 'CURSOR_DEPLOY\n');
     write('.cursor/rules/style.mdc', '---\ndescription: Style\n---\n# Style\n');
 
-    const { data } = await runInit(root, { yes: true });
+    const { data } = await runInit(root(), { yes: true });
 
     expect(read('.agentsmesh/commands/deploy.md')).toBe(
       '---\ndescription: Deploy\nallowed-tools: []\n---\n\nCLAUDE_DEPLOY',
@@ -110,7 +102,7 @@ describe('init --yes with same-name entries in two tools', () => {
     write('.claude/rules/typescript.md', '---\ndescription: ts\n---\n# TS\nSAME_TEXT\n');
     write('.cursor/rules/typescript.mdc', '---\ndescription: ts\n---\n# TS\nSAME_TEXT\n');
 
-    const { data } = await runInit(root, { yes: true });
+    const { data } = await runInit(root(), { yes: true });
 
     expect(read('.agentsmesh/rules/typescript.md')).toBe(
       '---\nroot: false\ndescription: ts\nglobs: []\n---\n\n# TS\nSAME_TEXT',

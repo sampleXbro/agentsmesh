@@ -5,31 +5,18 @@
  * that read or write the same nested files must understand it too.
  */
 
-import {
-  mkdirSync,
-  mkdtempSync,
-  readdirSync,
-  readFileSync,
-  realpathSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs';
-import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { readdirSync, rmSync } from 'node:fs';
+import { join } from 'node:path';
+import { describe, expect, it } from 'vitest';
+import { useTempProject } from '../../../helpers/temp-project.js';
 import { runGenerate } from '../../../../src/cli/commands/generate.js';
 import { runImport } from '../../../../src/cli/commands/import.js';
 
-let root: string;
+const { root, write, read } = useTempProject('am-codex-nested-');
 
-const write = (rel: string, text: string): void => {
-  mkdirSync(dirname(join(root, rel)), { recursive: true });
-  writeFileSync(join(root, rel), text);
-};
-const read = (rel: string): string => readFileSync(join(root, rel), 'utf8');
-const rules = (): string[] => readdirSync(join(root, '.agentsmesh', 'rules')).sort();
+const rules = (): string[] => readdirSync(join(root(), '.agentsmesh', 'rules')).sort();
 const count = (text: string, part: string): number => text.split(part).length - 1;
-const generate = (): Promise<unknown> => runGenerate({}, root, { printMatrix: false });
+const generate = (): Promise<unknown> => runGenerate({}, root(), { printMatrix: false });
 
 function project(targets: string, ruleFrontmatter = ''): void {
   write('agentsmesh.yaml', `version: 1\ntargets: [${targets}]\nfeatures: [rules]\n`);
@@ -40,11 +27,6 @@ function project(targets: string, ruleFrontmatter = ''): void {
   );
 }
 
-beforeEach(() => {
-  root = realpathSync(mkdtempSync(join(tmpdir(), 'am-codex-nested-')));
-});
-afterEach(() => rmSync(root, { recursive: true, force: true }));
-
 describe('codex-cli nested AGENTS.md round trip', () => {
   it('is a no-op for rules that came from canonical files', async () => {
     project('codex-cli');
@@ -52,7 +34,7 @@ describe('codex-cli nested AGENTS.md round trip', () => {
     const canonical = read('.agentsmesh/rules/typescript.md');
 
     for (let cycle = 0; cycle < 2; cycle++) {
-      await runImport({ from: 'codex-cli' }, root);
+      await runImport({ from: 'codex-cli' }, root());
       await generate();
     }
 
@@ -67,9 +49,9 @@ describe('codex-cli nested AGENTS.md round trip', () => {
   it('restores an override rule, with its variant, into a fresh canonical tree', async () => {
     project('codex-cli', 'codex_instruction: override\n');
     await generate();
-    rmSync(join(root, '.agentsmesh', 'rules', 'typescript.md'));
+    rmSync(join(root(), '.agentsmesh', 'rules', 'typescript.md'));
 
-    await runImport({ from: 'codex-cli' }, root);
+    await runImport({ from: 'codex-cli' }, root());
 
     expect(rules()).toEqual(['_root.md', 'typescript.md']);
     expect(read('.agentsmesh/rules/typescript.md')).toContain('codex_instruction: override');
@@ -80,7 +62,7 @@ describe('codex-cli nested AGENTS.md round trip', () => {
     await generate();
     write('src/AGENTS.md', `${read('src/AGENTS.md')}\n\nHAND_WRITTEN\n`);
 
-    await runImport({ from: 'codex-cli' }, root);
+    await runImport({ from: 'codex-cli' }, root());
 
     expect(rules()).toEqual(['_root.md', 'src.md', 'typescript.md']);
     expect([
@@ -97,7 +79,7 @@ describe('codex-cli nested AGENTS.md round trip', () => {
     );
     await generate();
 
-    await runImport({ from: 'codebuff' }, root);
+    await runImport({ from: 'codebuff' }, root());
     await generate();
 
     expect(rules()).toEqual(['_root.md', 'buffonly.md', 'typescript.md']);
@@ -112,7 +94,7 @@ describe('codex-cli nested AGENTS.md round trip', () => {
     await generate();
     write('agentsmesh.yaml', 'version: 1\ntargets: [windsurf]\nfeatures: [rules]\n');
 
-    await runImport({ from: 'windsurf' }, root);
+    await runImport({ from: 'windsurf' }, root());
 
     expect(rules()).toEqual(['_root.md', 'typescript.md']);
   });

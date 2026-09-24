@@ -4,11 +4,11 @@
  * The CLI flows are covered in tests/unit/cli/commands/import-keeps-settings.test.ts.
  */
 
-import { mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { rmSync } from 'node:fs';
+import { join } from 'node:path';
 import { parse as parseYaml } from 'yaml';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
+import { useTempProject } from '../../../helpers/temp-project.js';
 import { importFrom } from '../../../../src/public/engine.js';
 import { runTargetImport } from '../../../../src/targets/import/run-target-import.js';
 import {
@@ -23,13 +23,8 @@ const PERMS = '.agentsmesh/permissions.yaml';
 const IGNORE = '.agentsmesh/ignore';
 const MCP = '.agentsmesh/mcp.json';
 
-let root: string;
+const { root, write, read } = useTempProject('am-run-import-');
 
-const write = (rel: string, text: string): void => {
-  mkdirSync(dirname(join(root, rel)), { recursive: true });
-  writeFileSync(join(root, rel), text);
-};
-const read = (rel: string): string => readFileSync(join(root, rel), 'utf8');
 const perms = (): unknown => parseYaml(read(PERMS));
 
 /** A cursor-shaped descriptor whose import runs `body` instead. */
@@ -42,14 +37,10 @@ function fakeDescriptor(body: () => void): Pick<TargetDescriptor, 'generators'> 
 }
 
 const importWith = (body: () => void): Promise<ImportResult[]> =>
-  runTargetImport(fakeDescriptor(body), root, 'project');
+  runTargetImport(fakeDescriptor(body), root(), 'project');
 
-beforeEach(() => {
-  root = realpathSync(mkdtempSync(join(tmpdir(), 'am-run-import-')));
-});
 afterEach(() => {
   resetRegistry();
-  rmSync(root, { recursive: true, force: true });
 });
 
 describe('runTargetImport', () => {
@@ -64,7 +55,7 @@ describe('runTargetImport', () => {
     });
     registerTargetDescriptor({ ...getDescriptor('cursor')!, ...plugin, id: 'merge-plugin' });
 
-    await importFrom('merge-plugin', { root });
+    await importFrom('merge-plugin', { root: root() });
 
     expect(perms()).toEqual({ allow: ['Read', 'PluginAllow'], deny: ['Secret'] });
     expect(read(IGNORE)).toBe('keep/\nplugin/\n');
@@ -105,8 +96,8 @@ describe('runTargetImport', () => {
     write(IGNORE, 'keep/\n');
 
     await importWith(() => {
-      rmSync(join(root, PERMS));
-      rmSync(join(root, IGNORE));
+      rmSync(join(root(), PERMS));
+      rmSync(join(root(), IGNORE));
     });
 
     expect([perms(), read(IGNORE)]).toEqual([{ deny: ['Secret'] }, 'keep/\n']);

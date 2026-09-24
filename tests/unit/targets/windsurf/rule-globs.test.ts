@@ -6,40 +6,28 @@
  * files use, and the documented unquoted value no longer aborts it.
  */
 
-import { mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
 import { parse as parseYaml } from 'yaml';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { useTempProject } from '../../../helpers/temp-project.js';
 import { runGenerate } from '../../../../src/cli/commands/generate.js';
 import { runImport } from '../../../../src/cli/commands/import.js';
-import {
-  formatWindsurfGlobs,
-  parseWindsurfGlobs,
-} from '../../../../src/targets/windsurf/rule-globs.js';
+import { parseWindsurfGlobs } from '../../../../src/targets/windsurf/rule-globs.js';
 import { splitFrontmatter } from '../../../../src/utils/text/markdown.js';
 import { logger } from '../../../../src/utils/output/logger.js';
 
-let root: string;
+const { root, write, read } = useTempProject('am-windsurf-globs-');
 
-const write = (rel: string, text: string): void => {
-  mkdirSync(dirname(join(root, rel)), { recursive: true });
-  writeFileSync(join(root, rel), text);
-};
-const read = (rel: string): string => readFileSync(join(root, rel), 'utf8');
 const globsOf = (rel: string): unknown =>
   (parseYaml(splitFrontmatter(read(rel))?.yaml ?? '') as { globs?: unknown }).globs;
 const canonicalRule = (name: string, globs: string): void =>
   write(`.agentsmesh/rules/${name}.md`, `---\ndescription: d\nglobs: ${globs}\n---\n# R\n`);
 
 beforeEach(() => {
-  root = realpathSync(mkdtempSync(join(tmpdir(), 'am-windsurf-globs-')));
   write('agentsmesh.yaml', 'version: 1\ntargets: [windsurf]\nfeatures: [rules]\n');
   write('.agentsmesh/rules/_root.md', '---\nroot: true\n---\n# Root\n');
 });
 afterEach(() => {
   vi.restoreAllMocks();
-  rmSync(root, { recursive: true, force: true });
 });
 
 describe('Windsurf rule globs', () => {
@@ -48,7 +36,7 @@ describe('Windsurf rule globs', () => {
     canonicalRule('two', '["src/**/*.ts", "tests/**/*.ts"]');
     canonicalRule('star', '["**/*.css"]');
 
-    await runGenerate({}, root, { printMatrix: false });
+    await runGenerate({}, root(), { printMatrix: false });
 
     expect([
       read('.windsurf/rules/one.md'),
@@ -69,7 +57,7 @@ describe('Windsurf rule globs', () => {
     write('.windsurf/rules/list.md', '---\ntrigger: glob\nglobs: ["src/main/**/*.java"]\n---\nD\n');
     write('.windsurf/rules/old.md', '---\ntrigger: glob\nglob: "lib/**"\n---\nE\n');
 
-    await runImport({ from: 'windsurf' }, root);
+    await runImport({ from: 'windsurf' }, root());
 
     expect(
       ['docs', 'spaced', 'brace', 'list', 'old'].map((n) => globsOf(`.agentsmesh/rules/${n}.md`)),
@@ -85,8 +73,8 @@ describe('Windsurf rule globs', () => {
   it('round-trips several globs, braces included, through generate and import', async () => {
     canonicalRule('mix', '["src/**/*.{ts,tsx}", "tests/**"]');
 
-    await runGenerate({}, root, { printMatrix: false });
-    await runImport({ from: 'windsurf' }, root);
+    await runGenerate({}, root(), { printMatrix: false });
+    await runImport({ from: 'windsurf' }, root());
 
     expect(globsOf('.agentsmesh/rules/mix.md')).toEqual(['src/**/*.{ts,tsx}', 'tests/**']);
   });
@@ -97,7 +85,7 @@ describe('Windsurf rule globs', () => {
     write('.windsurf/rules/bad.md', '---\ntrigger: [unclosed\n---\nBAD\n');
     write('.windsurf/rules/good.md', '---\ntrigger: glob\nglobs: src/**\n---\nGOOD\n');
 
-    await runImport({ from: 'windsurf' }, root);
+    await runImport({ from: 'windsurf' }, root());
 
     expect(globsOf('.agentsmesh/rules/good.md')).toEqual(['src/**']);
     expect(warn.mock.calls.map(([m]) => String(m).split(':')[0])).toEqual([
@@ -106,9 +94,8 @@ describe('Windsurf rule globs', () => {
   });
 });
 
-describe('formatWindsurfGlobs and parseWindsurfGlobs', () => {
-  it('join with commas and split only outside braces', () => {
-    expect(formatWindsurfGlobs(['a/**', 'b/*.{x,y}'])).toBe('a/**,b/*.{x,y}');
+describe('parseWindsurfGlobs', () => {
+  it('splits only outside braces, and reads a list', () => {
     expect([
       parseWindsurfGlobs(' a/** , b/*.{x,y} ,'),
       parseWindsurfGlobs(['a/**', 3, ' b ']),
