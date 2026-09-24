@@ -12,6 +12,7 @@ import {
 import { stripBom } from '../utils/filesystem/fs-text-encoding.js';
 import { dirname, resolve } from 'node:path';
 import { CURRENT_GRAPH_VERSION, parseGraph, type LessonsGraph } from './graph-schema.js';
+import { assertLessonsDirInsideProject } from './lessons-dir-guard.js';
 
 /** Project-relative path of the lessons graph, forward slashes. */
 export const LESSONS_GRAPH_PATH = '.agentsmesh/lessons/lessons.json';
@@ -99,6 +100,7 @@ function isWritable(path: string): boolean {
 }
 
 export function saveLessonsGraph(projectRoot: string, graph: LessonsGraph): void {
+  assertLessonsDirInsideProject(projectRoot);
   const path = graphFilePath(projectRoot);
   mkdirSync(dirname(path), { recursive: true });
   // The rename below would replace a read-only file and reset its mode.

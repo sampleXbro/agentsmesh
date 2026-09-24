@@ -1,3 +1,4 @@
+import { lstatSync, realpathSync } from 'node:fs';
 import { realpath } from 'node:fs/promises';
 import { basename, dirname, join, resolve, sep } from 'node:path';
 
@@ -11,6 +12,34 @@ export async function canonicalizePath(path: string): Promise<string> {
     if (parent === path) return resolve(path);
     return join(await canonicalizePath(parent), basename(path));
   }
+}
+
+/**
+ * Sync `canonicalizePath` for code that must stay sync. Unlike the async one it
+ * returns null for a dangling link: its missing target must not count as inside.
+ */
+function canonicalizePathSync(path: string): string | null {
+  try {
+    return realpathSync(path);
+  } catch (error: unknown) {
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') return null;
+  }
+  try {
+    lstatSync(path);
+    return null; // The entry exists but does not resolve: a dangling link.
+  } catch {
+    const parent = dirname(path);
+    if (parent === path) return resolve(path);
+    const realParent = canonicalizePathSync(parent);
+    return realParent === null ? null : join(realParent, basename(path));
+  }
+}
+
+/** Sync containment test: false when `target` resolves outside `root` or cannot be resolved. */
+export function resolvesInsideRootSync(root: string, target: string): boolean {
+  const realRoot = canonicalizePathSync(resolve(root));
+  const realTarget = canonicalizePathSync(resolve(target));
+  return realRoot !== null && realTarget !== null && isPathInside(realTarget, realRoot);
 }
 
 export function isPathInside(target: string, root: string): boolean {

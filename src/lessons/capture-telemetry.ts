@@ -2,6 +2,7 @@ import { join } from 'node:path';
 import type { AddLessonResult } from './add.js';
 import { appendJsonl, logExists, readJsonl } from './jsonl-log.js';
 import { isCaptureRecord } from './log-record-guards.js';
+import { lessonsDirInsideProject } from './lessons-dir-guard.js';
 import { lessonsPaths } from './paths.js';
 import { isTelemetryEnabled, sessionId } from './telemetry.js';
 
@@ -66,7 +67,7 @@ export function appendCaptureRecord(
   record: CaptureTelemetryRecord,
   env: NodeJS.ProcessEnv = process.env,
 ): void {
-  if (!isTelemetryEnabled(env, projectRoot)) return;
+  if (!isTelemetryEnabled(env, projectRoot) || !lessonsDirInsideProject(projectRoot)) return;
   appendJsonl(captureLogPath(projectRoot), record, {
     maxRecords: MAX_CAPTURE_LOG_RECORDS,
     trimTriggerBytes: CAPTURE_LOG_TRIM_TRIGGER_BYTES,
