@@ -1,6 +1,6 @@
 ---
 description: TypeScript-specific coding standards
-globs:
+paths:
   - src/**/*.ts
   - tests/**/*.ts
 ---
