@@ -138,8 +138,9 @@ export function rewriteGeneratedReferences(
     if (!sourceFile) return result;
 
     // A root file two targets share keeps canonical references, so its copies
-    // stay identical and merge. Its relative links are still rebased onto the
-    // canonical file they name; left as-is they point nowhere (#139).
+    // stay identical and merge. Its Markdown link destinations are still rebased
+    // onto the canonical file they name (left as-is they point nowhere, #139);
+    // every other path token stays exactly as written.
     const shared = skipPaths?.has(result.path) === true;
     const artifactMapTarget = artifactMapTargetForResult(result, scope, activeTargets);
     const cacheKey = artifactCacheKey(result, scope, activeTargets);
@@ -166,7 +167,8 @@ export function rewriteGeneratedReferences(
       translatePath: (absolutePath) => artifactMap.get(absolutePath) ?? absolutePath,
       pathExists: (absolutePath) => plannedPaths.has(absolutePath) || existsSync(absolutePath),
       explicitCurrentDirLinks: true,
-      rewriteBarePathTokens: !shared,
+      rewriteBarePathTokens: true,
+      markdownLinksOnly: shared,
       scope,
       pathIsDirectory: (absolutePath) => {
         try {

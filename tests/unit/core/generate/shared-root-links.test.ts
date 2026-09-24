@@ -52,4 +52,30 @@ describe('a relative link in a root rule shared by two AGENTS.md targets', () =>
     expect([exitCode, link]).toEqual([0, '.agentsmesh/rules/typescript.md']);
     expect(existsSync(join(root, link ?? ''))).toBe(true);
   });
+
+  it('rebases only link destinations: backticked and prose paths stay as written', async () => {
+    writeFileSync(
+      join(root, 'agentsmesh.yaml'),
+      'version: 1\ntargets: [codex-cli, cursor]\nfeatures: [rules]\n',
+    );
+    mkdirSync(join(root, '.agentsmesh', 'skills', 'qa'), { recursive: true });
+    writeFileSync(
+      join(root, '.agentsmesh', 'skills', 'qa', 'SKILL.md'),
+      '---\ndescription: qa\n---\n# QA\n',
+    );
+    writeFileSync(
+      join(root, '.agentsmesh', 'rules', '_root.md'),
+      '---\nroot: true\n---\n# Root\nSee [TS rule](./typescript.md) and [ts].\n' +
+        'Use the skill (`.agentsmesh/skills/qa/`) and read `.agentsmesh/rules/typescript.md`.\n\n' +
+        '[ts]: ./typescript.md\n',
+    );
+
+    await runGenerate({}, root, { printMatrix: false });
+
+    expect(readFileSync(join(root, 'AGENTS.md'), 'utf8')).toContain(
+      '# Root\nSee [TS rule](.agentsmesh/rules/typescript.md) and [ts].\n' +
+        'Use the skill (`.agentsmesh/skills/qa/`) and read `.agentsmesh/rules/typescript.md`.\n\n' +
+        '[ts]: .agentsmesh/rules/typescript.md',
+    );
+  });
 });

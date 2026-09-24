@@ -32,6 +32,8 @@ export interface RewriteFileLinksInput {
   pathExists: (absolutePath: string) => boolean;
   explicitCurrentDirLinks?: boolean;
   rewriteBarePathTokens?: boolean;
+  /** Rewrite Markdown link destinations only; leave every other path token as written. */
+  markdownLinksOnly?: boolean;
   /** `global`: leave links unchanged when they resolve outside `.agentsmesh/`. */
   scope?: TargetLayoutScope;
   /** For project scope: distinguish directory targets without a trailing slash in the link. */
@@ -77,6 +79,8 @@ export function rewriteFileLinks(input: RewriteFileLinksInput): RewriteFileLinks
     const lineNumSuffix = lineNumMatch ? lineNumMatch[0] : '';
     if (!rawCandidate) return match;
     const tokenContext = getTokenContext(fullContent, offset, offset + rawCandidate.length);
+    if (input.markdownLinksOnly === true && tokenContext.role !== 'markdown-link-dest')
+      return match;
     const candidate = decodeLinkPath(rawCandidate, tokenContext.role);
     if (tokenContext.role !== 'markdown-link-dest' && WINDOWS_ABSOLUTE_PATH.test(candidate)) {
       return match;
