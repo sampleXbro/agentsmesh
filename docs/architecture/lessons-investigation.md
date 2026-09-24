@@ -125,7 +125,7 @@ discriminability on *planted* faults over a controlled graph — not real recurr
 
 A second instrument, pointed at the **real** graph: for each active lesson, can it
 fire on the mandatory `--file`/`--cmd` recall path? It reuses the system's canonical
-liveness predicates (`deadFileGlobIds`, `isSafeRegexPattern`, keyword tokenization),
+liveness predicates (`fileGlobLiveness`, `isSafeRegexPattern`, keyword tokenization),
 so it agrees with how `validate`/capture judge liveness everywhere else.
 
 **The four tiers are deliberately asymmetric about what is statically verifiable:**

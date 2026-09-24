@@ -1,22 +1,32 @@
-import { buildCaptureNudge, RECURRENCE_THRESHOLD } from './capture-nudge.js';
 import { hookCommandFastpath } from './cmd-fastpath.js';
-import { contextKey } from './context-key.js';
-import { diffTerms } from './diff-terms.js';
-import { errorClass } from './error-class.js';
 import { failureText } from './failure-text.js';
 import {
+  collectRecall,
   contextOutput,
-  emitRecall,
   EMPTY,
-  formatInjection,
+  paragraphs,
+  renderRecall,
   type RecallHookResult,
 } from './hook-emit.js';
-import { failuresForContext, recordFailure } from './outcome-log.js';
+import { failureNudge } from './hook-failure.js';
+import { detectHookHost, type HookHost } from './hook-hosts.js';
+import { sessionNotices } from './hook-notices.js';
+import {
+  contextSessionId,
+  hookAction,
+  hookLocation,
+  isReadOnlyTool,
+  str,
+  type HookAction,
+  type HookStdin,
+} from './hook-payload.js';
+import { taskRecall } from './hook-prompt.js';
+import { findLessonsRoot } from './paths.js';
 import type { LessonsQuery } from './query.js';
-import { recallAlwaysLessons } from './recall-always.js';
-import { recallLessons } from './recall.js';
-import { hasCoveringLesson, recurrenceEscalation } from './recurrence-gate.js';
+import { recurrenceEscalation } from './recurrence-gate.js';
+import { safeRuleLine } from './rule-line.js';
 import { clearSeenForSessionStart } from './seen-cache.js';
+import { stripBom } from '../utils/filesystem/fs-text-encoding.js';
 
 /**
  * Hook-mode recall: the runtime engine behind a generated tool-call hook.
@@ -29,93 +39,63 @@ import { clearSeenForSessionStart } from './seen-cache.js';
  * command serves as a PreToolUse hook that guards the FIRST touch of a file
  * (injecting BEFORE the edit) and/or a PostToolUse hook that covers later actions.
  *
- * Only some harnesses can inject context from a tool-call hook (Claude Code
- * supports PreToolUse + PostToolUse `additionalContext`; some support only Post).
  * This command is harness-adaptive: it reads the hook's stdin JSON, and on
  * anything it does not recognize — a parse failure, a shape without a
  * file/command, or zero matches — it emits NOTHING. A hook must never break the
  * harness or inject noise, so every failure path is a silent no-op (exit 0).
  */
 
-interface HookStdin {
-  readonly session_id?: unknown;
-  readonly hook_event_name?: unknown;
-  /** SessionStart's origin: `startup` | `resume` | `clear` | `compact`. */
-  readonly source?: unknown;
-  /** UserPromptSubmit carries the raw task text here (no `tool_input`). */
-  readonly prompt?: unknown;
-  /** Alternate field name some harnesses use for the submitted prompt. */
-  readonly user_message?: unknown;
-  /** PostToolUseFailure carries the failure text here (field name varies by harness). */
-  readonly tool_error?: unknown;
-  readonly tool_response?: unknown;
-  readonly tool_input?: {
-    readonly file_path?: unknown;
-    /** NotebookEdit uses `notebook_path` instead of `file_path`. */
-    readonly notebook_path?: unknown;
-    readonly command?: unknown;
-    /** Diff-aware recall reads the content being written — see diff-terms.ts. */
-    readonly new_string?: unknown;
-    readonly content?: unknown;
-    readonly edits?: unknown;
-  } | null;
-}
-
-const str = (v: unknown): string | undefined =>
-  typeof v === 'string' && v.length > 0 ? v : undefined;
+/** Longest file list or command echoed in the lead line. */
+const MAX_TARGET_CHARS = 200;
 
 /**
- * Parse a PostToolUse hook stdin payload, recall lessons for the touched file /
- * command / change content, and return the harness's context-injection JSON (or
- * empty output). `session_id` from the harness drives per-session dedup, so a
- * lesson is injected at most once per session even as the agent re-touches a file.
+ * Parse a hook stdin payload, recall lessons for the touched files / command /
+ * change content, and return the host's context-injection JSON (or empty
+ * output). Other hosts' payloads are mapped to Claude Code's shape first (see
+ * hook-hosts.ts). The session id (narrowed to the subagent, see
+ * contextSessionId) drives dedup, so a lesson is injected once per agent context.
  */
 export async function buildRecallHookOutput(
   rawStdin: string,
-  projectRoot: string,
+  processCwd: string,
 ): Promise<RecallHookResult> {
-  let parsed: HookStdin;
+  let raw: unknown;
   try {
-    parsed = JSON.parse(rawStdin) as HookStdin;
+    raw = JSON.parse(stripBom(rawStdin));
   } catch {
     return EMPTY;
   }
-  const sessionId = str(parsed.session_id);
+  if (typeof raw !== 'object' || raw === null) return EMPTY;
+  const host = detectHookHost(raw as Record<string, unknown>);
+  return host.wrap(await recallFor(host, processCwd));
+}
+
+async function recallFor(host: HookHost, processCwd: string): Promise<RecallHookResult> {
+  const parsed = host.payload;
+  const location = hookLocation(parsed, processCwd);
+  // No lessons project here (e.g. the home folder): no recall, nudge or log.
+  if (findLessonsRoot(location.root) === null) return EMPTY;
+  const projectRoot = location.root;
+  const sessionId = contextSessionId(parsed);
 
   // SessionStart resets dedup to match what actually happened to the context —
   // compact/clear discarded it, startup began a new chat, resume restored the old
-  // one. See clearSeenForSessionStart. No recall content is emitted here; the
-  // following UserPromptSubmit/edit re-delivers.
+  // one. See clearSeenForSessionStart. Claude Code's following prompt re-delivers;
+  // hosts whose prompt event cannot inject get task recall right here.
   if (parsed.hook_event_name === 'SessionStart') {
     clearSeenForSessionStart(str(parsed.source), sessionId, projectRoot);
-    return EMPTY;
+    if (!host.recallOnSessionStart) return EMPTY;
+    return taskRecall(projectRoot, sessionId, str(parsed.prompt));
   }
-
-  // UserPromptSubmit is the ONLY event that carries the task text and has no
-  // `tool_input`. The tool-call path never sees task intent, so a keyword-only
-  // (conceptual/"general") lesson is otherwise unrecallable — its concept must
-  // appear as a path/command token to fire. Here we recall it against the prompt
-  // itself, the richest conceptual signal. (SessionStart/SubagentStart carry no
-  // prompt text — verified vs the hooks docs — so they are NOT a keyword source.)
   if (parsed.hook_event_name === 'UserPromptSubmit') {
-    const promptText = str(parsed.prompt) ?? str(parsed.user_message);
-    // Always-on lessons ride EVERY prompt (universal standards); keyword recall
-    // adds task-specific conceptual lessons from the prompt text. Both session-
-    // deduped, so each is injected at most once per session.
-    const always = await recallAlwaysLessons(projectRoot, { sessionId });
-    const keyword =
-      promptText === undefined
-        ? []
-        : (await recallLessons(projectRoot, { keyword: promptText }, { sessionId })).lessons;
-    const rules = [...always.lessons.map((l) => l.rule), ...keyword.map((l) => l.lesson.rule)];
-    if (rules.length === 0) return EMPTY;
-    return formatInjection('UserPromptSubmit', 'Recalled agentsmesh lessons for this task', rules);
+    const task = str(parsed.prompt) ?? str(parsed.user_message);
+    return taskRecall(projectRoot, sessionId, task);
   }
 
-  // NotebookEdit matches the `Edit` matcher but carries `notebook_path`, not
-  // `file_path` — read both so a notebook edit recalls its file_glob lessons.
-  const file = str(parsed.tool_input?.file_path) ?? str(parsed.tool_input?.notebook_path);
-  const command = str(parsed.tool_input?.command);
+  const action = hookAction(parsed, location);
+  // A patch touching several files is recorded against its first one.
+  const file = action.files[0];
+  const command = action.command;
 
   // A tool call FAILED — the moment for a capture decision. Claude Code fires a
   // dedicated PostToolUseFailure event; other harnesses instead carry the error TEXT
@@ -124,73 +104,74 @@ export async function buildRecallHookOutput(
   // mis-recorded as a successful delivery on a harness that reuses PostToolUse.
   const errorText = failureText(parsed);
   if (parsed.hook_event_name === 'PostToolUseFailure' || errorText !== undefined) {
-    // Only a real action (file/command) can be attributed, recorded, and covered. An
-    // action-less failure (a failed Read/Grep/MCP call → key 'none') still gets the
-    // generic nudge, but is never recorded — it would fabricate cross-action recurrence.
-    let failures = 0;
-    let lastErrorClass: string | undefined;
-    let covered = false;
-    if (file !== undefined || command !== undefined) {
-      const key = contextKey({ file, command }, projectRoot);
-      // Record the failure so effectiveness can tell whether a lesson delivered for
-      // this same action earlier actually prevented the repeat (EVALUATE).
-      recordFailure(
-        projectRoot,
-        key,
-        errorClass(errorText),
-        process.env,
-        sessionId,
-      );
-      const history = failuresForContext(projectRoot, key);
-      failures = history.count;
-      lastErrorClass = history.lastErrorClass;
-      // STORE: coverage only changes the nudge once the failure RECURS, so probe the
-      // graph (a cheap raw match, no ranker/telemetry) only past the threshold.
-      covered = failures >= RECURRENCE_THRESHOLD && hasCoveringLesson(projectRoot, file, command);
-    }
-    const context = buildCaptureNudge({
+    const event = str(parsed.hook_event_name);
+    const interrupted = parsed.is_interrupt === true;
+    const readOnly = isReadOnlyTool(parsed.tool_name);
+    return failureNudge({
+      event,
+      projectRoot,
+      sessionId,
       file,
       command,
-      sessionId,
-      projectRoot,
-      failures,
-      covered,
-      ...(lastErrorClass !== undefined ? { lastErrorClass } : {}),
+      errorText,
+      interrupted,
+      readOnly,
     });
-    return context === null
-      ? EMPTY
-      : contextOutput(str(parsed.hook_event_name) ?? 'PostToolUseFailure', context);
   }
 
   if (file === undefined && command === undefined) return EMPTY;
+  // A missing event name is a tool call from a host that sends none; an event
+  // name we do not know does nothing, so its output is never mislabelled.
+  const eventName = parsed.hook_event_name;
+  if (eventName !== undefined && eventName !== 'PreToolUse' && eventName !== 'PostToolUse') {
+    return EMPTY;
+  }
+  return toolRecall(parsed, projectRoot, sessionId, action);
+}
 
+/**
+ * Recall for a tool call: one query per touched file (the change content
+ * folded in as keywords, so triggers match what is written), plus the
+ * recurrence gate and any one-time notices above the recalled rules.
+ */
+async function toolRecall(
+  parsed: HookStdin,
+  projectRoot: string,
+  sessionId: string | undefined,
+  action: HookAction,
+): Promise<RecallHookResult> {
   // Echo the harness's event so the SAME command serves as a PreToolUse first-touch
-  // guard (injects BEFORE the edit) or a PostToolUse reactive hook; default to
-  // PostToolUse for back-compat and unrecognized events.
+  // guard (injects BEFORE the edit) or a PostToolUse reactive hook; a payload
+  // without an event name defaults to PostToolUse.
   const event = parsed.hook_event_name === 'PreToolUse' ? 'PreToolUse' : 'PostToolUse';
+  const { command, keyword } = action;
+  const queries: LessonsQuery[] = (action.files.length > 0 ? action.files : [undefined]).map(
+    (file) => ({
+      ...(file !== undefined ? { file } : {}),
+      ...(command !== undefined ? { command } : {}),
+      ...(keyword.length > 0 ? { keyword } : {}),
+    }),
+  );
 
   // Recurrence gate (PreToolUse only): the first-touch guard is the last moment
-  // to stop a KNOWN repeat, so a recurring covered action escalates above the
-  // regular recall bullets — see recurrence-gate.ts.
+  // to stop a KNOWN repeat, so recurring covered actions escalate in ONE warning
+  // above the regular recall bullets — see recurrence-gate.ts.
   const escalation =
-    event === 'PreToolUse' ? recurrenceEscalation(projectRoot, { file, command, sessionId }) : null;
+    event === 'PreToolUse' ? recurrenceEscalation(projectRoot, queries, sessionId) : null;
 
-  // Fold the change content into the query so keyword triggers match what is being
-  // written, not just the path (diff-aware recall). Empty for non-writing tools.
-  const keyword = parsed.tool_input ? diffTerms(parsed.tool_input) : '';
   // Provable command-only no-match: skip the full recall load — see cmd-fastpath.ts.
-  if (escalation === null && hookCommandFastpath(projectRoot, { file, command, keyword, sessionId }))
-    return EMPTY;
-  const query: LessonsQuery = {
-    ...(file !== undefined ? { file } : {}),
-    ...(command !== undefined ? { command } : {}),
-    ...(keyword.length > 0 ? { keyword } : {}),
-  };
-  const target = file ?? command ?? '';
-  return emitRecall(projectRoot, query, {
+  const fast = { file: action.files[0], command, keyword, sessionId };
+  if (escalation === null && hookCommandFastpath(projectRoot, fast)) {
+    const notices = paragraphs(await sessionNotices(projectRoot, sessionId, {}));
+    return notices === undefined ? EMPTY : contextOutput(event, notices);
+  }
+  const shown = new Set(escalation?.ruleIds);
+  const collected = await collectRecall(projectRoot, queries, sessionId, shown);
+  const notices = await sessionNotices(projectRoot, sessionId, collected);
+  const target = action.files.length > 0 ? action.files.join(', ') : (command ?? '');
+  return renderRecall(collected, {
     event,
-    lead: `Recalled agentsmesh lessons for ${target}`,
-    sessionId,
-    ...(escalation !== null ? { preface: escalation } : {}),
+    lead: `Recalled agentsmesh lessons for ${safeRuleLine(target, MAX_TARGET_CHARS)}`,
+    preface: paragraphs([escalation?.text ?? null, ...notices]),
   });
 }

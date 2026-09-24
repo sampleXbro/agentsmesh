@@ -22,7 +22,7 @@ agentsmesh init [flags]
 | `--yes` | Auto-import all detected tool configs, then add starter examples only under empty canonical folders (skip categories import already filled). |
 | `--targets <csv>` | Enable exactly these target IDs, skipping detection entirely. An unknown ID stops the run. |
 | `--all-targets` | Enable every target in the starter set, which is what `init` did by default before. |
-| `--lessons` | Scaffold the project-level lessons recall + capture subsystem: inject the always-on trigger into `_root.md`, seed the `lessons` skill manual under `skills/lessons/`, and wire a `PostToolUse` recall hook into `hooks.yaml` so [hook mode](../lessons/#hook-mode-deterministic-recall) is deterministic on hook-capable targets. Cannot be combined with `--global`. |
+| `--lessons` | Scaffold the project-level lessons recall + capture subsystem: inject the always-on trigger into `_root.md`, seed the `lessons` skill manual under `skills/lessons/`, wire the recall hook (`PreToolUse`, `UserPromptSubmit`, `PostToolUseFailure`, `SessionStart`) into `hooks.yaml` so [hook mode](../lessons/#hook-mode-deterministic-recall) is deterministic on hook-capable targets, and set up the [`lessons.json` merge driver](../lessons/#team-workflow). Cannot be combined with `--global`. |
 
 ## Interactive wizard
 
@@ -75,12 +75,14 @@ agentsmesh.local.yaml     # Local overrides (gitignored)
   ignore
   lessons/                # Created only with --lessons
     lessons.json          # Canonical recall/capture graph
+    config.json           # Recall tunables, every field at its default
   skills/
     lessons/              # Tier-2 manual, seeded with --lessons
       SKILL.md            # Full recall/capture operating manual
 .gitignore                # Updated: agentsmesh.local.yaml, .agentsmeshcache,
                           # .agentsmesh/.lock.tmp, .agentsmesh/packs/
-                          # (+ the three lessons/*.jsonl logs with --lessons)
+                          # (+ five lessons runtime entries with --lessons)
+.gitattributes            # --lessons only: binds lessons.json to the merge driver
 ```
 
 Files and directories prefixed with `_` are excluded from generation — they exist only as reference templates. The sole exception is `_root.md`, which is always included as the project-wide root rule.
@@ -144,7 +146,13 @@ agentsmesh generate
 
 It scaffolds the recall/capture graph (`.agentsmesh/lessons/lessons.json`), injects a tool-agnostic **trigger** into `.agentsmesh/rules/_root.md`, and seeds the full operating manual as a `lessons` skill. After `generate`, every target gets the always-on trigger (rules are native everywhere) and skill-capable targets also get the on-demand manual — agents query the graph before edits/commands and capture failures after.
 
-On an existing project it leaves your config and canonical files untouched and is idempotent; it also adds `.agentsmesh/lessons/recall-log.jsonl` to `.gitignore` so opt-in telemetry never dirties the worktree. Cannot be combined with `--global` (lessons is project-only).
+On an existing project it leaves your config and canonical files untouched and is idempotent. It also:
+
+- Wires the recall hook into `.agentsmesh/hooks.yaml`. When `package.json` lists agentsmesh as a dependency, the hook runs `npx --no --offline agentsmesh lessons hook`; otherwise the bare `agentsmesh lessons hook`. When a Node project does not depend on agentsmesh, `init` prints a hint: teammates without a global install will not get recall, so add agentsmesh as a devDependency and re-run `init --lessons`.
+- Adds five entries to `.gitignore`: `.agentsmesh/lessons/recall-log.jsonl`, `capture-log.jsonl` and `outcome-log.jsonl` (all under `.agentsmesh/lessons/`), the `.agentsmesh/lessons/.lessons.lock/` directory, and `.agentsmesh/lessons/*.tmp`, so runtime files never dirty the worktree.
+- Adds `.agentsmesh/lessons/lessons.json merge=agentsmesh-lessons` to `.gitattributes` (commit it), and sets the per-clone `merge.agentsmesh-lessons.*` git config for your clone, then says so. It skips that step, with a warning, when git could not start the driver later: `PATH` folders from the npx cache (`_npx`) or from a package script (`node_modules/.bin`) do not count, and the `npx` form needs agentsmesh installed at the repository root (root `package.json` devDependencies) or globally. It leaves a merge driver you configured yourself alone. Teammates get the same setup the next time they run `agentsmesh generate`. See [Team workflow](../lessons/#team-workflow).
+
+Cannot be combined with `--global` (lessons is project-only).
 
 ### Initialize global config
 

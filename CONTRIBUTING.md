@@ -23,6 +23,7 @@ pnpm test:coverage  # coverage report: 95% aggregate + per-file floor (scripts/c
 pnpm lint           # ESLint
 pnpm lint:dead      # knip — unused files / exports / deps
 pnpm typecheck      # tsc --noEmit
+pnpm typecheck:tests  # type-check tests too (tsconfig.tests.json; listed files are known debt)
 pnpm format         # prettier --write
 pnpm changeset      # record a user-facing change (see Changesets)
 ```

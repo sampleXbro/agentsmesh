@@ -113,13 +113,13 @@ describe('lessons CLI — add validation', () => {
     expect(r.stderr).toContain('Unknown topic: nope');
   });
 
-  it('--new-topic without --topic-summary exits 1', async () => {
+  it('--new-topic without --topic-summary exits 2 and names the flag', async () => {
     const r = await runCliArgs(['lessons', 'add', 'a rule', '--topic', 'nt', '--new-topic'], dir);
-    expect(r.exitCode).toBe(1);
-    expect(r.stderr).toContain('topicSummary');
+    expect(r.exitCode).toBe(2);
+    expect(r.stderr).toContain('needs a one-line summary (--topic-summary on the CLI');
   });
 
-  it('invalid regex trigger is rejected and leaves a valid graph (rollback)', async () => {
+  it('a lone invalid regex trigger is refused as unrecallable and leaves a valid graph', async () => {
     // Seed with a trigger so the surviving graph is genuinely clean (a
     // triggerless lesson would emit a non-fatal UNREACHABLE_LESSON warning).
     await addLessonCli(dir, 'Seed before bad trigger', {
@@ -132,8 +132,9 @@ describe('lessons CLI — add validation', () => {
       ['lessons', 'add', 'bad regex', '--topic', 'e2e', '--trigger-cmd', '[unclosed'],
       dir,
     );
-    expect(bad.exitCode).toBe(1);
-    expect(bad.stderr).toContain('INVALID_TRIGGER_PATTERN');
+    expect(bad.exitCode).toBe(2);
+    expect(bad.stderr).toContain('no effective trigger');
+    expect(bad.stderr).toContain('invalid regex');
     const validate = await runCli('lessons validate', dir);
     expect(validate.exitCode).toBe(0);
     expect(validate.stdout).toContain('Lessons graph: ok.');

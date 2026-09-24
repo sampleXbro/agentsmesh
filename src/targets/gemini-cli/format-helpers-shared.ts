@@ -1,28 +1,6 @@
 import { parse as parseToml } from 'smol-toml';
 import { parseFrontmatter } from '../../utils/text/markdown.js';
 
-export function mapGeminiHookEvent(event: string): string | null {
-  switch (event) {
-    case 'BeforeTool':
-    case 'preToolUse':
-      return 'PreToolUse';
-    case 'AfterTool':
-    case 'postToolUse':
-      return 'PostToolUse';
-    case 'Notification':
-    case 'notification':
-      return 'Notification';
-    case 'BeforeAgent':
-      return 'SubagentStart';
-    case 'AfterAgent':
-      return 'SubagentStop';
-    case 'SessionStart':
-      return 'SessionStart';
-    default:
-      return null;
-  }
-}
-
 export function parseFlexibleFrontmatter(content: string): {
   frontmatter: Record<string, unknown>;
   body: string;

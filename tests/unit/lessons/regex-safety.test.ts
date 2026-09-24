@@ -37,6 +37,8 @@ describe('isSafeRegexPattern', () => {
     'a{1,100000}', // repeat over the engine's bound
     '(){1000}'.repeat(5), // ε-chain that would overflow a recursive closure
     'a{1000}'.repeat(10), // NFA state amplification
+    '\\u{1F600}', // code point escape: only means U+1F600 under the u flag
+    'x[\\u{41}]', // …also inside a class
   ])('rejects pattern the engine cannot evaluate %j', (pattern) => {
     expect(isSafeRegexPattern(pattern)).toBe(false);
   });

@@ -1,10 +1,22 @@
-import { makeLessonId, mergeTriggers, normalizeRule, todayIso, union } from './add-helpers.js';
-import { UnknownTopicError } from './add-errors.js';
+import {
+  describeUpsert,
+  findExistingLessonByRule,
+  makeLessonId,
+  mergeTriggers,
+  normalizeRule,
+  todayIso,
+  union,
+  upsertLesson,
+} from './add-helpers.js';
 import {
   assertRecallable,
   assertRuleShape,
   assertTriggerInputs,
+  deadCommandWarning,
+  dropDeadCommandTriggers,
+  ensureTopic,
   skipsTriggerGates,
+  type DeadCommandWarning,
 } from './add-gates.js';
 import type { AutoPruneSummary } from './auto-prune.js';
 import { type GuardrailWarning, inspectCapturedLesson } from './capture-guardrails.js';
@@ -17,11 +29,14 @@ import { mutateLessonsGraph } from './mutate.js';
 export {
   BroadCommandPatternError,
   EmptyRuleError,
+  InvalidTopicIdError,
   NoTriggerError,
   RuleTooLongError,
+  TopicSummaryRequiredError,
   UnknownTopicError,
   UnrecallableLessonError,
 } from './add-errors.js';
+export { TriggerFileGlobError } from './trigger-file-glob.js';
 
 export interface AddLessonTriggers {
   readonly files?: readonly string[];
@@ -59,13 +74,26 @@ export interface AddLessonOptions {
   readonly knownPaths?: ReadonlySet<string>;
 }
 
+interface AddLessonIntoOptions extends AddLessonOptions {
+  /**
+   * Project root for making absolute `--trigger-file` globs project-relative
+   * (and rejecting ones outside it). `addLesson` sets it; legacy merge omits it.
+   */
+  readonly projectRoot?: string;
+}
+
+/** A non-blocking capture warning: a guardrail nudge or a dropped dead command trigger. */
+export type AddLessonWarning = GuardrailWarning | DeadCommandWarning;
+
 export interface AddLessonResult {
   readonly id: string;
   readonly isNewLesson: boolean;
   readonly isNewTopic: boolean;
   readonly newTriggerIds: string[];
-  /** Non-blocking capture guardrail warnings for the resulting (merged) lesson. */
-  readonly warnings: GuardrailWarning[];
+  /** What a re-add changed on the existing lesson; empty for a new lesson or a no-op. */
+  readonly changes: string[];
+  /** Non-blocking capture warnings for the resulting (merged) lesson. */
+  readonly warnings: AddLessonWarning[];
   /**
    * Counts of structural cruft the opt-in auto-prune cleaned up right after this
    * capture (config `autoPrune: true`). Present only when something was pruned;
@@ -81,9 +109,11 @@ export async function addLesson(
 ): Promise<AddLessonResult> {
   // mutateLessonsGraph migrates a legacy store first, so the very first capture
   // cannot create lessons.json over an unmigrated index.yaml and strand it.
-  return mutateLessonsGraph(projectRoot, (graph) => addLessonInto(graph, input, options), {
-    retries: options.retries,
-  });
+  return mutateLessonsGraph(
+    projectRoot,
+    (graph) => addLessonInto(graph, input, { ...options, projectRoot }),
+    { retries: options.retries },
+  );
 }
 
 /**
@@ -97,57 +127,40 @@ export async function addLesson(
 export function addLessonInto(
   graph: LessonsGraph,
   input: AddLessonInput,
-  options: AddLessonOptions,
+  options: AddLessonIntoOptions,
 ): AddLessonResult {
   const ruleKey = normalizeRule(input.rule);
   const trimmedRule = assertRuleShape(input.rule);
   const existingId = findExistingLessonByRule(graph, ruleKey);
 
-  // Topic validity is checked first so an unknown-topic / missing-summary error
-  // takes precedence over the trigger gates below (clearer, and stable for the
-  // documented exit codes).
-  const isNewTopic = graph.topics[input.topic] === undefined;
-  if (isNewTopic) {
-    if (options.allowNewTopic !== true) throw new UnknownTopicError(input.topic);
-    if (options.topicSummary === undefined || options.topicSummary.length === 0) {
-      throw new Error(`addLesson: new topic "${input.topic}" requires topicSummary.`);
-    }
-    graph.topics[input.topic] = { summary: options.topicSummary };
-  }
+  const isNewTopic = ensureTopic(graph, input.topic, options);
 
   // Gates (see add-gates.ts): a throw aborts the transactional write.
   const existing = existingId !== null ? graph.lessons[existingId] : undefined;
   assertTriggerInputs(input, options, existing?.triggers.length ?? 0);
-  const { triggerIds, newTriggerIds } = mergeTriggers(graph, input.triggers);
+  const merged = mergeTriggers(graph, input.triggers, options.projectRoot);
+  const { triggerIds, newTriggerIds, dropped } = dropDeadCommandTriggers(graph, merged, options);
   if (!skipsTriggerGates(input, options)) {
-    assertRecallable(
-      graph,
-      existing === undefined ? triggerIds : union(existing.triggers, triggerIds),
-    );
+    const resulting = existing === undefined ? triggerIds : union(existing.triggers, triggerIds);
+    assertRecallable(graph, resulting, dropped);
   }
+  const droppedWarnings = dropped.map(deadCommandWarning);
 
-  if (existingId !== null) {
-    // existingId came from Object.entries(graph.lessons), so it is present.
-    const existing = graph.lessons[existingId]!;
-    graph.lessons[existingId] = {
-      ...existing,
-      topics: union(existing.topics, [input.topic]),
-      triggers: union(existing.triggers, triggerIds),
-      evidence: union(existing.evidence, input.evidence ?? []),
-      ...(existing.rationale === undefined && input.rationale !== undefined
-        ? { rationale: input.rationale }
-        : {}),
-      // Re-capturing a rule with --scope always promotes it to always-on.
-      ...(input.scope === 'always' ? { scope: 'always' as const } : {}),
-    };
+  if (existingId !== null && existing !== undefined) {
+    const updated = upsertLesson(existing, input, triggerIds);
+    graph.lessons[existingId] = updated;
     return {
       id: existingId,
       isNewLesson: false,
       isNewTopic,
       newTriggerIds,
+      changes: describeUpsert(existing, updated),
       // Near-duplicate detection is meaningless on an upsert (the lesson IS the
       // match), so only DEAD_GLOB/hygiene warnings apply here.
-      warnings: inspectCapturedLesson(graph, existingId, options.knownPaths),
+      warnings: [
+        ...inspectCapturedLesson(graph, existingId, options.knownPaths),
+        ...droppedWarnings,
+      ],
     };
   }
 
@@ -156,33 +169,23 @@ export function addLessonInto(
     rule: trimmedRule,
     topics: [input.topic],
     triggers: triggerIds,
-    evidence: input.evidence === undefined ? [] : [...input.evidence],
+    evidence: [...new Set(input.evidence ?? [])],
     status: 'active',
     createdAt: input.createdAt ?? todayIso(),
     ...(input.rationale === undefined ? {} : { rationale: input.rationale }),
     ...(input.scope === 'always' ? { scope: 'always' as const } : {}),
   };
-  const warnings = inspectCapturedLesson(graph, id, options.knownPaths);
   const nearDup = nearDuplicateWarning(graph, id);
   return {
     id,
     isNewLesson: true,
     isNewTopic,
     newTriggerIds,
-    warnings: nearDup === null ? warnings : [...warnings, nearDup],
+    changes: [],
+    warnings: [
+      ...inspectCapturedLesson(graph, id, options.knownPaths),
+      ...(nearDup === null ? [] : [nearDup]),
+      ...droppedWarnings,
+    ],
   };
-}
-
-/**
- * Find an ACTIVE lesson with the same normalized rule. Inactive
- * (deprecated/superseded) lessons are ignored on purpose: re-capturing a rule
- * whose only match is dead must produce a fresh ACTIVE lesson (a live
- * replacement), not silently enrich a corpse that recall will never surface.
- */
-function findExistingLessonByRule(graph: LessonsGraph, ruleKey: string): string | null {
-  for (const [id, lesson] of Object.entries(graph.lessons)) {
-    if (lesson.status !== 'active') continue;
-    if (normalizeRule(lesson.rule) === ruleKey) return id;
-  }
-  return null;
 }

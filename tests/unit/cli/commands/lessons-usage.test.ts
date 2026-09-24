@@ -1,8 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  LESSONS_SUBCOMMANDS,
-  LESSONS_USAGE,
-} from '../../../../src/cli/commands/lessons-usage.js';
+import { LESSONS_SUBCOMMANDS, LESSONS_USAGE } from '../../../../src/cli/commands/lessons-usage.js';
 
 /**
  * `LESSONS_USAGE` is the single source of truth for the lessons subcommand
@@ -22,13 +19,14 @@ const CANONICAL_SUBCOMMANDS = [
   'strip-markers',
   'journal',
   'validate',
+  'resolve',
   'stats',
   'prune',
   'import-md',
 ] as const;
 
 describe('LESSONS_SUBCOMMANDS — canonical source of truth', () => {
-  it('lists exactly the 13 dispatched subcommands in canonical order', () => {
+  it('lists exactly the 14 dispatched subcommands in canonical order', () => {
     expect([...LESSONS_SUBCOMMANDS]).toEqual([...CANONICAL_SUBCOMMANDS]);
   });
 

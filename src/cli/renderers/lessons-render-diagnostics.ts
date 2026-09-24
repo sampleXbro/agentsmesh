@@ -1,4 +1,4 @@
-import { INEFFECTIVE_MIN_DELIVERIES } from '../../lessons/validate-health.js';
+import { INEFFECTIVE_MIN_DELIVERIES, MISS_WINDOW_MS } from '../../lessons/effectiveness.js';
 import { logger } from '../../utils/output/logger.js';
 import type {
   LessonsPruneData,
@@ -32,21 +32,31 @@ export function renderStats(data: LessonsStatsData, format: 'text' | 'json'): vo
   }
   if (data.hasLog) renderRecallStats(data.report);
   if (data.hasCaptureLog) renderCaptureStats(data);
+  // The outcome log is on by default; recall/capture telemetry is opt-in.
+  if (!data.hasLog && !data.hasCaptureLog && !data.telemetryEnabled) logger.info(ENABLE_TELEMETRY);
   if (data.hasOutcomeLog) renderEffectivenessStats(data.effectiveness);
   // Diagnoses last, after every block — the numbers above are their evidence.
   for (const line of data.advice) logger.warn(line);
 }
 
+/** Names the config switch first: hooks started by desktop apps never see shell env vars. */
+const ENABLE_TELEMETRY =
+  '(recall/capture telemetry is off — set "telemetry": true in .agentsmesh/lessons/config.json ' +
+  '(hooks started by desktop apps do not inherit shell env vars), or AGENTSMESH_LESSONS_TELEMETRY=1 ' +
+  'for one terminal or MCP server process.)';
+
 function renderEffectivenessStats(e: LessonsStatsData['effectiveness']): void {
-  // The BENEFIT side. `held` is a COARSE upper bound (a delivery with no recorded
-  // repeat on the same action) — not proof of prevention — so it is labeled as
-  // such, with a pointer to `validate` for the actionable ineffective/uncovered list.
+  // The BENEFIT side. `held` is a COARSE upper bound — not proof of prevention —
+  // and the distinct failing-action count shows whether one noisy action drives it.
+  const minutes = MISS_WINDOW_MS / 60_000;
   logger.info(
     `effectiveness (coarse): ${e.deliveries} deliveries of ${e.lessonsDelivered} lesson${e.lessonsDelivered === 1 ? '' : 's'}, ` +
-      `held ${pct(e.heldRate)} (no repeat recorded on the same action after delivery — a weak upper bound, not proof)`,
+      `held ${pct(e.heldRate)} — ${e.misses} miss${e.misses === 1 ? '' : 'es'} from ${e.failingActions} distinct failing ` +
+      `action${e.failingActions === 1 ? '' : 's'} (a failure the lesson's own triggers match, within ${minutes} min in the ` +
+      'same session — a weak upper bound, not proof)',
   );
   logger.info(
-    `  ${e.ineffectiveLessons} ineffective (delivered ≥${INEFFECTIVE_MIN_DELIVERIES}×, repeated every time), ` +
+    `  ${e.ineffectiveLessons} ineffective (delivered ≥${INEFFECTIVE_MIN_DELIVERIES}×, missed every time), ` +
       `${e.failuresObserved} failures observed — run \`lessons validate\` for the actionable list`,
   );
 }
@@ -59,10 +69,9 @@ function renderEmptyStatsHint(telemetryEnabled: boolean): void {
     );
   } else {
     logger.info(
-      '(no lessons telemetry yet — recording happens during `lessons query` recalls and `lessons add` captures, NOT during `stats`. ' +
-        'Set AGENTSMESH_LESSONS_TELEMETRY=1 in the environment that runs them — your shell for CLI ' +
-        'calls, and/or the MCP server process for agent calls — then re-run `stats`.)',
+      '(no lessons telemetry yet — recording happens during `lessons query` recalls and `lessons add` captures, NOT during `stats`.)',
     );
+    logger.info(ENABLE_TELEMETRY);
   }
 }
 
@@ -139,7 +148,7 @@ function renderUnreachable(ids: readonly string[]): void {
   );
 }
 
-export function renderValidate(data: LessonsValidateData): void {
+export function renderValidate(data: LessonsValidateData, summary?: string): void {
   // Findings (errors + advisory warnings) go to stderr; the stdout verdict tracks
   // the EXIT semantics — `ok` means "no error-level findings". Warnings (e.g. a
   // DEAD_FILE_GLOB) are advisories that don't fail validation, so they're shown
@@ -150,4 +159,5 @@ export function renderValidate(data: LessonsValidateData): void {
     else logger.warn(line);
   }
   if (data.ok) logger.success('Lessons graph: ok.');
+  else if (summary !== undefined) logger.error(summary);
 }

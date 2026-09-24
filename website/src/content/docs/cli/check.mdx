@@ -40,6 +40,14 @@ A generated file (`.claude/`, `.cursor/`, `AGENTS.md`, etc.) was hand-edited, de
 
 JSON output exposes the two drift classes directly as `canonicalDrift` and `outputDrift`; the per-path arrays remain available for actionable diagnostics.
 
+### Fixing drift
+
+`check` prints the fix that matches what it found:
+
+- **Canonical or generated-output drift:** run `agentsmesh generate`. It regenerates from `.agentsmesh/` and records fresh checksums in the lock. It also replaces hand edits to generated files, so put lasting changes in `.agentsmesh/`.
+- **Locked features changed** (`collaboration.strategy: lock`): plain `generate` refuses them, so revert the change, or run `agentsmesh generate --force` to accept it.
+- **The lock has git conflict markers:** run `agentsmesh merge` to rebuild it, then `agentsmesh generate`. JSON output reports this as `lockConflict: true`.
+
 ### Old-format locks
 
 Locks written before generated-output tracking existed have no `outputs` map. For those, output verification is skipped and `check` prints:
@@ -48,7 +56,18 @@ Locks written before generated-output tracking existed have no `outputs` map. Fo
 Generated-output verification skipped; run 'agentsmesh generate' to refresh the lock and enable it.
 ```
 
-Running `agentsmesh generate` once upgrades the lock and enables output verification on subsequent checks. A run of `agentsmesh merge` intentionally omits the `outputs` map (a merge changes canonical inputs), so verification is reported as skipped until you regenerate.
+Running `agentsmesh generate` once upgrades the lock and enables output verification on subsequent checks. `agentsmesh merge` keeps the `outputs` map when either branch's lock had one, so a merge does not turn verification off. After a merge, `check` can report a generated file that only the other branch changed as modified, because the merged lock may keep your branch's older checksum for it; run `agentsmesh generate` to record the real checksums. Only a merge of two locks without an `outputs` map gives a lock in this old format.
+
+## Unreadable lessons graph
+
+In project scope, `check` also fails (exit 1) when `.agentsmesh/lessons/lessons.json` exists but cannot be read, or is still in an unfinished git merge, even if the lock is in sync. The error starts with `Lessons graph unreadable:` and names the cause and the next step:
+
+- **Merge conflict** — the file has git conflict markers. Run `agentsmesh lessons resolve`, then `git add` the file. `check` also fails when git still holds `lessons.json` unmerged and the file is missing lessons from the other branch (for example, the merge driver could not run). Run `agentsmesh lessons resolve` **before** `git add`, or the other branch's lessons are dropped.
+- **Corrupt** — the JSON cannot be parsed. Keep a copy, then repair it or restore the last committed graph from git.
+- **Schema** — the file is valid JSON but does not match the lessons schema. The error lists the first problems. Keep a copy, then fix those fields by hand or restore the last committed graph from git.
+- **Newer version** — the graph was written by a newer agentsmesh. Upgrade agentsmesh.
+
+A project without a lessons graph is not affected. See [`agentsmesh lessons`](../lessons/#team-workflow).
 
 ## CI integration
 
@@ -87,9 +106,9 @@ jobs:
 | Code | Meaning |
 |------|---------|
 | `0` | Canonical sources and recorded generated outputs both match the lock. |
-| `1` | Drift detected — canonical sources or generated outputs are out of sync. |
+| `1` | Drift detected — canonical sources or generated outputs are out of sync — or the project's lessons graph cannot be read. |
 
-The MCP `check` tool mirrors this in its result payload, exposing `canonicalDrift`, `outputDrift`, `outputsModified`, `outputsRemoved`, `outputsStale`, and `outputsChecked`.
+The MCP `check` tool mirrors this in its result payload, exposing `canonicalDrift`, `outputDrift`, `outputsModified`, `outputsRemoved`, `outputsStale`, `outputsChecked`, `lockConflict` (true when the lock has git conflict markers; run `agentsmesh merge`), and `lessonsGraphError`. That field holds the same text as the CLI JSON `error` when `.agentsmesh/lessons/lessons.json` cannot be read, so the MCP tool and `agentsmesh check` fail on the same things; it is `null` otherwise.
 
 ## Difference between `check` and `generate --check`
 

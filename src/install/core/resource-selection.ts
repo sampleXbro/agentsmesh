@@ -6,68 +6,6 @@ import type { ExtendPick } from '../../config/core/schema.js';
 import type { CanonicalFiles } from '../../core/types.js';
 import { ruleSlug } from './validate-resources.js';
 
-/**
- * Narrow install discovery to implicit pick names.
- * Omitted pick keys clear that category (path-scoped install must not keep other imported features).
- * Clears mcp/permissions/hooks/ignore when narrowing — install pick does not carry those.
- */
-export function narrowDiscoveredForImplicitPick(
-  canonical: CanonicalFiles,
-  implicit?: ExtendPick,
-): CanonicalFiles {
-  if (!implicit) return canonical;
-
-  let next: CanonicalFiles = {
-    ...canonical,
-    mcp: null,
-    permissions: null,
-    hooks: null,
-    ignore: [],
-  };
-
-  if (implicit.skills !== undefined) {
-    const w = new Set(implicit.skills);
-    next = {
-      ...next,
-      skills: implicit.skills.length === 0 ? [] : next.skills.filter((s) => w.has(s.name)),
-    };
-  } else {
-    next = { ...next, skills: [] };
-  }
-
-  if (implicit.rules !== undefined) {
-    const w = new Set(implicit.rules);
-    next = {
-      ...next,
-      rules: implicit.rules.length === 0 ? [] : next.rules.filter((r) => w.has(ruleSlug(r))),
-    };
-  } else {
-    next = { ...next, rules: [] };
-  }
-
-  if (implicit.commands !== undefined) {
-    const w = new Set(implicit.commands);
-    next = {
-      ...next,
-      commands: implicit.commands.length === 0 ? [] : next.commands.filter((c) => w.has(c.name)),
-    };
-  } else {
-    next = { ...next, commands: [] };
-  }
-
-  if (implicit.agents !== undefined) {
-    const w = new Set(implicit.agents);
-    next = {
-      ...next,
-      agents: implicit.agents.length === 0 ? [] : next.agents.filter((a) => w.has(a.name)),
-    };
-  } else {
-    next = { ...next, agents: [] };
-  }
-
-  return next;
-}
-
 function featuresFromImplicitPick(implicit: ExtendPick | undefined): string[] | undefined {
   if (!implicit) return undefined;
   const features: string[] = [];

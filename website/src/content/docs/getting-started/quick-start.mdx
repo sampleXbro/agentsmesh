@@ -132,7 +132,7 @@ agentsmesh init --lessons
 agentsmesh generate
 ```
 
-This adds a shared memory your agents read before edits and write after failures, so the same mistake doesn't happen twice — in any tool. It also gitignores `.agentsmesh/lessons/recall-log.jsonl` (opt-in telemetry, a runtime artifact). See [Teach your AI agents with lessons](../../guides/lessons/).
+This adds a shared memory your agents read before edits and write after failures, so the same mistake doesn't happen twice — in any tool. It also gitignores the lessons runtime files (local logs, the lock, temp files) and sets up a git merge driver so lessons captured on two branches merge cleanly. See [Teach your AI agents with lessons](../../guides/lessons/).
 
 ## Try a community skill pack
 
@@ -142,7 +142,7 @@ agentsmesh installs list                              # see what landed
 agentsmesh uninstall addyosmani-agent-skills          # remove cleanly when done
 ```
 
-The classifier sees `skills/<kebab>/SKILL.md`, multi-tool root rules, and per-target `.claude/commands` / `.gemini/commands` directories, and imports the whole pack in one shot. Per-entity prompts only surface when there are out-of-scope relative links to resolve. See the [skill-pack guide](../../guides/installing-skill-packs/) for the full prompt walkthrough, `--force` behavior, and JSON shape; see [`agentsmesh install`](../../cli/install/), [`agentsmesh uninstall`](../../cli/uninstall/), and [`agentsmesh installs`](../../cli/installs/) for flag references.
+The classifier sees `skills/<name>/SKILL.md`, multi-tool root rules, and per-target `.claude/commands` / `.gemini/commands` directories, and imports the whole pack in one shot. Per-entity prompts only surface when there are out-of-scope relative links to resolve. See the [skill-pack guide](../../guides/installing-skill-packs/) for the full prompt walkthrough, `--force` behavior, and JSON shape; see [`agentsmesh install`](../../cli/install/), [`agentsmesh uninstall`](../../cli/uninstall/), and [`agentsmesh installs`](../../cli/installs/) for flag references.
 
 ## What to commit and what to gitignore
 

@@ -18,19 +18,30 @@ const GRAPH: LessonsGraph = {
   topics: { t: { summary: 't' } },
   triggers: { g: { kind: 'file_glob', pattern: 'src/**' } },
 };
-const d = (lessonId: string, k: string): OutcomeEvent => ({
-  ts: '2026-01-01T00:00:00Z',
+const at = (minutes: number): string =>
+  new Date(Date.parse('2026-01-01T00:00:00Z') + minutes * 60_000).toISOString();
+const d = (lessonId: string, k: string, minutes: number): OutcomeEvent => ({
+  ts: at(minutes),
   kind: 'delivered',
   lessonId,
   contextKey: k,
   session: 's1',
 });
-const f = (k: string): OutcomeEvent => ({
-  ts: '2026-01-01T00:00:00Z',
+const f = (k: string, minutes: number): OutcomeEvent => ({
+  ts: at(minutes),
   kind: 'failure',
   contextKey: k,
   session: 's1',
 });
+
+const ALWAYS_MISSED = [
+  d('l1', 'file:src/a.ts', 0),
+  f('file:src/a.ts', 1),
+  d('l1', 'file:src/b.ts', 60),
+  f('file:src/b.ts', 61),
+  d('l1', 'file:src/a.ts', 120),
+  f('file:src/a.ts', 121),
+];
 
 describe('summarizeEffectiveness', () => {
   it('is neutral (heldRate 1, all zero) with no events', () => {
@@ -38,27 +49,37 @@ describe('summarizeEffectiveness', () => {
       deliveries: 0,
       lessonsDelivered: 0,
       failuresObserved: 0,
+      misses: 0,
+      failingActions: 0,
       heldRate: 1,
       ineffectiveLessons: 0,
     });
   });
 
-  it('held rate = fraction of deliveries NOT followed by a same-action repeat', () => {
-    // l1 delivered for k1, then k1 fails (miss); l1 delivered for k2, no repeat (held).
-    const r = summarizeEffectiveness([d('l1', 'k1'), f('k1'), d('l1', 'k2')], GRAPH);
-    expect(r).toEqual({
+  it('held rate = deliveries NOT followed by a failure matching the lesson, with distinct failing actions beside it', () => {
+    // Miss: src/a.ts fails a minute later. Held: the cmd:cd failure is outside the lesson's trigger.
+    const events = [
+      d('l1', 'file:src/a.ts', 0),
+      f('file:src/a.ts', 1),
+      d('l1', 'file:src/b.ts', 60),
+      f('cmd:cd', 61),
+    ];
+    expect(summarizeEffectiveness(events, GRAPH)).toEqual({
       deliveries: 2,
       lessonsDelivered: 1,
-      failuresObserved: 1,
+      failuresObserved: 2,
+      misses: 1,
+      failingActions: 1,
       heldRate: 0.5,
       ineffectiveLessons: 0, // < 3 deliveries
     });
   });
 
   it('flags a lesson delivered >=3× that missed every time as ineffective', () => {
-    const events = [d('l1', 'k1'), f('k1'), d('l1', 'k2'), f('k2'), d('l1', 'k3'), f('k3')];
-    const r = summarizeEffectiveness(events, GRAPH);
+    const r = summarizeEffectiveness(ALWAYS_MISSED, GRAPH);
     expect(r.deliveries).toBe(3);
+    expect(r.misses).toBe(3);
+    expect(r.failingActions).toBe(2);
     expect(r.heldRate).toBe(0);
     expect(r.ineffectiveLessons).toBe(1);
   });
@@ -68,7 +89,6 @@ describe('summarizeEffectiveness', () => {
       ...GRAPH,
       lessons: { l1: { ...GRAPH.lessons.l1!, status: 'deprecated' } },
     };
-    const events = [d('l1', 'k1'), f('k1'), d('l1', 'k2'), f('k2'), d('l1', 'k3'), f('k3')];
-    expect(summarizeEffectiveness(events, graph).ineffectiveLessons).toBe(0);
+    expect(summarizeEffectiveness(ALWAYS_MISSED, graph).ineffectiveLessons).toBe(0);
   });
 });

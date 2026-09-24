@@ -1,6 +1,8 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { stripBom } from '../utils/filesystem/fs-text-encoding.js';
 import { appendJsonl, logExists, readJsonl } from './jsonl-log.js';
+import { isRecallRecord } from './log-record-guards.js';
 import { lessonsPaths } from './paths.js';
 
 /** Keep at most this many recall records; older ones are dropped on truncation. */
@@ -105,20 +107,26 @@ export function recallLogPath(projectRoot: string): string {
   return join(lessonsPaths(projectRoot).base, 'recall-log.jsonl');
 }
 
-/** True when the project's lessons config opts in. Never throws: a broken file is "off". */
-function configTelemetry(projectRoot: string): boolean {
+/** A boolean field of the project's lessons config; undefined when absent or unreadable. */
+export function configFlag(projectRoot: string, key: string): boolean | undefined {
   const path = lessonsPaths(projectRoot).config;
-  if (!existsSync(path)) return false;
+  if (!existsSync(path)) return undefined;
   try {
-    const parsed: unknown = JSON.parse(readFileSync(path, 'utf8'));
-    return (
-      typeof parsed === 'object' &&
-      parsed !== null &&
-      (parsed as Record<string, unknown>).telemetry === true
-    );
+    const parsed: unknown = JSON.parse(stripBom(readFileSync(path, 'utf8')));
+    if (typeof parsed !== 'object' || parsed === null) return undefined;
+    const value = (parsed as Record<string, unknown>)[key];
+    return typeof value === 'boolean' ? value : undefined;
   } catch {
-    return false;
+    return undefined;
   }
+}
+
+/** `1`/`true`/`yes`/`on` force on, `0`/`false`/`no`/`off` force off; else the config decides. */
+function envOverride(raw: string | undefined): boolean | undefined {
+  const value = raw?.trim().toLowerCase();
+  if (value === '1' || value === 'true' || value === 'yes' || value === 'on') return true;
+  if (value === '0' || value === 'false' || value === 'no' || value === 'off') return false;
+  return undefined;
 }
 
 /**
@@ -130,10 +138,28 @@ export function isTelemetryEnabled(
   env: NodeJS.ProcessEnv = process.env,
   projectRoot?: string,
 ): boolean {
-  const raw = env[TELEMETRY_ENV];
-  if (raw === '1') return true;
-  if (raw === '0') return false;
-  return projectRoot !== undefined && configTelemetry(projectRoot);
+  return (
+    envOverride(env[TELEMETRY_ENV]) ??
+    (projectRoot !== undefined && configFlag(projectRoot, 'telemetry') === true)
+  );
+}
+
+/**
+ * Env override for the outcome log (`1` on, `0` off). The outcome log is a
+ * separate switch from telemetry: repeat-failure detection reads it, so it is
+ * ON unless `.agentsmesh/lessons/config.json` sets `"outcomeLog": false`. It is
+ * local, gitignored and holds normalized keys and error classes only.
+ */
+export const OUTCOME_LOG_ENV = 'AGENTSMESH_LESSONS_OUTCOME_LOG';
+
+export function isOutcomeLogEnabled(
+  env: NodeJS.ProcessEnv = process.env,
+  projectRoot?: string,
+): boolean {
+  return (
+    envOverride(env[OUTCOME_LOG_ENV]) ??
+    (projectRoot === undefined || configFlag(projectRoot, 'outcomeLog') !== false)
+  );
 }
 
 /**
@@ -157,7 +183,9 @@ export function recallLogExists(projectRoot: string): boolean {
   return logExists(recallLogPath(projectRoot));
 }
 
-/** Read the recall log, skipping any malformed line. Returns [] when absent. */
+/** Read every well-formed recall record. Returns [] when absent or unreadable. */
 export function readRecallLog(projectRoot: string): RecallTelemetryRecord[] {
-  return readJsonl<RecallTelemetryRecord>(recallLogPath(projectRoot));
+  return readJsonl(recallLogPath(projectRoot), isRecallRecord, {
+    maxBytes: RECALL_LOG_TRIM_TRIGGER_BYTES,
+  });
 }

@@ -16,6 +16,7 @@ import {
   ANTIGRAVITY_WORKFLOWS_DIR,
   ANTIGRAVITY_SKILLS_DIR,
 } from './constants.js';
+import { ignoreOutput } from '../catalog/ignore-output.js';
 
 export type AntigravityOutput = FeatureGeneratorOutput;
 
@@ -65,10 +66,7 @@ export function generateAgents(canonical: CanonicalFiles): AntigravityOutput[] {
 }
 
 /** Project-only; the global layout suppresses this path (no home-dir ignore file). */
-export function generateIgnore(canonical: CanonicalFiles): AntigravityOutput[] {
-  if (canonical.ignore.length === 0) return [];
-  return [{ path: ANTIGRAVITY_IGNORE_FILE, content: canonical.ignore.join('\n') }];
-}
+export const generateIgnore = ignoreOutput(ANTIGRAVITY_IGNORE_FILE);
 
 export function renderAntigravityGlobalInstructions(canonical: CanonicalFiles): string {
   const root = canonical.rules.find((rule) => rule.root);

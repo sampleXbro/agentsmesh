@@ -4,6 +4,7 @@
  * cost when an agent pastes the output into its context.
  */
 import { logger } from '../../utils/output/logger.js';
+import { printCommandHelp } from '../help.js';
 import { LESSONS_USAGE } from '../commands/lessons-usage.js';
 import type { LessonsCommandResult } from '../commands/lessons-types.js';
 import type {
@@ -15,9 +16,11 @@ import type {
 } from '../commands/lessons-types.js';
 import { renderPrune, renderStats, renderValidate } from './lessons-render-diagnostics.js';
 import { renderQuery } from './lessons-render-query.js';
+import { renderResolve } from './lessons-render-resolve.js';
 
 export function renderLessons(result: LessonsCommandResult): void {
-  if (result.error !== undefined && result.error.length > 0) {
+  // `validate` renders its findings first, then its summary error.
+  if (result.error !== undefined && result.error.length > 0 && result.subcommand !== 'validate') {
     logger.error(result.error);
     // A failed command has only a placeholder data shape — don't fall through to
     // the success renderer (which would print e.g. a bogus "Existing lesson:").
@@ -25,7 +28,7 @@ export function renderLessons(result: LessonsCommandResult): void {
   }
   switch (result.subcommand) {
     case 'help':
-      return printHelp();
+      return result.topic !== undefined ? printCommandHelp('lessons', [result.topic]) : printHelp();
     case 'hook':
       // Raw harness JSON straight to stdout (no logger/ANSI) — the harness parses
       // it. Empty output = inject nothing.
@@ -68,11 +71,13 @@ export function renderLessons(result: LessonsCommandResult): void {
     case 'journal':
       return renderJournal(result.data);
     case 'validate':
-      return renderValidate(result.data);
+      return renderValidate(result.data, result.error);
     case 'prune':
       return renderPrune(result.data);
     case 'stats':
       return renderStats(result.data, result.format);
+    case 'resolve':
+      return renderResolve(result.data);
     case 'import-md':
       return renderImportMd(result.data);
   }
@@ -80,11 +85,9 @@ export function renderLessons(result: LessonsCommandResult): void {
 
 function renderAdd(data: LessonsAddData): void {
   if (!data.isNewLesson) {
-    // Re-capture upserts: report when new triggers were merged so the agent
-    // knows its capture changed the lesson rather than being a silent no-op.
-    if (data.newTriggerIds.length > 0) {
-      const n = data.newTriggerIds.length;
-      logger.success(`Updated lesson: ${data.id} (+${n} trigger${n === 1 ? '' : 's'})`);
+    // Re-capture upserts: say what changed so a merge is never reported as a no-op.
+    if (data.changes.length > 0) {
+      logger.success(`Updated lesson: ${data.id} — ${data.changes.join('; ')}`);
     } else {
       logger.info(`Existing lesson: ${data.id} (no change)`);
     }
@@ -101,7 +104,6 @@ function renderAdd(data: LessonsAddData): void {
 
 /** Non-blocking trigger-hygiene nudges — warn (stderr), never fail the capture. */
 function renderGuardrails(data: LessonsAddData): void {
-  if (data.locationNote !== undefined) logger.warn(data.locationNote);
   if (data.activationNote !== undefined) logger.warn(data.activationNote);
   for (const w of data.warnings) logger.warn(`${w.code}: ${w.message}`);
   const ap = data.autoPruned;
@@ -126,7 +128,12 @@ function renderShow(data: LessonsShowData): void {
 }
 
 function renderJournal(data: LessonsJournalData): void {
-  for (const e of data.entries) logger.info(`${e.createdAt}  ${e.id}  ${e.rule}`);
+  for (const e of data.entries) {
+    let mark = '';
+    if (e.supersededBy !== undefined) mark = `[superseded by ${e.supersededBy}] `;
+    else if (e.status !== 'active') mark = `[${e.status}] `;
+    logger.info(`${e.createdAt}  ${e.id}  ${mark}${e.rule}`);
+  }
   if (data.setupHint !== undefined) logger.warn(data.setupHint);
 }
 

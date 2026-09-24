@@ -1,4 +1,4 @@
-import { normalizeCommand } from './context-key.js';
+import { triggerHint } from './capture-trigger-hint.js';
 import { commitSeen, openSessionDedup } from './seen-cache.js';
 
 /**
@@ -31,7 +31,7 @@ export const CAPTURE_RECURRENCE_SENTINEL = '__capture-nudge-recurrence__';
 export const RECURRENCE_THRESHOLD = 2;
 
 export interface CaptureNudgeInput {
-  /** Project-relative path of the file whose edit failed, if any. */
+  /** Path of the file whose edit failed, if any (suggested project-relative). */
   readonly file?: string;
   /** Shell command that failed, if any. */
   readonly command?: string;
@@ -45,43 +45,6 @@ export interface CaptureNudgeInput {
   readonly covered?: boolean;
   /** Coarse class of the recurring error, surfaced so the author writes a precise rule. */
   readonly lastErrorClass?: string;
-}
-
-/** Escape a literal string for use inside a command_pattern regex. */
-function escapeRegex(literal: string): string {
-  return literal.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-/**
- * The command class as a word-bounded regex: an unanchored `rm` would fire on
- * `pnpm run format`. A boundary is only meaningful next to a word character.
- */
-function commandClassPattern(cls: string): string {
-  const lead = /^\w/.test(cls) ? '\\b' : '';
-  const tail = /\w$/.test(cls) ? '\\b' : '';
-  return `${lead}${escapeRegex(cls)}${tail}`;
-}
-
-/**
- * A ready-to-paste trigger flag pre-filled with the failed file/command — a
- * STARTING point, not the answer. The file is the DISCOVERY site; every nudge
- * appends {@link RECURRENCE_SURFACE_HINT} to steer the author to widen it.
- *
- * The command hint is CONCRETE: field graphs starve on command triggers (authors
- * skip a fill-in-the-regex placeholder), so pre-fill the failed command's CLASS
- * (program + subcommand), word-bounded — it fires on the action, not the exact
- * argv, and `validate` separately warns on over-anchored `^pnpm ...` forms.
- */
-function triggerHint(input: CaptureNudgeInput): string {
-  if (input.file !== undefined) return `--trigger-file '${input.file}'`;
-  if (input.command !== undefined) {
-    const cls = normalizeCommand(input.command);
-    // A class carrying a single quote (a kept quoted-argument fragment like
-    // `grep bar'`) would unbalance the pasted shell line — placeholder instead.
-    if (cls.length > 0 && !cls.includes("'")) return `--trigger-cmd '${commandClassPattern(cls)}'`;
-    return `--trigger-cmd '<regex matching the command>'`;
-  }
-  return `--trigger-file '<glob>'`;
 }
 
 /**
@@ -104,7 +67,10 @@ const RULE_SHAPE_HINT = '  Rule shape: cite the symptom, and say why the obvious
 
 /** The pre-filled `lessons add` command + authoring hints, shared by both tiers. */
 function addCommandBlock(input: CaptureNudgeInput): string {
-  return `  agentsmesh lessons add "<imperative rule>" --topic <id> ${triggerHint(input)}\n${RECURRENCE_SURFACE_HINT}\n${RULE_SHAPE_HINT}`;
+  // The file-class advice is about globs; a failed command gets a command trigger.
+  const fileClass = input.file !== undefined || input.command === undefined;
+  const surface = fileClass ? `\n${RECURRENCE_SURFACE_HINT}` : '';
+  return `  agentsmesh lessons add "<imperative rule>" --topic <id> ${triggerHint(input)}${surface}\n${RULE_SHAPE_HINT}`;
 }
 
 function genericNudge(input: CaptureNudgeInput): string {
@@ -119,7 +85,8 @@ function recurrenceNudge(input: CaptureNudgeInput): string {
   const errNote =
     input.lastErrorClass !== undefined ? ` The recurring error: «${input.lastErrorClass}».` : '';
   return (
-    `This action has failed ${input.failures}× and no lesson covers it — capture the rule now so ` +
+    `This action has failed ${input.failures}× in the last 24 hours and no lesson covers it — ` +
+    'capture the rule now so ' +
     `recall can prevent the next repeat:${errNote}\n${addCommandBlock(input)}`
   );
 }

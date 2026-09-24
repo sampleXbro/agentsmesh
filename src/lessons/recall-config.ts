@@ -1,4 +1,5 @@
 import { existsSync, readFileSync } from 'node:fs';
+import { stripBom } from '../utils/filesystem/fs-text-encoding.js';
 import { lessonsPaths } from './paths.js';
 import { DEFAULT_RECALL_LIMIT, DEFAULT_RECALL_MAX_TOKENS } from './ranking.js';
 
@@ -26,8 +27,10 @@ export interface LessonsConfigFile {
   readonly recallLimit: number;
   readonly recallMaxTokens: number;
   readonly autoPrune: boolean;
-  /** Opt into the recall/capture/outcome logs that `stats`, effectiveness ranking and the health view read. */
+  /** Opt into the recall and capture logs that `stats` and the health view read. */
   readonly telemetry: boolean;
+  /** The outcome log behind effectiveness ranking; its own switch, on by default (see telemetry.ts). */
+  readonly outcomeLog: boolean;
 }
 
 /**
@@ -44,11 +47,38 @@ export function defaultLessonsConfig(): LessonsConfigFile {
     recallMaxTokens: DEFAULT_RECALL_MAX_TOKENS,
     autoPrune: false,
     telemetry: false,
+    outcomeLog: true,
   };
 }
 
+/**
+ * Hard ceilings for the committed config. `config.json` is git-tracked, so a
+ * cloned repo sets these; without a cap it could make every recall inject
+ * hundreds of thousands of characters. 50 lessons / 8000 tokens (~32k chars)
+ * is 5x/6x the defaults. Per-invocation flags are the user's own and not capped.
+ */
+export const MAX_RECALL_LIMIT = 50;
+export const MAX_RECALL_MAX_TOKENS = 8000;
+
 function positiveInt(value: unknown): number | null {
   return typeof value === 'number' && Number.isInteger(value) && value > 0 ? value : null;
+}
+
+function clamped(value: unknown, ceiling: number): number | null {
+  const n = positiveInt(value);
+  return n === null ? null : Math.min(n, ceiling);
+}
+
+function overCeiling(value: unknown, ceiling: number): boolean {
+  const n = positiveInt(value);
+  return n !== null && n > ceiling;
+}
+
+function invalidFields(fields: readonly string[], expected: string): string {
+  return (
+    `lessons config.json has invalid ${fields.join(' and ')} (expected ${expected}) — using the ` +
+    `default for ${fields.length === 1 ? 'it' : 'them'}.`
+  );
 }
 
 /**
@@ -64,21 +94,33 @@ export function lessonsConfigWarning(projectRoot: string): string | null {
   if (!existsSync(path)) return null;
   let parsed: unknown;
   try {
-    parsed = JSON.parse(readFileSync(path, 'utf8'));
+    parsed = JSON.parse(stripBom(readFileSync(path, 'utf8')));
   } catch {
     return `lessons config.json is not valid JSON — using built-in recall defaults. Fix or delete .agentsmesh/lessons/config.json.`;
   }
-  if (typeof parsed !== 'object' || parsed === null) {
+  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
     return `lessons config.json is not a JSON object — using built-in recall defaults.`;
   }
   const cfg = parsed as Record<string, unknown>;
-  const bad: string[] = [];
-  if ('recallLimit' in cfg && positiveInt(cfg.recallLimit) === null) bad.push('recallLimit');
-  if ('recallMaxTokens' in cfg && positiveInt(cfg.recallMaxTokens) === null) {
-    bad.push('recallMaxTokens');
+  const badInts = ['recallLimit', 'recallMaxTokens'].filter(
+    (key) => key in cfg && positiveInt(cfg[key]) === null,
+  );
+  const badSwitches = ['autoPrune', 'telemetry', 'outcomeLog'].filter(
+    (key) => key in cfg && typeof cfg[key] !== 'boolean',
+  );
+  const invalid = [
+    ...(badInts.length > 0 ? [invalidFields(badInts, 'a positive integer')] : []),
+    ...(badSwitches.length > 0 ? [invalidFields(badSwitches, 'true or false')] : []),
+  ];
+  if (invalid.length > 0) return invalid.join(' ');
+  const over: string[] = [];
+  if (overCeiling(cfg.recallLimit, MAX_RECALL_LIMIT))
+    over.push(`recallLimit above ${MAX_RECALL_LIMIT}`);
+  if (overCeiling(cfg.recallMaxTokens, MAX_RECALL_MAX_TOKENS)) {
+    over.push(`recallMaxTokens above ${MAX_RECALL_MAX_TOKENS}`);
   }
-  if (bad.length > 0) {
-    return `lessons config.json has invalid ${bad.join(' and ')} (expected a positive integer) — using the default for ${bad.length === 1 ? 'it' : 'them'}.`;
+  if (over.length > 0) {
+    return `lessons config.json sets ${over.join(' and ')} — clamped to the ceiling.`;
   }
   return null;
 }
@@ -91,12 +133,12 @@ export function loadRecallConfig(projectRoot: string): RecallConfig {
   const path = lessonsPaths(projectRoot).config;
   if (!existsSync(path)) return fallback;
   try {
-    const parsed: unknown = JSON.parse(readFileSync(path, 'utf8'));
+    const parsed: unknown = JSON.parse(stripBom(readFileSync(path, 'utf8')));
     if (typeof parsed !== 'object' || parsed === null) return fallback;
     const cfg = parsed as Record<string, unknown>;
     return {
-      limit: positiveInt(cfg.recallLimit) ?? fallback.limit,
-      maxTokens: positiveInt(cfg.recallMaxTokens) ?? fallback.maxTokens,
+      limit: clamped(cfg.recallLimit, MAX_RECALL_LIMIT) ?? fallback.limit,
+      maxTokens: clamped(cfg.recallMaxTokens, MAX_RECALL_MAX_TOKENS) ?? fallback.maxTokens,
     };
   } catch {
     return fallback;

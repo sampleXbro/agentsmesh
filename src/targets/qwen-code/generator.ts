@@ -26,6 +26,7 @@ import {
   QWEN_SETTINGS,
   QWEN_IGNORE,
 } from './constants.js';
+import { ignoreOutput } from '../catalog/ignore-output.js';
 
 export type QwenCodeOutput = FeatureGeneratorOutput;
 
@@ -137,10 +138,7 @@ export function generateMcp(canonical: CanonicalFiles): QwenCodeOutput[] {
 /**
  * Generate .qwenignore from canonical ignore patterns.
  */
-export function generateIgnore(canonical: CanonicalFiles): QwenCodeOutput[] {
-  if (!canonical.ignore || canonical.ignore.length === 0) return [];
-  return [{ path: QWEN_IGNORE, content: canonical.ignore.join('\n') }];
-}
+export const generateIgnore = ignoreOutput(QWEN_IGNORE);
 
 /**
  * Generate .qwen/settings.json with hooks from canonical hooks config.

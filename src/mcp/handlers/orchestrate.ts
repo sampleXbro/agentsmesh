@@ -1,10 +1,6 @@
 import type { McpContext } from '../context.js';
-import {
-  loadProjectContext,
-  lint as engineLint,
-  check as engineCheck,
-  diff as engineDiff,
-} from '../../public/index.js';
+import { loadProjectContext, lint as engineLint, diff as engineDiff } from '../../public/index.js';
+import { runCheck } from '../../cli/commands/check.js';
 import { runGenerate } from '../../cli/commands/generate.js';
 import {
   type CheckHandlerResult,
@@ -39,7 +35,9 @@ async function generate(
       flags.targets = input.targets.join(',');
     }
 
-    const { data } = await runGenerate(flags, ctx.projectRoot, { printMatrix: false });
+    const { data, lockWritten } = await runGenerate(flags, ctx.projectRoot, {
+      printMatrix: false,
+    });
 
     const written = data.files.filter((f) => f.status === 'created' || f.status === 'updated');
     const byTarget: Record<string, { filesWritten: number }> = {};
@@ -51,7 +49,7 @@ async function generate(
     const result: GenerateHandlerResult = {
       filesWritten: written.length,
       byTarget,
-      lockfileUpdated: input.dry_run !== true,
+      lockfileUpdated: lockWritten,
       errors: [],
       warnings: [],
     };
@@ -93,26 +91,22 @@ async function lint(
 
 async function check(ctx: McpContext): Promise<CheckHandlerResult> {
   try {
-    const pctx = await loadProjectContext(ctx.projectRoot);
-    const report = await engineCheck({
-      config: pctx.config,
-      configDir: pctx.configDir,
-      canonicalDir: pctx.canonicalDir,
-      // Enables generated-output verification (skipped for old-format locks).
-      rootBase: pctx.projectRoot,
-      scope: pctx.scope,
-    });
+    // Delegate to the CLI check, like generate, so MCP fails on what
+    // `agentsmesh check` fails on (an unreadable lessons graph included).
+    const { data, error } = await runCheck({}, ctx.projectRoot);
     return {
-      drift: !report.inSync,
-      canonicalDrift: report.canonicalDrift,
-      outputDrift: report.outputDrift,
-      missing: [...report.removed],
-      extra: [...report.added],
-      modified: [...report.modified],
-      outputsModified: [...report.outputsModified],
-      outputsRemoved: [...report.outputsRemoved],
-      outputsStale: [...report.outputsStale],
-      outputsChecked: report.outputsChecked,
+      drift: !data.inSync,
+      lockConflict: data.lockConflict,
+      lessonsGraphError: error ?? null,
+      canonicalDrift: data.canonicalDrift,
+      outputDrift: data.outputDrift,
+      missing: data.removed,
+      extra: data.added,
+      modified: data.modified,
+      outputsModified: data.outputsModified,
+      outputsRemoved: data.outputsRemoved,
+      outputsStale: data.outputsStale,
+      outputsChecked: data.outputsChecked,
     };
   } catch (e) {
     wrapEngineError(e);

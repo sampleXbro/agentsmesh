@@ -23,6 +23,7 @@ import { appendOutcomeEvent, type OutcomeEvent } from '../../../../src/lessons/o
 import { clearSeen } from '../../../../src/lessons/seen-cache.js';
 import { readRecallLog } from '../../../../src/lessons/telemetry.js';
 import { DEFAULT_RECALL_MAX_TOKENS } from '../../../../src/lessons/ranking.js';
+import { commitAll, git, initRepo, writeFile } from '../../../helpers/temp-git-repo.js';
 
 const TELEMETRY_ON = { AGENTSMESH_LESSONS_TELEMETRY: '1' } as NodeJS.ProcessEnv;
 const failEvent = (contextKey: string): OutcomeEvent => ({
@@ -240,28 +241,14 @@ describe('runLessons query', () => {
     expect(r.data.warning).toMatch(/init --lessons/);
   });
 
-  it('warns when run from a subdir of a real lessons project (graph in an ancestor)', async () => {
-    // The ancestor must hold an actual lessons graph — a bare .agentsmesh (e.g.
-    // the global-mode config) must NOT trigger the warning.
-    mkdirSync(join(root, '.agentsmesh', 'lessons'), { recursive: true });
-    writeFileSync(join(root, '.agentsmesh', 'lessons', 'lessons.json'), '{}');
-    const sub = join(root, 'packages', 'app');
-    mkdirSync(sub, { recursive: true });
-    const r = await runLessons({ file: 'src/x.ts' }, ['query'], sub);
-    if (r.subcommand !== 'query') return;
-    expect(r.exitCode).toBe(0);
-    expect(r.data.warning).toMatch(/no lessons graph here/i);
-    expect(r.data.warning).toMatch(/cd into it/i);
-  });
-
-  it('does NOT warn from a subdir whose ancestor has a bare .agentsmesh but no lessons graph', async () => {
+  it('stays in a subdir whose ancestor has a bare .agentsmesh but no lessons graph', async () => {
     mkdirSync(join(root, '.agentsmesh'), { recursive: true }); // global-mode style, no lessons/
     const sub = join(root, 'packages', 'app');
     mkdirSync(sub, { recursive: true });
     const r = await runLessons({ file: 'src/x.ts' }, ['query'], sub);
-    if (r.subcommand !== 'query') return;
-    // The "set up lessons" hint is fine, but never the stray-project warning.
-    expect(r.data.warning ?? '').not.toMatch(/no lessons graph here/i);
+    if (r.subcommand !== 'query') throw new Error('expected query');
+    // The bare .agentsmesh is not a lessons project: recall stays at the subdir.
+    expect(r.data.warning).toMatch(/init --lessons/);
   });
 
   it('warns when config.json is present but malformed (still returns results)', async () => {
@@ -313,7 +300,7 @@ describe('runLessons query', () => {
     if (r.subcommand !== 'query') return;
     expect(r.exitCode).toBe(0);
     expect(r.data.lessons).toEqual([]);
-    expect(r.data.warning).toMatch(/corrupt|unreadable/i);
+    expect(r.data.warning).toMatch(/^recall returned no lessons: .* could not be parsed/);
   });
 
   it('degrades with an upgrade hint (not "corrupt") when lessons.json is a newer version', async () => {
@@ -328,7 +315,7 @@ describe('runLessons query', () => {
     if (r.subcommand !== 'query') return;
     expect(r.exitCode).toBe(0);
     expect(r.data.lessons).toEqual([]);
-    expect(r.data.warning).toMatch(/newer|upgrade/i);
+    expect(r.data.warning).toMatch(/^recall returned no lessons: .* is version 99, newer/);
     expect(r.data.warning ?? '').not.toMatch(/corrupt/i);
   });
 });
@@ -400,27 +387,6 @@ describe('runLessons add', () => {
     expect(r.data.activationNote).toBeUndefined();
   });
 
-  it('notes a stray location when capturing in a subdir of a lessons project', async () => {
-    // Ancestor holds a real graph; the capture cwd (sub) has no .agentsmesh.
-    mkdirSync(join(root, '.agentsmesh', 'lessons'), { recursive: true });
-    writeFileSync(join(root, '.agentsmesh', 'lessons', 'lessons.json'), '{}');
-    const sub = join(root, 'packages', 'app');
-    mkdirSync(sub, { recursive: true });
-    const r = await runLessons(
-      {
-        rule: 'Stray rule.',
-        topic: 't',
-        'new-topic': true,
-        'topic-summary': 'T.',
-        'trigger-file': 'src/**/*.ts',
-      },
-      ['add'],
-      sub,
-    );
-    if (r.subcommand !== 'add') return;
-    expect(r.data.locationNote).toMatch(/a lessons project already exists at/);
-  });
-
   it('accepts the rule as a positional arg (the documented `add "<rule>" --topic` form)', async () => {
     seedSimpleGraph();
     const r = await runLessons(
@@ -457,15 +423,16 @@ describe('runLessons add', () => {
     expect(noTopic.error).toMatch(/topic/i);
   });
 
-  it('surfaces a non-topic capture error (e.g. invalid command regex) with exit 1', async () => {
+  it('rejects a lone invalid command regex as UNRECALLABLE_LESSON with exit 2', async () => {
     seedSimpleGraph();
     const r = await runLessons(
       { rule: 'Bad regex rule.', topic: 'topic-x', 'trigger-cmd': '(' },
       ['add'],
       root,
     );
-    expect(r.exitCode).toBe(1);
-    expect(r.error).toMatch(/INVALID_TRIGGER_PATTERN|invalid/i);
+    expect(r.exitCode).toBe(2);
+    expect(r.error).toMatch(/no effective trigger/);
+    expect(r.error).toMatch(/invalid regex/);
   });
 
   it('rejects unknown topic without --new-topic', async () => {
@@ -644,6 +611,36 @@ describe('runLessons journal', () => {
     const r = await runLessons({}, ['journal'], root);
     if (r.subcommand !== 'journal') return;
     expect(r.data.entries.map((e) => e.id)).toEqual(['a-one', 'b-two']);
+  });
+
+  it('marks deprecated and superseded lessons', async () => {
+    const lesson = (rule: string): LessonsGraph['lessons'][string] => ({
+      rule,
+      topics: ['t'],
+      triggers: [],
+      evidence: [],
+      status: 'active',
+      createdAt: '2026-06-01',
+    });
+    saveLessonsGraph(root, {
+      version: 2,
+      lessons: {
+        'a-live': lesson('A.'),
+        'b-gone': { ...lesson('B.'), status: 'deprecated' },
+        'c-old': { ...lesson('C.'), status: 'superseded', supersededBy: 'a-live' },
+      },
+      topics: { t: { summary: '.' } },
+      triggers: {},
+    });
+    const r = await runLessons({}, ['journal'], root);
+    if (r.subcommand !== 'journal') throw new Error('expected journal');
+    expect(
+      r.data.entries.map(({ id, status, supersededBy }) => ({ id, status, supersededBy })),
+    ).toEqual([
+      { id: 'a-live', status: 'active', supersededBy: undefined },
+      { id: 'b-gone', status: 'deprecated', supersededBy: undefined },
+      { id: 'c-old', status: 'superseded', supersededBy: 'a-live' },
+    ]);
   });
 });
 
@@ -1174,7 +1171,7 @@ describe('runLessons show / query edge branches', () => {
     seedSimpleGraph();
     const graph = loadLessonsGraph(root);
     graph.triggers['t-cmd'] = { kind: 'command_pattern', pattern: '^pnpm test' };
-    graph.lessons['topic-x-rule-1'].triggers = ['t-cmd'];
+    graph.lessons['topic-x-rule-1']!.triggers = ['t-cmd'];
     saveLessonsGraph(root, graph);
     const r = await runLessons({ command: 'pnpm test' }, ['query'], root);
     if (r.subcommand !== 'query') return;
@@ -1194,7 +1191,7 @@ describe('runLessons validate', () => {
   it('returns non-zero exit code when errors are found', async () => {
     seedSimpleGraph();
     const graph = loadLessonsGraph(root);
-    graph.lessons['topic-x-rule-1'].topics = ['ghost'];
+    graph.lessons['topic-x-rule-1']!.topics = ['ghost'];
     saveLessonsGraph(root, graph);
     const r = await runLessons({}, ['validate'], root);
     expect(r.exitCode).toBe(1);
@@ -1207,10 +1204,15 @@ describe('runLessons validate', () => {
     expect(r.exitCode).toBe(0);
   });
 
-  it('surfaces a dead file_glob trigger (matches no working-tree file) as a warning', async () => {
-    // End-to-end wiring: the handler computes the real working-tree file list
-    // and passes it to validate, so a glob over a path that does not exist here
-    // is flagged. Warning-level, so the graph stays ok / exit 0.
+  it('surfaces a dead file_glob trigger (its files were renamed away in git) as a warning', async () => {
+    // End-to-end wiring: the handler computes the real working-tree file list and
+    // git evidence and passes them to validate, so a glob whose files git history
+    // renamed away is flagged. Warning-level, so the graph stays ok / exit 0.
+    initRepo(root);
+    writeFile(root, 'src/long/gone/a.ts', 'export const movedAway = "this file is renamed";\n');
+    commitAll(root, 'init');
+    git(root, ['mv', 'src/long/gone', 'src/long/here']);
+    commitAll(root, 'rename');
     const graph: LessonsGraph = {
       version: 1,
       lessons: {
@@ -1249,9 +1251,12 @@ describe('runLessons validate', () => {
 
   it('flags an ineffective lesson (delivered, never helped) as a warning, exit 0', async () => {
     seedSimpleGraph();
-    for (const k of ['k1', 'k2', 'k3'])
+    // A miss needs a later failure on an action the lesson's own trigger matches.
+    const keys = ['file:src/a.ts', 'file:src/b.ts', 'file:src/c.ts'];
+    for (const k of keys)
       appendOutcomeEvent(root, deliveredEvent('topic-x-rule-1', k), TELEMETRY_ON);
-    for (const k of ['k1', 'k2', 'k3']) appendOutcomeEvent(root, failEvent(k), TELEMETRY_ON);
+    for (const k of keys)
+      appendOutcomeEvent(root, { ...failEvent(k), ts: '2026-01-01T00:01:00Z' }, TELEMETRY_ON);
     const r = await runLessons({}, ['validate'], root);
     if (r.subcommand !== 'validate') return;
     expect(
@@ -1444,12 +1449,17 @@ describe('runLessons prune', () => {
     expect(loadLessonsGraph(root).lessons.big?.triggers.length).toBe(3);
   });
 
-  it('rejects an invalid --cap with a usage error (exit 2)', async () => {
-    seedOverCap();
-    const r = await runLessons({ cap: '0' }, ['prune'], root);
-    expect(r.exitCode).toBe(2);
-    expect(r.error).toMatch(/--cap/);
-  });
+  it.each(['0', '-1', '1.5', 'abc', '0x10', '3 apples'])(
+    'rejects --cap %j with a usage error (exit 2) and writes nothing, even with --apply',
+    async (cap) => {
+      seedOverCap();
+      const before = readFileSync(graphFilePath(root), 'utf8');
+      const r = await runLessons({ apply: true, cap }, ['prune'], root);
+      expect(r.exitCode).toBe(2);
+      expect(r.error).toBe('Invalid --cap: expected a positive integer.');
+      expect(readFileSync(graphFilePath(root), 'utf8')).toBe(before);
+    },
+  );
 
   it('reports an empty plan on a project with no graph (dry-run and apply)', async () => {
     const dry = await runLessons({}, ['prune'], root);
@@ -1512,14 +1522,18 @@ describe('runLessons — cross-cutting hardening', () => {
 
   it('a rejected add surfaces a clean message without the internal function prefix', async () => {
     seedSimpleGraph();
+    const glob = `src/${'{a,b}'.repeat(20)}`;
     const r = await runLessons(
-      { topic: 'topic-x', 'trigger-cmd': '(?<=x)y' }, // lookbehind: outside the linear subset
-      ['add', 'Unsafe regex rule.'],
+      // Too many brace expansions: refused before any write.
+      { topic: 'topic-x', 'trigger-file': glob },
+      ['add', 'Unsafe glob rule.'],
       root,
     );
-    expect(r.exitCode).not.toBe(0);
-    expect(r.error).toBeDefined();
-    expect(r.error).not.toContain('mutateLessonsGraph:');
-    expect(r.error).toMatch(/UNSAFE_TRIGGER_PATTERN|refusing to write/);
+    expect(r.exitCode).toBe(2);
+    expect(r.error).toMatch(
+      new RegExp(
+        `^--trigger-file ${JSON.stringify(glob).replace(/[{}]/g, '\\$&')} is outside the safe glob subset: `,
+      ),
+    );
   });
 });

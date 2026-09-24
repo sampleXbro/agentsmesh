@@ -1,14 +1,22 @@
 import {
   BroadCommandPatternError,
   EmptyRuleError,
+  InvalidTopicIdError,
   NoTriggerError,
   RuleTooLongError,
+  TopicSummaryRequiredError,
+  UnknownTopicError,
   UnrecallableLessonError,
 } from './add-errors.js';
 import type { AddLessonInput, AddLessonOptions } from './add.js';
 import { isBroadCommandPattern } from './command-pattern-breadth.js';
 import { MAX_RULE_LENGTH, type LessonsGraph } from './graph-schema.js';
-import { blockingDeadTriggers } from './trigger-effectiveness.js';
+import { codePointLength } from './rule-line.js';
+import {
+  blockingDeadTriggers,
+  ineffectiveTriggers,
+  type IneffectiveTrigger,
+} from './trigger-effectiveness.js';
 
 /**
  * Blocking capture gates for {@link addLessonInto}. Each throws a dedicated
@@ -24,8 +32,27 @@ export function assertRuleShape(rule: string): string {
   // A rule far longer than one sentence is a malformed capture; block it before
   // it can bloat every recall that surfaces it (the hook also truncates as a
   // last-resort defense for already-stored / hostile graphs).
-  if (trimmed.length > MAX_RULE_LENGTH) throw new RuleTooLongError(trimmed.length, MAX_RULE_LENGTH);
+  const length = codePointLength(trimmed);
+  if (length > MAX_RULE_LENGTH) throw new RuleTooLongError(length, MAX_RULE_LENGTH);
   return trimmed;
+}
+
+/**
+ * Check the topic id and create a new topic when allowed. Returns whether the
+ * topic is new. Runs before the trigger gates, so a topic error wins.
+ */
+export function ensureTopic(
+  graph: LessonsGraph,
+  topic: string,
+  options: AddLessonOptions,
+): boolean {
+  if (!/^[a-z0-9-]+$/.test(topic)) throw new InvalidTopicIdError(topic);
+  if (graph.topics[topic] !== undefined) return false;
+  if (options.allowNewTopic !== true) throw new UnknownTopicError(topic);
+  const summary = options.topicSummary?.trim() ?? '';
+  if (summary.length === 0) throw new TopicSummaryRequiredError(topic);
+  graph.topics[topic] = { summary };
+  return true;
 }
 
 /**
@@ -72,18 +99,66 @@ export function assertTriggerInputs(
   }
 }
 
+/** Warning for a command trigger dropped at capture because it can never fire. */
+export interface DeadCommandWarning {
+  readonly code: 'DEAD_COMMAND_PATTERN';
+  readonly message: string;
+}
+
+interface MergedTriggers {
+  readonly triggerIds: string[];
+  readonly newTriggerIds: string[];
+}
+
+/**
+ * Drop the input command triggers that can never fire (an invalid regex, or one
+ * the linear engine cannot run) instead of letting the write barrier refuse the
+ * whole capture: the lesson keeps its live triggers and the caller is warned. A
+ * node created for a dropped pattern is removed again, so it is never written.
+ * Legacy-merge recovery (`allowNoTrigger`) keeps folding lessons as-is.
+ */
+export function dropDeadCommandTriggers(
+  graph: LessonsGraph,
+  merged: MergedTriggers,
+  options: AddLessonOptions,
+): MergedTriggers & { readonly dropped: IneffectiveTrigger[] } {
+  if (options.allowNoTrigger === true) return { ...merged, dropped: [] };
+  const dropped = ineffectiveTriggers(graph, merged.triggerIds).filter(
+    (t) => t.kind === 'command_pattern',
+  );
+  const dead = new Set(dropped.map((t) => t.id));
+  for (const id of merged.newTriggerIds) if (dead.has(id)) delete graph.triggers[id];
+  return {
+    triggerIds: merged.triggerIds.filter((id) => !dead.has(id)),
+    newTriggerIds: merged.newTriggerIds.filter((id) => !dead.has(id)),
+    dropped,
+  };
+}
+
+export function deadCommandWarning(trigger: IneffectiveTrigger): DeadCommandWarning {
+  return {
+    code: 'DEAD_COMMAND_PATTERN',
+    message: `Dropped command trigger ${JSON.stringify(trigger.pattern)} (not saved): ${trigger.reason}.`,
+  };
+}
+
 /**
  * A lesson whose RESULTING triggers are ALL dead on the mandatory --file/--cmd
  * recall path is unrecallable — block it (the symmetric, blocking counterpart
  * to the warn-only guardrails). Computed on the merged set, so an upsert that
- * adds a dead trigger to an already-effective lesson is fine. command_pattern
- * deadness is deferred to the write barrier (see blockingDeadTriggers), so this
- * block adds the keyword-dead case the barrier passes. A throw here aborts the
- * transactional write, so nothing is persisted.
+ * adds a dead trigger to an already-effective lesson is fine. `dropped` are the
+ * dead command triggers already removed from that set; when nothing live is
+ * left they are named too. A throw here aborts the transactional write, so
+ * nothing is persisted.
  */
-export function assertRecallable(graph: LessonsGraph, resultingTriggers: readonly string[]): void {
+export function assertRecallable(
+  graph: LessonsGraph,
+  resultingTriggers: readonly string[],
+  dropped: readonly IneffectiveTrigger[],
+): void {
   const blockingDead = blockingDeadTriggers(graph, resultingTriggers);
-  if (resultingTriggers.length > 0 && blockingDead.length === resultingTriggers.length) {
-    throw new UnrecallableLessonError(blockingDead);
+  const dead = [...dropped, ...blockingDead];
+  if (dead.length > 0 && blockingDead.length === resultingTriggers.length) {
+    throw new UnrecallableLessonError(dead);
   }
 }

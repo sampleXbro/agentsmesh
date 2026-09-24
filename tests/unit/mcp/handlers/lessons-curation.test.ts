@@ -9,9 +9,14 @@ import { dirname, join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { lessonsDeprecate, lessonsShow } from '../../../../src/mcp/handlers/lessons-curation.js';
 import { resolveContext, type McpContext } from '../../../../src/mcp/context.js';
-import { graphFilePath, loadLessonsGraph } from '../../../../src/lessons/graph-store.js';
+import {
+  graphFilePath,
+  loadLessonsGraph,
+  loadLessonsGraphResilient,
+} from '../../../../src/lessons/graph-store.js';
 import type { LessonsGraph } from '../../../../src/lessons/graph-schema.js';
 import { McpError } from '../../../../src/mcp/errors.js';
+import { problemFromLoad } from '../../../../src/lessons/graph-problem.js';
 
 type Lesson = LessonsGraph['lessons'][string];
 
@@ -63,6 +68,7 @@ afterEach(async () => {
 describe('lessonsShow', () => {
   it('returns only the topic lessons, sorted by id ascending regardless of stored order', async () => {
     const r = await lessonsShow(ctx, { topic: 'topic-z' });
+    if (!('lessons' in r)) throw new Error('expected the topic view');
     expect(r.topic).toBe('topic-z');
     expect(r.summary).toBe('Topic Z.');
     expect(r.lessons.map((l) => l.id)).toEqual([
@@ -80,11 +86,41 @@ describe('lessonsShow', () => {
     });
   });
 
-  it('throws NOT_FOUND for an unknown topic', async () => {
+  it('throws NOT_FOUND for an unknown topic or lesson id', async () => {
     await expect(lessonsShow(ctx, { topic: 'ghost' })).rejects.toMatchObject({
       code: 'NOT_FOUND',
-      message: 'lessons_show: unknown topic "ghost".',
+      message: 'lessons_show: unknown topic or lesson id "ghost".',
     });
+  });
+
+  it('shows one lesson by id when no topic has that id, like the CLI', async () => {
+    expect(await lessonsShow(ctx, { topic: 'topic-z-second' })).toEqual({
+      lesson: {
+        id: 'topic-z-second',
+        rule: 'Second.',
+        status: 'active',
+        topics: ['topic-z'],
+        triggers: ['g'],
+        evidence: [],
+      },
+    });
+  });
+
+  it('includes the replacement id of a superseded lesson', async () => {
+    await lessonsDeprecate(ctx, { id: 'topic-z-first', superseded_by: 'topic-z-second' });
+    const r = await lessonsShow(ctx, { topic: 'topic-z-first' });
+    expect(r).toMatchObject({
+      lesson: { id: 'topic-z-first', status: 'superseded', supersededBy: 'topic-z-second' },
+    });
+  });
+
+  it('resolves a topic before a lesson with the same id', async () => {
+    writeRawGraph(projectRoot, {
+      ...unsortedGraph,
+      lessons: { ...unsortedGraph.lessons, 'topic-z': lesson('Named like the topic.', 'other') },
+    });
+    const r = await lessonsShow(ctx, { topic: 'topic-z' });
+    expect(r).toMatchObject({ topic: 'topic-z', summary: 'Topic Z.' });
   });
 
   it('throws NOT_FOUND when the project has no lessons graph at all', async () => {
@@ -126,7 +162,7 @@ describe('lessonsDeprecate', () => {
   it('maps an unknown lesson id to NOT_FOUND', async () => {
     await expect(lessonsDeprecate(ctx, { id: 'nope' })).rejects.toMatchObject({
       code: 'NOT_FOUND',
-      message: 'lessons_deprecate: Unknown lesson: nope',
+      message: 'lessons_deprecate: Unknown lesson: nope.',
     });
   });
 
@@ -135,17 +171,21 @@ describe('lessonsDeprecate', () => {
       lessonsDeprecate(ctx, { id: 'topic-z-first', superseded_by: 'nope' }),
     ).rejects.toMatchObject({
       code: 'NOT_FOUND',
-      message: 'lessons_deprecate: Unknown superseder: nope',
+      message: 'lessons_deprecate: Unknown superseder: nope.',
     });
   });
 
-  it('rethrows non-referent failures (corrupt graph) without relabeling them', async () => {
+  it('reports a corrupt graph with the shared diagnosis, not raw parser text', async () => {
     writeFileSync(graphFilePath(projectRoot), '{ truncated', 'utf8');
     const err = await lessonsDeprecate(ctx, { id: 'topic-z-first' }).then(
       () => undefined,
       (e: unknown) => e,
     );
-    expect(err).toBeInstanceOf(Error);
-    expect(err).not.toBeInstanceOf(McpError);
+    expect(err).toBeInstanceOf(McpError);
+    expect((err as McpError).code).toBe('VALIDATION_FAILED');
+    expect((err as McpError).details).toEqual({ code: 'CORRUPT_GRAPH' });
+    expect((err as McpError).message).toBe(
+      problemFromLoad(projectRoot, loadLessonsGraphResilient(projectRoot))?.message,
+    );
   });
 });

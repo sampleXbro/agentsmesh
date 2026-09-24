@@ -8,6 +8,7 @@ import type {
   CanonicalRule,
   McpConfig,
   Permissions,
+  HookEntry,
   Hooks,
 } from '../../core/types.js';
 
@@ -18,6 +19,8 @@ function ruleSlug(r: CanonicalRule): string {
 /**
  * Merge overlay onto base. Overlay wins on same-name conflict for rules, commands, agents, skills.
  * MCP: overlay servers merge, overlay wins same-name. Permissions: union; local deny wins.
+ * Hooks: an overlay event replaces the base event (layered config overrides);
+ * with `hooks: 'combine'` (installed packs) both sides are kept, see {@link combineHooks}.
  *
  * @param base - Base canonical files (earlier in merge order)
  * @param overlay - Overlay canonical files (later, wins on conflict)
@@ -28,10 +31,22 @@ function mergeByKey<T>(base: readonly T[], overlay: readonly T[], key: (item: T)
   return [...new Map([...base, ...overlay].map((item) => [key(item), item])).values()];
 }
 
-export function mergeCanonicalFiles(base: CanonicalFiles, overlay: CanonicalFiles): CanonicalFiles {
+export interface MergeOptions {
+  /** `override` (default): an overlay event replaces the base event. `combine`: keep both. */
+  readonly hooks?: 'override' | 'combine';
+}
+
+export function mergeCanonicalFiles(
+  base: CanonicalFiles,
+  overlay: CanonicalFiles,
+  options: MergeOptions = {},
+): CanonicalFiles {
   const mcp: McpConfig | null = mergeMcp(base.mcp, overlay.mcp);
   const permissions: Permissions | null = mergePermissions(base.permissions, overlay.permissions);
-  const hooks: Hooks | null = mergeHooks(base.hooks, overlay.hooks);
+  const hooks: Hooks | null =
+    options.hooks === 'combine'
+      ? combineHooks(base.hooks, overlay.hooks)
+      : overrideHooks(base.hooks, overlay.hooks);
   const ignore = mergeUniqueStrings(base.ignore, overlay.ignore);
 
   return {
@@ -78,16 +93,35 @@ function mergeUniqueStrings(base: string[], overlay: string[]): string[] {
   return merged;
 }
 
-function mergeHooks(base: Hooks | null, overlay: Hooks | null): Hooks | null {
+function overrideHooks(base: Hooks | null, overlay: Hooks | null): Hooks | null {
   if (!base && !overlay) return null;
   const result: Hooks = {};
-  const keys = new Set([...Object.keys(base ?? {}), ...Object.keys(overlay ?? {})]) as Set<
-    keyof Hooks
-  >;
-  for (const k of keys) {
+  for (const k of hookEvents(base, overlay)) {
     const o = overlay?.[k];
-    const b = base?.[k];
-    result[k] = o !== undefined && o.length > 0 ? o : (b ?? []);
+    result[k] = o !== undefined && o.length > 0 ? o : (base?.[k] ?? []);
   }
   return result;
+}
+
+/**
+ * Per event, every hook of `first`, then each hook of `then` that `first` does
+ * not already define (same type, matcher and command: the `first` copy wins).
+ */
+export function combineHooks(first: Hooks | null, then: Hooks | null): Hooks | null {
+  if (!first && !then) return null;
+  const result: Hooks = {};
+  for (const k of hookEvents(first, then)) {
+    const kept = first?.[k] ?? [];
+    const defined = new Set(kept.map(hookKey));
+    result[k] = [...kept, ...(then?.[k] ?? []).filter((entry) => !defined.has(hookKey(entry)))];
+  }
+  return result;
+}
+
+function hookEvents(a: Hooks | null, b: Hooks | null): Array<keyof Hooks> {
+  return [...new Set([...Object.keys(a ?? {}), ...Object.keys(b ?? {})])] as Array<keyof Hooks>;
+}
+
+function hookKey(entry: HookEntry): string {
+  return JSON.stringify([entry.type ?? 'command', entry.matcher, entry.command]);
 }

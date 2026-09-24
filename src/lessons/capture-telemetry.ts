@@ -1,6 +1,7 @@
 import { join } from 'node:path';
 import type { AddLessonResult } from './add.js';
 import { appendJsonl, logExists, readJsonl } from './jsonl-log.js';
+import { isCaptureRecord } from './log-record-guards.js';
 import { lessonsPaths } from './paths.js';
 import { isTelemetryEnabled, sessionId } from './telemetry.js';
 
@@ -10,9 +11,9 @@ import { isTelemetryEnabled, sessionId } from './telemetry.js';
  * Recall has a `PostToolUse` hook + telemetry + `stats`; capture had nothing, so
  * a maintainer could not tell whether lessons were being captured or silently
  * skipped/blocked. This log mirrors the recall log: one append-only record per
- * `lessons add` (CLI or MCP), gated on the SAME `AGENTSMESH_LESSONS_TELEMETRY=1`
- * env, recording presence/counts ONLY (never the rule text) so it leaks no
- * source content and stays small.
+ * `lessons add` (CLI or MCP), gated on the SAME opt-in switch (`"telemetry": true`
+ * in the lessons config, or `AGENTSMESH_LESSONS_TELEMETRY=1`), recording
+ * presence/counts ONLY (never the rule text) so it leaks no source content.
  */
 
 /** Keep at most this many capture records; older ones drop on truncation. */
@@ -77,9 +78,11 @@ export function captureLogExists(projectRoot: string): boolean {
   return logExists(captureLogPath(projectRoot));
 }
 
-/** Read the capture log, skipping any malformed line. Returns [] when absent. */
+/** Read every well-formed capture record. Returns [] when absent or unreadable. */
 export function readCaptureLog(projectRoot: string): CaptureTelemetryRecord[] {
-  return readJsonl<CaptureTelemetryRecord>(captureLogPath(projectRoot));
+  return readJsonl(captureLogPath(projectRoot), isCaptureRecord, {
+    maxBytes: CAPTURE_LOG_TRIM_TRIGGER_BYTES,
+  });
 }
 
 /**

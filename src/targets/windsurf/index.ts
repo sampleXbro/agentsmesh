@@ -34,6 +34,7 @@ import { importFromWindsurf } from './importer.js';
 import { mergeWindsurfOutput } from './merge.js';
 import { lintRules } from './linter.js';
 import { lintCommands, lintHooks, lintMcp, lintPermissions } from './lint.js';
+import { WINDSURF_HOOK_CONTEXT_EVENTS } from './hook-events.js';
 import { buildWindsurfImportPaths } from '../../core/reference/import-map-builders.js';
 import { shouldConvertAgentsToSkills } from '../../config/core/conversions.js';
 import { projectedAgentSkillDirName } from '../projection/projected-agent-skill.js';
@@ -185,6 +186,7 @@ export const descriptor = {
   emptyImportMessage:
     'No Windsurf config found (.windsurfrules, .windsurf/rules, .windsurfignore, or .codeiumignore).',
   supportsConversion: { agents: true },
+  hookContextEvents: WINDSURF_HOOK_CONTEXT_EVENTS,
   lintRules,
   lint: {
     commands: lintCommands,

@@ -4,7 +4,7 @@ import { toCursorHooks } from '../hook-format.js';
 import type { RulesOutput } from './types.js';
 
 export function generateHooks(canonical: CanonicalFiles): RulesOutput[] {
-  if (!canonical.hooks || Object.keys(canonical.hooks).length === 0) return [];
+  if (!canonical.hooks) return [];
   const cursorHooks = toCursorHooks(canonical.hooks);
   if (Object.keys(cursorHooks).length === 0) return [];
   const content = JSON.stringify({ version: 1, hooks: cursorHooks }, null, 2);

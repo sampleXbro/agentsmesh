@@ -24,7 +24,7 @@ function toWindsurfHooks(hooks: Hooks): Record<string, unknown> {
 }
 
 export function generateHooks(canonical: CanonicalFiles): RulesOutput[] {
-  if (!canonical.hooks || Object.keys(canonical.hooks).length === 0) return [];
+  if (!canonical.hooks) return [];
   const hooks = toWindsurfHooks(canonical.hooks);
   if (Object.keys(hooks).length === 0) return [];
   return [{ path: WINDSURF_HOOKS_FILE, content: JSON.stringify({ hooks }, null, 2) }];

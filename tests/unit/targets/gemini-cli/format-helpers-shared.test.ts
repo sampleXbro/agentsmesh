@@ -1,8 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import {
-  mapGeminiHookEvent,
-  parseFlexibleFrontmatter,
-} from '../../../../src/targets/gemini-cli/format-helpers-shared.js';
+import { parseFlexibleFrontmatter } from '../../../../src/targets/gemini-cli/format-helpers-shared.js';
+import { mapGeminiHookEvent } from '../../../../src/targets/gemini-cli/hook-map.js';
 
 describe('mapGeminiHookEvent', () => {
   it('maps BeforeTool and preToolUse to PreToolUse', () => {

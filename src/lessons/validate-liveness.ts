@@ -1,7 +1,9 @@
 import { isBroadFileGlob } from './glob-breadth.js';
-import picomatch from 'picomatch';
 import { isBroadCommandPattern } from './command-pattern-breadth.js';
+import { missingGlobState } from './file-glob-liveness.js';
+import { getGlobMatcher } from './glob-safety.js';
 import type { LessonsGraph } from './graph-schema.js';
+import { gitHistoryOf } from './project-files.js';
 import type { ValidationFinding } from './validate.js';
 
 /**
@@ -9,7 +11,7 @@ import type { ValidationFinding } from './validate.js';
  * never fire makes the lesson unreachable, silently, as the codebase moves
  * underneath it. These are distinct from breadth — the system deliberately
  * optimizes for precision, so neither check ever asks to WIDEN a narrow trigger;
- * `collectDeadFileGlobs` flags a glob that matches *nothing*, and
+ * `collectDeadFileGlobs` flags a glob whose path git history removed, and
  * `collectRunnerAnchoredPatterns` flags a scope-MATCH gap (anchored to one
  * runner), not a scope-too-narrow one.
  */
@@ -23,44 +25,64 @@ export function activeTriggerIds(graph: LessonsGraph): Set<string> {
   return ids;
 }
 
-/**
- * The set of `file_glob` triggers (referenced by an active lesson) that match NO
- * path in the working tree — dead, in the liveness sense. Shared by `validate`
- * (which warns) and `prune` (which can GC them when doing so won't strand a
- * lesson). `knownPaths` is project-relative, forward-slash.
- */
-export function deadFileGlobIds(graph: LessonsGraph, knownPaths: ReadonlySet<string>): Set<string> {
-  const active = activeTriggerIds(graph);
-  const paths = [...knownPaths];
-  const dead = new Set<string>();
-  for (const [triggerId, trigger] of Object.entries(graph.triggers)) {
-    if (trigger.kind !== 'file_glob') continue;
-    if (!active.has(triggerId)) continue;
-    const isMatch = picomatch(trigger.pattern, { dot: true });
-    if (!paths.some((p) => isMatch(p))) dead.add(triggerId);
-  }
-  return dead;
+/** Active `file_glob` trigger ids that match no file on disk, split by {@link missingGlobState}. */
+export interface FileGlobLiveness {
+  /** Git history renamed or deleted what they matched: safe to detach. */
+  readonly dead: ReadonlySet<string>;
+  /** No proof of removal (not created yet, ignored output, no git): never detached. */
+  readonly pending: ReadonlySet<string>;
 }
 
 /**
- * A `file_glob` (referenced by an active lesson) that matches NO path in the
- * working tree is dead — the lesson is unreachable via that trigger, almost
- * always because a refactor renamed the path it pointed at. Liveness, not
- * breadth: a narrow glob that still matches one file is fine; only a glob that
- * matches zero is reported. Caller supplies `knownPaths` (project-relative,
- * forward-slash); when it can't be determined the check is skipped entirely
- * (see {@link validateLessonsGraph}), so we never flag every glob dead.
+ * Judge every `file_glob` on an active lesson against `knownPaths` (on-disk,
+ * project-relative, forward-slash) and the git evidence it carries (see
+ * `listProjectFiles`). Git is read only when some glob matches nothing on disk;
+ * a plain set carries no evidence, so nothing in it can be proven dead.
+ * `triggerIds` narrows the judgement (e.g. to one captured lesson).
+ */
+export function fileGlobLiveness(
+  graph: LessonsGraph,
+  knownPaths: ReadonlySet<string>,
+  triggerIds?: readonly string[],
+): FileGlobLiveness {
+  const active = triggerIds === undefined ? activeTriggerIds(graph) : new Set(triggerIds);
+  const paths = [...knownPaths];
+  const missing: Array<[string, string]> = [];
+  for (const [triggerId, trigger] of Object.entries(graph.triggers)) {
+    if (trigger.kind !== 'file_glob' || !active.has(triggerId)) continue;
+    // An unsafe glob gets its own UNSAFE_GLOB_PATTERN error; never judge it here.
+    const matcher = getGlobMatcher(trigger.pattern);
+    if (matcher === null) continue;
+    if (!paths.some((p) => matcher.test(p))) missing.push([triggerId, trigger.pattern]);
+  }
+  const dead = new Set<string>();
+  const pending = new Set<string>();
+  if (missing.length === 0) return { dead, pending };
+  const history = gitHistoryOf(knownPaths);
+  for (const [triggerId, pattern] of missing) {
+    const state = missingGlobState(pattern, history);
+    if (state === 'dead') dead.add(triggerId);
+    else if (state === 'pending') pending.add(triggerId);
+  }
+  return { dead, pending };
+}
+
+/**
+ * Warn on each dead `file_glob`: the lesson is unreachable via that trigger
+ * because git history moved or deleted its path. Pending globs are not reported
+ * (they fire once the path exists). Skipped entirely when the caller has no file
+ * list (see {@link validateLessonsGraph}).
  */
 export function collectDeadFileGlobs(
   graph: LessonsGraph,
   findings: ValidationFinding[],
   knownPaths: ReadonlySet<string>,
 ): void {
-  for (const triggerId of deadFileGlobIds(graph, knownPaths)) {
+  for (const triggerId of fileGlobLiveness(graph, knownPaths).dead) {
     findings.push({
       level: 'warning',
       code: 'DEAD_FILE_GLOB',
-      message: `file_glob trigger "${triggerId}" (${graph.triggers[triggerId]?.pattern ?? ''}) matches no file in the working tree — the lesson is unreachable via this trigger (a rename likely moved the path). Re-point it at the current path, or detach it with \`lessons untrigger\`, or run \`lessons prune --apply\`.`,
+      message: `file_glob trigger "${triggerId}" (${graph.triggers[triggerId]?.pattern ?? ''}) matches no file, and git history shows its path was renamed or deleted — the lesson is unreachable via this trigger. Re-point it at the current path, or detach it with \`lessons untrigger\`, or run \`lessons prune --apply\`.`,
       triggerId,
     });
   }
@@ -68,9 +90,10 @@ export function collectDeadFileGlobs(
 
 /** How many working-tree paths a `file_glob` pattern matches — for the breadth guardrail. */
 export function fileGlobMatchCount(pattern: string, knownPaths: ReadonlySet<string>): number {
-  const isMatch = picomatch(pattern, { dot: true });
+  const matcher = getGlobMatcher(pattern);
+  if (matcher === null) return 0;
   let n = 0;
-  for (const p of knownPaths) if (isMatch(p)) n += 1;
+  for (const p of knownPaths) if (matcher.test(p)) n += 1;
   return n;
 }
 
@@ -103,12 +126,6 @@ export function collectRunnerAnchoredPatterns(
 }
 
 /**
- * A `command_pattern` on an active lesson that matches the empty string or most
- * unrelated commands fires on every recall. `add` rejects a new one
- * (BROAD_COMMAND_PATTERN, exit 2); this is the `validate` counterpart for a
- * graph built before that guardrail existed (or a hand-edit). Warn-only.
- */
-/**
  * A `file_glob` that covers most of the tree fires on nearly every edit, so it
  * crowds out the rule written about the file actually being touched once the
  * recall token budget bites. Warn-only and never blocking: a deliberate
@@ -130,6 +147,12 @@ export function collectBroadFileGlobs(graph: LessonsGraph, findings: ValidationF
   }
 }
 
+/**
+ * A `command_pattern` on an active lesson that matches the empty string or most
+ * unrelated commands fires on every recall. `add` rejects a new one
+ * (BROAD_COMMAND_PATTERN, exit 2); this is the `validate` counterpart for a
+ * graph built before that guardrail existed (or a hand-edit). Warn-only.
+ */
 export function collectBroadCommandPatterns(
   graph: LessonsGraph,
   findings: ValidationFinding[],

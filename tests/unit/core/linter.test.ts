@@ -273,7 +273,7 @@ describe('runLint', () => {
       file: '.agentsmesh/hooks.yaml',
       target: 'gemini-cli',
       message:
-        'SessionEnd is not supported by gemini-cli; only PreToolUse, PostToolUse, Notification, SubagentStart, SubagentStop, and SessionStart are projected.',
+        'SessionEnd is not supported by gemini-cli; only PreToolUse, PostToolUse, Notification, UserPromptSubmit, SubagentStart, SubagentStop, and SessionStart are projected.',
     });
     // cursor permissions are native — no stale 'partial' warning should appear
     expect(

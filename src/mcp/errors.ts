@@ -40,7 +40,8 @@ export class McpError extends Error {
  * Strips paths anywhere in the string — not only at line start or after
  * whitespace — so embedded paths in stack frames (`at Foo (/Users/...)`)
  * and quoted paths in node errors (`ENOENT, open '/Users/...'`) are caught
- * along with the leading-whitespace shape.
+ * along with the leading-whitespace shape. A slash inside a word
+ * (`origin/main`, `src/cli`) starts no absolute path and is kept.
  */
 export function redactAbsolutePaths(message: string): string {
   return (
@@ -48,8 +49,8 @@ export function redactAbsolutePaths(message: string): string {
       // Quoted paths (preserve the surrounding quote glyph).
       .replace(/(['"`])\/[^'"`\s]+\1/gu, '$1<redacted>$1')
       .replace(/(['"`])[A-Z]:[\\/][^'"`\s]+\1/gu, '$1<redacted>$1')
-      // Unquoted POSIX paths anywhere in the string.
-      .replace(/\/[A-Za-z][^\s'"`<>()]*/gu, '<redacted>')
+      // Unquoted POSIX paths: a slash that starts a token.
+      .replace(/(^|[^\w.-])\/[A-Za-z][^\s'"`<>()]*/gu, '$1<redacted>')
       // Unquoted Windows paths anywhere in the string.
       .replace(/[A-Z]:[\\/][^\s'"`<>()]*/gu, '<redacted>')
   );

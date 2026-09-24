@@ -5,12 +5,15 @@
 
 import { loadScopedConfig } from '../../config/core/scope.js';
 import { checkLockSync } from '../../core/check/lock-sync.js';
+import { lessonsGraphProblem } from '../../lessons/graph-problem.js';
 import { bootstrapPlugins } from '../../plugins/bootstrap-plugins.js';
 import type { CheckData } from '../command-result.js';
 
 export interface CheckCommandResult {
   exitCode: number;
   data: CheckData;
+  /** Set when a lessons graph exists but cannot be read; always fails the check. */
+  error?: string;
 }
 
 /**
@@ -42,32 +45,18 @@ export async function runCheck(
     scope,
   });
 
-  if (!report.hasLock) {
-    return {
-      exitCode: 1,
-      data: {
-        hasLock: false,
-        canonicalDrift: false,
-        outputDrift: false,
-        inSync: false,
-        modified: [],
-        added: [],
-        removed: [],
-        extendsModified: [],
-        lockedViolations: [],
-        outputsModified: [],
-        outputsRemoved: [],
-        outputsStale: [],
-        outputsUntracked: [],
-        outputsChecked: false,
-      },
-    };
-  }
+  const result = lockResult(report);
+  const problem = scope === 'project' ? lessonsGraphProblem(context.configDir) : null;
+  if (problem === null) return result;
+  return { ...result, exitCode: 1, error: `Lessons graph unreadable: ${problem.message}` };
+}
 
+function lockResult(report: Awaited<ReturnType<typeof checkLockSync>>): CheckCommandResult {
   return {
     exitCode: report.inSync ? 0 : 1,
     data: {
-      hasLock: true,
+      hasLock: report.hasLock,
+      lockConflict: report.lockConflict,
       canonicalDrift: report.canonicalDrift,
       outputDrift: report.outputDrift,
       inSync: report.inSync,

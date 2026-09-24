@@ -8,6 +8,7 @@ describe('renderGenerate', () => {
   it('prints no-files messages for generate and check modes', () => {
     renderGenerate({
       exitCode: 0,
+      lockWritten: true,
       data: {
         scope: 'project',
         mode: 'generate',
@@ -17,6 +18,7 @@ describe('renderGenerate', () => {
     });
     renderGenerate({
       exitCode: 0,
+      lockWritten: false,
       data: {
         scope: 'project',
         mode: 'check',
@@ -32,6 +34,7 @@ describe('renderGenerate', () => {
   it('uses the default empty cause when no emptyReason is set', () => {
     renderGenerate({
       exitCode: 0,
+      lockWritten: true,
       data: {
         scope: 'global',
         mode: 'generate',
@@ -46,6 +49,7 @@ describe('renderGenerate', () => {
   it('reports the no-global-support cause when emptyReason is set', () => {
     renderGenerate({
       exitCode: 0,
+      lockWritten: true,
       data: {
         scope: 'global',
         mode: 'generate',
@@ -61,6 +65,7 @@ describe('renderGenerate', () => {
   it('prints check success when all files are unchanged', () => {
     renderGenerate({
       exitCode: 0,
+      lockWritten: false,
       data: {
         scope: 'project',
         mode: 'check',
@@ -76,6 +81,7 @@ describe('renderGenerate', () => {
   it('prints drifted files in check mode', () => {
     renderGenerate({
       exitCode: 1,
+      lockWritten: false,
       data: {
         scope: 'global',
         mode: 'check',
@@ -95,6 +101,7 @@ describe('renderGenerate', () => {
   it('prints dry-run output without a summary', () => {
     renderGenerate({
       exitCode: 0,
+      lockWritten: false,
       data: {
         scope: 'global',
         mode: 'dry-run',
@@ -110,6 +117,7 @@ describe('renderGenerate', () => {
   it('prints normal generation summaries for changed and unchanged runs', () => {
     renderGenerate({
       exitCode: 0,
+      lockWritten: true,
       data: {
         scope: 'project',
         mode: 'generate',
@@ -123,6 +131,7 @@ describe('renderGenerate', () => {
     });
     renderGenerate({
       exitCode: 0,
+      lockWritten: true,
       data: {
         scope: 'project',
         mode: 'generate',

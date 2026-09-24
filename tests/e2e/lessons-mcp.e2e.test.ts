@@ -164,14 +164,15 @@ describe('lessons MCP tools — no-mutation error paths', () => {
     expect(topics.topics).toEqual([]);
   });
 
-  it('lessons_add with new_topic but no topic_summary errors', async () => {
+  it('lessons_add with new_topic but no topic_summary is VALIDATION_FAILED', async () => {
     const result = await server.client.callTool({
       name: 'lessons_add',
       arguments: { rule: 'missing summary', topic: 'brand-new-mcp-topic', new_topic: true },
     });
     expect(result.isError).toBe(true);
-    const data = parseToolText(result) as { message: string };
-    expect(data.message).toContain('topicSummary');
+    const data = parseToolText(result) as { code: string; message: string };
+    expect(data.code).toBe('VALIDATION_FAILED');
+    expect(data.message).toContain('topic_summary over MCP');
   });
 
   it('lessons_query with no predicate is VALIDATION_FAILED (not IO_ERROR)', async () => {

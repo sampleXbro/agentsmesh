@@ -1,4 +1,5 @@
-import { existsSync } from 'node:fs';
+import { existsSync, realpathSync } from 'node:fs';
+import { homedir } from 'node:os';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 
 /**
@@ -55,27 +56,79 @@ export function lessonsSetupHint(): string {
 }
 
 /**
- * Walk up from `projectRoot`'s parent looking for an ancestor that holds a
- * lessons GRAPH (`.agentsmesh/lessons/lessons.json`), returning the first match
- * (or null). Lessons commands resolve their root from the CWD, so an invocation
- * from a subdirectory of a real lessons project silently reads/writes the wrong
- * place — empty recall, or a stray graph created in the subdir. Callers use this
- * to warn (not to relocate: staying CWD-rooted keeps every command consistent).
+ * The directory whose lessons apply to `start`: `start` itself when it holds a
+ * graph or a lessons config, else the nearest ancestor that does, else `start`.
  *
- * It deliberately keys off the graph file, NOT a bare `.agentsmesh` dir: the
- * global-mode config lives at `~/.agentsmesh` and never holds a lessons graph
- * (`--lessons` is project-only), so matching `.agentsmesh` alone would fire a
- * false "a project exists above" on every directory under the home folder.
+ * The recall hook, the MCP server and the lessons CLI all resolve from here,
+ * so running in a package of a monorepo (or any subfolder) finds the project.
  */
-export function ancestorLessonsProjectDir(projectRoot: string): string | null {
-  let dir = dirname(resolve(projectRoot));
+export function resolveLessonsRoot(start: string): string {
+  const origin = resolve(start);
+  return findLessonsRoot(origin) ?? origin;
+}
+
+/**
+ * The nearest of `start` and its ancestors holding a graph or a lessons config,
+ * or null. Keys off `.agentsmesh/lessons/` artifacts, never a bare
+ * `.agentsmesh`: the global config lives in `~/.agentsmesh` and holds no graph.
+ */
+export function findLessonsRoot(start: string): string | null {
+  return findUp(resolve(start), hasLessonsAt);
+}
+
+/**
+ * Where the MCP lessons tools read and write: the nearest lessons root, else
+ * the nearest agentsmesh project (`agentsmesh.yaml`), else the git work tree,
+ * else null — outside any project there is nowhere a captured lesson belongs.
+ */
+export function findLessonsProjectRoot(start: string): string | null {
+  const origin = resolve(start);
+  return (
+    findLessonsRoot(origin) ??
+    findUp(origin, (dir) => existsSync(join(dir, 'agentsmesh.yaml'))) ??
+    // Plugin-only use has no agentsmesh.yaml: the repository is the project.
+    findUp(origin, (dir) => existsSync(join(dir, '.git')))
+  );
+}
+
+function hasLessonsAt(dir: string): boolean {
+  const paths = lessonsPaths(dir);
+  return existsSync(paths.graph) || existsSync(paths.config);
+}
+
+/**
+ * The first of `start` and its ancestors where `hit` holds, or null. The walk
+ * stops below the home directory: lessons belong to a repository, and a graph
+ * under `~` would otherwise apply to every folder beneath it.
+ */
+function findUp(start: string, hit: (dir: string) => boolean): string | null {
+  const stops = homeDirs();
+  let dir = start;
   let prev = '';
-  while (dir !== prev) {
-    if (existsSync(lessonsPaths(dir).graph)) return dir;
+  while (dir !== prev && !stops.has(dir)) {
+    if (hit(dir)) return dir;
     prev = dir;
     dir = dirname(dir);
   }
   return null;
+}
+
+/** True for the home folder, whose `.agentsmesh` is the global config, never a lessons project. */
+export function isHomeDirectory(dir: string): boolean {
+  return homeDirs().has(resolve(dir));
+}
+
+/** The home directory as given and as resolved: HOME may be a symlink (macOS `/tmp`). */
+function homeDirs(): ReadonlySet<string> {
+  const home = homedir();
+  if (home === '') return new Set();
+  const dirs = new Set([resolve(home)]);
+  try {
+    dirs.add(realpathSync(home));
+  } catch {
+    // A home that does not exist has no other name.
+  }
+  return dirs;
 }
 
 /**

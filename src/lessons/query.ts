@@ -1,4 +1,4 @@
-import picomatch from 'picomatch';
+import { getGlobMatcher } from './glob-safety.js';
 import type { Lesson, LessonsGraph, Trigger } from './graph-schema.js';
 import { keywordMatches } from './keyword-match.js';
 import { getCommandMatcher } from './regex-safety.js';
@@ -13,6 +13,15 @@ import type { WorkBudget } from './regex-linear/index.js';
  * as non-matches (safe degradation, never a false positive).
  */
 const COMMAND_MATCH_BUDGET = 5_000_000;
+
+/**
+ * Query-wide budget for file_glob matching (DP cells, see glob-safety.ts). Each
+ * glob is also capped per match; this bounds a graph full of costly globs to a
+ * few tens of ms. A normal query uses well under 1%.
+ */
+const GLOB_MATCH_BUDGET = 2_000_000;
+
+type MatchBudgets = Record<'command' | 'glob', WorkBudget>;
 
 export interface LessonsQuery {
   /** Project-relative path of the file about to be edited. */
@@ -101,10 +110,13 @@ export function collectMatchedTriggersByKind(
     command_pattern: new Set(),
     keyword: new Set(),
   };
-  // One budget shared across ALL command_pattern triggers in this query.
-  const budget: WorkBudget = { remaining: COMMAND_MATCH_BUDGET };
+  // One budget per kind, shared across ALL triggers of that kind in this query.
+  const budgets: MatchBudgets = {
+    command: { remaining: COMMAND_MATCH_BUDGET },
+    glob: { remaining: GLOB_MATCH_BUDGET },
+  };
   for (const [id, trigger] of Object.entries(graph.triggers)) {
-    if (triggerMatches(trigger, query, budget)) byKind[trigger.kind].add(id);
+    if (triggerMatches(trigger, query, budgets)) byKind[trigger.kind].add(id);
   }
   return byKind;
 }
@@ -115,11 +127,15 @@ export function collectMatchedTriggerIds(graph: LessonsGraph, query: LessonsQuer
   return new Set([...file_glob, ...command_pattern, ...keyword]);
 }
 
-function triggerMatches(trigger: Trigger, query: LessonsQuery, budget: WorkBudget): boolean {
+function triggerMatches(trigger: Trigger, query: LessonsQuery, budgets: MatchBudgets): boolean {
   switch (trigger.kind) {
-    case 'file_glob':
+    case 'file_glob': {
       if (query.file === undefined) return false;
-      return picomatch(trigger.pattern, { dot: true })(query.file);
+      // Linear-time matcher; null = outside the safe glob subset, so a hostile
+      // or unsupported glob is a non-match (fail closed, see glob-safety.ts).
+      const matcher = getGlobMatcher(trigger.pattern);
+      return matcher !== null && matcher.test(query.file, budgets.glob);
+    }
     case 'command_pattern': {
       if (query.command === undefined) return false;
       // Match via the non-backtracking linear engine — recall must never run a
@@ -127,7 +143,7 @@ function triggerMatches(trigger: Trigger, query: LessonsQuery, budget: WorkBudge
       // pattern is unsupported/over-long; treat as a non-match (fail closed).
       // The shared budget bounds total command-matching work query-wide.
       const matcher = getCommandMatcher(trigger.pattern);
-      return matcher !== null && matcher.test(query.command, budget);
+      return matcher !== null && matcher.test(query.command, budgets.command);
     }
     case 'keyword':
       // Matches the explicit --keyword (substring) OR the file/command tokens, so

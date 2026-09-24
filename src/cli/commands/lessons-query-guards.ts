@@ -1,6 +1,6 @@
-import { existsSync } from 'node:fs';
-import { join } from 'node:path';
-import { ancestorLessonsProjectDir } from '../../lessons/paths.js';
+import { problemFromLoad } from '../../lessons/graph-problem.js';
+import type { ResilientGraphLoad } from '../../lessons/graph-store.js';
+import { lessonsSetupHint } from '../../lessons/paths.js';
 import type { LessonsFlags } from './lessons-helpers.js';
 
 /**
@@ -12,7 +12,8 @@ import type { LessonsFlags } from './lessons-helpers.js';
 export function validatePositiveIntFlag(flags: LessonsFlags, name: string): string | null {
   const v = flags[name];
   if (v === undefined || v === false) return null;
-  const n = typeof v === 'string' ? Number(v) : NaN;
+  // Digits only: Number() would read "0x10" or "1e1" as a number.
+  const n = typeof v === 'string' && /^\s*\d+\s*$/.test(v) ? Number(v) : NaN;
   if (!Number.isInteger(n) || n < 1) return `Invalid --${name}: expected a positive integer.`;
   return null;
 }
@@ -32,13 +33,28 @@ export function mergeWarnings(...parts: Array<string | undefined>): string | und
 }
 
 /**
- * Warn when recall finds no graph at the CWD but a `.agentsmesh` project exists
- * in an ancestor — the classic "invoked from a subdirectory" trap, which would
- * otherwise look like an empty (but valid) recall.
+ * Warning for recall with no usable graph. Recall degrades to no lessons
+ * (exit 0) with a warning that names the cause and the fix.
  */
-export function strayDirWarning(projectRoot: string): string | undefined {
-  if (existsSync(join(projectRoot, '.agentsmesh'))) return undefined;
-  const ancestor = ancestorLessonsProjectDir(projectRoot);
-  if (ancestor === null) return undefined;
-  return `no lessons graph here — this directory has no .agentsmesh, but a lessons project exists at ${ancestor.replaceAll('\\', '/')}. Run lessons from there (cd into it) for recall to work.`;
+export function degradedRecallWarning(
+  load: Exclude<ResilientGraphLoad, { status: 'ok' }>,
+  projectRoot: string,
+  keywordOnlyWarning: string | undefined,
+  configWarning: string | undefined,
+  { migrationError }: { migrationError?: string } = {},
+): string | undefined {
+  const problem = problemFromLoad(projectRoot, load);
+  let cause: string | undefined;
+  if (problem !== null) cause = `recall returned no lessons: ${problem.message}`;
+  else if (migrationError !== undefined) cause = migrationFailure(migrationError);
+  else cause = mergeWarnings(lessonsSetupHint(), keywordOnlyWarning);
+  return mergeWarnings(cause, configWarning);
+}
+
+function migrationFailure(error: string): string {
+  return (
+    'recall returned no lessons: the legacy lessons store (.agentsmesh/lessons/index.yaml) ' +
+    `could not be migrated: ${error.replace(/\s+$/, '')} Fix it, then run ` +
+    '`agentsmesh lessons import-md`.'
+  );
 }

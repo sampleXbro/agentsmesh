@@ -1,7 +1,7 @@
 import { MAX_RECOMMENDED_TRIGGERS } from './capture-guardrails.js';
 import type { LessonsGraph } from './graph-schema.js';
 import { buildFanout } from './ranking-signals.js';
-import { deadFileGlobIds } from './validate-liveness.js';
+import { fileGlobLiveness } from './validate-liveness.js';
 
 /**
  * Graph curation. Two safe, deterministic operations, both reversible via git
@@ -44,9 +44,11 @@ export interface PruneOptions {
   /** Per-lesson trigger cap. Defaults to the capture guardrail recommendation. */
   readonly cap?: number;
   /**
-   * Working-tree file list (project-relative, forward-slash). When provided,
-   * prune also GCs dead `file_glob` triggers. Omitted → no liveness pruning, so
-   * the transactional write barrier (which has no tree) never strips a glob.
+   * Working-tree file list (project-relative, forward-slash), normally from
+   * `listProjectFiles` so it carries git evidence. When provided, prune also GCs
+   * `file_glob` triggers git history proves dead; pending ones are never touched,
+   * and a plain set (no evidence) detaches nothing. Omitted → no liveness pruning,
+   * so the transactional write barrier (which has no tree) never strips a glob.
    */
   readonly knownPaths?: ReadonlySet<string>;
   /**
@@ -94,7 +96,7 @@ export function planPrune(graph: LessonsGraph, options: PruneOptions = {}): Prun
   const removedDeadGlobs: LessonTrim[] = [];
   const unreachableLessons: string[] = [];
   if (options.knownPaths !== undefined) {
-    const dead = deadFileGlobIds(graph, options.knownPaths);
+    const { dead } = fileGlobLiveness(graph, options.knownPaths);
     if (dead.size > 0) {
       for (const [id, kept] of keptByLesson) {
         const deadInLesson = kept.filter((t) => dead.has(t));
@@ -128,7 +130,14 @@ export function planPrune(graph: LessonsGraph, options: PruneOptions = {}): Prun
     .filter((t) => !referencedTopics.has(t))
     .sort();
 
-  return { removedTriggerIds, removedTopicIds, trimmedLessons, removedDeadGlobs, unreachableLessons, cap };
+  return {
+    removedTriggerIds,
+    removedTopicIds,
+    trimmedLessons,
+    removedDeadGlobs,
+    unreachableLessons,
+    cap,
+  };
 }
 
 /** Apply a {@link planPrune} result to a loaded graph in place. */

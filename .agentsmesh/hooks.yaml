@@ -2,7 +2,7 @@ PreToolUse:
   - matcher: Bash
     type: command
     command: "echo \"Running: $(jq -r '.tool_input.command' < /dev/stdin)\""
-  - matcher: Edit|Write|Bash
+  - matcher: Edit|Write|NotebookEdit|Bash|PowerShell
     type: command
     command: agentsmesh lessons hook
 PostToolUse:

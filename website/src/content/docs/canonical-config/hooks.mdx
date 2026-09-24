@@ -107,6 +107,10 @@ Notification:
     command: "echo \"$(date): $NOTIFICATION\" >> .agentsmesh/notifications.log"
 ```
 
+## Hooks from packs and extends
+
+An event in your `hooks.yaml` replaces the hooks an [`extends`](../../configuration/extends/) source defines for that event. Hooks from [installed packs](../../guides/community-packs/#merge-behavior) are never dropped: they follow your own hooks for the event. A pack hook with the same type, matcher and command (or prompt text) as one of yours is the same hook, and your copy wins. To drop a pack hook, uninstall the pack or leave `hooks` out of its features.
+
 ## Tool-specific behavior
 
 See the **Hooks** row in the [supported tools matrix](../../reference/supported-tools/) for per-target support levels (native, partial, or unsupported).

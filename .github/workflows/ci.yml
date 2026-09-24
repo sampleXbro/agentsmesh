@@ -48,6 +48,11 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
+      # Types don't vary by OS or Node, so one matrix entry is enough.
+      - name: Typecheck tests
+        if: matrix.os == 'ubuntu-latest' && matrix.node-version == 22
+        run: pnpm typecheck:tests
+
       # Build BEFORE tests — `pnpm test` includes integration tests
       # (import.integration.test.ts, watch.integration.test.ts, plugin-flow,
       # generate-process-lock) that exec `dist/cli.js`. Without this build

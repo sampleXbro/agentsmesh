@@ -8,9 +8,10 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { delimiter, join } from 'node:path';
 import { parse as parseYaml } from 'yaml';
 import { runCli } from './helpers/run-cli.js';
 
@@ -35,12 +36,12 @@ describe('agentsmesh init --lessons (e2e)', () => {
     expect(existsSync(join(tempDir, 'agentsmesh.yaml'))).toBe(true);
     expect(existsSync(join(tempDir, '.agentsmesh/lessons/lessons.json'))).toBe(true);
 
-    // Team merge driver: the committable .gitattributes binding is written, and the
-    // per-clone git-config half is surfaced as a setup hint.
+    // Team merge driver: the committable .gitattributes binding is written. This
+    // folder is not a git repo, so there is no per-clone config to set yet.
     expect(readFileSync(join(tempDir, '.gitattributes'), 'utf8')).toContain(
       '.agentsmesh/lessons/lessons.json merge=agentsmesh-lessons',
     );
-    expect(result.stdout).toContain('git config merge.agentsmesh-lessons.driver');
+    expect(result.stdout).not.toContain('merge driver for this clone');
 
     const rootRule = readFileSync(join(tempDir, '.agentsmesh/rules/_root.md'), 'utf8');
     expect(rootRule).toContain('<!-- agentsmesh:lessons-contract:start -->');
@@ -48,6 +49,43 @@ describe('agentsmesh init --lessons (e2e)', () => {
     expect(rootRule).toContain('**Capture');
     // The ritual leads the body, after frontmatter, above any other content.
     expect(rootRule).toContain('---\n\n<!-- agentsmesh:lessons-contract:start -->');
+  });
+
+  it('sets up the per-clone merge driver itself inside a git repo', async () => {
+    // Hook-exported git variables would point git at another repo.
+    const gitEnv = {
+      GIT_DIR: undefined,
+      GIT_INDEX_FILE: undefined,
+      GIT_WORK_TREE: undefined,
+      GIT_CONFIG_GLOBAL: join(tempDir, 'no-global-gitconfig'),
+      GIT_CONFIG_NOSYSTEM: '1',
+    };
+    const project = join(tempDir, 'repo');
+    mkdirSync(project);
+    expect(
+      spawnSync('git', ['init', '-q'], { cwd: project, env: { ...process.env, ...gitEnv } }).status,
+    ).toBe(0);
+    // The driver is only enabled when its program is on PATH; a shim makes that deterministic.
+    const bin = join(tempDir, 'bin');
+    mkdirSync(bin);
+    writeFileSync(join(bin, 'agentsmesh'), '#!/bin/sh\n', { mode: 0o755 });
+    const pathKey = Object.keys(process.env).find((k) => k.toUpperCase() === 'PATH') ?? 'PATH';
+    const env = { ...gitEnv, [pathKey]: `${bin}${delimiter}${process.env[pathKey] ?? ''}` };
+
+    const result = await runCli('init --lessons', project, env);
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toContain('Enabled the lessons.json merge driver for this clone');
+    const driver = spawnSync(
+      'git',
+      ['config', '--local', '--get', 'merge.agentsmesh-lessons.driver'],
+      {
+        cwd: project,
+        encoding: 'utf8',
+        env: { ...process.env, ...gitEnv },
+      },
+    );
+    expect(driver.stdout.trim()).toBe('agentsmesh lessons merge-driver %O %A %B');
   });
 
   it('generate projects both managed blocks at the TOP of the target root file', async () => {

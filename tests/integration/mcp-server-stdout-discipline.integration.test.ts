@@ -11,7 +11,10 @@
 
 import { describe, it, expect } from 'vitest';
 import { spawn } from 'node:child_process';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { mcpServerInstructions } from '../../src/mcp/instructions.js';
 
 const CLI_PATH = join(process.cwd(), 'dist', 'cli.js');
 
@@ -103,5 +106,52 @@ describe('mcp-server-stdout-discipline', () => {
     const result = initResponse?.['result'] as Record<string, unknown> | undefined;
     const serverInfo = result?.['serverInfo'] as Record<string, unknown> | undefined;
     expect(serverInfo?.['name']).toBe('agentsmesh-mcp');
+  }, 8000);
+
+  it('the initialize response carries the lessons ritual as instructions', async () => {
+    // A plugin cannot write the user's instruction file, so this field is the
+    // only standing text a server can put in front of the model. Asserted on
+    // the wire rather than on the constant: the value is useless if the SDK
+    // does not actually serialize it into the initialize result.
+    const { stdout } = await sendInitialize(process.cwd());
+    if (stdout.length === 0) return;
+
+    const messages = stdout
+      .split('\n')
+      .filter(Boolean)
+      .map((l) => JSON.parse(l) as Record<string, unknown>);
+    const result = messages.find((m) => m['id'] === 1)?.['result'] as
+      | Record<string, unknown>
+      | undefined;
+
+    expect(result?.['instructions']).toBe(mcpServerInstructions(process.cwd()));
+  }, 8000);
+
+  it('does not hand a lessons mandate to a project that never opted in', async () => {
+    // The server also carries the config tools, and most people who wire it up
+    // never ran `init --lessons`. Sending them a blocking recall contract named
+    // a graph they do not have and required a query before every edit that
+    // could only return nothing.
+    const dir = mkdtempSync(join(tmpdir(), 'amesh-mcp-nolessons-'));
+    try {
+      const { stdout } = await sendInitialize(dir);
+      if (stdout.length === 0) return;
+
+      const messages = stdout
+        .split('\n')
+        .filter(Boolean)
+        .map((l) => JSON.parse(l) as Record<string, unknown>);
+      const result = messages.find((m) => m['id'] === 1)?.['result'] as
+        | Record<string, unknown>
+        | undefined;
+      const instructions = result?.['instructions'] as string | undefined;
+
+      expect(instructions).toBeDefined();
+      expect(instructions).not.toContain('BLOCKING');
+      expect(instructions).not.toContain('MUST');
+      expect(instructions).toContain('agentsmesh init --lessons');
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   }, 8000);
 });

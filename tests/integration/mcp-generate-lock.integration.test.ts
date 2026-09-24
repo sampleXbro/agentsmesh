@@ -33,6 +33,8 @@ describe('mcp generate — lockfile persistence', () => {
     // (outputsChecked: true) and finds no drift right after generation.
     expect(check).toEqual({
       drift: false,
+      lockConflict: false,
+      lessonsGraphError: null,
       canonicalDrift: false,
       outputDrift: false,
       missing: [],

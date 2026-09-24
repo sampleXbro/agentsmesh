@@ -3,6 +3,7 @@
  * (paste-clean, one rule per line); every notice — truncation, dedup — goes to
  * stderr so an agent pasting stdout into its context never picks up chatter.
  */
+import { capRulePayload, MAX_RECALL_PAYLOAD_CHARS, safeRuleLine } from '../../lessons/rule-line.js';
 import { logger } from '../../utils/output/logger.js';
 import type { LessonsQueryData, LessonsQueryFormat } from '../commands/lessons-types.js';
 
@@ -30,13 +31,20 @@ export function renderQuery(data: LessonsQueryData, format: LessonsQueryFormat):
   }
   // `--ids` prefixes each line with the lesson id so an irrelevant recall can be
   // traced to `show <id>` / `deprecate <id>`. Off by default to keep the plain
-  // output paste-clean and token-lean.
+  // output paste-clean and token-lean. The graph may come from a cloned repo, so
+  // each rule is one clamped line and the whole answer is size-capped.
   const withId = (id: string, rule: string): string =>
-    data.showIds === true ? `[${id}] ${rule}` : rule;
-  if (format === 'md') {
-    data.lessons.forEach((l, i) => logger.info(`${i + 1}. ${withId(l.id, l.rule)}`));
-  } else {
-    for (const l of data.lessons) logger.info(withId(l.id, l.rule));
+    data.showIds === true ? `[${safeRuleLine(id, 200)}] ${rule}` : rule;
+  const lines = data.lessons.map((l, i) => {
+    const line = withId(l.id, safeRuleLine(l.rule));
+    return format === 'md' ? `${i + 1}. ${line}` : line;
+  });
+  const { kept, dropped } = capRulePayload(lines, (line) => line.length);
+  for (const line of kept) logger.info(line);
+  if (dropped > 0) {
+    logger.warn(
+      `(${dropped} more rules not shown: output is capped at ${MAX_RECALL_PAYLOAD_CHARS} characters — pass --json for the full list)`,
+    );
   }
   // A wording match has no trigger behind it; say so (stderr) so a surprising rule
   // can be traced to lexical retrieval rather than mistaken for a trigger hit.
@@ -49,7 +57,7 @@ export function renderQuery(data: LessonsQueryData, format: LessonsQueryFormat):
   if (data.totalMatches !== undefined && data.totalMatches > data.lessons.length) {
     // `--top` alone still hits the token budget, so name both knobs (or --all).
     logger.warn(
-      `(showing ${data.lessons.length} of ${data.totalMatches} matches — raise --top <n> with --max-tokens <m>, or pass --all)`,
+      `(showing ${data.lessons.length} of ${data.totalMatches} matches — raise --top <n> with --max-tokens <m>, or pass --all; output is capped at ${MAX_RECALL_PAYLOAD_CHARS} characters, --format json is not)`,
     );
   }
   renderSuppressed(suppressed);

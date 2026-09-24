@@ -1,12 +1,12 @@
-import { CURRENT_GRAPH_VERSION } from '../../lessons/graph-schema.js';
 import { loadLessonsGraphResilient } from '../../lessons/graph-store.js';
 import { normalizeRecallFile } from '../../lessons/normalize-query-file.js';
-import { lessonsSetupHint } from '../../lessons/paths.js';
 import { matchLessons } from '../../lessons/lexical-retrieval.js';
 import { collectAlwaysLessons } from '../../lessons/query.js';
 import { rankLessons } from '../../lessons/ranking.js';
+import { DEFAULT_ALWAYS_MAX_TOKENS, withinTokenBudget } from '../../lessons/recall-always.js';
 import { recordRecallTelemetry } from '../../lessons/recall-telemetry.js';
 import { loadRecallConfig, lessonsConfigWarning } from '../../lessons/recall-config.js';
+import { capRulePayload, safeRuleLine } from '../../lessons/rule-line.js';
 import {
   AUTO_SESSION_TTL_MS,
   autoSessionId,
@@ -24,16 +24,28 @@ import {
 } from './lessons-helpers.js';
 import type { LessonsCommandResult, LessonsQueryData } from './lessons-types.js';
 import {
+  degradedRecallWarning,
   mergeWarnings,
-  strayDirWarning,
   validateFormatFlag,
   validatePositiveIntFlag,
 } from './lessons-query-guards.js';
+
+/** Room for the `[id] ` and `NN. ` prefixes a printed line may carry. */
+const LINE_PREFIX_CHARS = 8;
+
+/** Leading rows that fit the printed-output cap applied by renderQuery. */
+function fitPrintedPayload<T extends { readonly id: string; readonly rule: string }>(
+  rows: readonly T[],
+): T[] {
+  return capRulePayload(rows, (r) => safeRuleLine(r.rule).length + r.id.length + LINE_PREFIX_CHARS)
+    .kept;
+}
 
 export function doQuery(
   flags: LessonsFlags,
   projectRoot: string,
   autoMigrated: boolean,
+  migrationError?: string,
 ): LessonsCommandResult {
   const topErr = validatePositiveIntFlag(flags, 'top');
   if (topErr !== null) return errorResult('query', topErr, 2);
@@ -75,53 +87,11 @@ export function doQuery(
   // A present-but-broken config.json must not silently revert to defaults.
   const configWarning = lessonsConfigWarning(projectRoot) ?? undefined;
   const load = loadLessonsGraphResilient(projectRoot);
-  if (load.status === 'corrupt') {
-    // Recall is a blocking requirement before every edit/command — a corrupt
-    // graph must degrade to empty (exit 0), with a warning, not a stack trace.
-    const data: LessonsQueryData = {
-      lessons: [],
-      query,
-      autoMigrated,
-      totalMatches: 0,
-      warning: mergeWarnings(
-        `lessons.json is unreadable (corrupt) — recall returned no lessons. Run \`agentsmesh lessons validate\`. (${load.error.message})`,
-        configWarning,
-      ),
-    };
-    return { subcommand: 'query', exitCode: 0, format, data };
-  }
-  if (load.status === 'newer-version') {
-    // The graph is fine; this CLI is behind. Degrade to empty with an upgrade
-    // hint instead of the misleading "corrupt" warning.
-    const data: LessonsQueryData = {
-      lessons: [],
-      query,
-      autoMigrated,
-      totalMatches: 0,
-      warning: mergeWarnings(
-        `lessons.json is version ${load.version}, newer than this build supports (${CURRENT_GRAPH_VERSION}) — recall returned no lessons. Upgrade agentsmesh to read it.`,
-        configWarning,
-      ),
-    };
-    return { subcommand: 'query', exitCode: 0, format, data };
-  }
-  if (load.status === 'absent') {
-    // A subdir-of-a-project warning already tells the user to cd to the root;
-    // otherwise the graph is genuinely not set up here — point at init --lessons.
-    // One of stray/setup is always present, so `warning` is never empty here.
-    const stray = strayDirWarning(projectRoot);
-    const warning = mergeWarnings(
-      stray ?? lessonsSetupHint(),
-      keywordOnlyWarning,
-      configWarning,
-    ) as string;
-    const data: LessonsQueryData = {
-      lessons: [],
-      query,
-      autoMigrated,
-      totalMatches: 0,
-      warning,
-    };
+  if (load.status !== 'ok') {
+    const warning = degradedRecallWarning(load, projectRoot, keywordOnlyWarning, configWarning, {
+      migrationError,
+    });
+    const data = { query, autoMigrated, lessons: [], totalMatches: 0, warning };
     return { subcommand: 'query', exitCode: 0, format, data };
   }
   const graph = load.graph;
@@ -145,7 +115,31 @@ export function doQuery(
   const limit = flags.all === true ? undefined : (numberFlag(flags, 'top') ?? cfg.limit);
   const maxTokens =
     flags.all === true ? undefined : (numberFlag(flags, 'max-tokens') ?? cfg.maxTokens);
-  const ranked = rankLessons(graph, query, forRank, { limit, maxTokens });
+  // `--always` prepends the always-on lessons, on the same budget as the hook and MCP.
+  const alwaysLessons = wantAlways
+    ? withinTokenBudget(
+        collectAlwaysLessons(graph).map(({ id, lesson }) => ({
+          id,
+          rule: lesson.rule,
+          topics: [...lesson.topics],
+          triggers: [...lesson.triggers],
+          evidence: [...lesson.evidence],
+          score: undefined,
+        })),
+        DEFAULT_ALWAYS_MAX_TOKENS,
+      )
+    : [];
+  const rankedAll = rankLessons(graph, query, forRank, { limit, maxTokens });
+  // Plain and md output is size-capped; keep only what will be printed so
+  // dedup never marks a cut rule as delivered. JSON is never cut.
+  const printed =
+    format === 'json'
+      ? rankedAll.length
+      : fitPrintedPayload([
+          ...alwaysLessons,
+          ...rankedAll.map(({ id, lesson }) => ({ id, rule: lesson.rule })),
+        ]).length - alwaysLessons.length;
+  const ranked = rankedAll.slice(0, Math.max(0, printed));
   if (dedup !== null)
     commitSeen(
       dedup,
@@ -160,17 +154,6 @@ export function doQuery(
     // Thread the resolved correlator so stats sees real sessions.
     session: dedup?.sessionId ?? resolvedSession,
   });
-  // `--always` prepends the always-on lessons so a non-hook agent gets them at task start.
-  const alwaysLessons = wantAlways
-    ? collectAlwaysLessons(graph).map(({ id, lesson }) => ({
-        id,
-        rule: lesson.rule,
-        topics: [...lesson.topics],
-        triggers: [...lesson.triggers],
-        evidence: [...lesson.evidence],
-        score: undefined,
-      }))
-    : [];
   const lessons = [
     ...alwaysLessons,
     ...ranked.map(({ id, lesson, score, reason }) => ({

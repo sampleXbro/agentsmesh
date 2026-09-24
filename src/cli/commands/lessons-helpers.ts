@@ -63,10 +63,6 @@ export function queryFromFlags(flags: LessonsFlags): {
   return out;
 }
 
-export function emptyGraph(): LessonsGraph {
-  return { version: 1, lessons: {}, topics: {}, triggers: {} };
-}
-
 export { todayIso };
 
 export function renderTopicMarkdown(
@@ -98,6 +94,7 @@ export function renderLessonMarkdown(
     '',
     lesson.rule,
     '',
+    ...(lesson.rationale === undefined ? [] : [`**rationale:** ${lesson.rationale}`, '']),
     `**topics:** ${lesson.topics.length > 0 ? lesson.topics.join(', ') : '(none)'}`,
     '',
     '**triggers:**',
@@ -147,7 +144,14 @@ export function errorResult(
         subcommand,
         exitCode,
         error: message,
-        data: { id: '', isNewLesson: false, isNewTopic: false, newTriggerIds: [], warnings: [] },
+        data: {
+          id: '',
+          isNewLesson: false,
+          isNewTopic: false,
+          newTriggerIds: [],
+          changes: [],
+          warnings: [],
+        },
       };
     case 'show':
       return { subcommand, exitCode, error: message, data: { subject: '', markdown: '' } };

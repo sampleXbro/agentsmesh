@@ -44,7 +44,7 @@ describe('per-target lint.hooks hooks', () => {
 
     expect(diagnostics).toHaveLength(1);
     expect(diagnostics[0]?.message).toContain(
-      'only PreToolUse, PostToolUse, Notification, SubagentStart, SubagentStop, and SessionStart',
+      'only PreToolUse, PostToolUse, Notification, UserPromptSubmit, SubagentStart, SubagentStop, and SessionStart',
     );
   });
 

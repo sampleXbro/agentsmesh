@@ -1,16 +1,9 @@
-import { existsSync } from 'node:fs';
-import { join } from 'node:path';
-import {
-  BroadCommandPatternError,
-  EmptyRuleError,
-  NoTriggerError,
-  RuleTooLongError,
-  UnknownTopicError,
-  UnrecallableLessonError,
-} from '../../lessons/add.js';
+import { UnknownTopicError } from '../../lessons/add.js';
 import { captureLesson } from '../../lessons/capture.js';
+import { isCaptureRejection } from '../../lessons/capture-rejection.js';
 import { deprecateLesson } from '../../lessons/deprecate.js';
-import { ancestorLessonsProjectDir, lessonsActivated } from '../../lessons/paths.js';
+import { LessonsWriteRefusedError } from '../../lessons/mutate.js';
+import { lessonsActivated } from '../../lessons/paths.js';
 import {
   errorResult,
   listFlag,
@@ -21,13 +14,13 @@ import {
 import { lessonsAddHint } from './lessons-usage.js';
 import type { LessonsAddData, LessonsCommandResult } from './lessons-types.js';
 
-/**
- * Strip internal function-name prefixes (the transactional write path tags its
- * errors) so the agent sees a clean, actionable message.
- */
 export function errMessage(err: unknown): string {
-  const raw = err instanceof Error ? err.message : String(err);
-  return raw.replace(/^(mutateLessonsGraph|mergeLessons):\s*/, '');
+  return err instanceof Error ? err.message : String(err);
+}
+
+/** A write the validator refused is bad input (2); any other failure is 1. */
+export function errExitCode(err: unknown): 1 | 2 {
+  return err instanceof LessonsWriteRefusedError ? 2 : 1;
 }
 
 export async function doAdd(
@@ -56,15 +49,6 @@ export async function doAdd(
     );
   }
 
-  // Flag a capture about to create a stray graph in a subdirectory of a real
-  // project (computed before capture, which would create .agentsmesh here).
-  const ancestorLessons = existsSync(join(projectRoot, '.agentsmesh'))
-    ? null
-    : ancestorLessonsProjectDir(projectRoot);
-  const locationNote =
-    ancestorLessons !== null
-      ? `Capturing into a new .agentsmesh here — a lessons project already exists at ${ancestorLessons.replaceAll('\\', '/')}. If that was unintended, cd into it and re-run.`
-      : undefined;
   // When lessons was never activated (no `init --lessons`), a bare `add` writes
   // only the graph — no recall hook, ritual, or skill — so the capture lands but
   // no agent is ever told to recall it. Warn so the half-wired state isn't silent.
@@ -75,11 +59,11 @@ export async function doAdd(
   // `--scope always` captures a universal always-on lesson (no trigger needed).
   const scopeFlag = stringFlag(flags, 'scope') ?? undefined;
 
+  if (scopeFlag !== undefined && scopeFlag !== 'always') {
+    const error = `--scope must be "always" (got ${JSON.stringify(scopeFlag)}).${lessonsAddHint()}`;
+    return errorResult('add', error, 2);
+  }
   try {
-    // Any other --scope value is a mistake worth surfacing (caught below → exit 1).
-    if (scopeFlag !== undefined && scopeFlag !== 'always') {
-      throw new Error(`lessons add: --scope must be "always" (got "${scopeFlag}").`);
-    }
     // Route through captureLesson (not addLesson directly) so capture telemetry
     // records EVERY shell-driven add — the MCP path already routes here, and a
     // direct addLesson call would leave CLI captures invisible to `lessons stats`.
@@ -102,11 +86,7 @@ export async function doAdd(
         topicSummary: stringFlag(flags, 'topic-summary') ?? undefined,
       },
     );
-    const data: LessonsAddData = {
-      ...result,
-      ...(locationNote ? { locationNote } : {}),
-      ...(activationNote ? { activationNote } : {}),
-    };
+    const data: LessonsAddData = { ...result, ...(activationNote ? { activationNote } : {}) };
     return { subcommand: 'add', exitCode: 0, data };
   } catch (err) {
     if (err instanceof UnknownTopicError) {
@@ -116,16 +96,10 @@ export async function doAdd(
         1,
       );
     }
-    if (
-      err instanceof EmptyRuleError ||
-      err instanceof NoTriggerError ||
-      err instanceof UnrecallableLessonError ||
-      err instanceof RuleTooLongError ||
-      err instanceof BroadCommandPatternError
-    ) {
+    if (isCaptureRejection(err)) {
       return errorResult('add', `${err.message}${lessonsAddHint()}`, 2);
     }
-    return errorResult('add', errMessage(err), 1);
+    return errorResult('add', errMessage(err), errExitCode(err));
   }
 }
 
@@ -151,6 +125,6 @@ export async function doDeprecate(
     const hint = message.startsWith('Unknown lesson')
       ? ' Run `agentsmesh lessons journal` to list lesson ids (or `lessons query --ids` to see what recalled).'
       : '';
-    return errorResult('deprecate', `${message}${hint}`, 1);
+    return errorResult('deprecate', `${message}${hint}`, errExitCode(err));
   }
 }

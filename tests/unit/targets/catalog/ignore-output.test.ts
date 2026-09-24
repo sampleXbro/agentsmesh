@@ -1,0 +1,27 @@
+/**
+ * Fifteen targets wrote the same ignore generator with only the path changed:
+ * bail on an empty list, otherwise join the canonical patterns with newlines and
+ * write them to one native file. This is those four lines once, in the shape the
+ * catalog already uses for `NO_OUTPUTS`.
+ *
+ * Targets that gate the file by scope (cline, augment-code, roo-code, continue
+ * suppress it in global scope) or reshape the patterns keep their own generator.
+ * This covers the verbatim case only, so the factory takes no options.
+ */
+
+import { describe, it, expect } from 'vitest';
+import { ignoreOutput } from '../../../../src/targets/catalog/ignore-output.js';
+import { makeCanonical } from '../canonical-factory.js';
+
+describe('ignoreOutput', () => {
+  it('writes every pattern to the given path, newline separated', () => {
+    const generate = ignoreOutput('.aiderignore');
+    expect(generate(makeCanonical({ ignore: ['node_modules', 'dist', '*.log'] }))).toEqual([
+      { path: '.aiderignore', content: 'node_modules\ndist\n*.log' },
+    ]);
+  });
+
+  it('emits nothing when there are no patterns, so no empty file is written', () => {
+    expect(ignoreOutput('.aiderignore')(makeCanonical())).toEqual([]);
+  });
+});

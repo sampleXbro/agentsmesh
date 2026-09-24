@@ -119,3 +119,18 @@ export async function listPacks(packsDir: string): Promise<FoundPack[]> {
   }
   return result;
 }
+
+/** Packs installed from the same source with the same target and `as`, any feature set. */
+export async function findPacksBySource(
+  packsDir: string,
+  source: string,
+  scope: Pick<PackLookupScope, 'target' | 'as'>,
+): Promise<FoundPack[]> {
+  const identity = sourceIdentity(source);
+  return (await listPacks(packsDir)).filter(
+    (p) =>
+      sourceIdentity(p.meta.source) === identity &&
+      p.meta.target === scope.target &&
+      p.meta.as === scope.as,
+  );
+}

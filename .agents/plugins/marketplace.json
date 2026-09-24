@@ -1,0 +1,19 @@
+{
+  "name": "agentsmesh",
+  "interface": {
+    "displayName": "AgentsMesh"
+  },
+  "plugins": [
+    {
+      "name": "agentsmesh-lessons",
+      "source": {
+        "source": "local",
+        "path": "./plugins/agentsmesh-lessons"
+      },
+      "policy": {
+        "installation": "AVAILABLE"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

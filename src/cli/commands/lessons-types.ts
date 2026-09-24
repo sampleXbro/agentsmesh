@@ -1,5 +1,5 @@
+import type { AddLessonWarning } from '../../lessons/add.js';
 import type { AutoPruneSummary } from '../../lessons/auto-prune.js';
-import type { GuardrailWarning } from '../../lessons/capture-guardrails.js';
 import type { CaptureStatsReport } from '../../lessons/stats-capture.js';
 import type { EffectivenessStatsReport } from '../../lessons/stats-effectiveness.js';
 import type { RecallStatsReport } from '../../lessons/stats.js';
@@ -35,11 +35,11 @@ export interface LessonsAddData {
   readonly isNewLesson: boolean;
   readonly isNewTopic: boolean;
   readonly newTriggerIds: string[];
-  readonly warnings: GuardrailWarning[];
+  /** What a re-add changed on the existing lesson; empty for a new lesson or a no-op. */
+  readonly changes: string[];
+  readonly warnings: AddLessonWarning[];
   /** Cruft the opt-in auto-prune cleaned right after this capture (present only when it ran). */
   readonly autoPruned?: AutoPruneSummary;
-  /** Set when the capture wrote to a CWD whose graph lives outside the nearest project. */
-  readonly locationNote?: string;
   /** Set when the capture bootstrapped a graph-only state — recall isn't wired into any tool yet. */
   readonly activationNote?: string;
 }
@@ -85,6 +85,8 @@ export interface LessonsJournalData {
     readonly rule: string;
     readonly createdAt: string;
     readonly topics: string[];
+    readonly status: 'active' | 'deprecated' | 'superseded';
+    readonly supersededBy?: string;
   }>;
   /** Set when lessons is not fully set up here (no `init --lessons`) — shown on stderr. */
   readonly setupHint?: string;
@@ -93,6 +95,21 @@ export interface LessonsJournalData {
 export interface LessonsValidateData {
   readonly ok: boolean;
   readonly findings: ValidationFinding[];
+}
+
+export interface LessonsResolveData {
+  /** Where the two sides came from: git's merge stages, or the markers in the file. */
+  readonly source: 'index' | 'markers';
+  readonly path: string;
+  readonly lessonCount: number;
+  readonly onlyOurs: number;
+  readonly onlyTheirs: number;
+  /** Validation errors the merge created that neither side had. */
+  readonly introduced: readonly string[];
+  /** False when the markers had no diff3 base, so one branch's deletions could not be seen. */
+  readonly baseKnown: boolean;
+  /** The git operation to finish next; null outside git. */
+  readonly nextStep: 'merge' | 'rebase' | 'cherry-pick' | 'revert' | 'none' | null;
 }
 
 export interface LessonsImportMdData {
@@ -143,7 +160,7 @@ export interface LessonsStatsData {
 }
 
 export type LessonsCommandResult =
-  | { subcommand: 'help'; exitCode: number; error?: string; data: null }
+  | { subcommand: 'help'; exitCode: number; error?: string; data: null; topic?: string }
   | {
       subcommand: 'query';
       exitCode: number;
@@ -165,6 +182,7 @@ export type LessonsCommandResult =
     }
   | { subcommand: 'journal'; exitCode: number; data: LessonsJournalData; error?: string }
   | { subcommand: 'validate'; exitCode: number; data: LessonsValidateData; error?: string }
+  | { subcommand: 'resolve'; exitCode: number; data: LessonsResolveData; error?: string }
   | { subcommand: 'import-md'; exitCode: number; data: LessonsImportMdData; error?: string }
   | { subcommand: 'prune'; exitCode: number; data: LessonsPruneData; error?: string }
   | {

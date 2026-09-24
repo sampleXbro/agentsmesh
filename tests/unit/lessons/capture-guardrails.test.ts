@@ -6,24 +6,7 @@ import {
 } from '../../../src/lessons/capture-guardrails.js';
 import { nearDuplicateWarning } from '../../../src/lessons/capture-near-duplicate.js';
 import type { Lesson, LessonsGraph, Trigger } from '../../../src/lessons/graph-schema.js';
-
-function graphWith(triggers: Record<string, Trigger>): LessonsGraph {
-  return {
-    version: 1,
-    lessons: {
-      L: {
-        rule: 'Some rule.',
-        topics: ['t'],
-        triggers: Object.keys(triggers),
-        evidence: [],
-        status: 'active',
-        createdAt: '2026-06-01',
-      },
-    },
-    topics: { t: { summary: 'T.' } },
-    triggers,
-  };
-}
+import { graphWith } from '../../helpers/lessons-liveness-fixture.js';
 
 function codes(g: LessonsGraph): string[] {
   return inspectCapturedLesson(g, 'L').map((w) => w.code);
@@ -46,7 +29,7 @@ describe('inspectCapturedLesson', () => {
     expect(codes(graphWith(triggers))).not.toContain('OVERSIZED_LESSON_TRIGGERS');
   });
 
-  it.each([['src/**'], ['**/*.ts'], ['*'], ['**'], ['src/**/*.test.ts']])(
+  it.each([['src/**'], ['**/*.ts'], ['*'], ['**'], ['src/**/*.test.ts'], ['!vendor/lock.json']])(
     'flags broad file glob %s',
     (pattern) => {
       const g = graphWith({ f: { kind: 'file_glob', pattern } });
@@ -171,25 +154,6 @@ describe('inspectCapturedLesson — STOPWORD_KEYWORD', () => {
   it('does not inspect non-keyword triggers', () => {
     const g = graphWith({ f: { kind: 'file_glob', pattern: 'src/of/the/art.ts' } });
     expect(codes(g)).not.toContain('STOPWORD_KEYWORD');
-  });
-});
-
-describe('inspectCapturedLesson — DEAD_GLOB (B4, knownPaths supplied)', () => {
-  it('warns when a file_glob matches no path in the working tree', () => {
-    const g = graphWith({ f: { kind: 'file_glob', pattern: 'src/renamed/**/*.ts' } });
-    const out = inspectCapturedLesson(g, 'L', new Set(['src/here.ts', 'README.md']));
-    expect(out.map((w) => w.code)).toContain('DEAD_GLOB');
-  });
-
-  it('does not warn when the glob matches a known path', () => {
-    const g = graphWith({ f: { kind: 'file_glob', pattern: 'src/**/*.ts' } });
-    const out = inspectCapturedLesson(g, 'L', new Set(['src/here.ts']));
-    expect(out.map((w) => w.code)).not.toContain('DEAD_GLOB');
-  });
-
-  it('is skipped entirely when knownPaths is omitted (the pure write-barrier path)', () => {
-    const g = graphWith({ f: { kind: 'file_glob', pattern: 'src/renamed/**/*.ts' } });
-    expect(codes(g)).not.toContain('DEAD_GLOB');
   });
 });
 

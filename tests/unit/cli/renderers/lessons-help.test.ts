@@ -1,10 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { renderLessons } from '../../../../src/cli/renderers/lessons.js';
 import type { LessonsCommandResult } from '../../../../src/cli/commands/lessons-types.js';
-import {
-  LESSONS_SUBCOMMANDS,
-  LESSONS_USAGE,
-} from '../../../../src/cli/commands/lessons-usage.js';
+import { LESSONS_SUBCOMMANDS, LESSONS_USAGE } from '../../../../src/cli/commands/lessons-usage.js';
 
 // logger.info wraps each line in cyan ANSI codes unless NO_COLOR is set; strip
 // them so line-exact assertions hold regardless of the runner's color setting.
@@ -67,5 +64,20 @@ describe('renderLessons — bare `agentsmesh lessons` help menu', () => {
     const out = renderBareHelp();
     expect(out).toContain('  show <topic|lesson-id>');
     expect(out).not.toContain('show [flags]');
+  });
+});
+
+describe('renderLessons — `agentsmesh lessons help <subcommand>`', () => {
+  it('prints that subcommand usage and example, not the overview', () => {
+    const help: LessonsCommandResult = {
+      subcommand: 'help',
+      exitCode: 0,
+      data: null,
+      topic: 'add',
+    };
+    const out = capture(() => renderLessons(help));
+    expect(out.split('\n')[0]).toBe(LESSONS_USAGE.add!.usage);
+    expect(out).toContain(`Example:\n  ${LESSONS_USAGE.add!.example!}`);
+    expect(out).not.toContain('Subcommands:');
   });
 });

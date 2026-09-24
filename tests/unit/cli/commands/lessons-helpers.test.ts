@@ -65,13 +65,19 @@ describe('renderLessonMarkdown — branch coverage', () => {
   });
 
   it('renders resolved triggers, evidence, and a supersededBy line', () => {
-    const md = renderLessonMarkdown(
-      'rule-a',
-      { ...base, supersededBy: 'rule-b' },
-      triggers,
-    );
+    const md = renderLessonMarkdown('rule-a', { ...base, supersededBy: 'rule-b' }, triggers);
     expect(md).toContain('t-1 [file_glob] src/**');
     expect(md).toContain('commit:abc');
     expect(md).toContain('**superseded by:** rule-b');
+  });
+
+  it('shows the rationale right after the rule, and omits the line when there is none', () => {
+    const md = renderLessonMarkdown(
+      'rule-a',
+      { ...base, rationale: 'It broke CI twice.' },
+      triggers,
+    );
+    expect(md).toContain('A rule.\n\n**rationale:** It broke CI twice.\n\n**topics:** t');
+    expect(renderLessonMarkdown('rule-a', base, triggers)).not.toContain('**rationale:**');
   });
 });

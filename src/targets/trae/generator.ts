@@ -15,6 +15,7 @@ import {
   TRAE_IGNORE,
   TRAE_HOOKS_FILE,
 } from './constants.js';
+import { ignoreOutput } from '../catalog/ignore-output.js';
 
 export type TraeOutput = FeatureGeneratorOutput;
 
@@ -79,10 +80,7 @@ export function generateMcp(canonical: CanonicalFiles): TraeOutput[] {
   ];
 }
 
-export function generateIgnore(canonical: CanonicalFiles): TraeOutput[] {
-  if (canonical.ignore.length === 0) return [];
-  return [{ path: TRAE_IGNORE, content: canonical.ignore.join('\n') }];
-}
+export const generateIgnore = ignoreOutput(TRAE_IGNORE);
 
 /**
  * Generate .trae/hooks.json from canonical hooks.

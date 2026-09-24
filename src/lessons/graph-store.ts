@@ -1,16 +1,28 @@
-import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
+import {
+  accessSync,
+  chmodSync,
+  constants,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  renameSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs';
+import { stripBom } from '../utils/filesystem/fs-text-encoding.js';
 import { dirname, resolve } from 'node:path';
 import { CURRENT_GRAPH_VERSION, parseGraph, type LessonsGraph } from './graph-schema.js';
 
-const GRAPH_REL_PATH = '.agentsmesh/lessons/lessons.json';
+/** Project-relative path of the lessons graph, forward slashes. */
+export const LESSONS_GRAPH_PATH = '.agentsmesh/lessons/lessons.json';
 
 export function graphFilePath(projectRoot: string): string {
-  return resolve(projectRoot, GRAPH_REL_PATH);
+  return resolve(projectRoot, LESSONS_GRAPH_PATH);
 }
 
 export function loadLessonsGraph(projectRoot: string): LessonsGraph {
   const raw = readFileSync(graphFilePath(projectRoot), 'utf8');
-  return parseGraph(JSON.parse(raw));
+  return parseGraph(JSON.parse(stripBom(raw)));
 }
 
 export function tryLoadLessonsGraph(projectRoot: string): LessonsGraph | null {
@@ -43,7 +55,7 @@ export function loadLessonsGraphResilient(projectRoot: string): ResilientGraphLo
   const path = graphFilePath(projectRoot);
   if (!existsSync(path)) return { status: 'absent', graph: null };
   try {
-    const parsed: unknown = JSON.parse(readFileSync(path, 'utf8'));
+    const parsed: unknown = JSON.parse(stripBom(readFileSync(path, 'utf8')));
     const version = (parsed as { version?: unknown } | null)?.version;
     if (typeof version === 'number' && version > CURRENT_GRAPH_VERSION) {
       return { status: 'newer-version', graph: null, version };
@@ -58,15 +70,47 @@ export function loadLessonsGraphResilient(projectRoot: string): ResilientGraphLo
   }
 }
 
+/** lessons.json is read-only (a user's choice): nothing is written over it. */
+export class LessonsGraphReadOnlyError extends Error {
+  constructor() {
+    super(
+      `${LESSONS_GRAPH_PATH} is read-only, so nothing was saved. Make it writable ` +
+        `(chmod u+w ${LESSONS_GRAPH_PATH}) to change lessons.`,
+    );
+    this.name = 'LessonsGraphReadOnlyError';
+  }
+}
+
+function fileMode(path: string): number | undefined {
+  try {
+    return statSync(path).mode & 0o777;
+  } catch {
+    return undefined;
+  }
+}
+
+function isWritable(path: string): boolean {
+  try {
+    accessSync(path, constants.W_OK);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function saveLessonsGraph(projectRoot: string, graph: LessonsGraph): void {
   const path = graphFilePath(projectRoot);
   mkdirSync(dirname(path), { recursive: true });
+  // The rename below would replace a read-only file and reset its mode.
+  const mode = fileMode(path);
+  if (mode !== undefined && !isWritable(path)) throw new LessonsGraphReadOnlyError();
   // Atomic write: a crash mid-write must never truncate the canonical graph.
   // Write to a sibling temp file, then rename over the target (atomic on the
   // same filesystem). The lessons lock serializes writers, so the pid-scoped
   // temp name cannot collide in practice.
   const tmp = `${path}.${process.pid}.tmp`;
   writeFileSync(tmp, serializeGraph(graph), 'utf8');
+  if (mode !== undefined) chmodSync(tmp, mode);
   renameSync(tmp, path);
 }
 

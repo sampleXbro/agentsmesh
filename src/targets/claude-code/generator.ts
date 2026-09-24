@@ -17,6 +17,7 @@ import {
   CLAUDE_IGNORE,
 } from './constants.js';
 import { buildClaudeHooksObjectFromCanonical } from './hooks-format.js';
+import { ignoreOutput } from '../catalog/ignore-output.js';
 
 export type RulesOutput = FeatureGeneratorOutput;
 
@@ -180,11 +181,5 @@ export function generateHooks(canonical: CanonicalFiles): RulesOutput[] {
 /**
  * Generate .claudeignore from canonical ignore patterns.
  * Uses gitignore-style syntax (one pattern per line).
- * @param canonical - Loaded canonical files
- * @returns Array with single .claudeignore output, or [] if no patterns
  */
-export function generateIgnore(canonical: CanonicalFiles): RulesOutput[] {
-  if (!canonical.ignore || canonical.ignore.length === 0) return [];
-  const content = canonical.ignore.join('\n');
-  return [{ path: CLAUDE_IGNORE, content }];
-}
+export const generateIgnore = ignoreOutput(CLAUDE_IGNORE);

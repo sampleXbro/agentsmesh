@@ -50,9 +50,10 @@ describe('injectRecallHook', () => {
     expect(eventCommands('UserPromptSubmit')).toContain(RECALL_HOOK_COMMAND);
     const prompt = eventEntries('UserPromptSubmit').find((h) => h.command === RECALL_HOOK_COMMAND);
     expect(prompt?.matcher).toBe('*');
-    // Tool-call events keep the mutating-tool matcher.
+    // Claude Code compares a pipe list by exact tool name, so notebook edits and
+    // PowerShell commands need their own names to recall.
     const pre = eventEntries('PreToolUse').find((h) => h.command === RECALL_HOOK_COMMAND);
-    expect(pre?.matcher).toBe('Edit|Write|Bash');
+    expect(pre?.matcher).toBe('Edit|Write|NotebookEdit|Bash|PowerShell');
     // PostToolUseFailure carries the capture-on-failure nudge (best-effort; Claude only).
     expect(eventCommands('PostToolUseFailure')).toContain(RECALL_HOOK_COMMAND);
     // SessionStart resets recall dedup after a context compaction (best-effort).

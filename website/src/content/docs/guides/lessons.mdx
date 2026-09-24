@@ -4,7 +4,7 @@ title: Teach Your AI Agents with Lessons
 description: Give AI coding agents a shared memory that learns from your repo — capture a rule after every failure, recall it before every edit, in any AI tool.
 ---
 
-import { Steps, Aside } from '@astrojs/starlight/components';
+import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components';
 
 Lessons give an AI coding agent a **memory of past mistakes**. The agent reads that memory _before_ it touches anything, and writes to it _after_ something goes wrong — so the same mistake doesn't happen twice, in any tool.
 
@@ -65,7 +65,9 @@ A lesson that could never be recalled is rejected at capture time, and the error
    agentsmesh init --lessons
    ```
 
-   This creates the empty graph and a default `config.json`, adds an always-on rule ("recall before edits, capture after failures") to `.agentsmesh/rules/_root.md`, seeds the full operating manual as a `lessons` skill, and wires an auto-recall hook where the tool supports hooks.
+   This creates the empty graph and a default `config.json`, adds an always-on rule ("recall before edits, capture after failures") to `.agentsmesh/rules/_root.md`, seeds the full operating manual as a `lessons` skill, and wires an auto-recall hook where the tool supports hooks. It also keeps the lessons logs and lock files out of git and sets up the git merge driver for `lessons.json` (see below).
+
+   If your project has a `package.json`, add agentsmesh as a devDependency first. The hooks then run `npx --no --offline agentsmesh`, so teammates without a global install still get recall; without it, `init` and `generate` print a hint.
 
 2. **Project it into every tool**
 
@@ -80,6 +82,49 @@ A lesson that could never be recalled is rejected at capture time, and the error
 <Aside type="note">
   `init --lessons` is project-mode only — the memory belongs to a repo, not to your home directory —
   and entirely optional: skip the flag and AgentsMesh works exactly as before.
+</Aside>
+
+## Or install only the plugin
+
+If you want the memory without adopting the rest of AgentsMesh, install it as a plugin. The plugin
+carries the operating manual as a skill and starts the MCP server that reads and writes the graph,
+so inside a git repository it needs no global install and no `agentsmesh.yaml`: lessons are captured
+at the repository root. Outside a repository (or in your home folder) there is no project to save
+them to, so capture fails.
+
+<Tabs>
+  <TabItem label="Claude Code">
+    ```bash
+    claude plugin marketplace add sampleXbro/agentsmesh
+    ```
+
+    ```bash
+    claude plugin install agentsmesh-lessons@agentsmesh
+    ```
+  </TabItem>
+  <TabItem label="Codex">
+    ```bash
+    codex plugin marketplace add sampleXbro/agentsmesh
+    ```
+
+    The bundle then appears in the Plugins directory, where you can enable it.
+  </TabItem>
+</Tabs>
+
+One bundle serves both. Claude Code reads its manifest from `.claude-plugin/`, while Codex reads the
+portable [Agent Plugins](https://agent-plugins.org) manifest at the bundle root, and both load the
+same skill file. The graph still lives in the repository at `.agentsmesh/lessons/lessons.json`, so
+lessons captured through the plugin are reviewed and shared exactly like lessons captured through the
+CLI.
+
+<Aside type="caution" title="The plugin asks; the full setup insists">
+  `init --lessons` writes a blocking recall/capture rule into your instruction file and wires a
+  pre-edit hook, so recall runs whether or not the agent thinks to ask for it. A plugin can ship
+  skills and servers but never your instruction file, and this one ships no hooks. It carries the
+  same contract in the MCP server's startup instructions instead, which every client shows the
+  model. That is a standing instruction rather than a guarantee: an instruction is followed by
+  choice, where a hook simply fires. Reach for the full setup when you want recall enforced, and the
+  plugin when you want the memory without adopting the rest.
 </Aside>
 
 ## A 30-second example
@@ -104,39 +149,46 @@ agentsmesh lessons query --file src/cli/foo.ts
 
 The graph is a normal git-tracked file. A lesson your agent learns today helps every teammate's agent tomorrow, every change shows up in pull requests like any other diff, and anything can be reverted with git.
 
+When two branches both capture lessons, a git merge driver combines them instead of leaving a conflict. `init --lessons` sets it up in your clone, and `agentsmesh generate` sets it up in each teammate's clone. If a conflict still gets through, run `agentsmesh lessons resolve`, then `git add` the file and finish the merge. See [Team workflow](../../cli/lessons/#team-workflow).
+
 Every agent shares that one graph. A rule captured by one tool — Cursor, Aider, Claude Code, or any other — is recalled by all of them, because recall reaches each agent either through an automatic hook (on tools that support hooks) or the always-on lessons paragraph in its instructions, and any agent can query or capture through the CLI or the `lessons_query` / `lessons_add` MCP tools. One memory, every assistant.
 
 <Aside type="caution">
   Because `lessons.json` ships with the repo, its rules are project content — trusted at the same
   level as the code and the project's instruction files. Review a lesson graph from a cloned
-  third-party repo as you would any other code you run. As a guardrail, recall truncates any single
-  rule to 2000 characters and capture rejects longer ones, so a malformed rule cannot flood an
-  agent's context.
+  third-party repo as you would any other code you run. As a guardrail, capture rejects a rule over
+  2000 characters, and recall prints each rule on one line, cuts it to 2000 characters, and caps
+  CLI and MCP answers at 32,000 characters, so a malformed rule cannot flood an agent's context.
 </Aside>
 
 ## Keep the memory healthy
 
-Recall stays lean by default: results are relevance-ranked, capped at the top 10, and bounded by a ~1200-token budget. Tune per project in `.agentsmesh/lessons/config.json` (written by `init --lessons` with defaults `{ "recallLimit": 10, "recallMaxTokens": 1200, "autoPrune": false }`). Hook-driven recall injects at most 5 rules per call regardless of the budget, so on a large graph the budget matters up to that ceiling and trigger precision matters after it.
+Recall stays lean by default: results are relevance-ranked, capped at the top 10, and bounded by a ~1200-token budget. Tune per project in `.agentsmesh/lessons/config.json` (written by `init --lessons` with defaults `{ "recallLimit": 10, "recallMaxTokens": 1200, "autoPrune": false, "telemetry": false, "outcomeLog": true }`). Because this file is committed, `recallLimit` is capped at 50 and `recallMaxTokens` at 8000; higher values are clamped, and `lessons query` warns about it. Hook-driven recall injects at most 5 rules per call regardless of the budget, so on a large graph the budget matters up to that ceiling and trigger precision matters after it.
 
 As the codebase moves, triggers can rot — a renamed directory turns a good lesson unreachable. Three commands keep the graph tidy:
 
 ```bash
 agentsmesh lessons validate        # schema + integrity + dead-trigger checks
 agentsmesh lessons prune           # curation report (dry-run); --apply writes
-agentsmesh lessons stats           # recall/capture telemetry (opt-in)
+agentsmesh lessons stats           # recall/capture telemetry (opt-in) + effectiveness
 ```
 
+A glob that matches no file is treated as dead only when git history shows its path was deleted or renamed. A path that does not exist yet is kept, so `prune` never removes a trigger for a file you are about to create.
+
 <Aside type="note">
-  Turn on **effectiveness tracking** with `"telemetry": true` in `.agentsmesh/lessons/config.json`
-  (an env var can't reach a hook spawned by a desktop app; `AGENTSMESH_LESSONS_TELEMETRY=1` still
-  works per process). agentsmesh then records whether a delivered lesson actually prevented the
-  repeat, quietly **down-ranks rules that never help**, and `validate` starts flagging
-  `INEFFECTIVE_LESSON` (delivered but never helped) and `UNCOVERED_FAILURE` (a repeat failure with
-  no lesson) as warnings. It is off by default (zero cost) and **per-machine** — the shared graph is
-  your rules; effectiveness is measured against your own history.
+  **Effectiveness tracking is on by default.** A local outcome log
+  (`.agentsmesh/lessons/outcome-log.jsonl`, gitignored) records which lessons were delivered and
+  which actions then failed. A delivery counts as a miss only when a failure follows in the same
+  session, within 30 minutes, on an action that matches one of that lesson's own triggers.
+  agentsmesh then quietly **down-ranks rules that never help**, and `validate` flags
+  `INEFFECTIVE_LESSON` (every delivery was a miss) and `UNCOVERED_FAILURE` (a repeat failure with no
+  lesson) as warnings. Turn it off with `"outcomeLog": false` in `.agentsmesh/lessons/config.json`
+  (or `AGENTSMESH_LESSONS_OUTCOME_LOG=0` per process). It is **per-machine** — the shared graph is
+  your rules; effectiveness is measured against your own history. The recall and capture logs that
+  `stats` reads for cost are separate and stay opt-in with `"telemetry": true`.
 </Aside>
 
 ## Where to go next
 
-- [`agentsmesh lessons` CLI reference](../../cli/lessons/) — every subcommand and flag, including `merge`, `untrigger`, `deprecate`, and the legacy `import-md` migrator.
+- [`agentsmesh lessons` CLI reference](../../cli/lessons/) — every subcommand and flag, including `merge`, `untrigger`, `deprecate`, `resolve`, and the legacy `import-md` migrator.
 - [Lessons graph reference](../../reference/lessons/) — the schema, recall ranking, validation codes, and the programmatic API.

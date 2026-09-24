@@ -64,9 +64,7 @@ describe('writeLockFile branches', () => {
     const warnSpy = vi.spyOn(logger, 'warn').mockImplementation(() => undefined);
     vi.spyOn(fsUtils, 'ensureCacheSymlink').mockRejectedValue(new Error('boom'));
 
-    await expect(
-      writeLockFile({ canonicalDir, configDir }, [], {}, false),
-    ).resolves.toBeUndefined();
+    await expect(writeLockFile({ canonicalDir, configDir }, [], {}, false)).resolves.toBe(true);
     expect(warnSpy).toHaveBeenCalledWith(expect.stringMatching(/.agentsmeshcache.*boom/));
   });
 });

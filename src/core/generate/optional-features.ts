@@ -8,6 +8,7 @@ import { getDescriptor } from '../../targets/catalog/registry.js';
 import { emitGeneratedOutput, featureContext } from './feature-loop.js';
 import { outputMergeOptions } from './merge-policy.js';
 import type { TargetLayoutScope } from '../../targets/catalog/target-descriptor.js';
+import { withTargetRecallHooks } from '../../targets/catalog/recall-hook-targets.js';
 
 export async function generatePermissionsFeature(
   results: GenerateResult[],
@@ -43,11 +44,13 @@ export async function generateHooksFeature(
       getDescriptor(target)?.generators.generateHooks;
     if (!gen) continue;
     const ctx = featureContext(target, 'hooks', scope);
-    let outputs = [...gen(canonical, ctx)];
+    // The engine is the single place recall hooks are projected, for builtins and plugins.
+    const projected = withTargetRecallHooks(canonical, target);
+    let outputs = [...gen(projected, ctx)];
     const descriptor = getBuiltinTargetDefinition(target) ?? getDescriptor(target);
     const post = descriptor?.postProcessHookOutputs;
     if (post) {
-      outputs = [...(await post(projectRoot, canonical, outputs))];
+      outputs = [...(await post(projectRoot, projected, outputs))];
     }
     const options = outputMergeOptions(target);
     for (const out of outputs) {
@@ -68,7 +71,7 @@ export async function generateScopedSettingsFeature(
     const descriptor = getBuiltinTargetDefinition(target) ?? getDescriptor(target);
     const emit = descriptor?.emitScopedSettings;
     if (!emit) continue;
-    const outputs = emit(canonical, scope, enabledFeatures);
+    const outputs = emit(withTargetRecallHooks(canonical, target), scope, enabledFeatures);
     if (outputs.length === 0) continue;
     const options = outputMergeOptions(target);
     for (const out of outputs) {

@@ -532,6 +532,16 @@ async postProcessHookOutputs(projectRoot, canonical, outputs) {
 },
 ```
 
+### Lessons Recall Hook Events
+
+`agentsmesh init --lessons` adds a recall hook (`agentsmesh lessons hook`) to canonical `hooks.yaml` under `PreToolUse`, `UserPromptSubmit`, `PostToolUseFailure` and `SessionStart`. The hook only helps where the tool feeds the hook's output into the model. Declare those canonical events with `hookContextEvents`, based on your tool's hook docs:
+
+```js
+hookContextEvents: ['SessionStart', 'PostToolUseFailure'],
+```
+
+`generate` then keeps the recall entry only on the listed events for your target. `[]` means your tool's hooks can never inject context, so no recall entry is generated. Leave the field out to keep every recall entry. The user's own hooks are never filtered.
+
 ### Scope Extras
 
 Generate additional global outputs beyond the standard feature loop with `globalSupport.scopeExtras`:
@@ -643,6 +653,7 @@ in-target precedent.
 | `emitScopedSettings` | `function` | Emit native settings sidecar files |
 | `mergeGeneratedOutputContent` | `function` | Custom merge for generated outputs |
 | `postProcessHookOutputs` | `function` | Async post-pass for hook outputs |
+| `hookContextEvents` | `string[]` | Canonical hook events whose output reaches the model. `generate` keeps the lessons recall hook only on these; `[]` drops it entirely; omit to keep every recall entry |
 
 ## What's Next
 

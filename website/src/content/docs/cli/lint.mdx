@@ -79,6 +79,7 @@ canonical graph and the procedural rule:
 - Graph integrity: no dangling lesson→topic / lesson→trigger / `supersededBy` refs.
 - No duplicate rule text (normalized: whitespace-collapsed, lowercased).
 - Status invariants: `superseded` requires a `supersededBy`; `active` forbids it.
+- Trigger patterns are safe: a `command_pattern` the linear regex engine cannot run (`UNSAFE_TRIGGER_PATTERN`) or a `file_glob` outside the safe glob subset (`UNSAFE_GLOB_PATTERN`) is an error.
 - Orphan topics/triggers (warning only).
 - `_root.md` contains the `## Lessons (…)` procedural rule heading.
 

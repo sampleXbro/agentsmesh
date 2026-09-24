@@ -2,7 +2,12 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { listProjectFiles } from '../../../src/lessons/project-files.js';
+import {
+  gitHistoryOf,
+  listProjectFiles,
+  projectFilesOf,
+} from '../../../src/lessons/project-files.js';
+import { commitAll, initRepo } from '../../helpers/temp-git-repo.js';
 
 let root: string;
 
@@ -47,5 +52,40 @@ describe('listProjectFiles', () => {
     expect(files.has('index.ts')).toBe(true);
     expect([...files].some((p) => p.includes('node_modules'))).toBe(false);
     expect([...files].some((p) => p.startsWith('.git/'))).toBe(false);
+  });
+
+  it('returns null (unknown) instead of a partial list when the walk passes the file cap', () => {
+    for (const name of ['a.ts', 'b.ts', 'c.ts', 'd.ts']) writeFileSync(join(root, name), 'x\n');
+    expect(listProjectFiles(root, 3)).toBeNull();
+    expect([...listProjectFiles(root, 4)!].sort()).toEqual(['a.ts', 'b.ts', 'c.ts', 'd.ts']);
+  });
+
+  it('carries no git evidence outside a git work tree', () => {
+    writeFileSync(join(root, 'a.ts'), 'x\n');
+    expect(gitHistoryOf(listProjectFiles(root)!)).toBeNull();
+  });
+
+  it('carries the git evidence of the project inside a work tree', () => {
+    initRepo(root);
+    writeFileSync(join(root, 'a.ts'), 'x\n');
+    commitAll(root, 'init');
+    expect([...gitHistoryOf(listProjectFiles(root)!)!.tracked]).toEqual(['a.ts']);
+  });
+});
+
+describe('gitHistoryOf', () => {
+  it('is null for a plain set (no evidence, so nothing can be proven dead)', () => {
+    expect(gitHistoryOf(new Set(['a.ts']))).toBeNull();
+  });
+
+  it('returns the evidence attached by projectFilesOf', () => {
+    const history = {
+      tracked: new Set(['a.ts']),
+      deleted: new Set<string>(),
+      renamedAway: new Set<string>(),
+    };
+    const files = projectFilesOf(['a.ts'], () => history);
+    expect([...files]).toEqual(['a.ts']);
+    expect(gitHistoryOf(files)).toBe(history);
   });
 });

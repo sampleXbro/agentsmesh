@@ -1,11 +1,16 @@
 /** Materialize canonical files, then atomically swap the staged pack into place. */
 
-import { join, basename, dirname } from 'node:path';
-import { copyFile } from 'node:fs/promises';
+import {
+  copyEntitiesInto,
+  copyPreservedRootFilesInto,
+  copySkillsInto,
+  writeSettingsInto,
+} from './copy-entities.js';
+import { join } from 'node:path';
 import { stringify as yamlStringify } from 'yaml';
 import type { CanonicalFiles } from '../../core/types.js';
 import type { PackMetadata } from './pack-schema.js';
-import { writeFileAtomic, mkdirp } from '../../utils/filesystem/fs.js';
+import { writeFileAtomic } from '../../utils/filesystem/fs.js';
 import {
   prependYamlSchemaDirective,
   stampJsonSchemaField,
@@ -24,88 +29,6 @@ export interface InstallManifestExtras {
   readonly extends_id?: string | null;
   /** Classifier verdict that drove this install (e.g. `anthropic-skill-pack`). */
   readonly source_type?: string | null;
-}
-
-/** Write rules to packDir/rules/ by copying source files. */
-async function writeRules(canonical: CanonicalFiles, packDir: string): Promise<void> {
-  if (canonical.rules.length === 0) return;
-  const rulesDir = join(packDir, 'rules');
-  await mkdirp(rulesDir);
-  for (const rule of canonical.rules) {
-    const dest = join(rulesDir, basename(rule.source));
-    await copyFile(rule.source, dest);
-  }
-}
-
-/** Write commands to packDir/commands/ by copying source files. */
-async function writeCommands(canonical: CanonicalFiles, packDir: string): Promise<void> {
-  if (canonical.commands.length === 0) return;
-  const dir = join(packDir, 'commands');
-  await mkdirp(dir);
-  for (const cmd of canonical.commands) {
-    const dest = join(dir, basename(cmd.source));
-    await copyFile(cmd.source, dest);
-  }
-}
-
-/** Write agents to packDir/agents/ by copying source files. */
-async function writeAgents(canonical: CanonicalFiles, packDir: string): Promise<void> {
-  if (canonical.agents.length === 0) return;
-  const dir = join(packDir, 'agents');
-  await mkdirp(dir);
-  for (const agent of canonical.agents) {
-    const dest = join(dir, basename(agent.source));
-    await copyFile(agent.source, dest);
-  }
-}
-
-/** Write skills to packDir/skills/{name}/ with SKILL.md and supporting files. */
-async function writeSkills(canonical: CanonicalFiles, packDir: string): Promise<void> {
-  if (canonical.skills.length === 0) return;
-  const skillsDir = join(packDir, 'skills');
-  await mkdirp(skillsDir);
-  for (const skill of canonical.skills) {
-    const skillDestDir = join(skillsDir, skill.name);
-    await mkdirp(skillDestDir);
-    // Copy SKILL.md
-    await copyFile(skill.source, join(skillDestDir, 'SKILL.md'));
-    // Copy supporting files
-    for (const sf of skill.supportingFiles) {
-      const destPath = join(skillDestDir, sf.relativePath);
-      await mkdirp(dirname(destPath));
-      await copyFile(sf.absolutePath, destPath);
-    }
-  }
-}
-
-/**
- * Copy upstream preserved-boilerplate files (README/LICENSE/NOTICE/…) into the
- * pack root verbatim. These files are not canonical entities — they carry
- * legal attribution and consumer-facing context for the redistributed pack.
- * Must run before `hashPackContent` so the bytes contribute to the pack hash.
- */
-async function writePreservedRootFiles(
-  files: readonly PreservedRootFile[],
-  packDir: string,
-): Promise<void> {
-  for (const file of files) {
-    await copyFile(file.absolutePath, join(packDir, file.relativePath));
-  }
-}
-
-async function writeSettings(canonical: CanonicalFiles, packDir: string): Promise<void> {
-  if (canonical.mcp !== null) {
-    await writeFileAtomic(join(packDir, 'mcp.json'), `${JSON.stringify(canonical.mcp, null, 2)}\n`);
-  }
-  if (canonical.permissions !== null) {
-    await writeFileAtomic(join(packDir, 'permissions.yaml'), yamlStringify(canonical.permissions));
-  }
-  if (canonical.hooks !== null) {
-    await writeFileAtomic(join(packDir, 'hooks.yaml'), yamlStringify(canonical.hooks));
-  }
-  if (canonical.ignore.length > 0) {
-    await writeFileAtomic(join(packDir, 'ignore'), `${canonical.ignore.join('\n')}\n`);
-  }
 }
 
 function validatePackName(name: string): void {
@@ -165,14 +88,14 @@ export async function materializePack(
 ): Promise<PackMetadata> {
   validatePackName(packName);
   return swapPackDirectory(packsDir, packName, async (tmpDir) => {
-    await writeRules(canonical, tmpDir);
-    await writeCommands(canonical, tmpDir);
-    await writeAgents(canonical, tmpDir);
-    await writeSkills(canonical, tmpDir);
-    await writeSettings(canonical, tmpDir);
+    await copyEntitiesInto(tmpDir, 'rules', canonical.rules);
+    await copyEntitiesInto(tmpDir, 'commands', canonical.commands);
+    await copyEntitiesInto(tmpDir, 'agents', canonical.agents);
+    await copySkillsInto(canonical, tmpDir);
+    await writeSettingsInto(canonical, tmpDir);
     // Preserved root files (README/LICENSE/…) before hash so the bytes
     // participate in `content_hash` and the per-file install manifest.
-    await writePreservedRootFiles(preservedRootFiles, tmpDir);
+    await copyPreservedRootFilesInto(preservedRootFiles, tmpDir);
 
     // Compute aggregate content hash (excludes pack.yaml + install manifest).
     const contentHash = await hashPackContent(tmpDir);

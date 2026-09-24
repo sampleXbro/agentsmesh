@@ -31,7 +31,7 @@ function graphWith(lessons: Record<string, Lesson>): LessonsGraph {
 
 describe('recallAlwaysLessons', () => {
   it('returns [] when no graph exists', async () => {
-    expect(await recallAlwaysLessons(root)).toEqual({ lessons: [], total: 0 });
+    expect(await recallAlwaysLessons(root)).toEqual({ lessons: [], total: 0, suppressed: 0 });
   });
 
   it('returns active always-lessons newest-first', async () => {
@@ -87,5 +87,26 @@ describe('recallAlwaysLessons', () => {
       }),
     );
     expect((await recallAlwaysLessons(root, { maxTokens: null })).lessons).toHaveLength(2);
+  });
+});
+
+describe('recallAlwaysLessons — session dedup', () => {
+  const session = 'always-dedup-session';
+
+  it('suppresses a repeat in the same session and counts it', async () => {
+    saveLessonsGraph(root, graphWith({ a: always('A rule.') }));
+    await recallAlwaysLessons(root, { sessionId: session });
+    const again = await recallAlwaysLessons(root, { sessionId: session });
+    expect(again).toEqual({ lessons: [], total: 1, suppressed: 1 });
+  });
+
+  it('noDedup returns lessons already delivered and marks nothing', async () => {
+    saveLessonsGraph(root, graphWith({ a: always('A rule.') }));
+    const first = await recallAlwaysLessons(root, { sessionId: session, noDedup: true });
+    expect(first.lessons).toEqual([{ id: 'a', rule: 'A rule.' }]);
+    // Nothing was marked seen, so the deduped path still delivers it once.
+    expect((await recallAlwaysLessons(root, { sessionId: session })).lessons).toHaveLength(1);
+    const forced = await recallAlwaysLessons(root, { sessionId: session, noDedup: true });
+    expect(forced).toEqual({ lessons: [{ id: 'a', rule: 'A rule.' }], total: 1, suppressed: 0 });
   });
 });

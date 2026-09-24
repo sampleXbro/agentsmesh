@@ -3,7 +3,7 @@
  */
 
 import { relative } from 'node:path';
-import { LESSONS_MERGE_DRIVER_CONFIG } from '../../lessons/merge-driver-setup.js';
+import { mergeDriverSetupLine, type MergeDriverSetup } from '../../lessons/merge-driver-setup.js';
 import { logger } from '../../utils/output/logger.js';
 import type { InitCommandResult } from '../commands/init.js';
 
@@ -96,20 +96,20 @@ function renderLessons(lessons: NonNullable<InitCommandResult['data']['lessons']
     logger.info('  .agentsmesh/rules/_root.md already carries the current Lessons block');
   }
   if (lessons.gitignoreUpdated) {
-    logger.success(
-      '  Added .agentsmesh/lessons/recall-log.jsonl to .gitignore (opt-in telemetry stays out of git)',
-    );
+    logger.success('  Added the lessons runtime files (logs, lock, temp files) to .gitignore');
   }
   if (lessons.recallHookInjected) {
     logger.success(
-      '  Wired the PostToolUse recall hook into .agentsmesh/hooks.yaml (deterministic recall on hook-capable targets)',
+      '  Wired the lessons recall hook into .agentsmesh/hooks.yaml (deterministic recall on targets whose hooks can inject context)',
     );
   }
+  if (lessons.recallHookTeamHint) logger.warn(`  ${lessons.recallHookTeamHint}`);
   if (lessons.gitattributesUpdated) {
     logger.success(
       '  Bound .agentsmesh/lessons/lessons.json to the merge driver in .gitattributes (commit it so concurrent captures union-merge)',
     );
   }
+  renderMergeDriver(lessons.mergeDriver);
   logger.success('Lessons subsystem ready (.agentsmesh/lessons/).');
   logger.info("  Run 'agentsmesh generate' to sync the ritual into every target.");
   logger.info('');
@@ -131,14 +131,20 @@ function renderLessons(lessons: NonNullable<InitCommandResult['data']['lessons']
     '    inspect:  agentsmesh lessons journal   |   lessons show <id>   |   lessons validate',
   );
   logger.info(
-    '  Optional: export AGENTSMESH_LESSONS_TELEMETRY=1 to measure recall cost via `lessons stats`.',
+    '  Optional: set "telemetry": true in .agentsmesh/lessons/config.json to measure recall cost via `lessons stats`.',
   );
-  if (lessons.gitattributesUpdated) {
-    logger.info(
-      '  Team: each clone enables the merge driver once (the per-clone half git cannot auto-run):',
-    );
-    for (const cmd of LESSONS_MERGE_DRIVER_CONFIG) {
-      logger.info(`    ${cmd}`);
-    }
+}
+
+function renderMergeDriver(setup: MergeDriverSetup | undefined): void {
+  if (setup === undefined) return;
+  const line = mergeDriverSetupLine(setup);
+  if (line === null) return;
+  if (setup.status === 'failed' || setup.status === 'custom') {
+    logger.warn(`  ${line}`);
+    return;
   }
+  logger.success(`  ${line}`);
+  logger.info(
+    "  Each teammate's clone gets the same setup the next time they run 'agentsmesh generate'.",
+  );
 }

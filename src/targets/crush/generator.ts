@@ -25,6 +25,7 @@ import {
   CRUSH_IGNORE,
 } from './constants.js';
 import { buildCrushConfigJson } from './config-format.js';
+import { ignoreOutput } from '../catalog/ignore-output.js';
 
 export type CrushOutput = FeatureGeneratorOutput;
 
@@ -94,11 +95,7 @@ export function generatePermissions(canonical: CanonicalFiles): CrushOutput[] {
 /**
  * Generate .crushignore from canonical ignore patterns.
  */
-export function generateIgnore(canonical: CanonicalFiles): CrushOutput[] {
-  if (!canonical.ignore || canonical.ignore.length === 0) return [];
-  const content = canonical.ignore.join('\n');
-  return [{ path: CRUSH_IGNORE, content }];
-}
+export const generateIgnore = ignoreOutput(CRUSH_IGNORE);
 
 function buildCrushHooksFromCanonical(canonical: CanonicalFiles): Record<string, unknown> {
   if (!canonical.hooks) return {};

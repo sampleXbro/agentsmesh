@@ -2,12 +2,18 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { maybeAutoMigrateLessons } from './auto-migrate.js';
 import { captureLogPath } from './capture-telemetry.js';
+import { lessonsLockPath } from './lessons-lock.js';
 import { outcomeLogPath } from './outcome-log.js';
 import { mutateLessonsGraphLocked } from './mutate.js';
 import { lessonsPaths, toRelPath } from './paths.js';
 import { defaultLessonsConfig } from './recall-config.js';
 import { injectRecallHook } from './recall-hook-scaffold.js';
-import { LESSONS_GITATTRIBUTES_ENTRY } from './merge-driver-setup.js';
+import {
+  ensureLessonsMergeDriver,
+  LESSONS_GITATTRIBUTES_ENTRY,
+  type MergeDriverSetup,
+} from './merge-driver-setup.js';
+import { recallHookTeamHint as teamHintFor } from './recall-hook-hint.js';
 import { recallLogPath } from './telemetry.js';
 import { ensureGitattributesEntries } from '../utils/filesystem/gitattributes.js';
 import { ensureGitignoreEntries } from '../utils/filesystem/gitignore.js';
@@ -23,12 +29,16 @@ export interface ScaffoldLessonsResult {
   readonly updated: string[];
   readonly skipped: string[];
   readonly rootRuleUpdated: boolean;
-  /** True when the recall-log gitignore entry was added to `.gitignore`. */
+  /** True when any lessons runtime-artifact entry was added to `.gitignore`. */
   readonly gitignoreUpdated: boolean;
   /** True when the lessons.json merge-driver entry was added to `.gitattributes`. */
   readonly gitattributesUpdated: boolean;
-  /** True when the PostToolUse recall hook was injected into `hooks.yaml`. */
+  /** True when the lessons recall hook was injected into `hooks.yaml`. */
   readonly recallHookInjected: boolean;
+  /** What this clone's merge-driver setup did; teammates get it on `generate`. */
+  readonly mergeDriver: MergeDriverSetup;
+  /** Set when recall hooks still need a global install to reach teammates. */
+  readonly recallHookTeamHint: string | null;
 }
 
 /**
@@ -77,24 +87,25 @@ export async function scaffoldLessons(projectRoot: string): Promise<ScaffoldLess
   // Auto-wire deterministic hook-mode recall for hook-capable targets; non-hook
   // targets keep the always-on paragraph injected above as their fallback.
   const recallHookInjected = injectRecallHook(projectRoot);
-  // Keep BOTH opt-in telemetry logs (recall + capture) out of git. Entries are
-  // derived from the telemetry modules so the paths stay single-sourced; the
-  // append is idempotent and coverage-aware, so re-running scaffold (init is
-  // documented as safe to repeat) and an existing broader `.agentsmesh/` ignore
-  // are both no-ops.
+  // Keep every lessons runtime artifact out of git: the three logs, the lock
+  // directory, and the `*.tmp` files an atomic write leaves behind when killed.
+  // Paths come from their owning modules; the append is idempotent and
+  // coverage-aware, so a re-run or a broader `.agentsmesh/` ignore is a no-op.
   const gitignoreUpdated = await ensureGitignoreEntries(projectRoot, [
     toRelPath(projectRoot, recallLogPath(projectRoot)),
     toRelPath(projectRoot, captureLogPath(projectRoot)),
     toRelPath(projectRoot, outcomeLogPath(projectRoot)),
+    `${toRelPath(projectRoot, lessonsLockPath(projectRoot))}/`,
+    `${toRelPath(projectRoot, paths.base)}/*.tmp`,
   ]);
   // Commit the merge-driver binding for the shared graph so a team's concurrent
-  // captures union-merge instead of leaving conflict markers. This is the
-  // COMMITTABLE half; the per-clone `git config` half is surfaced as a setup hint
-  // by the renderer (git cannot auto-run it on clone). Idempotent + preserves any
-  // existing .gitattributes content.
+  // captures union-merge instead of leaving conflict markers. Idempotent and
+  // preserves any existing .gitattributes content.
   const gitattributesUpdated = await ensureGitattributesEntries(projectRoot, [
     LESSONS_GITATTRIBUTES_ENTRY,
   ]);
+  // The per-clone half: set this clone's driver now instead of printing it.
+  const mergeDriver = ensureLessonsMergeDriver(projectRoot);
   return {
     created,
     updated,
@@ -103,6 +114,8 @@ export async function scaffoldLessons(projectRoot: string): Promise<ScaffoldLess
     gitignoreUpdated,
     gitattributesUpdated,
     recallHookInjected,
+    mergeDriver,
+    recallHookTeamHint: teamHintFor(projectRoot),
   };
 }
 

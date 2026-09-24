@@ -192,6 +192,10 @@ export function executableModeFor(path: string): number | undefined {
  */
 export function normalizeTextPayload(path: string, content: string): string {
   if (!shouldNormalizeLineEndings(path)) return content;
-  const withoutBom = content.startsWith(UTF8_BOM) ? content.slice(UTF8_BOM.length) : content;
-  return normalizeLineEndings(withoutBom);
+  return normalizeLineEndings(stripBom(content));
+}
+
+/** `text` without a leading UTF-8 BOM (editors on Windows often add one). */
+export function stripBom(text: string): string {
+  return text.startsWith(UTF8_BOM) ? text.slice(UTF8_BOM.length) : text;
 }

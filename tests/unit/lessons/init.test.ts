@@ -121,13 +121,19 @@ describe('scaffoldLessons', async () => {
     expect(rootRule).toContain('<!-- agentsmesh:lessons-contract:start -->');
   });
 
-  it('gitignores every opt-in telemetry log so telemetry never dirties the worktree', async () => {
+  it('gitignores every lessons runtime artifact — logs, the lock dir and crash temp files', async () => {
     const result = await scaffoldLessons(projectRoot);
 
-    const gitignore = readFileSync(join(projectRoot, '.gitignore'), 'utf8');
-    expect(gitignore).toContain('.agentsmesh/lessons/recall-log.jsonl');
-    expect(gitignore).toContain('.agentsmesh/lessons/capture-log.jsonl');
-    expect(gitignore).toContain('.agentsmesh/lessons/outcome-log.jsonl');
+    const lines = readFileSync(join(projectRoot, '.gitignore'), 'utf8')
+      .split('\n')
+      .filter((l) => l.length > 0);
+    expect(lines).toEqual([
+      '.agentsmesh/lessons/recall-log.jsonl',
+      '.agentsmesh/lessons/capture-log.jsonl',
+      '.agentsmesh/lessons/outcome-log.jsonl',
+      '.agentsmesh/lessons/.lessons.lock/',
+      '.agentsmesh/lessons/*.tmp',
+    ]);
     expect(result.gitignoreUpdated).toBe(true);
   });
 
@@ -191,6 +197,7 @@ describe('scaffoldLessons', async () => {
       recallMaxTokens: 1200,
       autoPrune: false,
       telemetry: false,
+      outcomeLog: true,
     });
   });
 

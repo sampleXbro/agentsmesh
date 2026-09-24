@@ -2,13 +2,18 @@
  * Incrementally merge new canonical resources into an existing pack.
  */
 
-import { join, basename, dirname } from 'node:path';
-import { copyFile } from 'node:fs/promises';
+import {
+  copyEntitiesInto,
+  copyPreservedRootFilesInto,
+  copySkillsInto,
+  writeSettingsInto,
+} from './copy-entities.js';
+import { join } from 'node:path';
 import { stringify as yamlStringify } from 'yaml';
 import type { CanonicalFiles } from '../../core/types.js';
 import type { PackMetadata } from './pack-schema.js';
 import type { ExtendPick } from '../../config/core/schema.js';
-import { writeFileAtomic, mkdirp } from '../../utils/filesystem/fs.js';
+import { writeFileAtomic } from '../../utils/filesystem/fs.js';
 import { prependYamlSchemaDirective } from '../../utils/output/schema-directive.js';
 import { hashPackContent } from './pack-hash.js';
 import { normalizePersistedInstallPaths } from '../core/portable-paths.js';
@@ -70,82 +75,6 @@ function mergePick(
   return hasAny ? result : undefined;
 }
 
-/** Copy new rules into packDir/rules/. */
-async function mergeRules(canonical: CanonicalFiles, packDir: string): Promise<void> {
-  if (canonical.rules.length === 0) return;
-  const dir = join(packDir, 'rules');
-  await mkdirp(dir);
-  for (const rule of canonical.rules) {
-    await copyFile(rule.source, join(dir, basename(rule.source)));
-  }
-}
-
-/** Copy new commands into packDir/commands/. */
-async function mergeCommands(canonical: CanonicalFiles, packDir: string): Promise<void> {
-  if (canonical.commands.length === 0) return;
-  const dir = join(packDir, 'commands');
-  await mkdirp(dir);
-  for (const cmd of canonical.commands) {
-    await copyFile(cmd.source, join(dir, basename(cmd.source)));
-  }
-}
-
-/** Copy new agents into packDir/agents/. */
-async function mergeAgents(canonical: CanonicalFiles, packDir: string): Promise<void> {
-  if (canonical.agents.length === 0) return;
-  const dir = join(packDir, 'agents');
-  await mkdirp(dir);
-  for (const agent of canonical.agents) {
-    await copyFile(agent.source, join(dir, basename(agent.source)));
-  }
-}
-
-/** Copy new skills into packDir/skills/. */
-async function mergeSkills(canonical: CanonicalFiles, packDir: string): Promise<void> {
-  if (canonical.skills.length === 0) return;
-  const skillsDir = join(packDir, 'skills');
-  await mkdirp(skillsDir);
-  for (const skill of canonical.skills) {
-    const destDir = join(skillsDir, skill.name);
-    await mkdirp(destDir);
-    await copyFile(skill.source, join(destDir, 'SKILL.md'));
-    for (const sf of skill.supportingFiles) {
-      const destPath = join(destDir, sf.relativePath);
-      await mkdirp(dirname(destPath));
-      await copyFile(sf.absolutePath, destPath);
-    }
-  }
-}
-
-/**
- * Refresh upstream preserved-boilerplate files (README/LICENSE/…) at the pack
- * root. Overwrites on collision: the latest upstream source is the truth on
- * re-install, matching how the rest of `mergeIntoPack` treats same-name files.
- */
-async function mergePreservedRootFiles(
-  files: readonly PreservedRootFile[],
-  packDir: string,
-): Promise<void> {
-  for (const file of files) {
-    await copyFile(file.absolutePath, join(packDir, file.relativePath));
-  }
-}
-
-async function mergeSettings(canonical: CanonicalFiles, packDir: string): Promise<void> {
-  if (canonical.mcp !== null) {
-    await writeFileAtomic(join(packDir, 'mcp.json'), `${JSON.stringify(canonical.mcp, null, 2)}\n`);
-  }
-  if (canonical.permissions !== null) {
-    await writeFileAtomic(join(packDir, 'permissions.yaml'), yamlStringify(canonical.permissions));
-  }
-  if (canonical.hooks !== null) {
-    await writeFileAtomic(join(packDir, 'hooks.yaml'), yamlStringify(canonical.hooks));
-  }
-  if (canonical.ignore.length > 0) {
-    await writeFileAtomic(join(packDir, 'ignore'), `${canonical.ignore.join('\n')}\n`);
-  }
-}
-
 /**
  * Merge new canonical resources into an existing pack directory.
  * Adds new files alongside existing ones. Updates metadata.
@@ -167,12 +96,12 @@ export async function mergeIntoPack(
   preservedRootFiles: readonly PreservedRootFile[] = [],
 ): Promise<PackMetadata> {
   // Write new resources
-  await mergeRules(newCanonical, packDir);
-  await mergeCommands(newCanonical, packDir);
-  await mergeAgents(newCanonical, packDir);
-  await mergeSkills(newCanonical, packDir);
-  await mergeSettings(newCanonical, packDir);
-  await mergePreservedRootFiles(preservedRootFiles, packDir);
+  await copyEntitiesInto(packDir, 'rules', newCanonical.rules);
+  await copyEntitiesInto(packDir, 'commands', newCanonical.commands);
+  await copyEntitiesInto(packDir, 'agents', newCanonical.agents);
+  await copySkillsInto(newCanonical, packDir);
+  await writeSettingsInto(newCanonical, packDir);
+  await copyPreservedRootFilesInto(preservedRootFiles, packDir);
 
   // Merge metadata
   const mergedFeatures = union(existingMeta.features, newFeatures) as PackMetadata['features'];

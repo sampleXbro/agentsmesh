@@ -1,17 +1,11 @@
-import type { McpContext } from '../context.js';
-import {
-  BroadCommandPatternError,
-  EmptyRuleError,
-  NoTriggerError,
-  RuleTooLongError,
-  UnknownTopicError,
-  UnrecallableLessonError,
-} from '../../lessons/add.js';
+import { lessonsRootOf, type McpContext } from '../context.js';
+import { UnknownTopicError } from '../../lessons/add.js';
 import { maybeAutoMigrateLessons } from '../../lessons/auto-migrate.js';
-import { tryLoadLessonsGraph } from '../../lessons/graph-store.js';
 import { captureLesson } from '../../lessons/capture.js';
+import { isCaptureRejection } from '../../lessons/capture-rejection.js';
 import { McpError } from '../errors.js';
 import { lessonsDeprecate, lessonsShow } from './lessons-curation.js';
+import { readableGraph, writableLessonsRoot, writeRefusalError } from './lessons-guards.js';
 import { lessonsQuery } from './lessons-query.js';
 
 /** A list input the agent may pass as a bare string or an array (CLI parity). */
@@ -67,8 +61,10 @@ export const lessonsHandlers = {
   query: lessonsQuery,
 
   async topics(ctx: McpContext): Promise<{ topics: Array<{ id: string; summary: string }> }> {
-    await maybeAutoMigrateLessons(ctx.projectRoot);
-    const graph = tryLoadLessonsGraph(ctx.projectRoot);
+    const root = lessonsRootOf(ctx);
+    if (root === null) return { topics: [] };
+    await maybeAutoMigrateLessons(root);
+    const graph = readableGraph(root);
     if (graph === null) return { topics: [] };
     return {
       topics: Object.entries(graph.topics)
@@ -98,11 +94,13 @@ export const lessonsHandlers = {
         `lessons_add: scope must be "always" (got "${input.scope}").`,
       );
     }
+    const root = writableLessonsRoot(ctx, 'lessons_add');
+    readableGraph(root); // an unreadable graph fails here, before any write
     // captureLesson migrates any legacy store first so capture enriches the real
     // graph instead of creating lessons.json and stranding the legacy lessons.
     try {
       return await captureLesson(
-        ctx.projectRoot,
+        root,
         {
           rule: input.rule,
           topic: input.topic,
@@ -125,9 +123,10 @@ export const lessonsHandlers = {
       );
     } catch (err) {
       // Unknown topic is a missing-referent failure → NOT_FOUND. The other
-      // guardrails (empty/oversized rule, no trigger, unrecallable, broad
-      // command pattern) are capture rejections → VALIDATION_FAILED. In both cases surface the domain
-      // machine code in `details.code` so clients keep the precise reason.
+      // guardrails (empty/oversized rule, no trigger, unrecallable, broad command
+      // pattern, file trigger outside the project) and the write barrier's
+      // refusals (unsafe trigger pattern) are VALIDATION_FAILED. Each surfaces
+      // the domain machine code in `details.code` so clients keep the reason.
       if (err instanceof UnknownTopicError) {
         throw new McpError(
           'NOT_FOUND',
@@ -135,16 +134,10 @@ export const lessonsHandlers = {
           { code: err.code },
         );
       }
-      if (
-        err instanceof EmptyRuleError ||
-        err instanceof NoTriggerError ||
-        err instanceof UnrecallableLessonError ||
-        err instanceof RuleTooLongError ||
-        err instanceof BroadCommandPatternError
-      ) {
+      if (isCaptureRejection(err)) {
         throw new McpError('VALIDATION_FAILED', `lessons_add: ${err.message}`, { code: err.code });
       }
-      throw err;
+      throw writeRefusalError('lessons_add', err) ?? err;
     }
   },
 };

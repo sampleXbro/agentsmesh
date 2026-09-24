@@ -15,10 +15,13 @@ import {
   handleGenerateOrDryRun,
 } from './generate-handlers.js';
 import type { GenerateData } from '../command-result.js';
+import { runLessonsMaintenance } from './generate-lessons.js';
 
 export interface GenerateCommandResult {
   exitCode: number;
   data: GenerateData;
+  /** True when this run rewrote `.agentsmesh/.lock`; false for check, dry-run and no-op runs. */
+  lockWritten: boolean;
 }
 
 export interface RunGenerateOptions {
@@ -94,6 +97,8 @@ export async function runGenerate(
     ? allTargets.filter((t) => targetFilter.includes(t))
     : allTargets;
 
+  const lessonsExit = scope === 'project' ? runLessonsMaintenance(context.rootBase, mode) : 0;
+
   const results = await runEngine({
     config,
     canonical,
@@ -102,35 +107,33 @@ export async function runGenerate(
     targetFilter,
   });
 
-  if (results.length === 0) {
-    return handleEmptyResults({
-      mode,
-      scope,
-      dryRun,
-      context,
-      resolvedExtends,
-      flags,
-      root,
-      options,
-      activeTargets,
-    });
-  }
-
-  if (checkOnly) {
-    return buildCheckResult(results, scope);
-  }
-
-  return handleGenerateOrDryRun({
-    results,
-    dryRun,
-    scope,
-    mode,
-    context,
-    activeTargets,
-    configuredTargets: allTargets,
-    resolvedExtends,
-    flags,
-    root,
-    options,
-  });
+  const result =
+    results.length === 0
+      ? await handleEmptyResults({
+          mode,
+          scope,
+          dryRun,
+          context,
+          resolvedExtends,
+          flags,
+          root,
+          options,
+          activeTargets,
+        })
+      : checkOnly
+        ? buildCheckResult(results, scope)
+        : await handleGenerateOrDryRun({
+            results,
+            dryRun,
+            scope,
+            mode,
+            context,
+            activeTargets,
+            configuredTargets: allTargets,
+            resolvedExtends,
+            flags,
+            root,
+            options,
+          });
+  return { ...result, exitCode: Math.max(result.exitCode, lessonsExit) };
 }

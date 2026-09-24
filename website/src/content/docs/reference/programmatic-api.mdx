@@ -217,6 +217,11 @@ const report: LockSyncReport = await check({
   canonicalDir: `${process.cwd()}/.agentsmesh`,
 });
 
+if (report.lockConflict) {
+  console.error('The lock file has git conflict markers — run agentsmesh merge.');
+  process.exit(1);
+}
+
 if (!report.hasLock) {
   console.error('Not initialized — run agentsmesh generate first.');
   process.exit(1);
@@ -233,6 +238,8 @@ if (!report.inSync) {
 ```
 
 `LockSyncReport.lockedViolations` is the subset of changes that violate `collaboration.lock_features` — useful for distinguishing "drift the team allows" from "drift that should fail CI".
+
+`LockSyncReport.lockConflict` is `true` when `.lock` still has git conflict markers. Such a lock cannot be read, so `hasLock` is `false` too. Check `lockConflict` first: the fix is `agentsmesh merge`, not `generate`.
 
 ## Plugin registration
 
@@ -292,7 +299,7 @@ if (graph) {
 
 `recallLessons(projectRoot, query, opts?)` is the migration-aware recall entry
 point: it migrates a legacy store, loads the graph, and returns the
-relevance-ranked, capped matches (default top 10 + ~400-token budget). The
+relevance-ranked, capped matches (default top 10 + ~1200-token budget). The
 low-level `queryLessons(graph, { file, command, keyword })` returns the raw
 `active` candidate set — OR across triggers — without migrating or ranking. See
 the [recall semantics](../lessons/#recall-semantics) for the full contract.

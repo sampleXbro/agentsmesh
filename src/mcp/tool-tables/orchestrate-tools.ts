@@ -26,7 +26,7 @@ export const ORCHESTRATE_TOOL_DESCRIPTORS: ToolDescriptor[] = [
   {
     name: 'generate',
     description:
-      'Generate target-native config files from canonical .agentsmesh/ content. Propagates rules, commands, agents, skills, MCP, hooks, ignore, and permissions to all configured targets.',
+      'Generate target-native config files from canonical .agentsmesh/ content. Propagates rules, commands, agents, skills, MCP, hooks, ignore, and permissions to all configured targets (lockfileUpdated is true only when the run rewrote .agentsmesh/.lock).',
     inputSchema: z
       .object({
         targets: z
@@ -54,7 +54,7 @@ export const ORCHESTRATE_TOOL_DESCRIPTORS: ToolDescriptor[] = [
   {
     name: 'check',
     description:
-      'Detect canonical and generated-output drift, including hand-edits and stale files in managed output locations (outputsChecked is false for old-format locks without an outputs map)',
+      'Detect canonical and generated-output drift, including hand-edits and stale files in managed output locations (outputsChecked is false for old-format locks without an outputs map; lockConflict is true when the lock has git conflict markers, fixed by agentsmesh merge; lessonsGraphError is set when .agentsmesh/lessons/lessons.json cannot be read, which fails agentsmesh check too)',
     inputSchema: NoInput,
     handler: (ctx) => orchestrateHandlers.check(ctx),
   },

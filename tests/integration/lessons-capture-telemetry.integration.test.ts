@@ -53,14 +53,16 @@ describe('capture telemetry — both entry points record', () => {
     expect(rows.map((r) => r.triggerKinds.file)).toEqual([1, 1]);
   });
 
-  it('warns DEAD_GLOB when captureLesson is given a glob matching no working-tree file', async () => {
-    // The temp project has no `src/` tree, so this glob is dead at capture time.
+  it('warns PENDING_GLOB (not DEAD_GLOB) when captureLesson is given a glob matching no file', async () => {
+    // No `src/` tree and no git history to prove a rename: the path may not exist yet.
     const r = await captureLesson(root, {
-      rule: 'Lesson with a dead glob.',
+      rule: 'Lesson with a missing glob.',
       topic: 't',
       triggers: { files: ['src/renamed/**/*.ts'] },
     });
-    expect(r.warnings.map((w) => w.code)).toContain('DEAD_GLOB');
+    const codes = r.warnings.map((w) => w.code);
+    expect(codes).toContain('PENDING_GLOB');
+    expect(codes).not.toContain('DEAD_GLOB');
   });
 
   it('auto-prunes orphan cruft after a capture when config opts in, and surfaces the summary', async () => {

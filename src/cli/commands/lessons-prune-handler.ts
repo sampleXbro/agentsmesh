@@ -1,3 +1,4 @@
+import { emptyGraph } from '../../lessons/graph-schema.js';
 import { tryLoadLessonsGraph } from '../../lessons/graph-store.js';
 import { mutateLessonsGraph } from '../../lessons/mutate.js';
 import { listProjectFiles } from '../../lessons/project-files.js';
@@ -8,7 +9,8 @@ import {
   type PrunePlan,
   type PruneOptions,
 } from '../../lessons/prune.js';
-import { emptyGraph, errorResult, numberFlag, type LessonsFlags } from './lessons-helpers.js';
+import { errorResult, numberFlag, type LessonsFlags } from './lessons-helpers.js';
+import { validatePositiveIntFlag } from './lessons-query-guards.js';
 import type { LessonsCommandResult, LessonsPruneData } from './lessons-types.js';
 
 function toPruneData(plan: PrunePlan, applied: boolean): LessonsPruneData {
@@ -41,14 +43,16 @@ export async function doPrune(
   flags: LessonsFlags,
   projectRoot: string,
 ): Promise<LessonsCommandResult> {
+  const capError = validatePositiveIntFlag(flags, 'cap');
+  if (capError !== null) return errorResult('prune', capError, 2);
   const cap = numberFlag(flags, 'cap');
-  if (cap !== null && (!Number.isInteger(cap) || cap < 1)) {
-    return errorResult('prune', 'Invalid --cap: expected a positive integer.', 2);
-  }
   // Supply the working-tree file list so prune also GCs dead `file_glob` triggers
   // (without it, prune is trim-and-orphan only, exactly as before).
   const knownPaths = listProjectFiles(projectRoot) ?? undefined;
-  const options: PruneOptions = { ...(cap !== null ? { cap } : {}), ...(knownPaths ? { knownPaths } : {}) };
+  const options: PruneOptions = {
+    ...(cap !== null ? { cap } : {}),
+    ...(knownPaths ? { knownPaths } : {}),
+  };
 
   // The dispatcher already auto-migrated any legacy store before we get here.
   if (flags.apply !== true) {

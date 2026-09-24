@@ -34,6 +34,7 @@ import { buildCopilotImportPaths } from '../../core/reference/import-map-builder
 import { commandPromptPath } from './command-prompt.js';
 import { lintCommands, lintHooks, lintPermissions } from './lint.js';
 import { addHookScriptAssets } from './hook-assets.js';
+import { COPILOT_HOOK_CONTEXT_EVENTS } from './hook-format.js';
 import { generateCopilotGlobalExtras } from './scope-extras.js';
 import { copilotImporterSpec } from './importer-spec.js';
 import { projectCapabilities, globalCapabilities } from './capabilities.js';
@@ -182,6 +183,7 @@ export const descriptor = {
   },
   postProcessHookOutputs: async (projectRoot, canonical, outputs) =>
     addHookScriptAssets(projectRoot, canonical, [...outputs]),
+  hookContextEvents: COPILOT_HOOK_CONTEXT_EVENTS,
   mergeGeneratedOutputContent: mergeCopilotMcpJson,
   project,
   globalSupport: {

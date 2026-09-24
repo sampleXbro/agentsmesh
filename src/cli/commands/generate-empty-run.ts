@@ -88,9 +88,10 @@ export async function handleEmptyResults(args: EmptyResultsArgs): Promise<Genera
     if (stale.length > 0) {
       logger.error("Generated files are out of sync. Run 'agentsmesh generate' to remove them.");
     }
-    return { exitCode: stale.length === 0 ? 0 : 1, data };
+    return { exitCode: stale.length === 0 ? 0 : 1, data, lockWritten: false };
   }
 
+  let lockWritten = false;
   if (!dryRun) {
     const release = await acquireProcessLock(join(context.canonicalDir, '.generate.lock'), {
       label: 'generate lock',
@@ -99,7 +100,7 @@ export async function handleEmptyResults(args: EmptyResultsArgs): Promise<Genera
       if (prunes) await cleanupStaleGeneratedOutputs(sweep);
       // Full run: the outputs map becomes empty. Filtered run: `writeLockFile`
       // merges `{}` into the previous map, so earlier provenance survives.
-      await writeLockFile(context, resolvedExtends, {}, !prunes);
+      lockWritten = await writeLockFile(context, resolvedExtends, {}, !prunes);
     } finally {
       await release();
     }
@@ -112,5 +113,5 @@ export async function handleEmptyResults(args: EmptyResultsArgs): Promise<Genera
     renderMatrix(matrixResult, { verbose: flags.verbose === true });
   }
 
-  return { exitCode: 0, data };
+  return { exitCode: 0, data, lockWritten };
 }

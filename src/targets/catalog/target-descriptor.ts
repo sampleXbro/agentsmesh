@@ -346,6 +346,13 @@ export interface TargetDescriptor {
   /** Optional target-specific merge strategy for generated outputs. */
   readonly mergeGeneratedOutputContent?: GeneratedOutputMerger;
   /**
+   * Canonical hook events whose command output this target feeds into the
+   * model's context (per its official hook docs). Generate keeps the lessons
+   * recall hook only on these events; user hooks are never filtered. `[]` means
+   * hooks cannot inject context at all. Omit to keep every recall entry.
+   */
+  readonly hookContextEvents?: readonly string[];
+  /**
    * Async post-pass for hook generator outputs (e.g. Copilot hook script assets under `.github/hooks/`).
    */
   readonly postProcessHookOutputs?: (

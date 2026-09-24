@@ -94,6 +94,7 @@ describe('defaultLessonsConfig', () => {
       recallMaxTokens: DEFAULT_RECALL_MAX_TOKENS,
       autoPrune: false,
       telemetry: false,
+      outcomeLog: true,
     });
   });
 

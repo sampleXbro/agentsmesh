@@ -11,8 +11,9 @@
  * linear in the input length for any pattern it can compile.
  *
  * A pattern is "safe" iff the linear engine can compile it. Patterns it cannot
- * evaluate (invalid syntax, backreferences, lookarounds) are rejected at capture
- * (UNSAFE_TRIGGER_PATTERN) and skipped at read time — fail closed.
+ * evaluate are dead triggers: capture drops them (DEAD_COMMAND_PATTERN), the
+ * write barrier and validate flag stored ones (INVALID_/UNSAFE_TRIGGER_PATTERN),
+ * and recall skips them: fail closed.
  */
 
 import { compileLinearMatcher, type LinearMatcher } from './regex-linear/index.js';

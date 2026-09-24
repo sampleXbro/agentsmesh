@@ -51,31 +51,29 @@ const ev = (e: OutcomeEvent): OutcomeEvent => e;
 
 describe('EVALUATE end-to-end: outcome log → effectiveness → recall down-rank', () => {
   it('a lesson that fired but the mistake recurred sinks below its tied effective sibling', async () => {
-    // l-a was delivered for an action, then that same action failed again → ineffective.
-    appendOutcomeEvent(
-      root,
-      ev({
-        ts: '2026-01-01T00:00:00Z',
-        kind: 'delivered',
-        lessonId: 'l-a',
-        contextKey: 'file:src/x.ts',
-        session: 's1',
-      }),
-      ON,
-    );
-    appendOutcomeEvent(
-      root,
-      ev({
-        ts: '2026-01-01T00:00:01Z',
-        kind: 'failure',
-        contextKey: 'file:src/x.ts',
-        session: 's1',
-      }),
-      ON,
-    );
+    // Three times: l-a delivered, then within a minute an action its own `foo`
+    // keyword trigger matches failed in the same session → every delivery missed.
+    for (const minute of [0, 10, 20]) {
+      const ts = (m: number): string => new Date(Date.UTC(2026, 0, 1, 0, m)).toISOString();
+      appendOutcomeEvent(
+        root,
+        ev({
+          ts: ts(minute),
+          kind: 'delivered',
+          lessonId: 'l-a',
+          contextKey: 'file:src/foo.ts',
+          session: 's1',
+        }),
+        ON,
+      );
+      appendOutcomeEvent(
+        root,
+        ev({ ts: ts(minute + 1), kind: 'failure', contextKey: 'file:src/foo.ts', session: 's1' }),
+        ON,
+      );
+    }
 
-    // Upstream: l-a delivered then the same action failed → effectiveness 0 (a miss).
-    expect(loadEffectiveness(root).get('l-a')).toBe(0);
+    expect(loadEffectiveness(root, GRAPH).get('l-a')).toBe(0);
     const { lessons } = await recallLessons(root, { keyword: 'foo' }, { noDedup: true });
     expect(lessons.map((l) => l.id)).toEqual(['l-b', 'l-a']);
   });

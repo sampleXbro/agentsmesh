@@ -143,9 +143,20 @@ describe('collections detectors', () => {
     expect(await detectSkillPack(root)).toBeNull();
   });
 
-  it('detectSkillPack returns null when skills/ subdir is not kebab-case', async () => {
-    mkdirSync(join(root, 'skills', 'NotKebab'), { recursive: true });
-    writeFileSync(join(root, 'skills', 'NotKebab', 'SKILL.md'), '');
+  it.each(['my_skill', 'S1'])(
+    'detectSkillPack counts a skills/%s/SKILL.md folder that is not kebab-case',
+    async (dir) => {
+      // A non-kebab folder used to fall through to a flat rules/ collection,
+      // which silently dropped the skills, README and LICENSE.
+      mkdirSync(join(root, 'skills', dir), { recursive: true });
+      writeFileSync(join(root, 'skills', dir, 'SKILL.md'), '');
+      expect(await detectSkillPack(root)).toEqual({ path: 'skills' });
+    },
+  );
+
+  it('detectSkillPack still ignores dot-prefixed skill folders', async () => {
+    mkdirSync(join(root, 'skills', '.draft'), { recursive: true });
+    writeFileSync(join(root, 'skills', '.draft', 'SKILL.md'), '');
     expect(await detectSkillPack(root)).toBeNull();
   });
 

@@ -9,7 +9,7 @@ import type {
   LessonsStripMarkersData,
   LessonsUntriggerData,
 } from './lessons-types.js';
-import { errMessage } from './lessons-write-handlers.js';
+import { errExitCode, errMessage } from './lessons-write-handlers.js';
 
 /** Curation write handlers (`untrigger`, `merge`, `strip-markers`) — split from add/deprecate. */
 
@@ -32,7 +32,7 @@ export async function doUntrigger(
     const data: LessonsUntriggerData = result;
     return { subcommand: 'untrigger', exitCode: 0, data };
   } catch (err) {
-    return errorResult('untrigger', errMessage(err), 1);
+    return errorResult('untrigger', errMessage(err), errExitCode(err));
   }
 }
 
@@ -49,7 +49,7 @@ export async function doMerge(
     const data: LessonsMergeData = result;
     return { subcommand: 'merge', exitCode: 0, data };
   } catch (err) {
-    return errorResult('merge', errMessage(err), 1);
+    return errorResult('merge', errMessage(err), errExitCode(err));
   }
 }
 

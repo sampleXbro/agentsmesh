@@ -1,14 +1,16 @@
-import { existsSync, readFileSync } from 'node:fs';
 import { tryLoadLessonsGraph } from './graph-store.js';
 import { mutateLessonsGraph } from './mutate.js';
-import { lessonsPaths } from './paths.js';
 import { applyPruneToGraph, isEmptyPrunePlan, planPrune } from './prune.js';
+import { configFlag } from './telemetry.js';
 
 /**
  * Opt-in automatic graph hygiene. When `.agentsmesh/lessons/config.json` carries
  * `"autoPrune": true`, the capture path runs the GC-only subset of `prune` after
  * a successful add — orphan triggers/topics removed and non-stranding dead globs
- * detached, NEVER an active lesson dropped or a within-cap lesson trimmed. It is
+ * detached, NEVER an active lesson dropped or a within-cap lesson trimmed. A glob
+ * is dead only when git history renamed or deleted its path (see
+ * `missingGlobState`): a glob for a file not created yet, ignored build output, a
+ * non-git project or a capped walk is never detached. It is
  * the safe half of `lessons prune`, so it can run unattended: every change is
  * git-reversible (lessons.json is the committed source of truth) and a lesson is
  * never made unrecallable.
@@ -19,15 +21,7 @@ import { applyPruneToGraph, isEmptyPrunePlan, planPrune } from './prune.js';
 
 /** True when the project config opts into automatic GC-only pruning. */
 export function isAutoPruneEnabled(projectRoot: string): boolean {
-  const path = lessonsPaths(projectRoot).config;
-  if (!existsSync(path)) return false;
-  try {
-    const parsed: unknown = JSON.parse(readFileSync(path, 'utf8'));
-    if (typeof parsed !== 'object' || parsed === null) return false;
-    return (parsed as Record<string, unknown>).autoPrune === true;
-  } catch {
-    return false;
-  }
+  return configFlag(projectRoot, 'autoPrune') === true;
 }
 
 export interface AutoPruneSummary {
@@ -39,8 +33,9 @@ export interface AutoPruneSummary {
 /**
  * Run the GC-only prune when enabled; a no-op (returns `null`) when disabled or
  * when there is nothing to clean. `knownPaths` (the working-tree file list the
- * capture path already computed) enables dead-glob detachment; omit it to GC
- * orphans only. Best-effort: a corrupt/absent graph yields `null`, never a throw,
+ * capture path already computed, with its git evidence) enables dead-glob
+ * detachment; `undefined` (no walk, or the walk hit its cap) GCs orphans only.
+ * Best-effort: a corrupt/absent graph yields `null`, never a throw,
  * so auto-prune can never break the capture it follows.
  */
 export async function maybeAutoPrune(

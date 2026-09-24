@@ -45,15 +45,17 @@ afterEach(() => rmSync(root, { recursive: true, force: true }));
 const seed = (events: OutcomeEvent[]): void => {
   for (const e of events) appendOutcomeEvent(root, e, ON);
 };
-const d = (lessonId: string, contextKey: string): OutcomeEvent => ({
-  ts: '2026-01-01T00:00:00Z',
+const at = (minutes: number): string =>
+  new Date(Date.parse('2026-01-01T00:00:00Z') + minutes * 60_000).toISOString();
+const d = (lessonId: string, contextKey: string, minutes = 0): OutcomeEvent => ({
+  ts: at(minutes),
   kind: 'delivered',
   lessonId,
   contextKey,
   session: 's1',
 });
-const f = (contextKey: string): OutcomeEvent => ({
-  ts: '2026-01-01T00:00:00Z',
+const f = (contextKey: string, minutes = 0): OutcomeEvent => ({
+  ts: at(minutes),
   kind: 'failure',
   contextKey,
   session: 's1',
@@ -64,9 +66,16 @@ describe('collectHealthFindings (MAINTAIN, log-derived, warning-level)', () => {
     expect(collectHealthFindings(root, GRAPH)).toEqual([]);
   });
 
-  it('flags a lesson delivered 3× that never helped as INEFFECTIVE_LESSON', () => {
-    // Three deliveries of l1, each followed by a failure on the same key → all missed.
-    seed([d('l1', 'k1'), d('l1', 'k2'), d('l1', 'k3'), f('k1'), f('k2'), f('k3')]);
+  it('flags a lesson delivered 3× and missed every time as INEFFECTIVE_LESSON — a review hint', () => {
+    // Each delivery is followed within minutes by a failure its own src/** glob matches.
+    seed([
+      d('l1', 'file:src/a.ts', 0),
+      f('file:src/a.ts', 1),
+      d('l1', 'file:src/b.ts', 60),
+      f('file:src/b.ts', 61),
+      d('l1', 'file:src/a.ts', 120),
+      f('file:src/a.ts', 121),
+    ]);
     const findings = collectHealthFindings(root, GRAPH);
     expect(findings).toEqual([
       {
@@ -76,10 +85,19 @@ describe('collectHealthFindings (MAINTAIN, log-derived, warning-level)', () => {
         message: expect.stringContaining('Delivered 3×'),
       },
     ]);
+    expect(findings[0]!.message).toContain('2 distinct failing actions');
+    expect(findings[0]!.message).toContain('review this lesson');
+    expect(findings[0]!.message).not.toContain('deprecate');
   });
 
   it('does NOT flag a lesson that helped at least once', () => {
-    seed([d('l1', 'k1'), d('l1', 'k2'), d('l1', 'k3'), f('k1'), f('k2')]); // k3 delivery never repeated
+    seed([
+      d('l1', 'file:src/a.ts', 0),
+      f('file:src/a.ts', 1),
+      d('l1', 'file:src/a.ts', 60),
+      f('file:src/a.ts', 61),
+      d('l1', 'file:src/a.ts', 120), // never repeated
+    ]);
     expect(collectHealthFindings(root, GRAPH)).toEqual([]);
   });
 

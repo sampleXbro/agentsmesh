@@ -50,7 +50,7 @@ Three deployment forms are supported:
 }
 ```
 
-The server reads `projectRoot` from the process working directory at startup. No configuration flags are accepted; the MCP host controls the working directory via the `cwd` field in the MCP server entry when needed.
+The server reads `projectRoot` from the process working directory at startup, walking up to the nearest directory with `agentsmesh.yaml`. The lessons tools also work without `agentsmesh.yaml` (for example with only the lessons plugin). They use the nearest directory with `.agentsmesh/lessons/` (a `lessons.json` or `config.json`), even when an `agentsmesh.yaml` is nearer; else the nearest directory with `agentsmesh.yaml`; else the git repository root. They never use your home folder. Outside all of these, reads find no lessons, and `lessons_add` and `lessons_deprecate` fail with `NO_PROJECT`. So starting the server in a subdirectory of the project works. No configuration flags are accepted; the MCP host controls the working directory via the `cwd` field in the MCP server entry when needed.
 
 ## Tools reference
 
@@ -125,9 +125,9 @@ The server exposes **50 tools** grouped by category. All tool errors return a st
 
 | Tool | Description |
 |------|-------------|
-| `generate` | Generate target-native config from canonical |
+| `generate` | Generate target-native config from canonical (`lockfileUpdated` is true only when the run rewrote `.agentsmesh/.lock`; a run that changes nothing leaves it alone) |
 | `lint` | Lint canonical files |
-| `check` | Detect canonical-source and generated-output drift against the lock (result includes `canonicalDrift`/`outputDrift`, per-path output arrays, and `outputsChecked`) |
+| `check` | Detect canonical-source and generated-output drift against the lock (result includes `canonicalDrift`/`outputDrift`, per-path output arrays, `outputsChecked`, `lockConflict` for a lock with git conflict markers, and `lessonsGraphError` when `.agentsmesh/lessons/lessons.json` cannot be read) |
 | `diff` | Preview generation changes |
 | `import` | Import another tool's config into canonical |
 | `convert` | Convert directly from one tool to another |
@@ -151,7 +151,12 @@ The server exposes **50 tools** grouped by category. All tool errors return a st
 | `lessons_show` | Render one topic's lessons or a single lesson by id (read-only diagnosis view) |
 | `lessons_deprecate` | Mark a lesson `deprecated`, or `superseded` with a replacement id |
 
-The lessons tools mirror the [`agentsmesh lessons` CLI](../../cli/lessons/) — same predicates, same guardrails — for agents without shell access.
+The lessons tools mirror the [`agentsmesh lessons` CLI](../../cli/lessons/) — same predicates, same guardrails — for agents without shell access. A few details:
+
+- **Size caps.** The graph may come from a cloned repo, so every answer is bounded. Each rule is cut to 2000 characters, and a `lessons_query` or `lessons_show` answer carries at most 32,000 characters of rule text. `lessons_show` reports how many lessons it cut in an `omitted` field. Its `topic` field also takes a lesson id, to show that one lesson.
+- **Always-on lessons.** `lessons_query` with `always: true` applies `session` and `no_dedup` to the always-on lessons too, and counts the ones it hid in `suppressed`.
+- **Unreadable graph.** When `lessons.json` cannot be read, `lessons_topics`, `lessons_show`, `lessons_add` and `lessons_deprecate` fail with `VALIDATION_FAILED`, and `details.code` is `MERGE_CONFLICT`, `CORRUPT_GRAPH`, `SCHEMA_INVALID` or `NEWER_GRAPH_VERSION`. `lessons_query` returns no lessons and writes the reason to stderr.
+- **`lessons_add` checks.** A `trigger_files` glob that can never fire is rejected with `VALIDATION_FAILED`, and `details.code` says why: `TRIGGER_FILE_OUTSIDE_PROJECT` (an absolute path outside the project, or `../` that climbs out), `TRIGGER_FILE_IS_PROJECT_ROOT`, `TRIGGER_FILE_IS_DIRECTORY` (use `dir/**`) or `UNSAFE_GLOB_PATTERN`. Other globs are stored project-relative (`./src/a.ts` becomes `src/a.ts`). A topic id that is not kebab-case is `INVALID_TOPIC_ID`, and `new_topic` without a non-blank `topic_summary` is `TOPIC_SUMMARY_REQUIRED`, both `VALIDATION_FAILED`. The non-blocking `warnings` include `DEAD_GLOB` (git history shows the glob's path was renamed or deleted) and `PENDING_GLOB` (the path does not exist yet; the trigger is kept). See [capture guardrails](../lessons/#capture-guardrails).
 
 The pack-lifecycle tools always run non-interactively. MCP has no stdin TTY, so the documented `--force` defaults are accepted for every interactive prompt the CLI would surface (bulk select → accept all, broken-link → leave-with-warnings, modified-files → delete-anyway). For finer-grained selection, drive the CLI directly. Input shapes mirror the CLI flags one-for-one (`refresh` accepts `names?: string[]`, `dry_run?`, `global?`); output envelopes match `InstallData` / `UninstallData` / `InstallsListData` / `RefreshData` documented under [`install`](../../cli/install/#json-output), [`uninstall`](../../cli/uninstall/#json-output), [`installs`](../../cli/installs/#json-output), and [`refresh`](../../cli/refresh/#json-output).
 
@@ -191,12 +196,12 @@ All tool errors return a structured envelope `{ code, message, details? }`.
 |------|---------|
 | `NOT_FOUND` | The requested item does not exist |
 | `ALREADY_EXISTS` | A create was attempted for a name that already exists |
-| `VALIDATION_FAILED` | Input did not pass schema validation |
+| `VALIDATION_FAILED` | Input did not pass schema validation. Also a lessons write the graph validator refused (nothing is written; `details.code` and `details.codes` hold the finding codes), and a lessons graph that cannot be read (`details.code` is `MERGE_CONFLICT`, `CORRUPT_GRAPH`, `SCHEMA_INVALID` or `NEWER_GRAPH_VERSION`) |
 | `INVALID_NAME` | Name contains disallowed characters or is reserved |
 | `PATH_TRAVERSAL` | A path argument attempted to escape the canonical directory |
 | `PROTECTED_FILE` | The target file (`_root.md`) cannot be deleted |
 | `LOCK_HELD` | The generate lock is held by another process |
-| `NO_PROJECT` | No `agentsmesh.yaml` was found in the working directory |
+| `NO_PROJECT` | No `agentsmesh.yaml` was found in the working directory. For `lessons_add` and `lessons_deprecate`: no lessons project, `agentsmesh.yaml` or git repository was found |
 | `IO_ERROR` | A filesystem read or write failed |
 | `LIMIT_EXCEEDED` | A content or file-count limit was reached |
 | `REFRESH_RESOLVE_FAILED` | A `refresh` could not resolve a pack's source |
@@ -230,7 +235,7 @@ The MCP entry was seeded into `.agentsmesh/mcp.json` but you must run `agentsmes
 
 **`NO_PROJECT` error when calling any tool**
 
-The server process started in a directory without `agentsmesh.yaml`. Set the `cwd` field in the MCP server entry to your project root, or start your AI tool from the project root.
+The server process started in a directory without `agentsmesh.yaml`. Set the `cwd` field in the MCP server entry to your project root, or start your AI tool from the project root. The lessons tools need less: `lessons_add` and `lessons_deprecate` fail with `NO_PROJECT` only outside any lessons project, `agentsmesh.yaml` or git repository, for example in your home folder.
 
 **`LOCK_HELD` on `generate`**
 

@@ -30,6 +30,7 @@ import {
   WARP_GLOBAL_MCP_FILE,
   WARP_IGNORE_FILE,
 } from './constants.js';
+import { ignoreOutput } from '../catalog/ignore-output.js';
 
 export type WarpOutput = FeatureGeneratorOutput;
 
@@ -73,7 +74,4 @@ export const generateHooks = NO_OUTPUTS;
  * layout suppresses this path; Warp's home-level equivalent is a GUI
  * indexed-folders control, surfaced by lintIgnore instead.
  */
-export function generateIgnore(canonical: CanonicalFiles): WarpOutput[] {
-  if (canonical.ignore.length === 0) return [];
-  return [{ path: WARP_IGNORE_FILE, content: canonical.ignore.join('\n') }];
-}
+export const generateIgnore = ignoreOutput(WARP_IGNORE_FILE);

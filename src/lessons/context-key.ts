@@ -1,3 +1,4 @@
+import { commandClass } from './command-class.js';
 import { normalizeRecallFile } from './normalize-query-file.js';
 
 /**
@@ -11,31 +12,15 @@ import { normalizeRecallFile } from './normalize-query-file.js';
  */
 
 /**
- * Reduce a shell command to a stable class — the program plus optional
- * subcommand — so outcomes bind to the action, not its varying arguments:
- *   "git commit -m 'wip'" → "git commit";  "tsc --noEmit src/x.ts" → "tsc".
- * A subcommand is the bare word DIRECTLY after the program; past a flag, a bare
- * word is an operand ("rm -rf build" → "rm"), so it never fragments the class.
+ * A shell command as its stable class — program plus optional subcommand — so
+ * outcomes bind to the action, not its arguments (see command-class.ts):
+ *   "git commit -m 'wip'" → "git commit";  "cd /r && pnpm tsc" → "pnpm tsc".
+ * '' when the command runs no program (`FOO=bar`).
  */
 export function normalizeCommand(command: string): string {
-  const words = command.trim().split(/\s+/);
-  // Drop leading `VAR=val` env assignments so `FOO=1 npm test` and `npm test` share a class.
-  let start = 0;
-  while (start < words.length && /^[A-Za-z_][A-Za-z0-9_]*=/.test(words[start]!)) start += 1;
-  const rest = words.slice(start);
-  const programIdx = rest.findIndex(isBareWord);
-  // A command that is ONLY env assignments (`FOO=bar` — no program) has no class,
-  // so it collapses to '' rather than echoing the assignment; a path-shaped
-  // program (`./run.sh`) keeps its first token.
-  if (programIdx === -1) return rest[0] ?? '';
-  const program = rest[programIdx]!;
-  const next = rest[programIdx + 1];
-  return next !== undefined && isBareWord(next) ? `${program} ${next}` : program;
-}
-
-/** Not a flag, not path-like, not a quoted fragment. */
-function isBareWord(w: string): boolean {
-  return w.length > 0 && !w.startsWith('-') && !w.includes('/') && !/^["'`]/.test(w);
+  const cls = commandClass(command);
+  if (cls === null) return '';
+  return cls.subcommand === undefined ? cls.program : `${cls.program} ${cls.subcommand}`;
 }
 
 /** Deterministic action key. File takes precedence (the tighter signal). Never raw text. */

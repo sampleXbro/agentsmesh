@@ -193,6 +193,7 @@ async function exerciseRuntime(): Promise<void> {
   };
   const checkReport: LockSyncReport = await check(checkOpts);
   const _checkFromSub: LockSyncReport = await checkFromSub(checkOpts);
+  const _lockConflict: boolean = checkReport.lockConflict;
 
   const lessonsGraph: LessonsGraph = loadLessonsGraph('/tmp/noop');
   const lessonsQuery: LessonsQuery = { file: 'src/x.ts', command: 'pnpm test' };
@@ -240,6 +241,7 @@ async function exerciseRuntime(): Promise<void> {
   void _diffEntries;
   void _diffSummary;
   void _checkFromSub;
+  void _lockConflict;
   void checkReport;
   void lessonsGraph;
   void matchedLessons;

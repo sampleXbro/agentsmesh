@@ -73,8 +73,11 @@ describe('lessons merge driver', () => {
     const result = doMergeDriver([p('base'), p('ours'), p('theirs')]);
 
     expect(result.exitCode).toBe(1);
-    expect(result.error).not.toContain('conflict markers');
-    expect(readFileSync(p('ours'), 'utf8')).toContain('rule a');
+    const written = readFileSync(p('ours'), 'utf8');
+    expect(written).toContain('rule a');
+    expect(written).toContain('not json at all');
+    expect(written).toMatch(/^<{7} /m);
+    expect(result.error).toContain('conflict markers');
   });
 
   it('never silently discards theirs when ours wins a tie', () => {
