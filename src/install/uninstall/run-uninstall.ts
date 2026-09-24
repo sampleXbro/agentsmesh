@@ -24,40 +24,18 @@ import { acquireInstallLock } from '../lock/install-lock.js';
 import { readInstallManifest } from '../core/install-manifest.js';
 import { runPostOperationGenerate } from '../run/post-install-generate.js';
 import { logger } from '../../utils/output/logger.js';
-import { readLine } from '../prompts/prompt-io.js';
 import { planUninstall, type UninstallRemovalPlan } from './plan-uninstall.js';
 import { gatherUninstallDecisions } from './uninstall-decisions.js';
+import { assertUninstallPacksInsideProject } from '../pack/pack-containment.js';
 import { applyUninstall } from './apply-uninstall.js';
 import { appliedEntry, buildSkipped, previewEntries } from './uninstall-result.js';
+import { defaultUninstallAdapter, parseUninstallNames } from './uninstall-io.js';
 import type { PromptAdapter } from '../prompts/prompt-types.js';
 import type { UninstallData, UninstallRemovedEntry } from '../../cli/command-result.js';
 
 export interface UninstallCommandResult {
   exitCode: number;
   data: UninstallData;
-}
-
-function parseNames(args: readonly string[]): string[] {
-  // Preserves duplicates so `planUninstall`'s `detectDuplicates` guard can
-  // raise the documented "probably a typo or scripted-loop bug" error
-  // instead of being silenced here.
-  const out: string[] = [];
-  for (const arg of args) {
-    for (const part of arg
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean)) {
-      out.push(part);
-    }
-  }
-  return out;
-}
-
-function defaultAdapter(): PromptAdapter {
-  return {
-    ask: (prompt: string) => readLine(prompt),
-    write: (chunk: string) => process.stdout.write(chunk),
-  };
 }
 
 export interface RunUninstallOptions {
@@ -81,7 +59,7 @@ export async function runUninstall(
   const keepGenerated = flags['keep-generated'] === true;
   const tty = options.assumeTty === true || process.stdin.isTTY;
 
-  const names = parseNames(args);
+  const names = parseUninstallNames(args);
 
   const isJson = flags.json === true;
 
@@ -127,8 +105,13 @@ export async function runUninstall(
       packsDir,
     });
 
+    await assertUninstallPacksInsideProject(
+      context.canonicalDir,
+      plan.removals.map((r) => r.packDir),
+    );
+
     const { decisions, aborted } = await gatherUninstallDecisions(plan.removals, packsDir, {
-      adapter: options.promptAdapter ?? defaultAdapter(),
+      adapter: options.promptAdapter ?? defaultUninstallAdapter(),
       warn: (m) => logger.warn(m),
       bypassPrompts: force || dryRun || !tty,
       keepPack,
