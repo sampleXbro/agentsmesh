@@ -1281,6 +1281,21 @@
         "t-glob-aa8ef603"
       ]
     },
+    "fixture-and-assertion-discipline-in-init-yes-tests-init": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "e61d9575"
+      ],
+      "rule": "In init --yes tests, init detects Cursor only by its descriptor detectionPaths (.cursor/rules, .cursor/mcp.json, etc.), not by .cursor/cli.json or .cursorignore alone; without a rule file Cursor is never imported and a merge test fails as if the product were broken. Add .cursor/rules/<name>.mdc to the fixture, and check the init --json detectedConfigs before blaming the code.",
+      "status": "active",
+      "topics": [
+        "fixture-and-assertion-discipline"
+      ],
+      "triggers": [
+        "t-glob-1377e63f",
+        "t-glob-75a81240"
+      ]
+    },
     "fixture-and-assertion-discipline-in-path-equality-endswith-test": {
       "createdAt": "2026-07-07",
       "evidence": [
@@ -3269,13 +3284,28 @@
         "4d5c0a51"
       ],
       "rule": "Canonical paths are last-import-wins EXCEPT .agentsmesh/rules/_root.md and mcp.json, which accumulate. Root rule merging lives in the single shared serializer serializeImportedRuleWithFallback (src/targets/import/import-metadata-core.ts) because all ~45 root write sites across 33 targets funnel through it — never patch per-target importers for root-rule behavior. When changing it, remember the init placeholder body (src/canonical/root-rule-placeholder.ts) must count as unwritten or every import stacks under scaffold boilerplate.",
+      "status": "superseded",
+      "supersededBy": "install-import-pickers-canonical-permissions-yaml-ignore-and",
+      "topics": [
+        "install-import-pickers"
+      ],
+      "triggers": []
+    },
+    "install-import-pickers-canonical-permissions-yaml-ignore-and": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "e61d9575"
+      ],
+      "rule": "Canonical permissions.yaml, ignore and mcp.json accumulate across imports through runTargetImport (src/targets/import/run-target-import.ts), which snapshots them before importFrom and adds back dropped entries; _root.md accumulates through serializeImportedRuleWithFallback; every other canonical path is last-import-wins. Route any new import entry point through runTargetImport instead of calling descriptor.generators.importFrom directly, and never patch per-target importers for merge behaviour: four importers already bypassed writeMcpWithMerge (#131).",
       "status": "active",
       "topics": [
         "install-import-pickers"
       ],
       "triggers": [
-        "t-glob-f98a792a",
-        "t-glob-cfe44da2"
+        "t-glob-36b511b8",
+        "t-glob-90ecaacd",
+        "t-glob-6b98951d",
+        "t-glob-84b6c902"
       ]
     },
     "install-import-pickers-every-per-target-mcp-importer": {
@@ -11639,6 +11669,10 @@
       "kind": "file_glob",
       "pattern": "src/targets/catalog/registry.ts"
     },
+    "t-glob-1377e63f": {
+      "kind": "file_glob",
+      "pattern": "tests/**/*init*.test.ts"
+    },
     "t-glob-13a07989": {
       "kind": "file_glob",
       "pattern": "src/mcp/handlers/*.ts"
@@ -11838,6 +11872,10 @@
     "t-glob-3614774b": {
       "kind": "file_glob",
       "pattern": "scripts/seed-capability-ledger.ts"
+    },
+    "t-glob-36b511b8": {
+      "kind": "file_glob",
+      "pattern": "src/targets/import/**"
     },
     "t-glob-36d72b33": {
       "kind": "file_glob",
@@ -12247,6 +12285,10 @@
       "kind": "file_glob",
       "pattern": "tests/unit/targets/per-target-lint-branches.test.ts"
     },
+    "t-glob-75a81240": {
+      "kind": "file_glob",
+      "pattern": "tests/unit/cli/commands/import-keeps-settings.test.ts"
+    },
     "t-glob-75de7d28": {
       "kind": "file_glob",
       "pattern": "src/core/path-helpers.ts"
@@ -12450,6 +12492,10 @@
     "t-glob-8fe4e96b": {
       "kind": "file_glob",
       "pattern": "**/SKILL.md"
+    },
+    "t-glob-90ecaacd": {
+      "kind": "file_glob",
+      "pattern": "src/cli/commands/import.ts"
     },
     "t-glob-91e8e620": {
       "kind": "file_glob",
@@ -12807,10 +12853,6 @@
       "kind": "file_glob",
       "pattern": "src/core/generate/*-merge.ts"
     },
-    "t-glob-cfe44da2": {
-      "kind": "file_glob",
-      "pattern": "src/canonical/root-rule-placeholder.ts"
-    },
     "t-glob-d044343b": {
       "kind": "file_glob",
       "pattern": "README.md"
@@ -13046,10 +13088,6 @@
     "t-glob-f9578eb1": {
       "kind": "file_glob",
       "pattern": "src/utils/filesystem/rename-retry.ts"
-    },
-    "t-glob-f98a792a": {
-      "kind": "file_glob",
-      "pattern": "src/targets/import/*.ts"
     },
     "t-glob-f9f526aa": {
       "kind": "file_glob",
