@@ -9,6 +9,7 @@ import {
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
+import { isTransientFsError, retryTransientSync } from '../utils/filesystem/transient-fs.js';
 
 /**
  * File-IO half of session dedup, split from seen-cache.ts for the 200-line
@@ -97,7 +98,8 @@ export function writeSeenStore(
         : JSON.stringify(data);
     const tmp = `${path}.${process.pid}.tmp`;
     writeFileSync(tmp, body, 'utf8');
-    renameSync(tmp, path);
+    // Windows: renaming onto a store another recall is reading fails with EPERM for a moment.
+    retryTransientSync(() => renameSync(tmp, path));
   } catch {
     // Optimization only — never fail recall because the seen store could not be written.
   }
@@ -140,7 +142,10 @@ function takeLock(lock: string): boolean {
       mkdirSync(lock);
       return true;
     } catch (err) {
-      if ((err as NodeJS.ErrnoException).code !== 'EEXIST') return false;
+      // A lock another recall is removing fails with EPERM on Windows: still busy, not broken.
+      if ((err as NodeJS.ErrnoException).code !== 'EEXIST' && !isTransientFsError(err)) {
+        return false;
+      }
     }
     if (lockIsStale(lock)) removeSeenStore(lock);
     else if (Date.now() >= deadline) return false;

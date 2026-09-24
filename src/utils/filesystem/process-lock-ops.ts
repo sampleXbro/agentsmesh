@@ -10,8 +10,8 @@
 import { randomUUID } from 'node:crypto';
 import { existsSync, readFileSync, rmdirSync, unlinkSync } from 'node:fs';
 import { mkdir, rename, rm, rmdir, unlink, writeFile } from 'node:fs/promises';
-import { setTimeout as sleep } from 'node:timers/promises';
 import { renameWithRetry } from './rename-retry.js';
+import { retryTransient } from './transient-fs.js';
 import {
   errorCode,
   holderPath,
@@ -29,7 +29,8 @@ export async function tryAcquire(
   meta: LockMetadata & { token: string },
 ): Promise<boolean> {
   try {
-    await mkdir(lockPath);
+    // Windows: a lock dir another process is removing fails mkdir with EPERM for a moment.
+    await retryTransient(() => mkdir(lockPath));
   } catch (err) {
     if (errorCode(err) === 'EEXIST') return false;
     throw err;
@@ -95,22 +96,13 @@ export async function evictOwners(lockPath: string, tokens: readonly string[]): 
   if (removed.length > 0) await teardown(lockPath, removed);
 }
 
-/** Windows fails rmdir with these for a moment while another process removes the same dir. */
-const TRANSIENT_RMDIR_CODES = new Set(['EPERM', 'EACCES', 'EBUSY']);
-const RMDIR_ATTEMPTS = 5;
-
 async function removeOwner(lockPath: string, token: string): Promise<boolean> {
-  for (let attempt = 1; ; attempt++) {
-    try {
-      await rmdir(ownerPath(lockPath, token));
-      return true;
-    } catch (err) {
-      const code = errorCode(err);
-      if (code === 'ENOENT') return false;
-      const transient = code !== undefined && TRANSIENT_RMDIR_CODES.has(code);
-      if (!transient || attempt >= RMDIR_ATTEMPTS) throw err;
-      await sleep(25 * 2 ** (attempt - 1));
-    }
+  try {
+    await retryTransient(() => rmdir(ownerPath(lockPath, token)));
+    return true;
+  } catch (err) {
+    if (errorCode(err) === 'ENOENT') return false;
+    throw err;
   }
 }
 
