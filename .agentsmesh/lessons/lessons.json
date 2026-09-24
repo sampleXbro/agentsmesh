@@ -4037,6 +4037,20 @@
         "t-glob-a1c12fe6"
       ]
     },
+    "install-import-pickers-when-init-enables-a-tool": {
+      "createdAt": "2026-09-24",
+      "evidence": [
+        "1b6e186a"
+      ],
+      "rule": "When init enables a tool because it detected that tool's existing config, it must also import that config, or stop: enabling without importing lets the first generate replace the unimported config (in --global mode ~/.claude/CLAUDE.md and ~/.claude.json MCP servers, which git cannot restore; issue #130). Non-interactive init without --yes now throws before writing when a detected tool is in the resolved targets; keep any new target-selection path behind the same check.",
+      "status": "active",
+      "topics": [
+        "install-import-pickers"
+      ],
+      "triggers": [
+        "t-glob-2c569101"
+      ]
+    },
     "kilo-code-config-surface-for-kilo-code-current-kilo": {
       "createdAt": "2026-06-24",
       "evidence": [
