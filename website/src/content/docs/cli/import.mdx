@@ -134,7 +134,15 @@ This keeps cross-references valid after import.
 Most canonical paths are last-import-wins: if two tools each define a command named
 `ship`, the second import replaces the first, because both describe the same entity.
 
-`.agentsmesh/rules/_root.md` is the exception. It is the single slot every tool's root
+Permissions, ignore patterns and MCP servers are different: each is a list of separate
+entries, not one entity. A second import **adds** its entries to what is already in
+`.agentsmesh/permissions.yaml`, `.agentsmesh/ignore` and `.agentsmesh/mcp.json`, and keeps
+the entries the first tool brought in. So a Claude Code `deny` rule survives a later Cursor
+import. When two tools define an MCP server with the same name, the later import wins for
+that server. Import never removes an entry from these files; to drop one, edit the
+canonical file and run `agentsmesh generate`.
+
+`.agentsmesh/rules/_root.md` is also an exception. It is the single slot every tool's root
 instruction collapses into, so `CLAUDE.md` and an always-apply Cursor rule are different
 rules that merely share a destination. Importing the second one **appends** it to the
 first instead of replacing it, and the CLI says the root rule was merged:

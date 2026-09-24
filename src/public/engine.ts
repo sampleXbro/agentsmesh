@@ -39,6 +39,7 @@ import type { TargetLayoutScope } from '../targets/catalog/target-descriptor.js'
 import type { ComputeDiffResult } from '../core/differ.js';
 import { getDescriptor, getAllDescriptors } from '../targets/catalog/registry.js';
 import { TARGET_IDS } from '../targets/catalog/target-ids.js';
+import { runTargetImport } from '../targets/import/run-target-import.js';
 
 export type { ValidatedConfig } from '../config/core/schema.js';
 export type { TargetLayoutScope } from '../targets/catalog/target-descriptor.js';
@@ -57,7 +58,7 @@ export async function importFrom(
       supported: [...TARGET_IDS, ...getAllDescriptors().map((d) => d.id)],
     });
   }
-  return descriptor.generators.importFrom(opts.root, { scope: opts.scope ?? 'project' });
+  return runTargetImport(descriptor, opts.root, opts.scope ?? 'project');
 }
 
 /**

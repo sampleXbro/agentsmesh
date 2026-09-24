@@ -2,9 +2,9 @@
  * Sequential `agentsmesh import --from <target>` behavior across targets.
  *
  * Overlapping canonical paths are last-import-wins; disjoint paths accumulate.
- * Two exceptions, both because the canonical slot holds more than one source:
- * MCP servers merge by name across sequential imports (imported wins on
- * conflict), and `rules/_root.md` accumulates every target's root rule —
+ * The exceptions are slots that hold more than one source: MCP servers merge by
+ * name (imported wins on conflict), permissions and ignore patterns add up
+ * entry by entry, and `rules/_root.md` accumulates every target's root rule —
  * two tools' root instructions are distinct content, not one entity described
  * twice, so replacing there would destroy the user's rules.
  *
@@ -17,6 +17,7 @@ import { existsSync, mkdirSync, writeFileSync, rmSync, readFileSync } from 'node
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { execSync } from 'node:child_process';
+import { parse as parseYaml } from 'yaml';
 
 const TEST_DIR = join(tmpdir(), 'am-integration-import-multi');
 const CLI_PATH = join(process.cwd(), 'dist', 'cli.js');
@@ -206,24 +207,24 @@ describe('import: multi-target sequential merge (integration)', () => {
     ]);
   });
 
-  it('last import wins for .agentsmesh/ignore when both targets contribute ignore patterns', () => {
+  it('ignore patterns from both targets accumulate, in either order', () => {
     writeFileSync(join(TEST_DIR, '.claudeignore'), 'from-claude-ignore\n');
     mkdirSync(join(TEST_DIR, '.cursor'), { recursive: true });
     writeFileSync(join(TEST_DIR, '.cursorignore'), 'from-cursor-ignore\n');
 
     runImport('claude-code');
     runImport('cursor');
-    const ign = readFileSync(join(TEST_DIR, '.agentsmesh', 'ignore'), 'utf-8');
-    expect(ign).toContain('from-cursor-ignore');
-    expect(ign).not.toContain('from-claude-ignore');
+    expect(readFileSync(join(TEST_DIR, '.agentsmesh', 'ignore'), 'utf-8')).toBe(
+      'from-claude-ignore\nfrom-cursor-ignore\n',
+    );
 
     rmSync(join(TEST_DIR, '.agentsmesh'), { recursive: true, force: true });
 
     runImport('cursor');
     runImport('claude-code');
-    const ign2 = readFileSync(join(TEST_DIR, '.agentsmesh', 'ignore'), 'utf-8');
-    expect(ign2).toContain('from-claude-ignore');
-    expect(ign2).not.toContain('from-cursor-ignore');
+    expect(readFileSync(join(TEST_DIR, '.agentsmesh', 'ignore'), 'utf-8')).toBe(
+      'from-cursor-ignore\nfrom-claude-ignore\n',
+    );
   });
 
   it('same skill name from two targets: last import overwrites canonical skills/<name>/SKILL.md', () => {
@@ -253,7 +254,7 @@ describe('import: multi-target sequential merge (integration)', () => {
     ).toContain('SKILL_BODY_CLAUDE');
   });
 
-  it('last import wins for .agentsmesh/permissions.yaml from native settings.json', () => {
+  it('permissions from both targets accumulate, in either order', () => {
     mkdirSync(join(TEST_DIR, '.claude'), { recursive: true });
     mkdirSync(join(TEST_DIR, '.cursor'), { recursive: true });
     writeFileSync(
@@ -269,19 +270,25 @@ describe('import: multi-target sequential merge (integration)', () => {
       }),
     );
 
+    const perms = (): unknown =>
+      parseYaml(readFileSync(join(TEST_DIR, '.agentsmesh', 'permissions.yaml'), 'utf-8'));
+
     runImport('claude-code');
     runImport('cursor');
-    const perms = readFileSync(join(TEST_DIR, '.agentsmesh', 'permissions.yaml'), 'utf-8');
-    expect(perms).toContain('PERM_FROM_CURSOR');
-    expect(perms).not.toContain('PERM_FROM_CLAUDE');
+    expect(perms()).toEqual({
+      allow: ['Read', 'Write'],
+      deny: ['PERM_FROM_CLAUDE', 'PERM_FROM_CURSOR'],
+    });
 
     rmSync(join(TEST_DIR, '.agentsmesh'), { recursive: true, force: true });
 
     runImport('cursor');
     runImport('claude-code');
-    const perms2 = readFileSync(join(TEST_DIR, '.agentsmesh', 'permissions.yaml'), 'utf-8');
-    expect(perms2).toContain('PERM_FROM_CLAUDE');
-    expect(perms2).not.toContain('PERM_FROM_CURSOR');
+    expect(perms()).toEqual({
+      allow: ['Write', 'Read'],
+      deny: ['PERM_FROM_CURSOR', 'PERM_FROM_CLAUDE'],
+      ask: [],
+    });
   });
 
   it('last import wins for .agentsmesh/hooks.yaml (standalone hooks.json per target)', () => {

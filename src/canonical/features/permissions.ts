@@ -23,6 +23,15 @@ export async function parsePermissions(
 ): Promise<Permissions | null> {
   const content = await readFileSafe(permissionsPath);
   if (content === null) return null;
+  return parsePermissionsContent(content, permissionsPath, onParseError);
+}
+
+/** Parse permissions.yaml text; `permissionsPath` only names the file in errors. */
+export function parsePermissionsContent(
+  content: string,
+  permissionsPath: string,
+  onParseError?: ParseErrorCallback,
+): Required<Permissions> | null {
   if (!content.trim()) return { allow: [], deny: [], ask: [] };
   let parsed: unknown;
   try {

@@ -17,6 +17,7 @@ import {
   rootRuleBodyGrew,
 } from '../../targets/import/root-rule-body-merge.js';
 import { AB_ROOT_RULE } from '../../core/canonical-paths.js';
+import { runTargetImport } from '../../targets/import/run-target-import.js';
 
 export interface ImportCommandResult {
   exitCode: number;
@@ -76,7 +77,7 @@ export async function runImport(
     const context = resolveScopeContext(root, scope);
     const target = getDescriptor(normalized)!;
     const rootBefore = readRootRuleBody(context.rootBase);
-    const results = await target.generators.importFrom(context.rootBase, { scope });
+    const results = await runTargetImport(target, context.rootBase, scope);
     if (results.length > 0) {
       await seedAgentsmeshMcpEntry(context.rootBase);
       await ensureImportedLessonsSubsystem(context.rootBase, scope);
@@ -112,7 +113,7 @@ export async function runImport(
   }
 
   const rootBefore = readRootRuleBody(context.rootBase);
-  const results = await descriptor.generators.importFrom(context.rootBase, { scope });
+  const results = await runTargetImport(descriptor, context.rootBase, scope);
   if (results.length > 0) {
     await seedAgentsmeshMcpEntry(context.rootBase);
     await ensureImportedLessonsSubsystem(context.rootBase, scope);

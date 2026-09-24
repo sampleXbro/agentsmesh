@@ -130,6 +130,8 @@ When two targets emit the same output path with the same content (e.g. Codex CLI
 
 Imports a tool's native config back into canonical form on disk under `.agentsmesh/`. Returns one `ImportResult` per file imported.
 
+Like `agentsmesh import`, it adds to the canonical permissions, ignore patterns and MCP servers already on disk instead of replacing them. See [Importing more than one tool](../../cli/import/#importing-more-than-one-tool).
+
 ```ts
 import { importFrom, type ImportResult } from 'agentsmesh';
 

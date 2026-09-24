@@ -10,6 +10,7 @@ import { join, relative } from 'node:path';
 import { writeFileAtomic } from '../../utils/filesystem/fs.js';
 import { ensureGitignoreEntries } from '../../utils/filesystem/gitignore.js';
 import { BUILTIN_TARGETS } from '../../targets/catalog/builtin-targets.js';
+import { runTargetImport } from '../../targets/import/run-target-import.js';
 import type { ImportResult } from '../../core/types.js';
 import { buildConfig, LOCAL_TEMPLATE } from './init-templates.js';
 import { writeScaffoldFull, writeScaffoldGapFill } from './init-scaffold.js';
@@ -44,7 +45,7 @@ const IMPORTERS: Record<string, (root: string, scope: ConfigScope) => Promise<Im
   Object.fromEntries(
     BUILTIN_TARGETS.map((d) => [
       d.id,
-      (root: string, scope: ConfigScope) => d.generators.importFrom(root, { scope }),
+      (root: string, scope: ConfigScope) => runTargetImport(d, root, scope),
     ]),
   );
 

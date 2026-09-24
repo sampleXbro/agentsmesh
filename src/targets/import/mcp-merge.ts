@@ -22,7 +22,11 @@ export async function writeMcpWithMerge(
 }
 
 async function readExistingServers(path: string): Promise<Record<string, McpServer>> {
-  const content = await readFileSafe(path);
+  return parseMcpServers(await readFileSafe(path));
+}
+
+/** Servers in canonical mcp.json text; `{}` when it is missing or not valid. */
+export function parseMcpServers(content: string | null): Record<string, McpServer> {
   if (content === null) return {};
   let parsed: unknown;
   try {
