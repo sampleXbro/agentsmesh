@@ -5788,6 +5788,24 @@
         "t-glob-71b4b110"
       ]
     },
+    "lessons-system-to-compare-lessons-recall-between": {
+      "createdAt": "2026-09-25",
+      "evidence": [
+        "lesson:lessons-system-to-judge-whether-lessons-recall"
+      ],
+      "rule": "To compare lessons recall between agentsmesh versions, replay real events instead of reading recall-log.jsonl over time: on this machine the global agentsmesh is often a develop build whose --version shows the last release (on 2026-09-25 the global '0.41.0' was byte-identical to the 0.42.0 dist), so old logs mix builds. Get each published build with npm pack agentsmesh@<ver> --offline, extract a corpus of Edit/Write/Bash/prompt events from ~/.claude/projects transcripts, and pipe them into each build's 'lessons hook' in its own temp project and TMPDIR: a fresh session per event to compare picks, and the real session order to compare dedup, failures and injected size. Check shasum of dist/cli.js before naming a version.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-cmd-a49a9614",
+        "t-cmd-6ee459b0",
+        "t-kw-6a5a5a70",
+        "t-kw-5beda113",
+        "t-kw-2ec0dc0e"
+      ]
+    },
     "lessons-system-to-deliver-conceptual-general-lessons": {
       "createdAt": "2026-07-02",
       "evidence": [
@@ -5802,6 +5820,23 @@
         "t-glob-db7e480d",
         "t-glob-ed0be781",
         "t-kw-0af10961"
+      ]
+    },
+    "lessons-system-to-judge-whether-lessons-recall": {
+      "createdAt": "2026-09-25",
+      "evidence": [
+        "session:e8e19bf3"
+      ],
+      "rule": "To judge whether lessons recall got better, do not trust lessons stats alone: recall-log.jsonl is size-capped (here it held only 2 days, 3,800 recalls) and its counts cannot show relevance. Split the log at the change time, wait for a few hundred recalls on each side, and hand-judge a sample of delivered rules against the commands that triggered them.",
+      "status": "superseded",
+      "supersededBy": "lessons-system-to-compare-lessons-recall-between",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-cmd-a49a9614",
+        "t-kw-6a5a5a70",
+        "t-kw-2ec0dc0e"
       ]
     },
     "lessons-system-to-mimic-a-hand-written": {
@@ -11472,6 +11507,10 @@
       "kind": "command_pattern",
       "pattern": "changeset publish"
     },
+    "t-cmd-6ee459b0": {
+      "kind": "command_pattern",
+      "pattern": "npm pack agentsmesh"
+    },
     "t-cmd-703162ab": {
       "kind": "command_pattern",
       "pattern": "\\bcoverage\\b"
@@ -11575,6 +11614,10 @@
     "t-cmd-a3f82ec8": {
       "kind": "command_pattern",
       "pattern": "(npm|pnpm) root -g"
+    },
+    "t-cmd-a49a9614": {
+      "kind": "command_pattern",
+      "pattern": "lessons stats"
     },
     "t-cmd-a5d4409e": {
       "kind": "command_pattern",
@@ -13624,6 +13667,10 @@
       "kind": "keyword",
       "pattern": "chrome devtools responsive viewport screenshot"
     },
+    "t-kw-2ec0dc0e": {
+      "kind": "keyword",
+      "pattern": "lessons stats"
+    },
     "t-kw-3070d871": {
       "kind": "keyword",
       "pattern": "review agent"
@@ -13820,6 +13867,10 @@
       "kind": "keyword",
       "pattern": "config.toml"
     },
+    "t-kw-5beda113": {
+      "kind": "keyword",
+      "pattern": "compare versions"
+    },
     "t-kw-603ecbc4": {
       "kind": "keyword",
       "pattern": "global scope generator path branch"
@@ -13839,6 +13890,10 @@
     "t-kw-67b582a5": {
       "kind": "keyword",
       "pattern": "zsh separator echo equals"
+    },
+    "t-kw-6a5a5a70": {
+      "kind": "keyword",
+      "pattern": "recall performance"
     },
     "t-kw-6c171a08": {
       "kind": "keyword",
