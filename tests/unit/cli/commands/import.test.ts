@@ -85,9 +85,32 @@ describe('runImport', () => {
     expect(readFileSync(join(TEST_DIR, '.agentsmesh', 'permissions.yaml'), 'utf-8')).toContain(
       'Read(*)',
     );
-    expect(readFileSync(join(TEST_DIR, '.agentsmesh', 'mcp.json'), 'utf-8')).toContain(
-      '"mcpServers"',
+    const mcp = JSON.parse(readFileSync(join(TEST_DIR, '.agentsmesh', 'mcp.json'), 'utf-8'));
+    expect(Object.keys(mcp.mcpServers)).toEqual(['docs']);
+  });
+
+  it('does not seed the agentsmesh MCP server on a global import', async () => {
+    vi.stubEnv('HOME', TEST_DIR);
+    vi.stubEnv('USERPROFILE', TEST_DIR);
+    mkdirSync(join(TEST_DIR, '.claude'), { recursive: true });
+    writeFileSync(join(TEST_DIR, '.claude', 'CLAUDE.md'), '# Global Root\n');
+
+    const result = await runImport(
+      { from: 'claude-code', global: true },
+      join(TEST_DIR, 'worktree'),
     );
+
+    expect(result.data.files.length).toBeGreaterThan(0);
+    expect(existsSync(join(TEST_DIR, '.agentsmesh', 'mcp.json'))).toBe(false);
+  });
+
+  it('seeds the agentsmesh MCP server on a project import', async () => {
+    writeFileSync(join(TEST_DIR, 'CLAUDE.md'), '# Root\n');
+
+    await runImport({ from: 'claude-code' }, TEST_DIR);
+
+    const mcp = JSON.parse(readFileSync(join(TEST_DIR, '.agentsmesh', 'mcp.json'), 'utf-8'));
+    expect(Object.keys(mcp.mcpServers)).toEqual(['agentsmesh']);
   });
 
   it('imports Antigravity global config from documented ~/.gemini paths', async () => {

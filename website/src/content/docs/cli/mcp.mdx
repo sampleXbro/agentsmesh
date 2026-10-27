@@ -20,7 +20,7 @@ None. The server reads `projectRoot` from `process.cwd()` at startup.
 
 ## MCP entry
 
-`agentsmesh init` seeds `.agentsmesh/mcp.json` with the following entry. Run `agentsmesh generate` to project it into each target's native MCP config file.
+`agentsmesh init` seeds `.agentsmesh/mcp.json` with the following entry. Run `agentsmesh generate` to project it into each target's native MCP config file. The entry is project-only: `init --global` and `import --global` do not seed it into `~/.agentsmesh/mcp.json`.
 
 ```json
 {

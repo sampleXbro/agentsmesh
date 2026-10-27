@@ -553,6 +553,23 @@ describe('runInit — global mode', () => {
     const globalConfigDir = resolveScopeContext(join(TEST_DIR, 'workspace'), 'global').configDir;
     expect(existsSync(join(globalConfigDir, 'agentsmesh.yaml'))).toBe(true);
   });
+
+  it('global init --yes keeps imported MCP servers and adds no agentsmesh entry', async () => {
+    const homeDir = join(TEST_DIR, 'home');
+    mkdirSync(join(homeDir, '.claude'), { recursive: true });
+    writeFileSync(join(homeDir, '.claude', 'CLAUDE.md'), '# Global Rules\n');
+    writeFileSync(
+      join(homeDir, '.claude.json'),
+      JSON.stringify({ mcpServers: { mine: { command: 'my-tool', args: [] } } }, null, 2),
+    );
+    vi.stubEnv('HOME', homeDir);
+    vi.stubEnv('USERPROFILE', homeDir);
+
+    await runInit(join(TEST_DIR, 'workspace'), { global: true, yes: true });
+
+    const mcp = JSON.parse(readFileSync(join(homeDir, '.agentsmesh', 'mcp.json'), 'utf-8'));
+    expect(Object.keys(mcp.mcpServers)).toEqual(['mine']);
+  });
 });
 
 describe('runInit — lessons-only retrofit (already initialized)', () => {

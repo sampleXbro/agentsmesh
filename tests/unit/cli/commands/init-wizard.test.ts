@@ -391,11 +391,11 @@ describe('runInitWizard (global) — interactive, but no lessons', () => {
       // Config landed in the global dir, and the generate step ran with the exact count.
       const config = readFileSync(join(globalDir, 'agentsmesh.yaml'), 'utf-8');
       expect(config).toContain('- claude-code');
-      // claude-code global emits exactly two artifacts under home: .claude/CLAUDE.md and .claude.json.
-      expect(note).toContain('Generated: 2 file(s)');
+      // Only .claude/CLAUDE.md: global init seeds no MCP servers, so .claude.json is left alone.
+      expect(note).toContain('Generated: 1 file(s)');
       expect(note).not.toContain("Next: run 'agentsmesh generate --global'");
       expect(existsSync(join(home, '.claude', 'CLAUDE.md'))).toBe(true);
-      expect(existsSync(join(home, '.claude.json'))).toBe(true);
+      expect(existsSync(join(home, '.claude.json'))).toBe(false);
     } finally {
       if (savedHome === undefined) delete process.env.HOME;
       else process.env.HOME = savedHome;

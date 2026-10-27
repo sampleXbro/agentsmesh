@@ -115,10 +115,10 @@ export async function applyInitPlan(
     importedToolCount = res.importedToolCount;
     rootRuleMerged = res.rootRuleMerged;
     sameNameCopies = res.sameNameCopies;
-    await writeScaffoldGapFill(context.canonicalDir);
+    await writeScaffoldGapFill(context.canonicalDir, plan.scope);
     scaffoldType = 'gap-fill';
   } else {
-    await writeScaffoldFull(context.canonicalDir);
+    await writeScaffoldFull(context.canonicalDir, plan.scope);
     scaffoldType = 'full';
   }
 

@@ -1,0 +1,5 @@
+---
+'agentsmesh': patch
+---
+
+The AgentsMesh MCP server is now added only at project level. Before, `agentsmesh init --global` and `agentsmesh import --global` also put the `agentsmesh` entry into `~/.agentsmesh/mcp.json`, so `generate --global` wrote it into every tool's global MCP config (for example `~/.claude.json`) and the server started in every folder, also in folders without AgentsMesh. Now `init --global` scaffolds `~/.agentsmesh/mcp.json` with its `mcpServers` key commented out, so `generate --global` leaves the MCP servers in your tools' global config alone until you uncomment it, and `import --global` no longer adds the entry. Project `init` and `import` still add it as before. If an older `init --global` already added the entry, delete the `agentsmesh` entry from `~/.agentsmesh/mcp.json` but keep the `mcpServers` key, then run `agentsmesh generate --global` to remove the server from your tools' global config. If you delete the whole `mcpServers` key instead, generate stops managing MCP servers and the old entry stays.

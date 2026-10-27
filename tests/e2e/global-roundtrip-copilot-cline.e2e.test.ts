@@ -288,11 +288,8 @@ describe('global mode round-trip: Cline', () => {
     fileExists(join(canonicalDir, 'skills', 'cline-skill', 'SKILL.md'));
     fileExists(join(canonicalDir, 'skills', 'cline-skill', 'references', 'workflow.md'));
     // MCP and ignore are project-only surfaces — cline's own import doesn't populate
-    // them at global scope. `.agentsmesh/mcp.json` still exists because the import
-    // safety net (seedAgentsmeshMcpEntry) always seeds the built-in agentsmesh MCP
-    // entry after any successful import, regardless of the target's own mcp support.
-    fileExists(join(canonicalDir, 'mcp.json'));
-    expect(JSON.parse(readText(join(canonicalDir, 'mcp.json'))).mcpServers.test).toBeUndefined();
+    // them at global scope, and the agentsmesh MCP server is seeded on project imports only.
+    fileNotExists(join(canonicalDir, 'mcp.json'));
     fileNotExists(join(canonicalDir, 'ignore'));
     // Hooks are emitted globally under ~/.cline/hooks/; Cline import does not read them back yet.
   });

@@ -89,7 +89,7 @@ Files and directories prefixed with `_` are excluded from generation — they ex
 
 The scaffolded `permissions.yaml` ships with its `allow` / `deny` / `ask` lists **commented out**, not scaffolded empty. An explicit `allow: []` is a real instruction — "grant nothing" — and targets that project permissions into a shared config file apply it, which would clear permissions you already had. Absent keys mean "AgentsMesh manages nothing here yet". Uncomment a list when you want to start managing it.
 
-Running `agentsmesh init --global` creates the same canonical structure under `~/.agentsmesh/` — the same nine scaffolded artifacts, since the scaffolder is not scope-aware:
+Running `agentsmesh init --global` creates the same canonical structure under `~/.agentsmesh/` — the same nine scaffolded artifacts. Only `mcp.json` differs: it has no AgentsMesh MCP server entry (see [MCP server](#mcp-server)), and its `mcpServers` key is commented out, so `generate --global` leaves the MCP servers in your tools' global config alone until you uncomment it:
 
 ```
 ~/.agentsmesh/
@@ -111,7 +111,7 @@ Running `agentsmesh init --global` creates the same canonical structure under `~
   ignore
 ```
 
-Only two init steps are project-only: the `.gitignore` update and the lessons scaffold (`--lessons` is rejected with `--global`).
+Three init steps are project-only: the `.gitignore` update, the AgentsMesh MCP server entry, and the lessons scaffold (`--lessons` is rejected with `--global`).
 
 ## Auto-detection
 
@@ -232,6 +232,8 @@ full list.
 ## MCP server
 
 `init` seeds the AgentsMesh self-serve MCP server entry into `.agentsmesh/mcp.json`. After running `agentsmesh generate`, the entry is projected into each target's native MCP config so AI agents can introspect and mutate canonical configuration directly. See [MCP Server](../../reference/mcp-server/).
+
+`init --global` does not seed this entry. The server works on the project in the folder where it starts, so a global entry would start it in every folder, also in folders without AgentsMesh.
 
 ## Next steps
 

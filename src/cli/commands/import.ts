@@ -4,7 +4,11 @@
 
 import { existsSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
-import { resolveScopeContext, loadScopedConfig } from '../../config/core/scope.js';
+import {
+  resolveScopeContext,
+  loadScopedConfig,
+  type ConfigScope,
+} from '../../config/core/scope.js';
 import { isBuiltinTargetId, TARGET_IDS } from '../../targets/catalog/target-ids.js';
 import { getDescriptor } from '../../targets/catalog/registry.js';
 import { bootstrapPlugins } from '../../plugins/bootstrap-plugins.js';
@@ -12,10 +16,7 @@ import { seedAgentsmeshMcpEntry } from './seed-mcp-entry.js';
 import type { ImportData } from '../command-result.js';
 import { scaffoldLessons } from '../../lessons/init.js';
 import { LESSONS_CONTRACT_START } from '../../targets/projection/managed-blocks.js';
-import {
-  readRootRuleBody,
-  rootRuleBodyGrew,
-} from '../../targets/import/root-rule-body-merge.js';
+import { readRootRuleBody, rootRuleBodyGrew } from '../../targets/import/root-rule-body-merge.js';
 import { AB_ROOT_RULE } from '../../core/canonical-paths.js';
 import { runTargetImport } from '../../targets/import/run-target-import.js';
 
@@ -41,18 +42,20 @@ function mapResults(
  * the block is normalized to the current wording — keeping the round-trip
  * byte-stable across wording revisions.
  */
-async function ensureImportedLessonsSubsystem(
-  rootBase: string,
-  scope: 'project' | 'global',
-): Promise<void> {
-  if (scope !== 'project') return;
-
+async function ensureImportedLessonsSubsystem(rootBase: string): Promise<void> {
   const rootRule = join(rootBase, AB_ROOT_RULE);
   if (!existsSync(rootRule)) return;
   const body = readFileSync(rootRule, 'utf8');
 
   const hasLessons = body.includes(LESSONS_CONTRACT_START) || /^## Lessons \(/m.test(body);
   if (hasLessons) await scaffoldLessons(rootBase);
+}
+
+/** The agentsmesh MCP server and lessons are project-only. */
+async function finishProjectImport(rootBase: string, scope: ConfigScope): Promise<void> {
+  if (scope !== 'project') return;
+  await seedAgentsmeshMcpEntry(rootBase);
+  await ensureImportedLessonsSubsystem(rootBase);
 }
 
 /**
@@ -78,10 +81,7 @@ export async function runImport(
     const target = getDescriptor(normalized)!;
     const rootBefore = readRootRuleBody(context.rootBase);
     const results = await runTargetImport(target, context.rootBase, scope);
-    if (results.length > 0) {
-      await seedAgentsmeshMcpEntry(context.rootBase);
-      await ensureImportedLessonsSubsystem(context.rootBase, scope);
-    }
+    if (results.length > 0) await finishProjectImport(context.rootBase, scope);
     return {
       exitCode: 0,
       data: {
@@ -114,10 +114,7 @@ export async function runImport(
 
   const rootBefore = readRootRuleBody(context.rootBase);
   const results = await runTargetImport(descriptor, context.rootBase, scope);
-  if (results.length > 0) {
-    await seedAgentsmeshMcpEntry(context.rootBase);
-    await ensureImportedLessonsSubsystem(context.rootBase, scope);
-  }
+  if (results.length > 0) await finishProjectImport(context.rootBase, scope);
   return {
     exitCode: 0,
     data: {

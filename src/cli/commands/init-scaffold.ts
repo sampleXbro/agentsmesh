@@ -12,11 +12,12 @@ import {
   TEMPLATE_EXAMPLE_COMMAND,
   TEMPLATE_EXAMPLE_AGENT,
   TEMPLATE_EXAMPLE_SKILL,
-  TEMPLATE_MCP,
   TEMPLATE_HOOKS,
   TEMPLATE_PERMISSIONS,
   TEMPLATE_IGNORE,
 } from './init-templates.js';
+import { mcpTemplate } from './init-mcp-templates.js';
+import type { ConfigScope } from '../../config/core/scope.js';
 
 function ab(canonicalDir: string, rel: string): string {
   return join(canonicalDir, rel);
@@ -59,7 +60,7 @@ async function writeIfAbsent(path: string, content: string, label: string): Prom
  * Write full example scaffold (fresh init, no prior import).
  * Never overwrites a canonical file that already exists.
  */
-export async function writeScaffoldFull(canonicalDir: string): Promise<void> {
+export async function writeScaffoldFull(canonicalDir: string, scope: ConfigScope): Promise<void> {
   const rulesDir = ab(canonicalDir, 'rules');
   await mkdirp(rulesDir);
   await writeIfAbsent(join(rulesDir, '_root.md'), TEMPLATE_ROOT_RULE, '.agentsmesh/rules/_root.md');
@@ -93,7 +94,7 @@ export async function writeScaffoldFull(canonicalDir: string): Promise<void> {
     '.agentsmesh/skills/_example/SKILL.md',
   );
 
-  await writeIfAbsent(ab(canonicalDir, 'mcp.json'), TEMPLATE_MCP, '.agentsmesh/mcp.json');
+  await writeIfAbsent(ab(canonicalDir, 'mcp.json'), mcpTemplate(scope), '.agentsmesh/mcp.json');
   await writeIfAbsent(ab(canonicalDir, 'hooks.yaml'), TEMPLATE_HOOKS, '.agentsmesh/hooks.yaml');
   await writeIfAbsent(
     ab(canonicalDir, 'permissions.yaml'),
@@ -106,7 +107,10 @@ export async function writeScaffoldFull(canonicalDir: string): Promise<void> {
 /**
  * After `init --yes` import: add template files only where import left a category empty.
  */
-export async function writeScaffoldGapFill(canonicalDir: string): Promise<void> {
+export async function writeScaffoldGapFill(
+  canonicalDir: string,
+  scope: ConfigScope,
+): Promise<void> {
   const rulesDir = ab(canonicalDir, 'rules');
   const rulesMd = await countMdFiles(rulesDir);
   const rootPath = join(rulesDir, '_root.md');
@@ -145,7 +149,7 @@ export async function writeScaffoldGapFill(canonicalDir: string): Promise<void> 
 
   const mcpPath = ab(canonicalDir, 'mcp.json');
   if (!(await exists(mcpPath))) {
-    await writeFileAtomic(mcpPath, TEMPLATE_MCP);
+    await writeFileAtomic(mcpPath, mcpTemplate(scope));
     logger.success('Created .agentsmesh/mcp.json');
   }
   const hooksPath = ab(canonicalDir, 'hooks.yaml');
