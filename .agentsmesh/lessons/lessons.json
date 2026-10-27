@@ -3251,6 +3251,25 @@
         "t-kw-f7df0071"
       ]
     },
+    "init-seed-the-agentsmesh-self-serve": {
+      "createdAt": "2026-10-27",
+      "evidence": [
+        "user-correction:2026-10-27-mcp-project-only"
+      ],
+      "rationale": "User asked that the amsh MCP be added only at project level; verified with dist/cli.js in a temp HOME.",
+      "rule": "Seed the agentsmesh self-serve MCP entry in project scope only: init --global must scaffold ~/.agentsmesh/mcp.json from TEMPLATE_MCP_GLOBAL (mcpServers key commented out) and import --global must skip seedAgentsmeshMcpEntry. A seeded global entry makes generate --global replace the user's own servers in ~/.claude.json and start the server in every folder. To drop an already-generated server, delete only its entry and keep the mcpServers key; deleting the key stops MCP management and leaves the old server in place.",
+      "status": "active",
+      "topics": [
+        "init"
+      ],
+      "triggers": [
+        "t-glob-7da85c97",
+        "t-glob-ffcbbfc9",
+        "t-glob-4779743c",
+        "t-glob-90ecaacd",
+        "t-kw-199c98d5"
+      ]
+    },
     "init-the-lessons-scaffold-result-shape": {
       "createdAt": "2026-07-04",
       "evidence": [
@@ -12279,6 +12298,10 @@
       "kind": "file_glob",
       "pattern": "src/targets/*/*-generate.ts"
     },
+    "t-glob-4779743c": {
+      "kind": "file_glob",
+      "pattern": "src/cli/commands/init-scaffold.ts"
+    },
     "t-glob-49078a57": {
       "kind": "file_glob",
       "pattern": "src/lessons/normalize-query-file.ts"
@@ -12642,6 +12665,10 @@
     "t-glob-7d39ded4": {
       "kind": "file_glob",
       "pattern": "src/config/core/conversions.ts"
+    },
+    "t-glob-7da85c97": {
+      "kind": "file_glob",
+      "pattern": "src/cli/commands/seed-mcp-entry.ts"
     },
     "t-glob-7e7851c6": {
       "kind": "file_glob",
@@ -13459,6 +13486,10 @@
       "kind": "file_glob",
       "pattern": "src/targets/*/importer-spec.ts"
     },
+    "t-glob-ffcbbfc9": {
+      "kind": "file_glob",
+      "pattern": "src/cli/commands/init-mcp-templates.ts"
+    },
     "t-kw-00447f91": {
       "kind": "keyword",
       "pattern": "regex equivalence"
@@ -13578,6 +13609,10 @@
     "t-kw-18a1de9b": {
       "kind": "keyword",
       "pattern": "refactor"
+    },
+    "t-kw-199c98d5": {
+      "kind": "keyword",
+      "pattern": "agentsmesh mcp entry global"
     },
     "t-kw-1b41258f": {
       "kind": "keyword",
