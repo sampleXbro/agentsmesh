@@ -1881,9 +1881,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://code.claude.com/docs/en/memory"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -1899,9 +1901,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://code.claude.com/docs/en/memory"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -1917,9 +1921,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://code.claude.com/docs/en/sub-agents"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -1935,9 +1941,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://code.claude.com/docs/en/sub-agents"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -1953,9 +1961,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://code.claude.com/docs/en/skills"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -1974,9 +1984,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://code.claude.com/docs/en/skills"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -2016,9 +2028,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://code.claude.com/docs/en/hooks"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -2104,9 +2118,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://code.claude.com/docs/en/mcp"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -2147,9 +2163,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://code.claude.com/docs/en/settings"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -2165,9 +2183,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://code.claude.com/docs/en/memory"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -2183,9 +2203,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://code.claude.com/docs/en/memory"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -2201,9 +2223,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://code.claude.com/docs/en/skills"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -2219,9 +2243,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://code.claude.com/docs/en/skills"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -5609,9 +5635,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://github.com/google-gemini/gemini-cli/blob/main/docs/core/subagents.md"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -5627,9 +5655,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://github.com/google-gemini/gemini-cli/blob/main/docs/core/subagents.md"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -5645,9 +5675,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/custom-commands.md"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -5666,9 +5698,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/custom-commands.md"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -5866,9 +5900,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://github.com/google-gemini/gemini-cli/blob/main/docs/reference/configuration.md"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -5884,9 +5920,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://github.com/google-gemini/gemini-cli/blob/main/docs/reference/configuration.md"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -5902,9 +5940,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/using-agent-skills.md"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -5920,9 +5960,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/using-agent-skills.md"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
