@@ -158,26 +158,28 @@
   },
   "dependencies": {
     "@clack/prompts": "^1.6.0",
-    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@modelcontextprotocol/sdk": "^1.32.2",
     "chokidar": "^5.0.0",
     "diff": "8.0.4",
     "picomatch": "^4.0.4",
     "smol-toml": "^1.8.0",
     "tar": "7.5.22",
     "yaml": "^2.8.3",
-    "zod": "^4.3.6"
+    "zod": "^4.6.7"
   },
   "pnpm": {
     "overrides": {
       "hono": "^4.12.25",
       "flatted": "^3.4.2",
       "ip-address": "^10.3.1",
-      "fast-uri": "^3.1.5",
+      "fast-uri": "^3.1.9",
       "vite@7.3.1": "7.3.2",
       "picomatch@2.3.1": "2.3.2",
       "picomatch@4.0.3": "4.0.4",
       "brace-expansion@1.1.12": "1.1.13",
-      "brace-expansion@5.0.4": "5.0.5"
+      "brace-expansion@5.0.4": "5.0.5",
+      "proxy-addr": "2.0.8",
+      "body-parser": "2.4.0"
     }
   }
 }

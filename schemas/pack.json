@@ -137,13 +137,9 @@
       "type": "string"
     },
     "license": {
-      "anyOf": [
-        {
-          "type": "string"
-        },
-        {
-          "type": "null"
-        }
+      "type": [
+        "string",
+        "null"
       ]
     }
   },
