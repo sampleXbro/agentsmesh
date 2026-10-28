@@ -89,7 +89,7 @@ Files and directories prefixed with `_` are excluded from generation — they ex
 
 The scaffolded `permissions.yaml` ships with its `allow` / `deny` / `ask` lists **commented out**, not scaffolded empty. An explicit `allow: []` is a real instruction — "grant nothing" — and targets that project permissions into a shared config file apply it, which would clear permissions you already had. Absent keys mean "AgentsMesh manages nothing here yet". Uncomment a list when you want to start managing it.
 
-Running `agentsmesh init --global` creates the same canonical structure under `~/.agentsmesh/` — the same nine scaffolded artifacts. Only `mcp.json` differs: it has no AgentsMesh MCP server entry (see [MCP server](#mcp-server)), and its `mcpServers` key is commented out, so `generate --global` leaves the MCP servers in your tools' global config alone until you uncomment it:
+Running `agentsmesh init --global` creates the same canonical structure under `~/.agentsmesh/` — the same nine scaffolded artifacts:
 
 ```
 ~/.agentsmesh/
@@ -110,6 +110,8 @@ Running `agentsmesh init --global` creates the same canonical structure under `~
   permissions.yaml
   ignore
 ```
+
+Only `mcp.json` differs. It has no AgentsMesh MCP server entry (see [MCP server](#mcp-server)), and its `mcpServers` key is commented out. Until MCP servers are listed — in this file, an installed pack, or an `extends` source — `generate --global` does not touch the MCP servers in your tools' global config. To manage them here, first run `agentsmesh import --global --from <tool>` to copy in the servers you already have: once servers are listed, `generate --global` writes that list to your tools and can drop servers that are not in it. Do not leave `mcpServers` as an empty object; for some tools that clears every global MCP server.
 
 Three init steps are project-only: the `.gitignore` update, the AgentsMesh MCP server entry, and the lessons scaffold (`--lessons` is rejected with `--global`).
 

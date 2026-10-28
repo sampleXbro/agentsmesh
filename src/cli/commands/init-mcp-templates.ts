@@ -34,11 +34,14 @@ export const TEMPLATE_MCP = `{
 `;
 
 // The self-serve MCP server is project-only. "mcpServers" is commented out, not
-// scaffolded empty: an empty object would clear the servers a tool already has
-// in its global config.
+// scaffolded empty: an empty object makes some tools clear their global servers.
 export const TEMPLATE_MCP_GLOBAL = `{
-  // Uncomment to start managing MCP servers. An empty "mcpServers" object is a
-  // real instruction — "no servers" — not a placeholder.
+  // MCP servers are not managed here yet, so generate --global does not touch
+  // the MCP servers in your tools' global config. To manage them here, first run
+  // agentsmesh import --global --from <tool> to copy in the servers you already
+  // have: once servers are listed, generate --global writes this list to your
+  // tools and can drop servers that are not in it. Never leave "mcpServers" as
+  // an empty object: for some tools that clears every global MCP server.
   //
   // "mcpServers": {
   //   "github": {

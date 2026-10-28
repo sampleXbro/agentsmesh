@@ -22,7 +22,13 @@ describe('TEMPLATE_MCP', () => {
 
 describe('TEMPLATE_MCP_GLOBAL', () => {
   it('has no agentsmesh MCP server entry', () => {
-    expect(TEMPLATE_MCP_GLOBAL).not.toContain('agentsmesh');
+    expect(TEMPLATE_MCP_GLOBAL).not.toMatch(/"agentsmesh"/);
+  });
+  it('tells the user to import existing servers before managing them', () => {
+    expect(TEMPLATE_MCP_GLOBAL).toContain('agentsmesh import --global --from <tool>');
+  });
+  it('warns that an empty mcpServers object clears servers', () => {
+    expect(TEMPLATE_MCP_GLOBAL).toMatch(/empty object/);
   });
   it('parses to an object without an mcpServers key', () => {
     expect(JSON.parse(stripJsonComments(TEMPLATE_MCP_GLOBAL))).toEqual({});
