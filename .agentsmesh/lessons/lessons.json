@@ -3258,6 +3258,26 @@
       ],
       "rationale": "User asked that the amsh MCP be added only at project level; verified with dist/cli.js in a temp HOME.",
       "rule": "Seed the agentsmesh self-serve MCP entry in project scope only: init --global must scaffold ~/.agentsmesh/mcp.json from TEMPLATE_MCP_GLOBAL (mcpServers key commented out) and import --global must skip seedAgentsmeshMcpEntry. A seeded global entry makes generate --global replace the user's own servers in ~/.claude.json and start the server in every folder. To drop an already-generated server, delete only its entry and keep the mcpServers key; deleting the key stops MCP management and leaves the old server in place.",
+      "status": "superseded",
+      "supersededBy": "init-seed-the-agentsmesh-self-serve-2",
+      "topics": [
+        "init"
+      ],
+      "triggers": [
+        "t-glob-7da85c97",
+        "t-glob-ffcbbfc9",
+        "t-glob-4779743c",
+        "t-glob-90ecaacd",
+        "t-kw-199c98d5"
+      ]
+    },
+    "init-seed-the-agentsmesh-self-serve-2": {
+      "createdAt": "2026-10-28",
+      "evidence": [
+        "commit:85c06f10"
+      ],
+      "rationale": "The first version of this lesson and the changeset claimed generate --global drops a removed entry; a 29-target matrix showed most targets keep it.",
+      "rule": "Seed the agentsmesh self-serve MCP entry in project scope only: init --global scaffolds ~/.agentsmesh/mcp.json from TEMPLATE_MCP_GLOBAL (mcpServers key commented out) and import --global skips seedAgentsmeshMcpEntry. Never promise that removing a server from canonical mcp.json removes it from tools' global config: generate --global keeps unlisted servers on 23 of 29 MCP targets (cursor, codex-cli, gemini-cli, copilot, ...), and an empty mcpServers {} makes claude-code, zed and goose clear every global server, also ones the user added in the tool. Verify any MCP removal advice per target with dist/cli.js in a temp HOME.",
       "status": "active",
       "topics": [
         "init"
@@ -3267,6 +3287,7 @@
         "t-glob-ffcbbfc9",
         "t-glob-4779743c",
         "t-glob-90ecaacd",
+        "t-glob-b1cdb41a",
         "t-kw-199c98d5"
       ]
     },
@@ -7484,6 +7505,21 @@
         "t-cmd-edcf48e9"
       ]
     },
+    "shell-quoting-in-qa-shell-scripts-on": {
+      "createdAt": "2026-10-28",
+      "evidence": [
+        "commit:85c06f10"
+      ],
+      "rule": "In QA shell scripts on macOS, check multi-line file content with perl -0777 -ne 'exit(!/re/)', not grep -zE: BSD grep -z does not let a negated class such as [^a-z] match a newline, so a pattern spanning pretty-printed JSON lines silently finds nothing and a real leak reads as clean.",
+      "status": "active",
+      "topics": [
+        "shell-quoting"
+      ],
+      "triggers": [
+        "t-cmd-3682d12e",
+        "t-kw-57b96a2e"
+      ]
+    },
     "shell-quoting-in-zsh-bash-calls-never": {
       "createdAt": "2026-09-05",
       "evidence": [
@@ -11430,6 +11466,10 @@
       "kind": "command_pattern",
       "pattern": "install --sync"
     },
+    "t-cmd-3682d12e": {
+      "kind": "command_pattern",
+      "pattern": "grep[^|]*-[a-zA-Z]*z"
+    },
     "t-cmd-386c44c4": {
       "kind": "command_pattern",
       "pattern": "\\bgit\\s+log\\b.*\\s-M"
@@ -13058,6 +13098,10 @@
       "kind": "file_glob",
       "pattern": "src/targets/**"
     },
+    "t-glob-b1cdb41a": {
+      "kind": "file_glob",
+      "pattern": ".changeset/*.md"
+    },
     "t-glob-b31c4e39": {
       "kind": "file_glob",
       "pattern": "src/core/check/lock-sync*.ts"
@@ -13889,6 +13933,10 @@
     "t-kw-575b3002": {
       "kind": "keyword",
       "pattern": "discrimination"
+    },
+    "t-kw-57b96a2e": {
+      "kind": "keyword",
+      "pattern": "grep -z multi-line match"
     },
     "t-kw-5a193613": {
       "kind": "keyword",
