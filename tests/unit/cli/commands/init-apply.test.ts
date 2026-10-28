@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { mkdirSync, rmSync, readFileSync, existsSync } from 'node:fs';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { mkdirSync, rmSync, readFileSync, existsSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { resolveScopeContext, type ScopeContext } from '../../../../src/config/core/scope.js';
@@ -8,12 +8,23 @@ import {
   TEMPLATE_MCP,
   TEMPLATE_MCP_GLOBAL,
 } from '../../../../src/cli/commands/init-mcp-templates.js';
+import { MCP_AGENTSMESH_ENTRY_VALUE } from '../../../../src/cli/commands/seed-mcp-entry.js';
 import { parseMcp } from '../../../../src/canonical/features/mcp.js';
 
 const TEST_DIR = join(tmpdir(), 'am-init-apply-test');
 
 beforeEach(() => mkdirSync(TEST_DIR, { recursive: true }));
-afterEach(() => rmSync(TEST_DIR, { recursive: true, force: true }));
+afterEach(() => {
+  vi.unstubAllEnvs();
+  rmSync(TEST_DIR, { recursive: true, force: true });
+});
+
+const MINE_SERVERS = JSON.stringify({ mcpServers: { mine: { command: 'my-tool', args: [] } } });
+
+function readServerKeys(mcpPath: string): string[] {
+  const doc = JSON.parse(readFileSync(mcpPath, 'utf-8')) as { mcpServers: object };
+  return Object.keys(doc.mcpServers);
+}
 
 function projectPlan(over: Partial<InitPlan> = {}): InitPlan {
   return {
@@ -52,6 +63,22 @@ describe('applyInitPlan (project, no import)', () => {
     const mcpPath = join(TEST_DIR, '.agentsmesh', 'mcp.json');
     expect(readFileSync(mcpPath, 'utf-8')).toBe(TEMPLATE_MCP);
     expect(Object.keys((await parseMcp(mcpPath))!.mcpServers)).toEqual(['agentsmesh']);
+  });
+
+  it('adds the agentsmesh MCP server next to the MCP servers the import wrote', async () => {
+    writeFileSync(join(TEST_DIR, 'CLAUDE.md'), '# Rules\n');
+    writeFileSync(join(TEST_DIR, '.mcp.json'), MINE_SERVERS);
+    const context = resolveScopeContext(TEST_DIR, 'project');
+    const plan = projectPlan({ doImport: true, detected: ['claude-code'] });
+
+    await applyInitPlan(TEST_DIR, context, plan);
+
+    const mcpPath = join(TEST_DIR, '.agentsmesh', 'mcp.json');
+    expect(readServerKeys(mcpPath)).toEqual(['mine', 'agentsmesh']);
+    const doc = JSON.parse(readFileSync(mcpPath, 'utf-8')) as {
+      mcpServers: { agentsmesh: unknown };
+    };
+    expect(doc.mcpServers.agentsmesh).toEqual(MCP_AGENTSMESH_ENTRY_VALUE);
   });
 
   it('scaffolds lessons when plan.lessons is true', async () => {
@@ -131,4 +158,26 @@ describe('applyInitPlan (global scope — lessons never available)', () => {
       expect(await parseMcp(mcpPath)).toBeNull();
     },
   );
+
+  it('keeps only the imported MCP servers when the import writes mcp.json', async () => {
+    const home = join(TEST_DIR, 'home');
+    mkdirSync(join(home, '.claude'), { recursive: true });
+    writeFileSync(join(home, '.claude', 'CLAUDE.md'), '# Global Rules\n');
+    writeFileSync(join(home, '.claude.json'), MINE_SERVERS);
+    vi.stubEnv('HOME', home);
+    vi.stubEnv('USERPROFILE', home);
+    const workspace = join(TEST_DIR, 'workspace');
+    const plan: InitPlan = {
+      scope: 'global',
+      targets: ['claude-code'],
+      targetSource: 'explicit',
+      detected: ['claude-code'],
+      doImport: true,
+      lessons: false,
+    };
+
+    await applyInitPlan(workspace, resolveScopeContext(workspace, 'global'), plan);
+
+    expect(readServerKeys(join(home, '.agentsmesh', 'mcp.json'))).toEqual(['mine']);
+  });
 });

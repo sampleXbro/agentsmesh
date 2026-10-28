@@ -5,21 +5,25 @@
  * failure, so one trailing comma replaced every server the user had.
  */
 
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi, type MockInstance } from 'vitest';
 import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { seedAgentsmeshMcpEntry } from '../../../../src/cli/commands/seed-mcp-entry.js';
+import { TEMPLATE_MCP } from '../../../../src/cli/commands/init-mcp-templates.js';
 
 let project: string;
 let mcpPath: string;
+let stderr: MockInstance<typeof process.stderr.write>;
 
 beforeEach(async () => {
   project = await mkdtemp(join(tmpdir(), 'am-seed-preserve-'));
   await mkdir(join(project, '.agentsmesh'), { recursive: true });
   mcpPath = join(project, '.agentsmesh/mcp.json');
+  stderr = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
 });
 afterEach(async () => {
+  stderr.mockRestore();
   await rm(project, { recursive: true, force: true });
 });
 
@@ -76,7 +80,26 @@ describe('seedAgentsmeshMcpEntry', () => {
 
     expect(await seedAgentsmeshMcpEntry(project)).toBe(false);
     expect(await readFile(mcpPath, 'utf8')).toBe(jsonc);
+    expect(stderr).toHaveBeenCalledTimes(1);
+    expect(String(stderr.mock.calls[0]![0])).toContain('because it contains comments');
   });
+
+  it.each([
+    ['the init template', TEMPLATE_MCP],
+    [
+      'a hand-written entry',
+      '{\n  // mine\n  "mcpServers": { "agentsmesh": { "command": "agentsmesh" } }\n}\n',
+    ],
+  ])(
+    'leaves a commented file that already has the entry alone, silently (%s)',
+    async (_, jsonc) => {
+      await writeFile(mcpPath, jsonc);
+
+      expect(await seedAgentsmeshMcpEntry(project)).toBe(false);
+      expect(await readFile(mcpPath, 'utf8')).toBe(jsonc);
+      expect(stderr).not.toHaveBeenCalled();
+    },
+  );
 
   it('leaves a document whose mcpServers is not an object untouched', async () => {
     const wrong = '{ "mcpServers": [] }\n';
