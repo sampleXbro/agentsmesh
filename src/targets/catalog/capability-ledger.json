@@ -13,9 +13,12 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://aider.chat/docs/usage/conventions.html",
+        "https://aider.chat/docs/config/aider_conf.html"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -31,9 +34,12 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://aider.chat/docs/usage/conventions.html",
+        "https://aider.chat/docs/config/aider_conf.html"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -11089,7 +11095,7 @@
       "target": "trae",
       "feature": "permissions",
       "scope": "global",
-      "maxAchievable": "native",
+      "maxAchievable": "partial",
       "path": ".trae/permission/global.json",
       "ext": ".json",
       "format": "json",
@@ -11102,9 +11108,10 @@
         "keyChecks": []
       },
       "source": [
-        "https://docs.trae.ai/ide/permission-and-approval"
+        "https://docs.trae.ai/ide/permission-and-approval",
+        "https://docs.trae.cn/ide_custom-global-permission-configuration-reference"
       ],
-      "verifiedAt": "2026-08-30",
+      "verifiedAt": "2026-10-28",
       "verdict": "confirmed",
       "rejectionReason": null
     },
