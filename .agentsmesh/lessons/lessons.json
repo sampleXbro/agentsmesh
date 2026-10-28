@@ -3251,6 +3251,20 @@
         "t-kw-f7df0071"
       ]
     },
+    "init-never-rely-on-an-init": {
+      "createdAt": "2026-10-28",
+      "evidence": [],
+      "rule": "Never rely on an init template to carry a required entry such as the agentsmesh MCP server in .agentsmesh/mcp.json: init --yes gap-fill keeps the mcp.json the import already wrote, so the template and its entry never land there (init gave servers ['mine'] while import --from gave ['mine','agentsmesh']). Call the idempotent seedAgentsmeshMcpEntry after the import, guarded by plan.scope === 'project' in applyInitPlan. A writer that refuses to rewrite a commented JSONC file must first check whether the entry is already there and return quietly; refusing first made import after project init print a false 'contains comments' warning.",
+      "status": "active",
+      "topics": [
+        "init"
+      ],
+      "triggers": [
+        "t-glob-6b98951d",
+        "t-glob-7da85c97",
+        "t-glob-4779743c"
+      ]
+    },
     "init-seed-the-agentsmesh-self-serve": {
       "createdAt": "2026-10-27",
       "evidence": [
