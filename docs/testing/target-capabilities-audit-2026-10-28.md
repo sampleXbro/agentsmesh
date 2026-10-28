@@ -1,0 +1,82 @@
+# Target capability audit — 2026-10-28
+
+This report follows `.agentsmesh/skills/update-target-capabilities/SKILL.md`.
+The audit is an **inventory and provenance correction**, not a claim that
+all target integrations have been freshly tested against upstream releases.
+
+## Scope and baseline
+
+- 33 built-in targets, nine feature keys, two scopes: **594 cells**.
+- Compared the descriptor-generated tables in
+  `website/src/content/docs/reference/supported-tools.mdx` against
+  `src/targets/catalog/capability-ledger.json`, applying the comparison
+  rules from `src/core/capabilities/audit.ts`.
+- Before corrections: one upgrade candidate, 172 unverified provenance
+  entries, 24 over-declaration warnings, zero missing ledger entries.
+- After corrections in this branch: **zero ledger upgrade candidates**,
+  **170 still-unverified entries**, **24 over-declaration warnings**,
+  and **zero missing entries**.
+- The 24 warnings have existing `verdict: "rejected"` ledger entries;
+  do not silently lower advertised support without independently checking
+  their scope and native file behavior.
+
+## Decisions made with primary-source evidence
+
+### Aider additionalRules (project and global)
+
+Official Aider documentation describes loading `CONVENTIONS.md` as
+read-only context through `read:` in `.aider.conf.yml`. Its config is
+loaded from home, repository root, or current directory. Thus additional
+rules embedded in the loaded conventions file are the appropriate level
+at both scopes, not a fictitious independent rules directory.
+
+- https://aider.chat/docs/usage/conventions.html
+- https://aider.chat/docs/config/aider_conf.html
+
+Confirmed both ledger cells as `embedded` with source provenance.
+
+### Trae global permissions
+
+The ledger previously advertised `maxAchievable: native`, while the
+descriptor deliberately declares `partial`. The existing implementation
+only maps a subset of canonical `permissions.yaml` expressions and
+additively merges into a user-owned file: removed canonical entries are
+not revoked, and unsupported entries produce lint warnings. This is
+not full-fidelity native behavior, despite the existence of a writable
+global permissions file.
+
+Trae's own documentation describes global filesystem/network grants
+and command/MCP approval rules. **The CN edition documents
+`~/.trae-cn/permission/global.json`, whereas this target's international
+projection uses `~/.trae/permission/global.json`. Do not blindly substitute
+one edition's paths or JSON shape for the other.**
+
+- https://docs.trae.ai/ide/permission-and-approval
+- https://docs.trae.cn/ide_custom-global-permission-configuration-reference
+
+Corrected the ledger ceiling to `partial` for the existing behavior;
+kept the runtime descriptor and generated support matrix unchanged.
+A full-native upgrade requires confirmed international-format documentation,
+reversible key ownership, complete canonical mapping, and generate/import
+tests. It must not be claimed merely because a JSON file exists.
+
+## Follow-up verification gates
+
+The deterministic inventory here is equivalent to the ledger-versus-matrix
+comparison, **not** an executed `pnpm capabilities:audit`. The local execution
+environment could not clone GitHub or resolve dependencies. The CI workflow
+runs on branch pushes and provides the authoritative repository tests.
+
+Before closing the wider capability-refresh effort:
+
+1. Independently research the remaining 170 unverified ledger cells using
+   each target's own primary documentation; reject fabricated or wrong-scope
+   claims instead of filling dates blindly.
+2. Reconcile the 24 over-declared/rejected cells, preserving the existing
+   expansion-first policy until evidence justifies a change.
+3. Run `pnpm capabilities:audit --json`, `pnpm capabilities:verify`,
+   `pnpm matrix:verify`, `pnpm typecheck`, `pnpm lint`, `pnpm build`,
+   `pnpm test` and `pnpm test:e2e`; inspect failing cases, if any.
+4. For any confirmed new native capability, use strict TDD and verify
+   project/global gating, output paths, importer symmetry, reference rewriting,
+   plugin parity, matrix/docs synchronization, and `post-feature-qa`.
