@@ -3734,9 +3734,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-custom-instructions"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -3752,9 +3754,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-custom-instructions"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -3770,9 +3774,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -3788,9 +3794,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -4034,9 +4042,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-custom-instructions"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -4052,9 +4062,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-custom-instructions"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -4070,9 +4082,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://docs.github.com/en/copilot/how-tos/copilot-on-github/customize-copilot/customize-cloud-agent/add-skills"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -4088,9 +4102,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://docs.github.com/en/copilot/how-tos/copilot-on-github/customize-copilot/customize-cloud-agent/add-skills"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -4513,9 +4529,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://cursor.com/docs/rules"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -4531,9 +4549,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://cursor.com/docs/subagents"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -4549,9 +4569,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://cursor.com/docs/subagents"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -4585,9 +4607,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://docs.cursor.com/en/agent/chat/commands"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -4629,9 +4653,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://cursor.com/docs/hooks"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -4711,9 +4737,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://cursor.com/docs/mcp"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -4791,9 +4819,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://cursor.com/docs/rules"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -4809,9 +4839,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://cursor.com/help/customization/skills"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -4827,9 +4859,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://cursor.com/help/customization/skills"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -7861,9 +7895,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://kiro.dev/docs/steering/"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -7879,9 +7915,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://kiro.dev/docs/steering/"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -7897,9 +7935,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://kiro.dev/docs/cli/chat/configuration/"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -7915,9 +7955,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://kiro.dev/docs/cli/chat/configuration/"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -7933,9 +7975,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://kiro.dev/docs/skills/"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -7957,9 +8001,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://kiro.dev/docs/skills/"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -8145,9 +8191,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://kiro.dev/docs/steering/"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -8163,9 +8211,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://kiro.dev/docs/steering/"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -8181,9 +8231,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://kiro.dev/docs/skills/"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -8199,9 +8251,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://kiro.dev/docs/skills/"
+      ],
+      "verifiedAt": "2026-10-28",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
