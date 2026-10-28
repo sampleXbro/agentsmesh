@@ -37,9 +37,11 @@ jobs:
           writeFileSync(file, JSON.stringify(manifest, null, 2) + '\n');
           NODE
           pnpm install --no-frozen-lockfile
+          # Zod 4.6.7 changes nullable JSON Schema encoding; snapshots are generated artifacts.
+          pnpm schemas:generate
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add package.json pnpm-lock.yaml
+          git add package.json pnpm-lock.yaml schemas
           if ! git diff --cached --quiet; then
             git commit -m "fix(deps): refresh vulnerable production dependencies"
             git push origin HEAD:chore/audit-update-target-capabilities-2026-10
