@@ -1,0 +1,48 @@
+# Temporary, branch-only lockfile refresh. Remove after verifying the generated files.
+name: Refresh security dependencies (temporary)
+on:
+  push:
+    branches:
+      - chore/audit-update-target-capabilities-2026-10
+permissions:
+  contents: write
+jobs:
+  refresh:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Resolve patched production dependencies and lockfile
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import { readFileSync, writeFileSync } from 'node:fs';
+          const file = 'package.json';
+          const manifest = JSON.parse(readFileSync(file, 'utf8'));
+          manifest.dependencies['@modelcontextprotocol/sdk'] = '^1.32.2';
+          manifest.dependencies.zod = '^4.6.7';
+          manifest.pnpm.overrides['fast-uri'] = '^3.1.9';
+          manifest.pnpm.overrides['proxy-addr'] = '2.0.8';
+          manifest.pnpm.overrides['body-parser'] = '2.4.0';
+          writeFileSync(file, JSON.stringify(manifest, null, 2) + '\n');
+          NODE
+          pnpm install --no-frozen-lockfile
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add package.json pnpm-lock.yaml
+          if ! git diff --cached --quiet; then
+            git commit -m "fix(deps): refresh vulnerable production dependencies"
+            git push origin HEAD:chore/audit-update-target-capabilities-2026-10
+          fi
+      - name: Confirm production audit
+        run: pnpm audit --prod --audit-level=high
