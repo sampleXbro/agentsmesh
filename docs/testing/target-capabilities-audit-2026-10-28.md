@@ -14,7 +14,7 @@ all target integrations have been freshly tested against upstream releases.
 - Before corrections: one upgrade candidate, 172 unverified provenance
   entries, 24 over-declaration warnings, zero missing ledger entries.
 - After corrections in this branch: **zero ledger upgrade candidates**,
-  **25 still-unverified entries**, **24 over-declaration warnings**,
+  **10 still-unverified entries**, **24 over-declaration warnings**,
   and **zero missing entries**.
 - The 24 warnings have existing `verdict: "rejected"` ledger entries;
   do not silently lower advertised support without independently checking
@@ -132,7 +132,7 @@ runs on branch pushes and provides the authoritative repository tests.
 
 Before closing the wider capability-refresh effort:
 
-1. Independently research the remaining 25 unverified ledger cells using
+1. Independently research the remaining 10 unverified ledger cells using
    each target's own primary documentation; reject fabricated or wrong-scope
    claims instead of filling dates blindly.
 2. Reconcile the 24 over-declared/rejected cells, preserving the existing
@@ -290,3 +290,25 @@ arrays. The generator also handles non-root-only rule sets. Project/global rule
 and skill paths verified against:
 https://antigravity.google/docs/rules/ and
 https://antigravity.google/docs/skills.
+
+### Goose, Roo Code, Cursor and Warp capability provenance (2026-10-29)
+
+Verified 15 additional on-disk support cells using vendor-supplied paths.
+Goose global/project `.goosehints` and `.agents/skills/` (including
+projection of agent/command procedures into invocation-capable skills);
+Roo Code global/project `.roo/rules/` and `.roo/skills/`;
+Cursor home `~/.cursor/rules/` and `~/.cursor/commands/`;
+Warp home/project skills invoked as slash commands.
+
+Caveat: Cursor's global commands have a documented 2026 bug when working
+through remote SSH (the Cursor team confirmed local user-level commands
+should work, but the remote home directory is not searched). Do not claim
+universal remote behavior.
+
+Sources: https://goose-docs.ai/docs/guides/context-engineering/using-goosehints/,
+https://goose-docs.ai/docs/guides/context-engineering/using-skills/,
+https://github.com/RooCodeInc/Roo-Code/blob/main/apps/docs/docs/features/custom-instructions.md,
+https://github.com/RooCodeInc/Roo-Code/blob/main/src/services/skills/SkillsManager.ts,
+https://cursor.com/changelog/page/14,
+https://forum.cursor.com/t/ssh-global-commands-from-remote-cursor-commands-not-loaded-rules-work/150941,
+https://docs.warp.dev/agents/capabilities/skills.
