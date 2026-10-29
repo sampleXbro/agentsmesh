@@ -297,7 +297,7 @@ describe('generateCommands (rovodev)', () => {
 });
 
 describe('generateAgents (rovodev)', () => {
-  it('projects agents as skills', () => {
+  it('generates native subagents with documented frontmatter', () => {
     const canonical = makeCanonical({
       agents: [
         {
@@ -321,16 +321,11 @@ describe('generateAgents (rovodev)', () => {
     const results = generateAgents(canonical);
 
     expect(results).toHaveLength(1);
-    expect(results[0].path).toContain(`${ROVODEV_SKILLS_DIR}/`);
-    expect(results[0].path).toContain('SKILL.md');
-    expect(results[0].content).toContain('researcher');
-    const agent = results.find((r) => r.path.endsWith('SKILL.md'));
-    expect(agent!.content).toContain('x-agentsmesh-kind: agent');
-    expect(agent!.content).toContain('x-agentsmesh-name: researcher');
-    expect(agent!.content).toContain('name: am-agent-researcher');
-    expect(agent!.content).toContain('description: Research agent');
-    expect(agent!.content).toContain('x-agentsmesh-tools:');
-    expect(agent!.content).toContain('x-agentsmesh-model: claude-sonnet');
+    expect(results[0].path).toBe('.rovodev/subagents/researcher.md');
+    expect(results[0].content).toContain('name: researcher');
+    expect(results[0].content).toContain('description: Research agent');
+    expect(results[0].content).toContain('tools:');
+    expect(results[0].content).toContain('Research topics thoroughly.');
   });
 
   it('returns empty when no agents', () => {

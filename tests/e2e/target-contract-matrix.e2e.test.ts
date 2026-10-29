@@ -36,7 +36,6 @@ const TARGETS_WITH_PROJECTED_AGENTS = new Set<TargetName>([
   'crush',
   'pi-agent',
   'replit-agent',
-  'rovodev',
   'windsurf',
   'warp',
   'goose',

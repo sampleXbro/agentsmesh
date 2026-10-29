@@ -14,7 +14,7 @@ all target integrations have been freshly tested against upstream releases.
 - Before corrections: one upgrade candidate, 172 unverified provenance
   entries, 24 over-declaration warnings, zero missing ledger entries.
 - After corrections in this branch: **zero ledger upgrade candidates**,
-  **37 still-unverified entries**, **24 over-declaration warnings**,
+  **29 still-unverified entries**, **24 over-declaration warnings**,
   and **zero missing entries**.
 - The 24 warnings have existing `verdict: "rejected"` ledger entries;
   do not silently lower advertised support without independently checking
@@ -132,7 +132,7 @@ runs on branch pushes and provides the authoritative repository tests.
 
 Before closing the wider capability-refresh effort:
 
-1. Independently research the remaining 37 unverified ledger cells using
+1. Independently research the remaining 29 unverified ledger cells using
    each target's own primary documentation; reject fabricated or wrong-scope
    claims instead of filling dates blindly.
 2. Reconcile the 24 over-declared/rejected cells, preserving the existing
@@ -265,3 +265,17 @@ https://github.com/charmbracelet/crush/blob/main/README.md,
 https://pi.dev/docs/latest/configuration,
 https://github.com/continuedev/continue/blob/main/extensions/cli/src/slashCommands.ts,
 https://docs.replit.com/references/project-setup/replit-dot-md.
+
+### Rovo Dev first-class subagents (2026-10-29)
+
+Atlassian documents user/project subagent files at `~/.rovodev/subagents/`
+and `.rovodev/subagents/` with Markdown/YAML frontmatter for `name`,
+`description`, `tools`. Replaced the former lossy agent-to-SKILL.md
+projection with native files and matching descriptor import at both scopes.
+Legacy `.rovodev/skills/am-agent-*/SKILL.md` are still importable via
+`importEmbeddedSkills`, but new generation no longer produces them.
+The ledger now identifies both native surfaces, and project/user Rovo
+memory (AGENTS.md) and SKILL.md discovery were verified independently.
+Official: https://support.atlassian.com/rovo/docs/use-subagents-in-rovo-dev-cli/,
+https://support.atlassian.com/rovo/docs/use-memory-in-rovo-dev-cli/,
+https://support.atlassian.com/rovo/docs/extend-rovo-dev-cli-with-agent-skills/.

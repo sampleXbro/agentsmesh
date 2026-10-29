@@ -4,8 +4,8 @@ export const rovodevContract: TargetPathContract = {
   generated: [
     '.rovodev/commands/review.md',
     '.rovodev/prompts.yml',
-    '.rovodev/skills/am-agent-code-reviewer/SKILL.md',
-    '.rovodev/skills/am-agent-researcher/SKILL.md',
+    '.rovodev/subagents/code-reviewer.md',
+    '.rovodev/subagents/researcher.md',
     '.rovodev/skills/api-generator/SKILL.md',
     '.rovodev/skills/api-generator/references/route-checklist.md',
     '.rovodev/skills/api-generator/template.ts',

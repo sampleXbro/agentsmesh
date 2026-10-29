@@ -4,15 +4,16 @@
  */
 
 import type { TargetLayout } from '../catalog/target-descriptor.js';
-import { projectedAgentSkillDirName } from '../projection/projected-agent-skill.js';
 import { mirrorSkillsToAgents } from '../catalog/skill-mirror.js';
 import {
   ROVODEV_ROOT_FILE,
   ROVODEV_SKILLS_DIR,
+  ROVODEV_SUBAGENTS_DIR,
   ROVODEV_COMMANDS_DIR,
   ROVODEV_PROMPTS_FILE,
   ROVODEV_GLOBAL_ROOT_FILE,
   ROVODEV_GLOBAL_SKILLS_DIR,
+  ROVODEV_GLOBAL_SUBAGENTS_DIR,
   ROVODEV_GLOBAL_COMMANDS_DIR,
   ROVODEV_GLOBAL_PROMPTS_FILE,
   ROVODEV_GLOBAL_MCP_FILE,
@@ -23,7 +24,7 @@ export const project: TargetLayout = {
   rootInstructionPath: ROVODEV_ROOT_FILE,
   skillDir: ROVODEV_SKILLS_DIR,
   managedOutputs: {
-    dirs: [ROVODEV_SKILLS_DIR, ROVODEV_COMMANDS_DIR],
+    dirs: [ROVODEV_SKILLS_DIR, ROVODEV_SUBAGENTS_DIR, ROVODEV_COMMANDS_DIR],
     files: [ROVODEV_ROOT_FILE],
     // The saved-prompt manifest: the user authors prompts in it and the
     // importer reads them back, so agentsmesh owns only its marked entries.
@@ -37,7 +38,7 @@ export const project: TargetLayout = {
       return `${ROVODEV_COMMANDS_DIR}/${name}.md`;
     },
     agentPath(name) {
-      return `${ROVODEV_SKILLS_DIR}/${projectedAgentSkillDirName(name)}/SKILL.md`;
+      return `${ROVODEV_SUBAGENTS_DIR}/${name}.md`;
     },
   },
 };
@@ -46,7 +47,7 @@ export const globalLayout: TargetLayout = {
   rootInstructionPath: ROVODEV_GLOBAL_ROOT_FILE,
   skillDir: ROVODEV_GLOBAL_SKILLS_DIR,
   managedOutputs: {
-    dirs: [ROVODEV_GLOBAL_SKILLS_DIR, ROVODEV_GLOBAL_COMMANDS_DIR],
+    dirs: [ROVODEV_GLOBAL_SKILLS_DIR, ROVODEV_GLOBAL_SUBAGENTS_DIR, ROVODEV_GLOBAL_COMMANDS_DIR],
     files: [ROVODEV_GLOBAL_ROOT_FILE],
     // Rovo Dev's documented settings file; agentsmesh owns only `eventHooks`
     // and `toolPermissions` inside it. `mcp_config.json` is the documented MCP
@@ -61,6 +62,9 @@ export const globalLayout: TargetLayout = {
     if (path === ROVODEV_ROOT_FILE) return ROVODEV_GLOBAL_ROOT_FILE;
     if (path.startsWith(`${ROVODEV_SKILLS_DIR}/`)) {
       return path.replace(`${ROVODEV_SKILLS_DIR}/`, `${ROVODEV_GLOBAL_SKILLS_DIR}/`);
+    }
+    if (path.startsWith(`${ROVODEV_SUBAGENTS_DIR}/`)) {
+      return path.replace(`${ROVODEV_SUBAGENTS_DIR}/`, `${ROVODEV_GLOBAL_SUBAGENTS_DIR}/`);
     }
     if (path === ROVODEV_PROMPTS_FILE) return ROVODEV_GLOBAL_PROMPTS_FILE;
     if (path.startsWith(`${ROVODEV_COMMANDS_DIR}/`)) {
@@ -79,7 +83,7 @@ export const globalLayout: TargetLayout = {
       return `${ROVODEV_GLOBAL_COMMANDS_DIR}/${name}.md`;
     },
     agentPath(name) {
-      return `${ROVODEV_GLOBAL_SKILLS_DIR}/${projectedAgentSkillDirName(name)}/SKILL.md`;
+      return `${ROVODEV_GLOBAL_SUBAGENTS_DIR}/${name}.md`;
     },
   },
 };

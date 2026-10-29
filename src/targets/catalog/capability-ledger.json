@@ -10722,9 +10722,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://support.atlassian.com/rovo/docs/use-memory-in-rovo-dev-cli/"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -10740,45 +10742,57 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://support.atlassian.com/rovo/docs/use-memory-in-rovo-dev-cli/"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
       "target": "rovodev",
       "feature": "agents",
       "scope": "global",
-      "maxAchievable": "embedded",
-      "path": ".rovodev/skills/am-agent-code-reviewer/SKILL.md",
+      "maxAchievable": "native",
+      "path": ".rovodev/subagents/code-reviewer.md",
       "ext": ".md",
       "format": "md-frontmatter",
       "fingerprint": {
         "topLevelKeys": [],
-        "requiredFrontmatter": [],
+        "requiredFrontmatter": [
+          "name",
+          "description"
+        ],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://support.atlassian.com/rovo/docs/use-subagents-in-rovo-dev-cli/"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
       "target": "rovodev",
       "feature": "agents",
       "scope": "project",
-      "maxAchievable": "embedded",
-      "path": ".rovodev/skills/am-agent-code-reviewer/SKILL.md",
+      "maxAchievable": "native",
+      "path": ".rovodev/subagents/code-reviewer.md",
       "ext": ".md",
       "format": "md-frontmatter",
       "fingerprint": {
         "topLevelKeys": [],
-        "requiredFrontmatter": [],
+        "requiredFrontmatter": [
+          "name",
+          "description"
+        ],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://support.atlassian.com/rovo/docs/use-subagents-in-rovo-dev-cli/"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -11023,9 +11037,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://support.atlassian.com/rovo/docs/use-memory-in-rovo-dev-cli/"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -11041,9 +11057,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://support.atlassian.com/rovo/docs/use-memory-in-rovo-dev-cli/"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -11059,9 +11077,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://support.atlassian.com/rovo/docs/extend-rovo-dev-cli-with-agent-skills/"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -11077,9 +11097,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://support.atlassian.com/rovo/docs/extend-rovo-dev-cli-with-agent-skills/"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {

@@ -17,7 +17,7 @@
  * `~/.rovodev/config.yml`.
  */
 
-import { AB_RULES } from '../../core/canonical-paths.js';
+import { AB_AGENTS, AB_RULES } from '../../core/canonical-paths.js';
 import type { TargetCapabilities, TargetGenerators } from '../catalog/target.interface.js';
 import type { TargetDescriptor } from '../catalog/target-descriptor.js';
 import type { CanonicalFiles } from '../../core/types.js';
@@ -40,10 +40,12 @@ import {
   ROVODEV_TARGET,
   ROVODEV_ROOT_FILE,
   ROVODEV_SKILLS_DIR,
+  ROVODEV_SUBAGENTS_DIR,
   ROVODEV_PROMPTS_FILE,
   ROVODEV_GLOBAL_DIR,
   ROVODEV_GLOBAL_ROOT_FILE,
   ROVODEV_GLOBAL_SKILLS_DIR,
+  ROVODEV_GLOBAL_SUBAGENTS_DIR,
   ROVODEV_GLOBAL_MCP_FILE,
   ROVODEV_GLOBAL_CONFIG_FILE,
 } from './constants.js';
@@ -63,7 +65,7 @@ const capabilities: TargetCapabilities = {
   rules: 'native',
   additionalRules: 'embedded',
   commands: 'native',
-  agents: 'embedded',
+  agents: 'native',
   skills: 'native',
   mcp: 'partial',
   hooks: 'none',
@@ -75,7 +77,7 @@ const globalCapabilities: TargetCapabilities = {
   rules: 'native',
   additionalRules: 'embedded',
   commands: 'native',
-  agents: 'embedded',
+  agents: 'native',
   skills: 'native',
   mcp: 'native',
   hooks: 'native',
@@ -100,11 +102,10 @@ export const descriptor = {
     ignore: lintIgnore,
     mcp: lintMcp,
   },
-  supportsConversion: { agents: true },
   project,
   globalSupport: {
     capabilities: globalCapabilities,
-    detectionPaths: [ROVODEV_GLOBAL_DIR, ROVODEV_GLOBAL_ROOT_FILE, ROVODEV_GLOBAL_SKILLS_DIR],
+    detectionPaths: [ROVODEV_GLOBAL_DIR, ROVODEV_GLOBAL_ROOT_FILE, ROVODEV_GLOBAL_SKILLS_DIR, ROVODEV_GLOBAL_SUBAGENTS_DIR],
     layout: globalLayout,
   },
   emitScopedSettings(
@@ -124,6 +125,11 @@ export const descriptor = {
     );
   },
   importer: {
+    agents: {
+      feature: 'agents', mode: 'directory',
+      source: { project: [ROVODEV_SUBAGENTS_DIR], global: [ROVODEV_GLOBAL_SUBAGENTS_DIR] },
+      canonicalDir: AB_AGENTS, extensions: ['.md'], preset: 'agent',
+    },
     rules: {
       feature: 'rules',
       mode: 'singleFile',
@@ -147,5 +153,5 @@ export const descriptor = {
     },
   },
   buildImportPaths: buildRovodevImportPaths,
-  detectionPaths: [ROVODEV_ROOT_FILE, ROVODEV_SKILLS_DIR, ROVODEV_PROMPTS_FILE],
+  detectionPaths: [ROVODEV_ROOT_FILE, ROVODEV_SKILLS_DIR, ROVODEV_SUBAGENTS_DIR, ROVODEV_PROMPTS_FILE],
 } satisfies TargetDescriptor;

@@ -93,6 +93,8 @@ export function outputPaths(target: TargetName): OutputPathGroups {
         ? '.cline/agents.yaml'
         : target === 'trae'
           ? '.trae/agents/code-reviewer.md'
+          : target === 'rovodev'
+            ? '.rovodev/subagents/code-reviewer.md'
           : `${skillDir(target)}/${projectedAgentSkillDirName('code-reviewer')}/SKILL.md`;
 
   return {
@@ -414,6 +416,8 @@ export function expectedRefs(target: TargetName, path?: string): Record<string, 
                                     ? '.factory/droids/code-reviewer.md'
                                     : target === 'deepagents-cli'
                                       ? '.deepagents/agents/code-reviewer/AGENTS.md'
+                                      : target === 'rovodev'
+                                        ? '.rovodev/subagents/code-reviewer.md'
                                       : `${skills}/${projectedAgentSkillDirName('code-reviewer')}/SKILL.md`,
     skill: `${geminiCompatSkills}/api-generator/SKILL.md`,
     template: `${geminiCompatSkills}/api-generator/template.ts`,

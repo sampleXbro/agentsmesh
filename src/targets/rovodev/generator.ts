@@ -15,15 +15,13 @@ import type { FeatureGeneratorOutput } from '../catalog/target.interface.js';
 import type { CanonicalFiles } from '../../core/types.js';
 import type { GenerateFeatureContext } from '../catalog/target.interface.js';
 import { generateEmbeddedSkills } from '../import/embedded-skill.js';
-import {
-  projectedAgentSkillDirName,
-  serializeProjectedAgentSkill,
-} from '../projection/projected-agent-skill.js';
+import { serializeFrontmatter } from '../../utils/text/markdown.js';
 import { generateCommands as generatePrompts } from './prompts.js';
 import {
   ROVODEV_TARGET,
   ROVODEV_ROOT_FILE,
   ROVODEV_SKILLS_DIR,
+  ROVODEV_SUBAGENTS_DIR,
   ROVODEV_GLOBAL_MCP_FILE,
 } from './constants.js';
 
@@ -40,8 +38,12 @@ export const generateCommands = generatePrompts;
 
 export function generateAgents(canonical: CanonicalFiles): RovodevOutput[] {
   return canonical.agents.map((agent) => ({
-    path: `${ROVODEV_SKILLS_DIR}/${projectedAgentSkillDirName(agent.name)}/SKILL.md`,
-    content: serializeProjectedAgentSkill(agent),
+    path: `${ROVODEV_SUBAGENTS_DIR}/${agent.name}.md`,
+    content: serializeFrontmatter({
+      name: agent.name,
+      description: agent.description,
+      ...(agent.tools.length > 0 ? { tools: agent.tools } : {}),
+    }, agent.body.trim()),
   }));
 }
 
