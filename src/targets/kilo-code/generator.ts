@@ -6,7 +6,7 @@
  * generated.
  */
 
-import type { FeatureGeneratorOutput } from '../catalog/target.interface.js';
+import type { FeatureGeneratorOutput, GenerateFeatureContext } from '../catalog/target.interface.js';
 import { basename } from 'node:path';
 import type { CanonicalFiles } from '../../core/types.js';
 import { generateEmbeddedSkills } from '../import/embedded-skill.js';
@@ -26,7 +26,10 @@ import { toKiloMcpServer } from './global-settings.js';
 
 export type KiloCodeOutput = FeatureGeneratorOutput;
 
-export function generateRules(canonical: CanonicalFiles): KiloCodeOutput[] {
+export function generateRules(
+  canonical: CanonicalFiles,
+  ctx?: GenerateFeatureContext,
+): KiloCodeOutput[] {
   const outputs: KiloCodeOutput[] = [];
   const root = canonical.rules.find((rule) => rule.root);
 
@@ -51,6 +54,15 @@ export function generateRules(canonical: CanonicalFiles): KiloCodeOutput[] {
     outputs.push({
       path: `${KILO_CODE_RULES_DIR}/${slug}.md`,
       content,
+    });
+  }
+
+  // Modern Kilo only loads these rules when kilo.jsonc registers their glob.
+  // The global layout registers its own relative glob in emitKiloGlobalSettings.
+  if (ctx?.scope !== 'global' && outputs.some((out) => out.path.startsWith(`${KILO_CODE_RULES_DIR}/`))) {
+    outputs.push({
+      path: KILO_CONFIG_FILE,
+      content: JSON.stringify({ instructions: [`${KILO_CODE_RULES_DIR}/*.md`] }, null, 2),
     });
   }
 

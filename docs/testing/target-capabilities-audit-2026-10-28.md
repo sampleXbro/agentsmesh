@@ -218,3 +218,14 @@ https://kilo.ai/docs/customize/custom-subagents,
 https://kilo.ai/docs/customize/workflows,
 https://kilo.ai/docs/customize/agents-md,
 https://kilo.ai/docs/customize/skills.
+
+### Kilo Code project additional rules registration (2026-10-29)
+
+Primary Kilo custom-rules documentation says `.kilo/rules/*.md` is loaded from
+`instructions` in project `kilo.jsonc`; generating standalone Markdown files
+without registration fails in a clean project. Project `generateRules` now emits
+the documented instruction glob as a co-owned settings overlay. Global mode
+continues to register its own relative `rules/*.md` glob separately.
+TDD tests check project/global scope, empty and target-filtered rules, and
+merging with tool-owned settings.
+https://kilo.ai/docs/customize/custom-rules.

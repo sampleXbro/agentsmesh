@@ -95,7 +95,7 @@ describe('generateRules (kilo-code)', () => {
       ],
     });
     const results = generateRules(canonical);
-    expect(results).toHaveLength(2);
+    expect(results).toHaveLength(3);
     const tsRule = results.find((r) => r.path === `${KILO_CODE_RULES_DIR}/typescript.md`);
     expect(tsRule).toBeDefined();
     expect(tsRule?.content).toContain('Use strict TypeScript.');
@@ -115,7 +115,7 @@ describe('generateRules (kilo-code)', () => {
       ],
     });
     const results = generateRules(canonical);
-    expect(results).toHaveLength(1);
+    expect(results).toHaveLength(2);
     expect(results[0].content).toContain('description: TypeScript standards');
     expect(results[0].content).toContain('globs:');
     expect(results[0].content).toContain('src/**/*.ts');
@@ -135,7 +135,7 @@ describe('generateRules (kilo-code)', () => {
       ],
     });
     const results = generateRules(canonical);
-    expect(results).toHaveLength(1);
+    expect(results).toHaveLength(2);
     expect(results[0].content.startsWith('---')).toBe(false);
     expect(results[0].content).toBe('Plain rule body.');
   });
@@ -170,9 +170,9 @@ describe('generateRules (kilo-code)', () => {
       ],
     });
     const results = generateRules(canonical);
-    expect(results).toHaveLength(2);
+    expect(results).toHaveLength(3);
     expect(results.map((r) => r.path).sort()).toEqual(
-      [KILO_CODE_ROOT_RULE, `${KILO_CODE_RULES_DIR}/kilo-only.md`].sort(),
+      [KILO_CODE_ROOT_RULE, `${KILO_CODE_RULES_DIR}/kilo-only.md`, KILO_CONFIG_FILE].sort(),
     );
   });
 
