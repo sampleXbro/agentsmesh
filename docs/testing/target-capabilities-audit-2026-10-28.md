@@ -14,7 +14,7 @@ all target integrations have been freshly tested against upstream releases.
 - Before corrections: one upgrade candidate, 172 unverified provenance
   entries, 24 over-declaration warnings, zero missing ledger entries.
 - After corrections in this branch: **zero ledger upgrade candidates**,
-  **96 still-unverified entries**, **24 over-declaration warnings**,
+  **95 still-unverified entries**, **24 over-declaration warnings**,
   and **zero missing entries**.
 - The 24 warnings have existing `verdict: "rejected"` ledger entries;
   do not silently lower advertised support without independently checking
@@ -132,7 +132,7 @@ runs on branch pushes and provides the authoritative repository tests.
 
 Before closing the wider capability-refresh effort:
 
-1. Independently research the remaining 96 unverified ledger cells using
+1. Independently research the remaining 95 unverified ledger cells using
    each target's own primary documentation; reject fabricated or wrong-scope
    claims instead of filling dates blindly.
 2. Reconcile the 24 over-declared/rejected cells, preserving the existing
@@ -180,3 +180,16 @@ Remaining 96 unverified cells retain their null dates until an exact primary
 source and generate/import parity can be demonstrated. There are still
 24 over-declaration warnings for previously rejected claims requiring separate
 runtime decisions.
+
+### Kilo Code native project MCP repair (2026-10-29)
+
+Official Kilo documentation confirms project and global MCP servers are in the
+`mcp` object of `kilo.jsonc`, with `type: local/remote`, array `command`, and
+`environment` keys. The old output `.kilo/mcp.json` carried `mcpServers`
+and was not a documented modern Kilo surface. Native generation now targets the
+co-owned `kilo.jsonc` and modern import handles that same format at both
+scopes. The importer continues reading legacy `.kilo/mcp.json`/
+`.kilocode/mcp.json` for migration. The merger retains user-only keys and
+server options, with regression coverage.
+
+Primary: https://kilo.ai/docs/automate/mcp/using-in-kilo-code.

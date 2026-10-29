@@ -16,7 +16,6 @@ import {
   KILO_CODE_COMMANDS_DIR,
   KILO_CODE_AGENTS_DIR,
   KILO_CODE_SKILLS_DIR,
-  KILO_CODE_MCP_FILE,
   KILO_CODE_IGNORE,
   KILO_CONFIG_FILE,
 } from '../../../../src/targets/kilo-code/constants.js';
@@ -336,7 +335,7 @@ describe('generateAgents (kilo-code)', () => {
 });
 
 describe('generateMcp (kilo-code)', () => {
-  it('generates .kilo/mcp.json with mcpServers wrapper', () => {
+  it('generates kilo.jsonc with native mcp server mapping', () => {
     const canonical = makeCanonical({
       mcp: {
         mcpServers: {
@@ -346,9 +345,9 @@ describe('generateMcp (kilo-code)', () => {
     });
     const results = generateMcp(canonical);
     expect(results).toHaveLength(1);
-    expect(results[0].path).toBe(KILO_CODE_MCP_FILE);
-    const parsed = JSON.parse(results[0].content) as { mcpServers: Record<string, unknown> };
-    expect(parsed.mcpServers['my-server']).toBeDefined();
+    expect(results[0].path).toBe(KILO_CONFIG_FILE);
+    const parsed = JSON.parse(results[0].content) as { mcp: Record<string, unknown> };
+    expect(parsed.mcp['my-server']).toEqual({ type: 'local', command: ['node', 'server.js'] });
   });
 
   it('returns empty array when mcp is null', () => {

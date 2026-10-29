@@ -36,7 +36,19 @@ export const mergeKiloConfig: GeneratedOutputMerger = (
   const overlay = incoming as Record<string, unknown>;
   if (overlay.permission !== undefined) parsed.permission = overlay.permission;
   if (overlay.instructions !== undefined) parsed.instructions = overlay.instructions;
-  if (overlay.mcp !== undefined) parsed.mcp = overlay.mcp;
+  if (overlay.mcp !== undefined) {
+    // Preserve tool-managed server options such as enabled/timeout while replacing
+    // the server set with canonical definitions.
+    const previous = parsed.mcp && typeof parsed.mcp === 'object' &&
+      !Array.isArray(parsed.mcp) ? parsed.mcp as Record<string, unknown> : {};
+    const next = overlay.mcp as Record<string, unknown>;
+    parsed.mcp = Object.fromEntries(Object.entries(next).map(([name, value]) => {
+      const older = previous[name];
+      const attributes = older && typeof older === 'object' && !Array.isArray(older)
+        ? older as Record<string, unknown> : {};
+      return [name, { ...attributes, ...(value as Record<string, unknown>) }];
+    }));
+  }
   return JSON.stringify(parsed, null, 2);
 };
 

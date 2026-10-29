@@ -7366,19 +7366,21 @@
       "feature": "mcp",
       "scope": "project",
       "maxAchievable": "native",
-      "path": ".kilo/mcp.json",
-      "ext": ".json",
+      "path": "kilo.jsonc",
+      "ext": ".jsonc",
       "format": "json",
       "fingerprint": {
         "topLevelKeys": [
-          "mcpServers"
+          "mcp"
         ],
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://kilo.ai/docs/automate/mcp/using-in-kilo-code"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {

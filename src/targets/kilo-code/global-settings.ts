@@ -30,7 +30,7 @@ import type { McpServer } from '../../core/mcp-types.js';
 import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
 import { KILO_CODE_TARGET, KILO_CONFIG_FILE } from './constants.js';
 
-function toKiloMcpServer(server: McpServer): Record<string, unknown> {
+export function toKiloMcpServer(server: McpServer): Record<string, unknown> {
   if ('url' in server) {
     const entry: Record<string, unknown> = { type: 'remote', url: server.url };
     if (Object.keys(server.headers).length > 0) entry.headers = server.headers;

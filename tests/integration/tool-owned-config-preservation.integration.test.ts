@@ -160,7 +160,27 @@ const MCP_CASES: readonly Case[] = [
   mcpCase('factory-droid', 'global', '.factory/mcp.json'),
   mcpCase('junie', 'project', '.junie/mcp/mcp.json'),
   mcpCase('junie', 'global', '.junie/mcp/mcp.json'),
-  mcpCase('kilo-code', 'project', '.kilo/mcp.json'),
+  {
+    target: 'kilo-code',
+    scope: 'project',
+    feature: 'mcp',
+    path: 'kilo.jsonc',
+    base: {
+      userKey: 'SENTINEL',
+      mcp: {
+        stale: { type: 'local', command: ['stale'] },
+        ctx: { type: 'local', command: ['old'], enabled: false, timeout: 5000 },
+      },
+    },
+    preserved: { userKey: 'SENTINEL' },
+    generated: (doc) => {
+      const mcp = doc.mcp as Json;
+      expect(Object.keys(mcp)).toEqual(['ctx']);
+      expect(mcp.ctx).toMatchObject({
+        type: 'local', command: ['npx', '-y', 'ctx'], enabled: false, timeout: 5000,
+      });
+    },
+  },
   mcpCase('kimi-code', 'project', '.kimi-code/mcp.json'),
   mcpCase('kimi-code', 'global', '.kimi-code/mcp.json'),
   mcpCase('kiro', 'project', '.kiro/settings/mcp.json'),

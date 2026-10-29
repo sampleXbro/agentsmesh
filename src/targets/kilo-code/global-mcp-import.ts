@@ -15,7 +15,7 @@ import type { ImportResult } from '../../core/types.js';
 import type { McpServer } from '../../core/mcp-types.js';
 import { readFileSafe } from '../../utils/filesystem/fs.js';
 import { writeMcpWithMerge } from '../import/mcp-merge.js';
-import { KILO_CODE_TARGET, KILO_GLOBAL_CONFIG_FILE } from './constants.js';
+import { KILO_CODE_TARGET, KILO_CONFIG_FILE, KILO_GLOBAL_CONFIG_FILE } from './constants.js';
 
 function toStringRecord(value: unknown): Record<string, string> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
@@ -71,8 +71,9 @@ function parseKiloGlobalMcp(content: string): Record<string, McpServer> {
 export async function importGlobalKiloMcp(
   projectRoot: string,
   results: ImportResult[],
+  scope: 'project' | 'global' = 'global',
 ): Promise<void> {
-  const srcPath = join(projectRoot, KILO_GLOBAL_CONFIG_FILE);
+  const srcPath = join(projectRoot, scope === 'global' ? KILO_GLOBAL_CONFIG_FILE : KILO_CONFIG_FILE);
   const content = await readFileSafe(srcPath);
   if (content === null) return;
   const imported = parseKiloGlobalMcp(content);

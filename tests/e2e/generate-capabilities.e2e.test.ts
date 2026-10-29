@@ -823,10 +823,11 @@ features: [rules, commands, agents, skills, mcp, ignore]
     );
     fileExists(join(dir, '.kilo', 'skills', 'api-generator', 'references', 'route-checklist.md'));
 
-    // MCP at .kilo/mcp.json with mcpServers wrapper.
-    const mcp = readJson(join(dir, '.kilo', 'mcp.json'));
-    expect(mcp).toHaveProperty('mcpServers');
-    expect(mcp).toHaveProperty('mcpServers.context7.command', 'npx');
+    // Kilo loads project MCP through the mcp key in kilo.jsonc.
+    const mcp = readJson(join(dir, 'kilo.jsonc'));
+    expect(mcp).toHaveProperty('mcp');
+    expect(mcp).toHaveProperty('mcp.context7.command');
+    expect((mcp.mcp as Record<string, { command: string[] }>).context7?.command[0]).toBe('npx');
 
     // Ignore uses .kilocodeignore (legacy filename, only natively-loaded ignore in kilo).
     fileContains(join(dir, '.kilocodeignore'), '.env');

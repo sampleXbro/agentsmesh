@@ -18,11 +18,11 @@ import {
   KILO_CODE_COMMANDS_DIR,
   KILO_CODE_AGENTS_DIR,
   KILO_CODE_SKILLS_DIR,
-  KILO_CODE_MCP_FILE,
   KILO_CODE_IGNORE,
   KILO_CONFIG_FILE,
 } from './constants.js';
 import { ignoreOutput } from '../catalog/ignore-output.js';
+import { toKiloMcpServer } from './global-settings.js';
 
 export type KiloCodeOutput = FeatureGeneratorOutput;
 
@@ -92,12 +92,12 @@ export function generateAgents(canonical: CanonicalFiles): KiloCodeOutput[] {
 
 export function generateMcp(canonical: CanonicalFiles): KiloCodeOutput[] {
   if (!canonical.mcp || Object.keys(canonical.mcp.mcpServers).length === 0) return [];
-  return [
-    {
-      path: KILO_CODE_MCP_FILE,
-      content: JSON.stringify({ mcpServers: canonical.mcp.mcpServers }, null, 2),
-    },
-  ];
+  const mcp = Object.fromEntries(
+    Object.entries(canonical.mcp.mcpServers).map(([name, server]) => [
+      name, toKiloMcpServer(server),
+    ]),
+  );
+  return [{ path: KILO_CONFIG_FILE, content: JSON.stringify({ mcp }, null, 2) }];
 }
 
 export const generateIgnore = ignoreOutput(KILO_CODE_IGNORE);

@@ -5,7 +5,6 @@ export const kiloCodeContract: TargetPathContract = {
     '.kilo/agents/code-reviewer.md',
     '.kilo/agents/researcher.md',
     '.kilo/commands/review.md',
-    '.kilo/mcp.json',
     '.kilo/rules/typescript.md',
     '.kilo/skills/api-generator/SKILL.md',
     '.kilo/skills/api-generator/references/route-checklist.md',

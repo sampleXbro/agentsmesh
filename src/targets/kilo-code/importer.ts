@@ -154,11 +154,9 @@ export async function importFromKiloCode(
     );
   }
 
-  // Global-only: MCP servers are a key inside the shared kilo.jsonc rather
-  // than a standalone mcpJson file (see global-mcp-import.ts).
-  if (scope === 'global') {
-    await importGlobalKiloMcp(projectRoot, results);
-  }
+  // Modern project and global MCP servers live under `mcp` inside kilo.jsonc.
+  // Legacy project MCP JSON remains supported by the descriptor importer.
+  await importGlobalKiloMcp(projectRoot, results, scope);
 
   return results;
 }
