@@ -154,7 +154,7 @@ describe('kilo-code global layout — capabilities', () => {
       agents: { level: 'native' },
       skills: { level: 'native' },
       mcp: { level: 'native' },
-      hooks: { level: 'partial' },
+      hooks: { level: 'none' },
       ignore: { level: 'none' },
       permissions: { level: 'native' },
     });

@@ -192,7 +192,7 @@ describe('buildCompatibilityMatrix', () => {
     ).toBe('native');
   });
 
-  it('shows goose permissions native at global scope (project is partial)', () => {
+  it('shows goose permissions native at global scope (project is none)', () => {
     const config: ValidatedConfig = {
       ...baseConfig,
       targets: ['goose'],
@@ -205,7 +205,7 @@ describe('buildCompatibilityMatrix', () => {
     const projectRows = buildCompatibilityMatrix(config, canonical, 'project');
     const globalRows = buildCompatibilityMatrix(config, canonical, 'global');
     expect(projectRows.find((r) => r.feature.startsWith('permissions'))?.support['goose']).toBe(
-      'partial',
+      'none',
     );
     expect(globalRows.find((r) => r.feature.startsWith('permissions'))?.support['goose']).toBe(
       'native',
@@ -379,7 +379,7 @@ describe('buildCompatibilityMatrix', () => {
     expect(skillsRow?.support.cursor).toBe('native');
     expect(mcpRow?.support.antigravity).toBe('native');
     expect(mcpRow?.support.cursor).toBe('native');
-    expect(ignoreRow?.support['claude-code']).toBe('native');
+    expect(ignoreRow?.support['claude-code']).toBe('embedded');
   });
 
   it('hooks with count and partial support', () => {

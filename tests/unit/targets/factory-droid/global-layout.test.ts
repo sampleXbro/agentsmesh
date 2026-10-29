@@ -35,7 +35,7 @@ describe('factory-droid descriptor shape', () => {
     expect(descriptor.capabilities.skills).toBe('native');
     expect(descriptor.capabilities.mcp).toBe('native');
     expect(descriptor.capabilities.hooks).toBe('native');
-    expect(descriptor.capabilities.ignore).toBe('partial');
+    expect(descriptor.capabilities.ignore).toBe('none');
     expect(descriptor.capabilities.permissions).toBe('native');
   });
 

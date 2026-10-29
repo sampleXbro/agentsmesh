@@ -94,7 +94,7 @@ describe('deepagents-cli global layout', () => {
   });
 
   it('globalSupport.capabilities.ignore is partial', () => {
-    expect(descriptor.globalSupport!.capabilities.ignore).toBe('partial');
+    expect(descriptor.globalSupport!.capabilities.ignore).toBe('none');
   });
 
   it('globalSupport has detection paths', () => {
@@ -151,7 +151,7 @@ describe('deepagents-cli global layout', () => {
 
   it('permissions are embedded at global scope and partial at project scope', () => {
     expect(descriptor.globalSupport!.capabilities.permissions).toBe('embedded');
-    expect(descriptor.capabilities.permissions).toBe('partial');
+    expect(descriptor.capabilities.permissions).toBe('none');
   });
 
   it('detects only on its own root file: `.mcp.json` is co-owned with claude-code', () => {

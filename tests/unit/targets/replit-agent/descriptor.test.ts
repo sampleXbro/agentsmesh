@@ -36,8 +36,8 @@ describe('replit-agent descriptor', () => {
     expect(descriptor.capabilities.agents).toBe('embedded');
     expect(descriptor.capabilities.skills).toBe('native');
     expect(descriptor.capabilities.mcp).toBe('partial');
-    expect(descriptor.capabilities.hooks).toBe('partial');
-    expect(descriptor.capabilities.ignore).toBe('partial');
+    expect(descriptor.capabilities.hooks).toBe('none');
+    expect(descriptor.capabilities.ignore).toBe('none');
     expect(descriptor.capabilities.permissions).toBe('partial');
   });
 

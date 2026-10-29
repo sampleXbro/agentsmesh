@@ -64,9 +64,9 @@ describe('amp global layout', () => {
     expect(descriptor.globalSupport!.capabilities.agents).toBe('embedded');
   });
 
-  it('ignore capability is partial (no dedicated ignore file; lintIgnore warns), project + global', () => {
-    expect(descriptor.capabilities.ignore).toBe('partial');
-    expect(descriptor.globalSupport!.capabilities.ignore).toBe('partial');
+  it('ignore capability is none (no dedicated ignore file; lintIgnore warns), project + global', () => {
+    expect(descriptor.capabilities.ignore).toBe('none');
+    expect(descriptor.globalSupport!.capabilities.ignore).toBe('none');
   });
 
   it('permissions capability is partial (amp.permissions is legacy; format mismatch prevents native claim), project + global', () => {

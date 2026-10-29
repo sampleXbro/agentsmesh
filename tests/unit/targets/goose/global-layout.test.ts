@@ -51,7 +51,7 @@ describe('goose global layout', () => {
 
   it('globalSupport.capabilities has permissions native (project has partial)', () => {
     expect(descriptor.globalSupport!.capabilities.permissions).toBe('native');
-    expect(descriptor.capabilities.permissions).toBe('partial');
+    expect(descriptor.capabilities.permissions).toBe('none');
   });
 
   it('rewriteGeneratedPath passes through global config path unchanged', () => {

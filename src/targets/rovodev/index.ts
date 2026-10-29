@@ -81,7 +81,7 @@ const globalCapabilities: TargetCapabilities = {
   skills: 'native',
   mcp: 'native',
   hooks: 'partial',
-  ignore: 'partial',
+  ignore: 'none',
   permissions: 'native',
 };
 

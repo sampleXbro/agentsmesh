@@ -17,7 +17,6 @@ export const gooseContract: TargetPathContract = {
     '.agentsmesh/agents/researcher.md',
     '.agentsmesh/commands/review.md',
     '.agentsmesh/hooks.yaml',
-    '.agentsmesh/ignore',
     '.agentsmesh/mcp.json',
     '.agentsmesh/rules/_root.md',
     '.agentsmesh/skills/api-generator/SKILL.md',

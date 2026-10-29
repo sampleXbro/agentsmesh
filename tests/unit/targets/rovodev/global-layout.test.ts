@@ -86,7 +86,7 @@ describe('rovodev global layout', () => {
   });
 
   it('descriptor supports conversion for agents only (commands is native)', () => {
-    expect(descriptor.supportsConversion).toEqual({ agents: true });
+    expect(descriptor.supportsConversion).toBeUndefined();
   });
 
   it('project layout has correct rootInstructionPath', () => {

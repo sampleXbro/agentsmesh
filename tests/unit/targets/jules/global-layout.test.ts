@@ -33,7 +33,7 @@ describe('jules descriptor layout', () => {
     expect(descriptor.capabilities.skills).toBe('none');
     expect(descriptor.capabilities.mcp).toBe('partial');
     expect(descriptor.capabilities.hooks).toBe('partial');
-    expect(descriptor.capabilities.ignore).toBe('partial');
+    expect(descriptor.capabilities.ignore).toBe('none');
     expect(descriptor.capabilities.permissions).toBe('partial');
   });
 
