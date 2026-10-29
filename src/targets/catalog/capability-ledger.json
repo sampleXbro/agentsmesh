@@ -5292,9 +5292,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://docs.factory.com/harness/agents-md"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -5310,9 +5312,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://docs.factory.com/harness/agents-md"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -5328,9 +5332,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://docs.factory.com/harness/subagents"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -5346,9 +5352,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://docs.factory.com/harness/subagents"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -5364,9 +5372,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://docs.factory.com/harness/custom-slash-commands"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -5385,9 +5395,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://docs.factory.com/harness/custom-slash-commands"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -5579,9 +5591,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://docs.factory.com/harness/agents-md"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -5597,9 +5611,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://docs.factory.com/harness/agents-md"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -5615,9 +5631,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://docs.factory.com/harness/skills"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -5633,9 +5651,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://docs.factory.com/harness/skills"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -7163,9 +7183,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://kilo.ai/docs/customize/custom-rules"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -7205,9 +7227,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://kilo.ai/docs/customize/custom-subagents"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -7248,9 +7272,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://kilo.ai/docs/customize/workflows"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -7463,9 +7489,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://kilo.ai/docs/customize/agents-md"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -7505,9 +7533,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://kilo.ai/docs/customize/skills"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -9565,9 +9595,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://qwenlm.github.io/qwen-code-docs/en/users/features/sub-agents/"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -9583,9 +9615,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://qwenlm.github.io/qwen-code-docs/en/users/features/sub-agents/"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -9669,9 +9703,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://qwenlm.github.io/qwen-code-docs/en/users/features/hooks/"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -9751,9 +9787,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://qwenlm.github.io/qwen-code-docs/en/users/configuration/settings/"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -9793,9 +9831,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://qwenlm.github.io/qwen-code-docs/en/users/configuration/settings/"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -9811,9 +9851,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://qwenlm.github.io/qwen-code-docs/en/users/features/memory/"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -9829,9 +9871,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://qwenlm.github.io/qwen-code-docs/en/users/features/memory/"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -9847,9 +9891,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://qwenlm.github.io/qwen-code-docs/en/users/features/skills/"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -9865,9 +9911,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://qwenlm.github.io/qwen-code-docs/en/users/features/skills/"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {

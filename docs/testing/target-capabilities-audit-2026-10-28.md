@@ -14,7 +14,7 @@ all target integrations have been freshly tested against upstream releases.
 - Before corrections: one upgrade candidate, 172 unverified provenance
   entries, 24 over-declaration warnings, zero missing ledger entries.
 - After corrections in this branch: **zero ledger upgrade candidates**,
-  **95 still-unverified entries**, **24 over-declaration warnings**,
+  **71 still-unverified entries**, **24 over-declaration warnings**,
   and **zero missing entries**.
 - The 24 warnings have existing `verdict: "rejected"` ledger entries;
   do not silently lower advertised support without independently checking
@@ -132,7 +132,7 @@ runs on branch pushes and provides the authoritative repository tests.
 
 Before closing the wider capability-refresh effort:
 
-1. Independently research the remaining 95 unverified ledger cells using
+1. Independently research the remaining 71 unverified ledger cells using
    each target's own primary documentation; reject fabricated or wrong-scope
    claims instead of filling dates blindly.
 2. Reconcile the 24 over-declared/rejected cells, preserving the existing
@@ -193,3 +193,28 @@ scopes. The importer continues reading legacy `.kilo/mcp.json`/
 server options, with regression coverage.
 
 Primary: https://kilo.ai/docs/automate/mcp/using-in-kilo-code.
+
+### Factory Droid, Qwen Code, Kilo Code verification (2026-10-29)
+
+Verified 24 source paths/levels using vendors' explicit project/user storage
+specifications: Factory Droid's `AGENTS.md`, `.factory/droids/`,
+`.factory/commands/` and `.factory/skills/` (10 cells);
+Qwen Code's `QWEN.md`, `.qwen/agents/`, `.qwen/skills/`, and
+project `.qwen/settings.json` for hooks/MCP/permissions (9 cells);
+Kilo Code's `AGENTS.md`, `.kilo/rules/`, `.kilo/agents/`,
+`.kilo/commands/` and `.kilo/skills/` (5 cells).
+
+Factory: https://docs.factory.com/harness/agents-md,
+https://docs.factory.com/harness/subagents,
+https://docs.factory.com/harness/custom-slash-commands,
+https://docs.factory.com/harness/skills.
+Qwen: https://qwenlm.github.io/qwen-code-docs/en/users/features/memory/,
+https://qwenlm.github.io/qwen-code-docs/en/users/features/sub-agents/,
+https://qwenlm.github.io/qwen-code-docs/en/users/features/skills/,
+https://qwenlm.github.io/qwen-code-docs/en/users/features/hooks/,
+https://qwenlm.github.io/qwen-code-docs/en/users/configuration/settings/.
+Kilo: https://kilo.ai/docs/customize/custom-rules,
+https://kilo.ai/docs/customize/custom-subagents,
+https://kilo.ai/docs/customize/workflows,
+https://kilo.ai/docs/customize/agents-md,
+https://kilo.ai/docs/customize/skills.
