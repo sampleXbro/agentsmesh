@@ -53,7 +53,7 @@ describe('antigravity generateRules — branches', () => {
     );
     expect(result).toHaveLength(1);
     expect(result[0]!.path).toBe(ANTIGRAVITY_RULES_ROOT);
-    expect(result[0]!.content).toBe('');
+    expect(result[0]!.content).toContain('trigger: always_on');
   });
 
   it('keeps non-root rule when targets includes "antigravity"', () => {
@@ -107,7 +107,7 @@ describe('antigravity generateRules — branches', () => {
     );
     const empty = result.find((r) => r.path === `${ANTIGRAVITY_RULES_DIR}/empty.md`);
     expect(empty).toBeDefined();
-    expect(empty!.content).toBe('');
+    expect(empty!.content).toContain('trigger: always_on');
   });
 });
 

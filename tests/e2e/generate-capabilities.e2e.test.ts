@@ -758,7 +758,7 @@ features: [rules, commands, skills, mcp, ignore]
     fileNotContains(join(dir, '.roo', 'rules', '00-root.md'), 'root: true');
     fileNotContains(join(dir, '.roo', 'rules', '00-root.md'), '\n---\n');
 
-    // Non-root rules are plain markdown without canonical frontmatter.
+    // Non-root rules use Antigravity trigger and globs frontmatter.
     fileContains(join(dir, '.roo', 'rules', 'typescript.md'), '# TypeScript');
     fileNotContains(join(dir, '.roo', 'rules', 'typescript.md'), 'globs:');
     fileNotContains(join(dir, '.roo', 'rules', 'typescript.md'), 'targets:');
@@ -835,7 +835,7 @@ features: [rules, commands, agents, skills, mcp, ignore]
 
     // Hooks and permissions are NOT projected (capabilities: 'none').
     fileNotExists(join(dir, '.kilo', 'hooks'));
-    fileNotExists(join(dir, 'kilo.jsonc'));
+    fileContains(join(dir, 'kilo.jsonc'), '"mcp"');
   });
 
   it('generates Antigravity rules, workflows, and skills with doc-aligned formats', async () => {
@@ -846,14 +846,15 @@ features: [rules, commands, skills]
     const result = await runCli('generate --targets antigravity', dir);
     expect(result.exitCode, result.stderr).toBe(0);
 
-    // Root rule is emitted as plain markdown without frontmatter.
+    // Antigravity requires a rule trigger on every Markdown rule.
     fileContains(join(dir, '.agents', 'rules', 'general.md'), '# Standards');
     fileNotContains(join(dir, '.agents', 'rules', 'general.md'), 'root: true');
-    fileNotContains(join(dir, '.agents', 'rules', 'general.md'), '---');
+    fileContains(join(dir, '.agents', 'rules', 'general.md'), 'trigger: always_on');
 
     // Non-root rules are plain markdown without canonical frontmatter.
     fileContains(join(dir, '.agents', 'rules', 'typescript.md'), '# TypeScript');
-    fileNotContains(join(dir, '.agents', 'rules', 'typescript.md'), 'globs:');
+    fileContains(join(dir, '.agents', 'rules', 'typescript.md'), 'trigger: glob');
+    fileContains(join(dir, '.agents', 'rules', 'typescript.md'), 'globs:');
 
     // Commands map to .agents/workflows/ as plain markdown.
     fileContains(join(dir, '.agents', 'workflows', 'review.md'), 'Review current changes');

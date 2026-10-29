@@ -77,7 +77,7 @@ describe('target layout metadata', () => {
             '.claude/output-styles',
             '.agents/skills',
           ],
-          files: ['.claude/CLAUDE.md', '.claude/hooks.json', '.claudeignore'],
+          files: ['.claude/CLAUDE.md', '.claude/hooks.json'],
           coOwnedFiles: ['.claude.json', '.claude/settings.json'],
         },
         paths: expect.objectContaining({
@@ -152,7 +152,6 @@ describe('target layout metadata', () => {
           files: [
             '.cursor/rules/general.mdc',
             '.cursor/AGENTS.md',
-            '.cursorignore',
             '.agentsmesh-exports/cursor/user-rules.md',
           ],
           coOwnedFiles: ['.cursor/mcp.json', '.cursor/hooks.json', '.cursor/cli-config.json'],

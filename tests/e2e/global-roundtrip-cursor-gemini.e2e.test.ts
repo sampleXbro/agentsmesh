@@ -125,9 +125,8 @@ describe('global mode round-trip: Cursor', () => {
     const mcp = JSON.parse(readText(join(homeDir, '.cursor', 'mcp.json')));
     expect(mcp.mcpServers.test).toBeDefined();
 
-    // 9. Ignore (docs: ~/.cursorignore)
-    fileExists(join(homeDir, '.cursorignore'));
-    fileContains(join(homeDir, '.cursorignore'), 'tmp/');
+    // Global ignore is an IDE-only setting, not a ~/.cursorignore file.
+    fileNotExists(join(homeDir, '.cursorignore'));
     dirFilesExactly(join(homeDir, '.cursor'), [
       'AGENTS.md',
       'agents/tester.md',
@@ -160,7 +159,6 @@ describe('global mode round-trip: Cursor', () => {
     fileExists(join(canonicalDir, 'skills', 'cursor-skill', 'references', 'playbook.md'));
     fileExists(join(canonicalDir, 'mcp.json'));
     fileExists(join(canonicalDir, 'hooks.yaml'));
-    fileExists(join(canonicalDir, 'ignore'));
-    fileContains(join(canonicalDir, 'ignore'), 'tmp/');
+    fileNotExists(join(canonicalDir, 'ignore'));
   });
 });

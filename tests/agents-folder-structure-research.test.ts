@@ -1175,7 +1175,7 @@ describe('agents-folder-structure-research: Antigravity (docs §8)', () => {
   };
   // Gaps: no agents folder, no MCP file, no hooks, no ignore (only .gitignore per docs)
 
-  it('generates .agents/rules/general.md from root rule (plain body, no frontmatter)', async () => {
+  it('generates .agents/rules/general.md from root rule (required trigger frontmatter)', async () => {
     const results = await generate({
       config: config({ targets: ['antigravity'], features: ['rules'] }),
       canonical: canonicalWithRoot('# Antigravity Root'),
@@ -1185,7 +1185,7 @@ describe('agents-folder-structure-research: Antigravity (docs §8)', () => {
     expect(root).toBeDefined();
     expect(root!.content).toContain('Antigravity Root');
     expect(root!.content).not.toContain('root: true');
-    expect(root!.content).not.toContain('---');
+    expect(root!.content).toContain('trigger: always_on');
   });
 
   it('generates .agents/rules/*.md for non-root rules', async () => {
