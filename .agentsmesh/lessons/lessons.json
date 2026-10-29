@@ -996,6 +996,22 @@
         "t-glob-9a12f490"
       ]
     },
+    "dist-backed-tests-before-a-full-vitest-run": {
+      "createdAt": "2026-10-29",
+      "evidence": [
+        "commit:93042811"
+      ],
+      "rule": "Before a full vitest run in a fresh worktree, build dist first (node_modules/.bin/tsup) when dist/cli.js is missing: no global setup builds it, and only generate-process-lock's beforeAll builds it, racing ~100 dist-backed files into 'Cannot find module dist/cli.js' (789 failures that look like a regression but are not).",
+      "status": "active",
+      "topics": [
+        "dist-backed-tests"
+      ],
+      "triggers": [
+        "t-glob-64298c11",
+        "t-cmd-024ed4d1",
+        "t-kw-5ad21932"
+      ]
+    },
     "dist-backed-tests-rule-1": {
       "createdAt": "2026-06-05",
       "evidence": [
@@ -9560,6 +9576,22 @@
         "t-cmd-d04a125f"
       ]
     },
+    "testing-to-guard-a-work-bound": {
+      "createdAt": "2026-10-29",
+      "evidence": [
+        "commit:93042811"
+      ],
+      "rule": "To guard a work bound (budget, cap) in a test, assert the work units the code charges, not wall-clock ms: wrap the counting function with vi.mock + importOriginal and sum what it charges its WorkBudget. The 500 ms query-glob budget test flaked at 510 ms in a busy full coverage run AND still passed with the shared budget removed (unbounded ~250 ms on a free machine). Prove the guard by temporarily breaking the bound.",
+      "status": "active",
+      "topics": [
+        "testing"
+      ],
+      "triggers": [
+        "t-glob-bbdcdfb7",
+        "t-glob-20ca57e2",
+        "t-kw-f5b1f549"
+      ]
+    },
     "testing-to-prove-a-pure-refactor": {
       "createdAt": "2026-09-17",
       "evidence": [
@@ -11304,6 +11336,10 @@
     }
   },
   "triggers": {
+    "t-cmd-024ed4d1": {
+      "kind": "command_pattern",
+      "pattern": "\\bvitest run --coverage\\b"
+    },
     "t-cmd-04ac8468": {
       "kind": "command_pattern",
       "pattern": "worktree"
@@ -12008,6 +12044,10 @@
       "kind": "file_glob",
       "pattern": "src/lessons/seen-store.ts"
     },
+    "t-glob-20ca57e2": {
+      "kind": "file_glob",
+      "pattern": "tests/helpers/timing.ts"
+    },
     "t-glob-21a3924d": {
       "kind": "file_glob",
       "pattern": "src/targets/amazon-q/**"
@@ -12423,6 +12463,10 @@
     "t-glob-6349b050": {
       "kind": "file_glob",
       "pattern": ".github/workflows/publish.yml"
+    },
+    "t-glob-64298c11": {
+      "kind": "file_glob",
+      "pattern": "tests/integration/generate-process-lock.integration.test.ts"
     },
     "t-glob-648edf5a": {
       "kind": "file_glob",
@@ -13051,6 +13095,10 @@
     "t-glob-baf0a939": {
       "kind": "file_glob",
       "pattern": ".gitignore"
+    },
+    "t-glob-bbdcdfb7": {
+      "kind": "file_glob",
+      "pattern": "tests/unit/lessons/*safety*.test.ts"
     },
     "t-glob-bdb31b92": {
       "kind": "file_glob",
@@ -13816,6 +13864,10 @@
       "kind": "keyword",
       "pattern": "regex round-trip"
     },
+    "t-kw-5ad21932": {
+      "kind": "keyword",
+      "pattern": "fresh worktree"
+    },
     "t-kw-5bc10508": {
       "kind": "keyword",
       "pattern": "config.toml"
@@ -14327,6 +14379,10 @@
     "t-kw-f3654aad": {
       "kind": "keyword",
       "pattern": "public export error class instanceof"
+    },
+    "t-kw-f5b1f549": {
+      "kind": "keyword",
+      "pattern": "wall-clock"
     },
     "t-kw-f7df0071": {
       "kind": "keyword",
