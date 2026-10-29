@@ -2858,6 +2858,20 @@
         "t-cmd-3b496323"
       ]
     },
+    "git-commit-hygiene-check-mergeability-with-a-real": {
+      "createdAt": "2026-10-29",
+      "evidence": [
+        "commit:10c819bd"
+      ],
+      "rule": "Check mergeability with a real git merge --no-commit in a throwaway worktree (git worktree add --detach), not git merge-tree --write-tree: this machine has git 2.33, which lacks --write-tree, so the command exits non-zero and a script that reads any non-zero as 'conflict' reports a false merge conflict.",
+      "status": "active",
+      "topics": [
+        "git-commit-hygiene"
+      ],
+      "triggers": [
+        "t-cmd-b6d46457"
+      ]
+    },
     "git-commit-hygiene-in-this-repo-docs-is": {
       "createdAt": "2026-06-23",
       "evidence": [],
@@ -7342,6 +7356,20 @@
         "t-kw-a00afdda"
       ]
     },
+    "release-changesets-before-editing-a-changeset-file": {
+      "createdAt": "2026-10-29",
+      "evidence": [
+        "commit:ace98fc1"
+      ],
+      "rule": "Before editing a .changeset file, check it was not already consumed by a release (git cat-file -e master:.changeset/<file>): develop keeps released changesets until master is merged back, so an edit there never ships and turns the back-merge into a modify/delete conflict. Put new notes in a new changeset.",
+      "status": "active",
+      "topics": [
+        "release-changesets"
+      ],
+      "triggers": [
+        "t-glob-b1cdb41a"
+      ]
+    },
     "release-changesets-during-release-prep-run-pnpm": {
       "createdAt": "2026-08-30",
       "evidence": [
@@ -11725,6 +11753,10 @@
     "t-cmd-b66a9431": {
       "kind": "command_pattern",
       "pattern": "install github:"
+    },
+    "t-cmd-b6d46457": {
+      "kind": "command_pattern",
+      "pattern": "git merge-tree"
     },
     "t-cmd-b7a21d14": {
       "kind": "command_pattern",
