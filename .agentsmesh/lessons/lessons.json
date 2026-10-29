@@ -7831,6 +7831,21 @@
         "t-cmd-69dc7d4e"
       ]
     },
+    "shell-quoting-sweep-src-or-tests-for": {
+      "createdAt": "2026-10-29",
+      "evidence": [
+        "commit:9bdc4c33"
+      ],
+      "rule": "Sweep src/ or tests/ for a pattern with grep -a (or rg --text), never plain grep -r: four tracked files hold a raw NUL byte (tests/unit/lessons/regex-linear.test.ts, tests/unit/utils/filesystem/fs-write-atomic.test.ts, src/targets/kimi-code/config-toml.ts, src/targets/openhands/merge.ts), so macOS grep treats them as binary and drops their matches from -rn and -rl output. A sweep for wall-clock asserts missed the 6 in regex-linear.test.ts this way; grep -P '\\x00' also fails to find the NUL, so check with python reading bytes.",
+      "status": "active",
+      "topics": [
+        "shell-quoting"
+      ],
+      "triggers": [
+        "t-cmd-1b48051d",
+        "t-kw-f84f503f"
+      ]
+    },
     "shell-quoting-when-a-script-renames-a": {
       "createdAt": "2026-09-24",
       "evidence": [
@@ -9588,7 +9603,6 @@
       ],
       "triggers": [
         "t-glob-bbdcdfb7",
-        "t-glob-20ca57e2",
         "t-kw-f5b1f549"
       ]
     },
@@ -9620,6 +9634,23 @@
         "t-glob-8ade9a3e",
         "t-glob-a948ade3",
         "t-kw-3bd487e2"
+      ]
+    },
+    "testing-when-a-test-guards-a": {
+      "createdAt": "2026-10-29",
+      "evidence": [
+        "commit:9bdc4c33",
+        "lesson:testing-to-guard-a-work-bound"
+      ],
+      "rule": "When a test guards a work cap, assert the charged work both REACHES the cap (>= cap) and stays under it, and measure the input's real work first. A cheap prefilter can cut a hostile input to zero work, so a ms check or an upper-bound-only count stays green with the cap removed: the glob-safety star/globstar/brace tests charged 0 DP cells (literal-tail prefilter) until each path was made to end like its glob.",
+      "status": "active",
+      "topics": [
+        "testing"
+      ],
+      "triggers": [
+        "t-glob-bbdcdfb7",
+        "t-glob-0154b692",
+        "t-glob-918e29c2"
       ]
     },
     "testing-when-a-test-helper-rethrows": {
@@ -11372,6 +11403,10 @@
       "kind": "command_pattern",
       "pattern": "pnpm flake:watch"
     },
+    "t-cmd-1b48051d": {
+      "kind": "command_pattern",
+      "pattern": "\\bgrep -[a-zA-Z]*r"
+    },
     "t-cmd-1f2e50cd": {
       "kind": "command_pattern",
       "pattern": "lessons deprecate"
@@ -11828,6 +11863,10 @@
       "kind": "file_glob",
       "pattern": "src/lessons/command-class.ts"
     },
+    "t-glob-0154b692": {
+      "kind": "file_glob",
+      "pattern": "tests/unit/lessons/regex-linear.test.ts"
+    },
     "t-glob-01a25e93": {
       "kind": "file_glob",
       "pattern": "src/targets/zed/**"
@@ -12043,10 +12082,6 @@
     "t-glob-20c188ac": {
       "kind": "file_glob",
       "pattern": "src/lessons/seen-store.ts"
-    },
-    "t-glob-20ca57e2": {
-      "kind": "file_glob",
-      "pattern": "tests/helpers/timing.ts"
     },
     "t-glob-21a3924d": {
       "kind": "file_glob",
@@ -12815,6 +12850,10 @@
     "t-glob-90ecaacd": {
       "kind": "file_glob",
       "pattern": "src/cli/commands/import.ts"
+    },
+    "t-glob-918e29c2": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/glob-safety.ts"
     },
     "t-glob-91e8e620": {
       "kind": "file_glob",
@@ -14391,6 +14430,10 @@
     "t-kw-f821d655": {
       "kind": "keyword",
       "pattern": "block comment"
+    },
+    "t-kw-f84f503f": {
+      "kind": "keyword",
+      "pattern": "binary file"
     },
     "t-kw-fb488002": {
       "kind": "keyword",
