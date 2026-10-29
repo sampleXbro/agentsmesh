@@ -343,3 +343,10 @@ Global hooks are exposed through the `/hooks` interactive menu, rather than
 an `eventHooks` field in the published config.yml schema. The settings emitter
 now leaves them alone and the global descriptor says `partial`; a warning
 explains the UI-only limitation. Ignore support is `none` at both scopes.
+
+### Cursor global ignore (2026-10-29)
+
+Cursor's global ignore controls are IDE settings, not a home-directory
+`.cursorignore` file. Prevented generation/deletion/import of global
+`.cursorignore`, while keeping project `.cursorignore` native. Marked global
+capability `partial`, pending IDE-driven changes only.

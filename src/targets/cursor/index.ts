@@ -94,7 +94,7 @@ const globalLayout: TargetLayout = {
   skillDir: CURSOR_SKILLS_DIR,
   managedOutputs: {
     dirs: [CURSOR_RULES_DIR, CURSOR_COMMANDS_DIR, CURSOR_AGENTS_DIR, CURSOR_SKILLS_DIR],
-    files: [CURSOR_GENERAL_RULE, CURSOR_DOT_CURSOR_AGENTS, CURSOR_IGNORE, CURSOR_GLOBAL_USER_RULES],
+    files: [CURSOR_GENERAL_RULE, CURSOR_DOT_CURSOR_AGENTS, CURSOR_GLOBAL_USER_RULES],
     coOwnedFiles: [CURSOR_MCP, CURSOR_HOOKS, CURSOR_GLOBAL_CLI_CONFIG],
   },
   rewriteGeneratedPath(path) {
@@ -106,7 +106,8 @@ const globalLayout: TargetLayout = {
     if (path.startsWith(`${CURSOR_SKILLS_DIR}/`)) return path;
     if (path === CURSOR_MCP) return path;
     if (path === CURSOR_GLOBAL_CLI_CONFIG) return path;
-    if (path === CURSOR_HOOKS || path === CURSOR_IGNORE) return path;
+    if (path === CURSOR_IGNORE) return null;
+    if (path === CURSOR_HOOKS) return path;
     if (path === CURSOR_SETTINGS) return null;
     return path;
   },
@@ -134,7 +135,7 @@ const globalCapabilities: TargetCapabilities = {
   skills: 'native',
   mcp: 'native',
   hooks: 'native',
-  ignore: 'native',
+  ignore: 'partial',
   permissions: 'native',
 };
 

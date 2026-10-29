@@ -71,8 +71,8 @@ describe('cursor global layout — rewriteGeneratedPath', () => {
     expect(rewrite('.cursor/hooks.json')).toBe('.cursor/hooks.json');
   });
 
-  it('keeps .cursorignore unchanged', () => {
-    expect(rewrite('.cursorignore')).toBe('.cursorignore');
+  it('does not emit project .cursorignore into global scope', () => {
+    expect(rewrite('.cursorignore')).toBeNull();
   });
 
   it('keeps .cursor/cli-config.json unchanged (global-scope permissions file)', () => {

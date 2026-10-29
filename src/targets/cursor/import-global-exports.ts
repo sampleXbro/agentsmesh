@@ -10,7 +10,7 @@ import type { ImportResult } from '../../core/types.js';
 import { createImportReferenceNormalizer } from '../../core/reference/import-rewriter.js';
 import { CURSOR_SKILLS_DIR } from './constants.js';
 import { importSkills } from './skills-adapter.js';
-import { importSettings, importIgnore } from './settings-helpers.js';
+import { importSettings } from './settings-helpers.js';
 import {
   CURSOR_TARGET,
   hasGlobalCursorArtifacts,
@@ -34,6 +34,5 @@ export async function importFromCursorGlobalExports(projectRoot: string): Promis
   await importGlobalAgents(projectRoot, results, normalize);
   await importGlobalCommands(projectRoot, results, normalize);
   await importSettings(projectRoot, results, 'global');
-  await importIgnore(projectRoot, results);
   return results;
 }

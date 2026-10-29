@@ -4760,7 +4760,7 @@
       "source": [
         "https://cursor.com/docs/reference/ignore-file"
       ],
-      "verifiedAt": "2026-08-30",
+      "verifiedAt": "2026-10-29",
       "verdict": "rejected",
       "rejectionReason": "GUI-ONLY: no home-directory ignore file is documented; global ignore patterns are a Cursor settings-UI list."
     },
