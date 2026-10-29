@@ -336,3 +336,10 @@ https://github.com/block/goose/pull/10359). Generation no longer writes it or
 claims ignore support; existing import remains solely to migrate legacy files
 into canonical source. Both project and global levels are `none`, with a
 specific lint warning. Legacy rewrite paths remain for import compatibility.
+
+### Rovo GUI-only hooks and unsupported ignore (2026-10-29)
+
+Global hooks are exposed through the `/hooks` interactive menu, rather than
+an `eventHooks` field in the published config.yml schema. The settings emitter
+now leaves them alone and the global descriptor says `partial`; a warning
+explains the UI-only limitation. Ignore support is `none` at both scopes.

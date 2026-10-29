@@ -32,7 +32,7 @@ import { project, globalLayout } from './layout.js';
 import { importFromRovodev } from './importer.js';
 import { mergeRovodevPromptsYaml } from './prompts-merge.js';
 import { lintRules } from './linter.js';
-import { lintIgnore, lintMcp } from './lint.js';
+import { lintIgnore, lintMcp, lintHooks } from './lint.js';
 import { buildRovodevConfig, mergeRovodevConfig } from './settings.js';
 import { mergeRovodevMcpJson } from './mcp-merge.js';
 import { buildRovodevImportPaths } from '../../core/reference/import-map-builders.js';
@@ -69,7 +69,7 @@ const capabilities: TargetCapabilities = {
   skills: 'native',
   mcp: 'partial',
   hooks: 'none',
-  ignore: 'partial',
+  ignore: 'none',
   permissions: 'none',
 };
 
@@ -80,7 +80,7 @@ const globalCapabilities: TargetCapabilities = {
   agents: 'native',
   skills: 'native',
   mcp: 'native',
-  hooks: 'native',
+  hooks: 'partial',
   ignore: 'partial',
   permissions: 'native',
 };
@@ -101,6 +101,7 @@ export const descriptor = {
   lint: {
     ignore: lintIgnore,
     mcp: lintMcp,
+    hooks: lintHooks,
   },
   project,
   globalSupport: {

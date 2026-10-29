@@ -27,15 +27,6 @@ export function buildRovodevConfig(
 ): SettingsOutput {
   const config: Record<string, unknown> = {};
 
-  if (enabledFeatures.has('hooks') && canonical.hooks) {
-    const hasEntries = Object.values(canonical.hooks).some(
-      (entries) => Array.isArray(entries) && entries.length > 0,
-    );
-    if (hasEntries) {
-      config.eventHooks = canonical.hooks;
-    }
-  }
-
   if (enabledFeatures.has('permissions') && canonical.permissions) {
     const toolPermissions = buildToolPermissions(canonical.permissions);
     if (toolPermissions) config.toolPermissions = toolPermissions;

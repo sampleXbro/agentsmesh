@@ -31,3 +31,6 @@ export function lintMcp(canonical: CanonicalFiles, options?: unknown): LintDiagn
     ),
   ];
 }
+
+export const lintHooks = unsupportedFeature('hooks', 'rovodev',
+  'Rovo Dev hooks are configured through the interactive /hooks UI, not a supported config.yml field.');

@@ -66,15 +66,15 @@ describe('rovodev global layout', () => {
   });
 
   it('globalSupport.capabilities has embedded agents', () => {
-    expect(descriptor.globalSupport!.capabilities.agents).toBe('embedded');
+    expect(descriptor.globalSupport!.capabilities.agents).toBe('native');
   });
 
   it('globalSupport.capabilities has partial ignore', () => {
-    expect(descriptor.globalSupport!.capabilities.ignore).toBe('partial');
+    expect(descriptor.globalSupport!.capabilities.ignore).toBe('none');
   });
 
   it('globalSupport.capabilities supports hooks and permissions natively', () => {
-    expect(descriptor.globalSupport!.capabilities.hooks).toBe('native');
+    expect(descriptor.globalSupport!.capabilities.hooks).toBe('partial');
     expect(descriptor.globalSupport!.capabilities.permissions).toBe('native');
   });
 
@@ -320,16 +320,12 @@ describe('rovodev emitScopedSettings', () => {
     expect(result).toHaveLength(0);
   });
 
-  it('emits config.yml with eventHooks when hooks present', () => {
+  it('does not emit unsupported config.yml eventHooks', () => {
     const canonical = makeCanonical({
       hooks: { preGenerate: [{ command: 'echo pre' }] },
     });
     const result = descriptor.emitScopedSettings!(canonical, 'global', new Set(['hooks']));
-    expect(result).toHaveLength(1);
-    expect(result[0].path).toBe(ROVODEV_GLOBAL_CONFIG_FILE);
-    const parsed = yamlParse(result[0].content) as Record<string, unknown>;
-    expect(parsed).toHaveProperty('eventHooks');
-    expect(parsed).not.toHaveProperty('toolPermissions');
+    expect(result).toEqual([]);
   });
 
   it('emits config.yml with toolPermissions when permissions present', () => {
@@ -359,7 +355,7 @@ describe('rovodev emitScopedSettings', () => {
     expect(result).toHaveLength(1);
     expect(result[0].path).toBe(ROVODEV_GLOBAL_CONFIG_FILE);
     const parsed = yamlParse(result[0].content) as Record<string, unknown>;
-    expect(parsed).toHaveProperty('eventHooks');
+    expect(parsed).not.toHaveProperty('eventHooks');
     expect(parsed).toHaveProperty('toolPermissions');
   });
 

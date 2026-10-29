@@ -31,14 +31,10 @@ describe('buildRovodevConfig (rovodev)', () => {
     expect(buildRovodevConfig(canonical, new Set())).toEqual([]);
   });
 
-  it('emits eventHooks when hooks enabled and entries present', () => {
+  it('does not emit GUI-managed hooks from config.yml', () => {
     const canonical = makeCanonical({ hooks: HOOKS });
     const results = buildRovodevConfig(canonical, new Set(['hooks']));
-    expect(results).toHaveLength(1);
-    expect(results[0].path).toBe(ROVODEV_GLOBAL_CONFIG_FILE);
-    const parsed = yamlParse(results[0].content) as Record<string, unknown>;
-    expect(parsed.eventHooks).toEqual(HOOKS);
-    expect(parsed.toolPermissions).toBeUndefined();
+    expect(results).toEqual([]);
   });
 
   it('omits eventHooks when hooks enabled but canonical.hooks is null', () => {
@@ -108,7 +104,7 @@ describe('buildRovodevConfig (rovodev)', () => {
         tools: { Read: string; Write: string; bash: { commands: unknown[] } };
       };
     };
-    expect(parsed.eventHooks).toEqual(HOOKS);
+    expect(parsed.eventHooks).toBeUndefined();
     expect(parsed.toolPermissions.tools.Read).toBe('allow');
     expect(parsed.toolPermissions.tools.Write).toBe('ask');
     expect(parsed.toolPermissions.tools.bash.commands).toEqual([

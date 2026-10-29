@@ -10912,7 +10912,7 @@
         "https://support.atlassian.com/rovo/docs/manage-rovo-dev-cli-settings/",
         "https://support.atlassian.com/rovo/docs/rovo-dev-cli-commands/"
       ],
-      "verifiedAt": "2026-08-30",
+      "verifiedAt": "2026-10-29",
       "verdict": "rejected",
       "rejectionReason": "GUI-ONLY: hooks are managed through the interactive /hooks picker; the published ~/.rovodev/config.yml schema has no hooks key."
     },
@@ -10952,7 +10952,7 @@
       "source": [
         "https://support.atlassian.com/rovo/docs/use-tools-in-rovo-dev-cli/"
       ],
-      "verifiedAt": "2026-08-30",
+      "verifiedAt": "2026-10-29",
       "verdict": "rejected",
       "rejectionReason": "FABRICATED: Rovo Dev has no file-exclusion concept; accessible-directory allowlists are a permissions surface."
     },
@@ -10972,7 +10972,7 @@
       "source": [
         "https://support.atlassian.com/rovo/docs/use-tools-in-rovo-dev-cli/"
       ],
-      "verifiedAt": "2026-08-30",
+      "verifiedAt": "2026-10-29",
       "verdict": "rejected",
       "rejectionReason": "FABRICATED: Rovo Dev has no file-exclusion concept; accessible-directory allowlists are a permissions surface."
     },
