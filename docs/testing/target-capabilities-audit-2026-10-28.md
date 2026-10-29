@@ -14,7 +14,7 @@ all target integrations have been freshly tested against upstream releases.
 - Before corrections: one upgrade candidate, 172 unverified provenance
   entries, 24 over-declaration warnings, zero missing ledger entries.
 - After corrections in this branch: **zero ledger upgrade candidates**,
-  **10 still-unverified entries**, **24 over-declaration warnings**,
+  **4 still-unverified entries**, **24 over-declaration warnings**,
   and **zero missing entries**.
 - The 24 warnings have existing `verdict: "rejected"` ledger entries;
   do not silently lower advertised support without independently checking
@@ -132,7 +132,7 @@ runs on branch pushes and provides the authoritative repository tests.
 
 Before closing the wider capability-refresh effort:
 
-1. Independently research the remaining 10 unverified ledger cells using
+1. Independently research the remaining 4 unverified ledger cells using
    each target's own primary documentation; reject fabricated or wrong-scope
    claims instead of filling dates blindly.
 2. Reconcile the 24 over-declared/rejected cells, preserving the existing
@@ -312,3 +312,19 @@ https://github.com/RooCodeInc/Roo-Code/blob/main/src/services/skills/SkillsManag
 https://cursor.com/changelog/page/14,
 https://forum.cursor.com/t/ssh-global-commands-from-remote-cursor-commands-not-loaded-rules-work/150941,
 https://docs.warp.dev/agents/capabilities/skills.
+
+### Cline, Deep Agents CLI and Trae project surfaces (2026-10-29)
+
+Cline's workspace rules are loaded from either `.clinerules/` or
+`.cline/rules/`; see its source-owned docs
+https://github.com/cline/cline/blob/main/docs/customization/cline-rules.mdx.
+LangChain's Deep Agents CLI uses the project-local `.deepagents/AGENTS.md`
+for additional context, per-agent home `~/.deepagents/agent/AGENTS.md`,
+and project `.mcp.json` for MCP servers; sources:
+https://docs.langchain.com/oss/javascript/deepagents/code/configuration#data-locations
+and https://github.com/langchain-ai/deepagents/blob/main/libs/code/deepagents_code/_paths.py.
+Trae's project `.trae/commands/` and `.trae/skills/` are documented by the
+vendor's CN edition at https://docs.trae.cn/ide_slash-commands and
+https://docs.trae.cn/ide_skills. **International and CN home-directory
+names differ**, so the remaining four international global-only claims
+are NOT marked verified by these CN documents.
