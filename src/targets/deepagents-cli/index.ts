@@ -81,10 +81,10 @@ const capabilities: TargetCapabilities = {
   // ~/.deepagents/hooks.json — see global-hooks.ts). 'none' means no support
   // path exists; lintHooks warns when canonical hooks can't be projected.
   hooks: 'none',
-  ignore: 'none'
+  ignore: 'none',
   // `_paths.py` exposes no project-tier config.toml, so the only permission
   // surface is the global one (see globalCapabilities + global-permissions.ts).
-  permissions: 'none'
+  permissions: 'none',
 };
 
 const globalCapabilities: TargetCapabilities = {
@@ -95,7 +95,7 @@ const globalCapabilities: TargetCapabilities = {
   skills: 'native',
   mcp: 'native',
   hooks: 'native',
-  ignore: 'none'
+  ignore: 'none',
   // `shell.allow_list` + `startup.mode` inside the general user config file
   // `~/.deepagents/config.toml` — no dedicated permissions file, no deny/ask
   // rules (see `permissions-format.ts`).

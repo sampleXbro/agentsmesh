@@ -91,8 +91,8 @@ const capabilities: TargetCapabilities = {
   agents: 'embedded',
   skills: 'native',
   mcp: 'partial',
-  hooks: 'none'
-  ignore: 'none'
+  hooks: 'none',
+  ignore: 'none',
   permissions: 'partial',
 };
 

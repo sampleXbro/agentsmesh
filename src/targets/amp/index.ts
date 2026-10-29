@@ -115,7 +115,7 @@ const capabilities: TargetCapabilities = {
   skills: 'native',
   mcp: 'native',
   hooks: 'partial',
-  ignore: 'none'
+  ignore: 'none',
   // amp.permissions is a LEGACY key (ampcode.com/manual) with an array-of-rule-objects
   // schema that is incompatible with the canonical {allow,deny,ask} format.
   // agentsmesh cannot emit a valid amp.permissions value; 'partial' is the ceiling.

@@ -141,7 +141,7 @@ const capabilities: TargetCapabilities = {
   skills: 'native',
   mcp: 'native',
   hooks: 'native',
-  ignore: 'none'
+  ignore: 'none',
   permissions: 'native',
 };
 

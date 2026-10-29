@@ -106,7 +106,7 @@ export const capabilities: TargetCapabilities = {
   agents: 'native',
   skills: 'native',
   mcp: 'native',
-  hooks: 'none'
+  hooks: 'none',
   ignore: 'native',
   permissions: 'native',
 };
@@ -118,7 +118,7 @@ export const globalCapabilities: TargetCapabilities = {
   agents: 'native',
   skills: 'native',
   mcp: 'native',
-  hooks: 'none'
+  hooks: 'none',
   ignore: 'none',
   permissions: 'native',
 };

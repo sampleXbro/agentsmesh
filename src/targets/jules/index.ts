@@ -68,7 +68,7 @@ const capabilities: TargetCapabilities = {
   skills: 'none',
   mcp: 'partial',
   hooks: 'partial',
-  ignore: 'none'
+  ignore: 'none',
   permissions: 'partial',
 };
 
