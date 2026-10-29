@@ -4,6 +4,7 @@ import { basename } from 'node:path';
 import type { CanonicalFiles } from '../../core/types.js';
 import { generateEmbeddedSkills } from '../import/embedded-skill.js';
 import { appendEmbeddedRulesBlock } from '../projection/managed-blocks.js';
+import { serializeFrontmatter } from '../../utils/text/markdown.js';
 import { buildClaudeHooksObjectFromCanonical } from '../claude-code/hooks-format.js';
 import { serializeAntigravityAgent } from './agents-format.js';
 import {
@@ -22,11 +23,11 @@ export type AntigravityOutput = FeatureGeneratorOutput;
 
 export function generateRules(canonical: CanonicalFiles): AntigravityOutput[] {
   const root = canonical.rules.find((r) => r.root);
-  if (!root) return [];
-
-  const outputs: AntigravityOutput[] = [
-    { path: ANTIGRAVITY_RULES_ROOT, content: root.body.trim() || '' },
-  ];
+  const outputs: AntigravityOutput[] = [];
+  if (root) outputs.push({
+    path: ANTIGRAVITY_RULES_ROOT,
+    content: serializeFrontmatter({ trigger: 'always_on' }, root.body.trim()),
+  });
 
   for (const rule of canonical.rules) {
     if (rule.root) continue;
@@ -34,7 +35,11 @@ export function generateRules(canonical: CanonicalFiles): AntigravityOutput[] {
     const slug = basename(rule.source, '.md');
     outputs.push({
       path: `${ANTIGRAVITY_RULES_DIR}/${slug}.md`,
-      content: rule.body.trim() || '',
+      content: serializeFrontmatter({
+        trigger: rule.globs.length > 0 ? 'glob' : 'always_on',
+        ...(rule.description ? { description: rule.description } : {}),
+        ...(rule.globs.length > 0 ? { globs: rule.globs.join(', ') } : {}),
+      }, rule.body.trim()),
     });
   }
 

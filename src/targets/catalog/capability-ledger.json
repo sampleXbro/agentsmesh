@@ -1165,9 +1165,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://antigravity.google/docs/rules/"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -1180,12 +1182,16 @@
       "format": "md-frontmatter",
       "fingerprint": {
         "topLevelKeys": [],
-        "requiredFrontmatter": [],
+        "requiredFrontmatter": [
+          "trigger"
+        ],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://antigravity.google/docs/rules/"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -1472,12 +1478,16 @@
       "format": "md-frontmatter",
       "fingerprint": {
         "topLevelKeys": [],
-        "requiredFrontmatter": [],
+        "requiredFrontmatter": [
+          "trigger"
+        ],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://antigravity.google/docs/rules/"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -1513,9 +1523,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://antigravity.google/docs/skills"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {

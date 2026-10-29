@@ -14,7 +14,7 @@ all target integrations have been freshly tested against upstream releases.
 - Before corrections: one upgrade candidate, 172 unverified provenance
   entries, 24 over-declaration warnings, zero missing ledger entries.
 - After corrections in this branch: **zero ledger upgrade candidates**,
-  **29 still-unverified entries**, **24 over-declaration warnings**,
+  **25 still-unverified entries**, **24 over-declaration warnings**,
   and **zero missing entries**.
 - The 24 warnings have existing `verdict: "rejected"` ledger entries;
   do not silently lower advertised support without independently checking
@@ -132,7 +132,7 @@ runs on branch pushes and provides the authoritative repository tests.
 
 Before closing the wider capability-refresh effort:
 
-1. Independently research the remaining 29 unverified ledger cells using
+1. Independently research the remaining 25 unverified ledger cells using
    each target's own primary documentation; reject fabricated or wrong-scope
    claims instead of filling dates blindly.
 2. Reconcile the 24 over-declared/rejected cells, preserving the existing
@@ -279,3 +279,14 @@ memory (AGENTS.md) and SKILL.md discovery were verified independently.
 Official: https://support.atlassian.com/rovo/docs/use-subagents-in-rovo-dev-cli/,
 https://support.atlassian.com/rovo/docs/use-memory-in-rovo-dev-cli/,
 https://support.atlassian.com/rovo/docs/extend-rovo-dev-cli-with-agent-skills/.
+
+### Antigravity required rule activation metadata (2026-10-29)
+
+Antigravity requires `trigger: always_on|glob|model_decision|manual` YAML
+frontmatter on every `.agents/rules/*.md` file and silently discards files
+without it. Fixed both root `general.md` and non-root generated markdown; glob
+rules serialize a comma-delimited `globs` key, now imported back into canonical
+arrays. The generator also handles non-root-only rule sets. Project/global rule
+and skill paths verified against:
+https://antigravity.google/docs/rules/ and
+https://antigravity.google/docs/skills.

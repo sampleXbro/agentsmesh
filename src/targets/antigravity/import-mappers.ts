@@ -36,7 +36,10 @@ export const nonRootRuleMapper: ImportEntryMapper = async ({
         root: false,
         description:
           typeof frontmatter.description === 'string' ? frontmatter.description : undefined,
-        globs: Array.isArray(frontmatter.globs) ? frontmatter.globs : undefined,
+        globs: Array.isArray(frontmatter.globs) ? frontmatter.globs :
+          typeof frontmatter.globs === 'string'
+            ? frontmatter.globs.split(',').map((part) => part.trim()).filter(Boolean)
+            : undefined,
       },
       body,
     ),

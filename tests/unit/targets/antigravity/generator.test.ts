@@ -31,7 +31,7 @@ function makeCanonical(overrides: Partial<CanonicalFiles> = {}): CanonicalFiles 
 }
 
 describe('generateRules (antigravity)', () => {
-  it('generates root rule as .agents/rules/general.md with plain body only', () => {
+  it('generates root rule as .agents/rules/general.md with required trigger', () => {
     const canonical = makeCanonical({
       rules: [
         {
@@ -49,10 +49,10 @@ describe('generateRules (antigravity)', () => {
     expect(results[0]?.path).toBe(ANTIGRAVITY_RULES_ROOT);
     expect(results[0]?.content).toContain('Use TDD.');
     expect(results[0]?.content).not.toContain('root: true');
-    expect(results[0]?.content).not.toContain('---');
+    expect(results[0]?.content).toContain('trigger: always_on');
   });
 
-  it('generates non-root rules as .agents/rules/{slug}.md with plain body', () => {
+  it('generates non-root rules as .agents/rules/{slug}.md with glob trigger', () => {
     const canonical = makeCanonical({
       rules: [
         {
@@ -77,7 +77,8 @@ describe('generateRules (antigravity)', () => {
     const tsRule = results.find((r) => r.path === `${ANTIGRAVITY_RULES_DIR}/typescript.md`);
     expect(tsRule).toBeDefined();
     expect(tsRule!.content).toContain('Use strict TypeScript.');
-    expect(tsRule!.content).not.toContain('globs:');
+    expect(tsRule!.content).toContain('globs:');
+    expect(tsRule!.content).toContain('trigger: glob');
   });
 
   it('skips non-root rules targeting other agents only', () => {
@@ -105,7 +106,7 @@ describe('generateRules (antigravity)', () => {
     expect(results.some((r) => r.path.includes('cursor-only'))).toBe(false);
   });
 
-  it('returns empty array when no root rule exists', () => {
+  it('generates standalone contextual rules when no root rule exists', () => {
     const canonical = makeCanonical({
       rules: [
         {
@@ -118,7 +119,7 @@ describe('generateRules (antigravity)', () => {
         },
       ],
     });
-    expect(generateRules(canonical)).toHaveLength(0);
+    expect(generateRules(canonical)).toHaveLength(1);
   });
 });
 
