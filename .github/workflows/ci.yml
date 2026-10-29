@@ -123,6 +123,12 @@ jobs:
       - name: Support matrix docs match catalog
         run: pnpm matrix:verify
 
+      - name: Capability ledger integrity and research audit
+        run: |
+          pnpm capabilities:verify
+          pnpm capabilities:audit --json > capability-audit.json
+          node -e "const r=require('./capability-audit.json'); const n=r.gaps.length+r.stale.length+r.missing.length; if(n) { console.error(JSON.stringify(r,null,2)); process.exit(1) } console.log('Capability audit clean: 0 gaps, 0 stale, 0 missing')"
+
       - name: Coverage
         run: pnpm test:coverage
 
