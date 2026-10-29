@@ -6,6 +6,12 @@ on:
   pull_request:
     branches: [master]
 
+# Keep only the newest validation run for a feature branch. Preserve all runs
+# on master, where every pushed revision needs its own release-quality signal.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
+
 jobs:
   quality:
     name: Quality (Node ${{ matrix.node-version }} on ${{ matrix.os }})
