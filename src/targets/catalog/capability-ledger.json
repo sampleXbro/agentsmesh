@@ -782,9 +782,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://ampcode.com/docs/customize/agents-md"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -800,9 +802,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://ampcode.com/docs/customize/agents-md"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -818,9 +822,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://ampcode.com/docs/customize/skills"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -861,9 +867,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://ampcode.com/docs/customize/skills"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -3748,9 +3756,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://github.com/continuedev/continue/blob/main/extensions/cli/src/slashCommands.ts"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -3766,9 +3776,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://github.com/continuedev/continue/blob/main/extensions/cli/src/slashCommands.ts"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -4172,9 +4184,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://github.com/charmbracelet/crush/blob/main/README.md"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -4190,9 +4204,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://github.com/charmbracelet/crush/blob/main/README.md"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -9218,9 +9234,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://pi.dev/docs/latest/configuration"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -9236,9 +9254,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://pi.dev/docs/latest/configuration"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -9983,9 +10003,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://docs.replit.com/references/project-setup/replit-dot-md"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {

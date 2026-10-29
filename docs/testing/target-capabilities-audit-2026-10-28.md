@@ -14,7 +14,7 @@ all target integrations have been freshly tested against upstream releases.
 - Before corrections: one upgrade candidate, 172 unverified provenance
   entries, 24 over-declaration warnings, zero missing ledger entries.
 - After corrections in this branch: **zero ledger upgrade candidates**,
-  **48 still-unverified entries**, **24 over-declaration warnings**,
+  **37 still-unverified entries**, **24 over-declaration warnings**,
   and **zero missing entries**.
 - The 24 warnings have existing `verdict: "rejected"` ledger entries;
   do not silently lower advertised support without independently checking
@@ -132,7 +132,7 @@ runs on branch pushes and provides the authoritative repository tests.
 
 Before closing the wider capability-refresh effort:
 
-1. Independently research the remaining 48 unverified ledger cells using
+1. Independently research the remaining 37 unverified ledger cells using
    each target's own primary documentation; reject fabricated or wrong-scope
    claims instead of filling dates blindly.
 2. Reconcile the 24 over-declared/rejected cells, preserving the existing
@@ -250,3 +250,18 @@ https://learn.chatgpt.com/docs/build-skills;
 https://docs.devin.ai/desktop/cascade/skills,
 https://docs.devin.ai/desktop/cascade/workflows,
 https://docs.devin.ai/desktop/cascade/agents-md.
+
+### Amp, Crush, Pi, Continue and Replit verification (2026-10-29)
+
+Verified 11 further target/scope/feature cells with upstream sources. Amp's
+project/user AGENTS.md and user skills (including embedded agents/commands),
+Crush's project CRUSH.md and home ~/.config/crush/CRUSH.md context, Pi's
+hierarchical AGENTS.md, Continue's project/user SKILL.md files, and Replit
+Agent's project-root replit.md context file.
+
+Sources: https://ampcode.com/docs/customize/agents-md,
+https://ampcode.com/docs/customize/skills,
+https://github.com/charmbracelet/crush/blob/main/README.md,
+https://pi.dev/docs/latest/configuration,
+https://github.com/continuedev/continue/blob/main/extensions/cli/src/slashCommands.ts,
+https://docs.replit.com/references/project-setup/replit-dot-md.
