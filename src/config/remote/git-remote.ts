@@ -5,7 +5,8 @@ import { URL } from 'node:url';
 import { promisify } from 'node:util';
 import { exists, renameWithRetry } from '../../utils/filesystem/fs.js';
 import { redactUrlSecrets } from '../../utils/output/redact-url-secrets.js';
-import { assertAllowedGitUrl, gitAllowProtocolEnv } from './remote-source.js';
+import { remoteGitEnv } from './git-env.js';
+import { assertAllowedGitUrl } from './remote-source.js';
 import type { FetchRemoteOptions, FetchRemoteResult } from './remote-fetcher.js';
 import type { ParsedGitSource, ParsedGitlabSource } from './remote-source.js';
 
@@ -122,15 +123,6 @@ async function getHeadSha(repoDir: string): Promise<string> {
 }
 
 async function runGit(args: string[], cwd?: string): Promise<string> {
-  const { stdout } = await execFileAsync('git', args, {
-    cwd,
-    env: {
-      ...process.env,
-      GIT_TERMINAL_PROMPT: '0',
-      // Constrain transports git may use (incl. mid-clone redirects/insteadOf)
-      // to the same allowlist the clone URL itself passed.
-      GIT_ALLOW_PROTOCOL: gitAllowProtocolEnv(),
-    },
-  });
+  const { stdout } = await execFileAsync('git', args, { cwd, env: remoteGitEnv() });
   return stdout.trim();
 }

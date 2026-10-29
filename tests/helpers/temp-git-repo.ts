@@ -48,9 +48,6 @@ export function commitAll(root: string, message: string): void {
   git(root, ['commit', '--quiet', '--no-verify', '--allow-empty', '-m', message]);
 }
 
-/** Git vars a hook exports; left set, they point git at another repo. */
-export const GIT_HOOK_ENV = ['GIT_DIR', 'GIT_INDEX_FILE', 'GIT_WORK_TREE'] as const;
-
 /** Delete `keys` from process.env; the returned function restores them. */
 export function clearEnv(keys: readonly string[]): () => void {
   const saved = keys.map((k) => [k, process.env[k]] as const);
