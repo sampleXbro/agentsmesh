@@ -13,7 +13,6 @@ import { generateGooseGlobalMcp } from '../../../../src/targets/goose/global-mcp
 import {
   GOOSE_ROOT_FILE,
   GOOSE_SKILLS_DIR,
-  GOOSE_IGNORE,
   GOOSE_GLOBAL_CONFIG,
   GOOSE_HOOKS_FILE,
   GOOSE_PROJECT_MCP_FILE,
@@ -234,16 +233,14 @@ describe('generateAgents (goose)', () => {
 });
 
 describe('generateIgnore (goose)', () => {
-  it('generates .gooseignore from canonical ignore', () => {
+  it('does not emit the obsolete .gooseignore file', () => {
     const canonical = makeCanonical({
       ignore: ['.env', 'node_modules/', 'dist/'],
     });
 
     const results = generateIgnore(canonical);
 
-    expect(results).toHaveLength(1);
-    expect(results[0].path).toBe(GOOSE_IGNORE);
-    expect(results[0].content).toBe('.env\nnode_modules/\ndist/');
+    expect(results).toEqual([]);
   });
 
   it('returns empty when no ignore patterns exist', () => {

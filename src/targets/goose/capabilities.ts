@@ -20,8 +20,8 @@ export const projectCapabilities: TargetCapabilities = {
   skills: 'native',
   mcp: 'native',
   hooks: 'native',
-  ignore: 'native',
-  permissions: 'partial',
+  ignore: 'none',
+  permissions: 'none',
 };
 
 export const globalCapabilities: TargetCapabilities = {
@@ -32,6 +32,6 @@ export const globalCapabilities: TargetCapabilities = {
   skills: 'native',
   mcp: 'native',
   hooks: 'native',
-  ignore: 'native',
+  ignore: 'none',
   permissions: 'native',
 };

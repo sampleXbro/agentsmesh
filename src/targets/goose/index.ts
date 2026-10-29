@@ -33,7 +33,7 @@ import { importFromGoose } from './importer.js';
 import { gooseImporter } from './importer-spec.js';
 import { generateGooseScopeExtras } from './scope-extras.js';
 import { lintRules } from './linter.js';
-import { lintPermissions, lintMcp } from './lint.js';
+import { lintPermissions, lintMcp, lintIgnore } from './lint.js';
 import { buildGooseImportPaths } from '../../core/reference/import-map-builders.js';
 import {
   GOOSE_TARGET,
@@ -74,7 +74,7 @@ const project: TargetLayout = {
     // same way `.goosehints` and the sibling `hooks/hooks.json` are removed. All
     // three are agentsmesh's own artifacts inside the `agentsmesh` plugin dir.
     // The user-owned `~/.config/goose/config.yaml` is deliberately NOT managed.
-    files: [GOOSE_ROOT_FILE, GOOSE_IGNORE, GOOSE_HOOKS_FILE, GOOSE_PROJECT_MCP_FILE],
+    files: [GOOSE_ROOT_FILE, GOOSE_HOOKS_FILE, GOOSE_PROJECT_MCP_FILE],
   },
   paths: {
     rulePath(_slug) {
@@ -98,7 +98,7 @@ const globalLayout: TargetLayout = {
     // GOOSE_MODE, builtin extensions) and stale-cleanup deletes every managed
     // file a run did not emit, so a global run without `mcp` would erase it.
     // Revocation is handled inside `global-mcp.ts` by clearing `extensions`.
-    files: [GOOSE_GLOBAL_ROOT_FILE, GOOSE_GLOBAL_IGNORE, GOOSE_HOOKS_FILE],
+    files: [GOOSE_GLOBAL_ROOT_FILE, GOOSE_HOOKS_FILE],
     // `permission.yaml` carries goose's own tool-permission state; agentsmesh
     // merges canonical permissions into the `user` category only
     // (`scope-extras.ts`), so deleting it discards the categories goose owns.
@@ -145,6 +145,7 @@ export const descriptor = {
   lint: {
     permissions: lintPermissions,
     mcp: lintMcp,
+    ignore: lintIgnore,
   },
   emitScopedSettings: emitGooseProjectMcp,
   mergeGeneratedOutputContent: mergeGooseMcpContent,
@@ -154,7 +155,6 @@ export const descriptor = {
     capabilities: globalCapabilities,
     detectionPaths: [
       GOOSE_GLOBAL_ROOT_FILE,
-      GOOSE_GLOBAL_IGNORE,
       GOOSE_GLOBAL_SKILLS_DIR,
       GOOSE_GLOBAL_CONFIG,
     ],
@@ -166,6 +166,6 @@ export const descriptor = {
     '.agents/skills/': 'consumer',
   },
   buildImportPaths: buildGooseImportPaths,
-  detectionPaths: [GOOSE_ROOT_FILE, GOOSE_IGNORE, GOOSE_PROJECT_MCP_FILE],
+  detectionPaths: [GOOSE_ROOT_FILE, GOOSE_PROJECT_MCP_FILE],
   conversionDefaults: { commandsToSkills: true, agentsToSkills: true },
 } satisfies TargetDescriptor;

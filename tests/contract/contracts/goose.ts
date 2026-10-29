@@ -11,7 +11,6 @@ export const gooseContract: TargetPathContract = {
     '.agents/skills/api-generator/references/route-checklist.md',
     '.agents/skills/api-generator/template.ts',
     '.goosehints',
-    '.gooseignore',
   ],
   imported: [
     '.agentsmesh/agents/code-reviewer.md',

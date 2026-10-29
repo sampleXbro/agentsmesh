@@ -328,3 +328,11 @@ vendor's CN edition at https://docs.trae.cn/ide_slash-commands and
 https://docs.trae.cn/ide_skills. **International and CN home-directory
 names differ**, so the remaining four international global-only claims
 are NOT marked verified by these CN documents.
+
+### Goose retired ignore surface (2026-10-29)
+
+The project's `.gooseignore` was removed upstream (see
+https://github.com/block/goose/pull/10359). Generation no longer writes it or
+claims ignore support; existing import remains solely to migrate legacy files
+into canonical source. Both project and global levels are `none`, with a
+specific lint warning. Legacy rewrite paths remain for import compatibility.

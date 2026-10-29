@@ -930,7 +930,7 @@ features: [rules, skills, mcp]
     fileContains(join(dir, '.warp', '.mcp.json'), 'context7');
   });
 
-  it('generates Goose .goosehints, skills, and .gooseignore', async () => {
+  it('generates Goose context and skills without retired ignore', async () => {
     dir = createCanonicalProject(`version: 1
 targets: [goose]
 features: [rules, skills, ignore]
@@ -968,7 +968,6 @@ features: [rules, skills, ignore]
       '.agentsmesh/skills/api-generator/template.ts',
       '.agentsmeshcache',
       '.goosehints',
-      '.gooseignore',
       'agentsmesh.yaml',
     ]);
 
@@ -982,7 +981,7 @@ features: [rules, skills, ignore]
       join(dir, '.agents', 'skills', 'api-generator', 'references', 'route-checklist.md'),
       'response schema',
     );
-    fileContains(join(dir, '.gooseignore'), '.env');
+    fileNotExists(join(dir, '.gooseignore'));
   });
 
   it('generates Aider CONVENTIONS.md, skills, and .aiderignore', async () => {

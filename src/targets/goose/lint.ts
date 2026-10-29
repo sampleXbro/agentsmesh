@@ -11,6 +11,7 @@
 import type { CanonicalFiles, LintDiagnostic } from '../../core/types.js';
 import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
 import { createWarning } from '../../core/lint/shared/helpers.js';
+import { unsupportedFeature } from '../../core/lint/capability-gap.js';
 import { GOOSE_PROJECT_MCP_FILE } from './constants.js';
 
 export function lintPermissions(canonical: CanonicalFiles, options?: unknown): LintDiagnostic[] {
@@ -52,3 +53,7 @@ export function lintMcp(canonical: CanonicalFiles, options?: unknown): LintDiagn
     ),
   ];
 }
+
+/** Goose retired .gooseignore; legacy import exists for migration only. */
+export const lintIgnore = unsupportedFeature('ignore', 'goose',
+  'Goose no longer reads .gooseignore; canonical ignore cannot be projected.');

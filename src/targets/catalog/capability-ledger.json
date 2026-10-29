@@ -6299,7 +6299,7 @@
         "https://github.com/block/goose/pull/10359",
         "https://github.com/block/goose/issues/10343"
       ],
-      "verifiedAt": "2026-08-30",
+      "verifiedAt": "2026-10-29",
       "verdict": "rejected",
       "rejectionReason": "FABRICATED: .gooseignore was retired upstream (PR #10359, 2026-07-15); goose reads no goose-specific ignore file today."
     },
@@ -6320,7 +6320,7 @@
         "https://github.com/block/goose/pull/10359",
         "https://github.com/block/goose/issues/10343"
       ],
-      "verifiedAt": "2026-08-30",
+      "verifiedAt": "2026-10-29",
       "verdict": "rejected",
       "rejectionReason": "FABRICATED: .gooseignore was retired upstream (PR #10359, 2026-07-15); goose reads no goose-specific ignore file today."
     },
@@ -6406,7 +6406,7 @@
       "source": [
         "https://github.com/block/goose/blob/main/crates/goose/src/config/permission.rs"
       ],
-      "verifiedAt": "2026-08-30",
+      "verifiedAt": "2026-10-29",
       "verdict": "rejected",
       "rejectionReason": "WRONG-SCOPE: permission.yaml is pinned to the user config dir; the only project file goose reads holds enabled/disabledPlugins."
     },

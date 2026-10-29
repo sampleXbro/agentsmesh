@@ -27,10 +27,8 @@ import {
   GOOSE_TARGET,
   GOOSE_ROOT_FILE,
   GOOSE_SKILLS_DIR,
-  GOOSE_IGNORE,
   GOOSE_HOOKS_FILE,
 } from './constants.js';
-import { ignoreOutput } from '../catalog/ignore-output.js';
 
 export type GooseOutput = FeatureGeneratorOutput;
 
@@ -55,7 +53,7 @@ export function generateAgents(canonical: CanonicalFiles): GooseOutput[] {
   }));
 }
 
-export const generateIgnore = ignoreOutput(GOOSE_IGNORE);
+export const generateIgnore = NO_OUTPUTS;
 
 export function generateHooks(canonical: CanonicalFiles): GooseOutput[] {
   return buildWrappedCommandHooks(canonical, GOOSE_HOOKS_FILE);
