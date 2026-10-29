@@ -154,7 +154,7 @@ describe('getTargetCapabilities', () => {
     }
   });
 
-  it('claude-code (has globalSupport) keeps native global capabilities — unaffected', () => {
+  it('claude-code global ignore embeds Read permission denies', () => {
     const caps = getTargetCapabilities('claude-code', 'global');
     expect(caps).toBeDefined();
     for (const feature of [
@@ -168,7 +168,7 @@ describe('getTargetCapabilities', () => {
       'ignore',
       'permissions',
     ] as const) {
-      expect(caps![feature]?.level).toBe('native');
+      expect(caps![feature]?.level).toBe(feature === 'ignore' ? 'embedded' : 'native');
     }
   });
 

@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { runCli } from './helpers/run-cli.js';
 import {
   fileExists,
+  fileNotExists,
   fileContains,
   readText,
   validJson,

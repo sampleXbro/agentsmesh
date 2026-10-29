@@ -74,9 +74,10 @@ describe('SUPPORT_MATRIX_GLOBAL', () => {
     }
   });
 
-  it('claude-code reports native for every feature in global scope (unaffected)', () => {
+  it('claude-code reports embedded ignore and native remaining global features', () => {
     for (const feature of ALL_FEATURES) {
-      expect(SUPPORT_MATRIX_GLOBAL[feature]['claude-code'].level).toBe('native');
+      expect(SUPPORT_MATRIX_GLOBAL[feature]['claude-code'].level)
+        .toBe(feature === 'ignore' ? 'embedded' : 'native');
     }
   });
 });
