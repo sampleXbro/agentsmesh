@@ -791,7 +791,7 @@ describe('generate hooks', () => {
 });
 
 describe('generate ignore', () => {
-  it('produces ignore files when ignore feature enabled', async () => {
+  it('projects effective ignore exclusions into each target', async () => {
     const config = minimalConfig({ features: ['rules', 'ignore'] });
     const canonical: CanonicalFiles = {
       ...canonicalWithRootRule('Rules'),
@@ -803,9 +803,10 @@ describe('generate ignore', () => {
       projectRoot: TEST_DIR,
     });
     const paths = results.map((r) => r.path).sort();
-    expect(paths).toContain('.claudeignore');
+    expect(paths).toContain('.claude/settings.json');
+    expect(paths).not.toContain('.claudeignore');
     expect(paths).toContain('.cursorignore');
-    const claudeIgnore = results.find((r) => r.path === '.claudeignore');
+    const claudeIgnore = results.find((r) => r.path === '.claude/settings.json');
     const cursorIgnore = results.find((r) => r.path === '.cursorignore');
     expect(claudeIgnore?.content).toContain('node_modules');
     expect(claudeIgnore?.content).toContain('.env');

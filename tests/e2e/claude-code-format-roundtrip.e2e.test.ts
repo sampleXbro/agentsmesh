@@ -72,7 +72,7 @@ describe('claude-code doc format roundtrip', () => {
     >;
     expect(mcp.mcpServers).toBeDefined();
 
-    expect(readFileSync(join(dir, '.claudeignore'), 'utf-8')).toContain('node_modules');
+    expect(JSON.stringify(settings.permissions)).toContain('Read(./node_modules)');
 
     // Per doc recommendations, these are optional and should not be emitted by default.
     expect(existsSync(join(dir, '.claude', 'settings.local.json'))).toBe(false);

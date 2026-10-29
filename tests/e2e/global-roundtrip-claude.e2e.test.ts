@@ -121,9 +121,8 @@ describe('global mode round-trip: Claude Code', () => {
     const hooks = JSON.parse(readText(join(homeDir, '.claude', 'settings.json'))).hooks;
     expect(Array.isArray(hooks.PreToolUse)).toBe(true);
 
-    // 9. Ignore (docs: ~/.claudeignore)
-    fileExists(join(homeDir, '.claudeignore'));
-    fileContains(join(homeDir, '.claudeignore'), 'node_modules');
+    // 9. Ignore is a permissions.deny Read path pattern, not ~/.claudeignore.
+    fileContains(join(homeDir, '.claude', 'settings.json'), 'Read(./node_modules)');
 
     // 10. MCP (docs: ~/.claude.json)
     fileExists(join(homeDir, '.claude.json'));

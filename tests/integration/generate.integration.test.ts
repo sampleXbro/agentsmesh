@@ -629,7 +629,7 @@ secrets/
 `,
     );
     execSync(`node ${CLI_PATH} generate`, { cwd: TEST_DIR });
-    const claudeIgnore = readFileSync(join(TEST_DIR, '.claudeignore'), 'utf-8');
+    const claudeIgnore = readFileSync(join(TEST_DIR, '.claude/settings.json'), 'utf-8');
     const cursorIgnore = readFileSync(join(TEST_DIR, '.cursorignore'), 'utf-8');
     expect(claudeIgnore).toContain('node_modules');
     expect(claudeIgnore).toContain('.env');
