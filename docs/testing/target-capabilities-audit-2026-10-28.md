@@ -362,3 +362,26 @@ round-trip canonical ignore without discarding the existing permissions import.
 Legacy `.claudeignore` remains import-only for migration. Negated gitignore
 patterns are not representable by permission-deny; they are skipped.
 Official: https://code.claude.com/docs/en/permissions.
+
+## QA close-out (2026-10-29)
+
+Acceptance review (post-feature-qa): Kilo project MCP and instruction-path
+registration have generator/importer/merge tests. Rovo first-class project and
+global agents have generate and import tests and contract paths. Antigravity
+rules require activation frontmatter and preserve globs on import. Claude Code
+ignore emits Read denies via settings.json with merge and import tests; Goose
+obsolete ignore is no longer emitted; Cursor global ignore and Rovo global
+hooks are correctly treated as GUI-only or unsupported.
+
+Checks completed by the feature-branch GitHub Actions run 40843723004:
+Lint, TypeScript source/tests, build, contract matrix, catalog drift guard, and
+support-matrix document verification passed. The full cross-platform unit,
+integration, end-to-end, and coverage jobs are still in progress at this report
+revision, so no final-green assertion is made.
+
+The four remaining stale entries are Trae international global rules,
+additionalRules, commands, and skills. The official international docs are a
+client-rendered SPA and no accessible primary record precisely confirms those
+home-directory paths. The Chinese edition's documented `~/.trae-cn/` paths
+must NOT be conflated with the international `~/.trae/` layout. These entries
+have deliberately not been called primary-source confirmed.
