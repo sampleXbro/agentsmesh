@@ -42,6 +42,8 @@ describe('Claude Code real ignore mechanism', () => {
     const results = await importFromClaudeCode(root);
     expect(results.some(x => x.feature === 'ignore')).toBe(true);
     expect(readFileSync(join(root, '.agentsmesh/ignore'), 'utf8')).toContain('secrets/');
-    expect(readFileSync(join(root, '.agentsmesh/permissions.yaml'), 'utf8')).toContain('Bash(rm *)');
+    const permissions = readFileSync(join(root, '.agentsmesh/permissions.yaml'), 'utf8');
+    expect(permissions).toContain('Bash(rm *)');
+    expect(permissions).not.toContain('Read(./.env)');
   });
 });

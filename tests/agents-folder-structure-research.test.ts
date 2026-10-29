@@ -155,7 +155,7 @@ describe('agents-folder-structure-research: Claude Code (docs §1)', () => {
     skills: '.claude/skills/',
     rulesDir: '.claude/rules/',
     commandsDir: '.claude/commands/',
-    ignore: '.claudeignore',
+    ignore: '.claude/settings.json',
   };
   // Gaps: .claude/settings.local.json (user-specific, not committed)
 
@@ -343,7 +343,7 @@ describe('agents-folder-structure-research: Claude Code (docs §1)', () => {
     expect(parsed.hooks).toBeDefined();
   });
 
-  it('generates .claudeignore for ignore patterns', async () => {
+  it('generates Read deny exclusions for ignore patterns', async () => {
     const canonical = fullCanonical({
       rootBody: '# Root',
       ignore: ['node_modules', 'dist'],

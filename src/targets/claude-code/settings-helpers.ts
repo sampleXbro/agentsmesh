@@ -9,6 +9,7 @@ import type { McpServer } from '../../core/types.js';
 import { getHookCommand, getHookPrompt, hasHookText } from '../../core/hook-command.js';
 import { readFileSafe, writeFileAtomic, mkdirp } from '../../utils/filesystem/fs.js';
 import { writeMcpWithMerge } from '../import/mcp-merge.js';
+import { claudeIgnorePatternsFromDenies } from './ignore.js';
 import { stringify as yamlStringify } from 'yaml';
 import {
   CLAUDE_GLOBAL_MCP_JSON,
@@ -145,8 +146,11 @@ export async function importSettings(projectRoot: string, results: ImportResult[
     const allow = Array.isArray(perms.allow)
       ? (perms.allow as string[]).filter((s) => typeof s === 'string')
       : [];
+    // Read path exclusions are represented in canonical ignore, not duplicated
+    // into canonical permissions. Otherwise generate/import changes the policy.
     const deny = Array.isArray(perms.deny)
-      ? (perms.deny as string[]).filter((s) => typeof s === 'string')
+      ? (perms.deny as string[]).filter((s) =>
+          typeof s === 'string' && claudeIgnorePatternsFromDenies([s]).length === 0)
       : [];
     const ask = Array.isArray(perms.ask)
       ? (perms.ask as string[]).filter((s) => typeof s === 'string')

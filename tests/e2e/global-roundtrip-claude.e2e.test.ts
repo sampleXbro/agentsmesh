@@ -82,7 +82,7 @@ describe('global mode round-trip: Claude Code', () => {
     validJson(join(homeDir, '.claude', 'settings.json'));
     const settings = JSON.parse(readText(join(homeDir, '.claude', 'settings.json')));
     expect(settings.permissions?.allow).toContain('Read');
-    expect(settings.permissions?.deny).toEqual([]);
+    expect(settings.permissions?.deny).toContain('Read(./node_modules)');
     expect(settings.permissions?.ask).toEqual([]);
 
     // 4. Skills primary (docs: ~/.claude/skills/<skill>/SKILL.md)
