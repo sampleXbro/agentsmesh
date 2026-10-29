@@ -35,7 +35,12 @@ export const mergeKiloConfig: GeneratedOutputMerger = (
   if (incoming === null || typeof incoming !== 'object' || Array.isArray(incoming)) return base;
   const overlay = incoming as Record<string, unknown>;
   if (overlay.permission !== undefined) parsed.permission = overlay.permission;
-  if (overlay.instructions !== undefined) parsed.instructions = overlay.instructions;
+  if (Array.isArray(overlay.instructions)) {
+    // `kilo.jsonc` also belongs to the user: keep manually registered instruction
+    // globs when registering AgentsMesh's generated .kilo/rules/*.md files.
+    const prior = Array.isArray(parsed.instructions) ? parsed.instructions : [];
+    parsed.instructions = [...new Set([...prior, ...overlay.instructions])];
+  }
   if (overlay.mcp !== undefined) {
     // Preserve tool-managed server options such as enabled/timeout while replacing
     // the server set with canonical definitions.

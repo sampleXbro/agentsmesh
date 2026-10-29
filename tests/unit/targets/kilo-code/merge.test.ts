@@ -113,6 +113,17 @@ describe('mergeKiloConfig (kilo-code)', () => {
     expect(parsed.instructions).toEqual(['rules/*.md']);
   });
 
+  it('preserves user-authored instruction globs when adding generated rules', () => {
+    const existing = JSON.stringify({ instructions: ['docs/standards.md'] });
+    const next = JSON.stringify({ instructions: ['.kilo/rules/*.md'] });
+    const result = mergeKiloConfig(existing, undefined, next, KILO_CONFIG_FILE);
+    expect(JSON.parse(result as string).instructions)
+      .toEqual(['docs/standards.md', '.kilo/rules/*.md']);
+    const again = mergeKiloConfig(result, undefined, next, KILO_CONFIG_FILE);
+    expect(JSON.parse(again as string).instructions)
+      .toEqual(['docs/standards.md', '.kilo/rules/*.md']);
+  });
+
   it('overlays the mcp key (global MCP servers)', () => {
     const existing = JSON.stringify({ custom: 'keep' });
     const incoming = JSON.stringify({ mcp: { test: { type: 'local', command: ['node'] } } });
