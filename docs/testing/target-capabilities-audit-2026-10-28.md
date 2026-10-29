@@ -14,7 +14,7 @@ all target integrations have been freshly tested against upstream releases.
 - Before corrections: one upgrade candidate, 172 unverified provenance
   entries, 24 over-declaration warnings, zero missing ledger entries.
 - After corrections in this branch: **zero ledger upgrade candidates**,
-  **122 still-unverified entries**, **24 over-declaration warnings**,
+  **96 still-unverified entries**, **24 over-declaration warnings**,
   and **zero missing entries**.
 - The 24 warnings have existing `verdict: "rejected"` ledger entries;
   do not silently lower advertised support without independently checking
@@ -132,7 +132,7 @@ runs on branch pushes and provides the authoritative repository tests.
 
 Before closing the wider capability-refresh effort:
 
-1. Independently research the remaining 122 unverified ledger cells using
+1. Independently research the remaining 96 unverified ledger cells using
    each target's own primary documentation; reject fabricated or wrong-scope
    claims instead of filling dates blindly.
 2. Reconcile the 24 over-declared/rejected cells, preserving the existing
@@ -143,3 +143,40 @@ Before closing the wider capability-refresh effort:
 4. For any confirmed new native capability, use strict TDD and verify
    project/global gating, output paths, importer symmetry, reference rewriting,
    plugin parity, matrix/docs synchronization, and `post-feature-qa`.
+
+## Primary-source review 2026-10-29
+
+Verified 26 additional existing capability-cell paths, formats, and scopes
+without raising descriptor levels. In particular:
+
+- **Junie (11):** current JetBrains docs explicitly describe global/project
+  `AGENTS.md` and rule precedence, project/user markdown commands and
+  subagents, `.junie/mcp/mcp.json`, and project/user `.junie/skills/`.
+  Sources: https://junie.jetbrains.com/docs/guidelines-and-memory.html,
+  https://junie.jetbrains.com/docs/custom-slash-commands.html,
+  https://junie.jetbrains.com/docs/junie-cli-subagents.html,
+  https://junie.jetbrains.com/docs/junie-cli-mcp-configuration.html,
+  https://junie.jetbrains.com/docs/agent-skills.html.
+- **Cline (2):** global and workspace workflows explicitly documented by
+  the Cline team: https://cline.bot/blog/3-17-global-workflows-ux-improvements-and-more.
+  Its project `.cline/rules/` claim remains unverified pending a primary
+  source distinguishing it from the documented `.clinerules/` hierarchy.
+- **Continue (7):** project/user markdown rules and prompts plus project
+  MCP server files corroborated by Continue's official rules, prompts and
+  config docs: https://docs.continue.dev/customize/deep-dives/rules,
+  https://docs.continue.dev/customize/deep-dives/prompts,
+  https://docs.continue.dev/guides/configuring-models-rules-tools.
+  Existing reports of inconsistent user prompt discovery should be checked
+  separately in e2e before declaring lossless import on all platforms.
+- **Gemini CLI (2):** hierarchical project/user `GEMINI.md` context, with
+  non-root canonical instructions embedded into the same context files.
+  https://github.com/google-gemini/gemini-cli/blob/main/docs/reference/configuration.md.
+- **Warp (4):** repo `AGENTS.md` project rules, project and home skill
+  discovery, and embedding non-root instructions in the root file.
+  https://docs.warp.dev/getting-started/migrate-to-warp/migrate-to-warp-from-claude-code/;
+  https://docs.warp.dev/agents/capabilities/skills.
+
+Remaining 96 unverified cells retain their null dates until an exact primary
+source and generate/import parity can be demonstrated. There are still
+24 over-declaration warnings for previously rejected claims requiring separate
+runtime decisions.
