@@ -548,7 +548,6 @@ describe('generate: full canonical → all agents produce all supported outputs'
       '.claude/rules/typescript.md',
       '.claude/settings.json',
       '.claude/skills/qa/SKILL.md',
-      '.claudeignore',
       '.mcp.json',
       'CLAUDE.md',
     ]);
@@ -778,7 +777,6 @@ describe('generate: full canonical → all agents produce all supported outputs'
       '.claude/rules/typescript.md',
       '.claude/settings.json',
       '.claude/skills/qa/SKILL.md',
-      '.claudeignore',
       '.cline/agents.yaml',
       '.cline/hooks/posttooluse-0.sh',
       '.cline/mcp.json',

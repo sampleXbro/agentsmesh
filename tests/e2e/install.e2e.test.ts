@@ -124,7 +124,7 @@ describe('install e2e', () => {
       expect(readFileSync(join(proj, '.claude', 'skills', 'demo', 'SKILL.md'), 'utf8')).toContain(
         '# Demo',
       );
-      expect(readFileSync(join(proj, '.claudeignore'), 'utf8')).toContain('dist');
+      expect(readFileSync(join(proj, '.claude/settings.json'), 'utf8')).toContain('Read(./dist)');
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

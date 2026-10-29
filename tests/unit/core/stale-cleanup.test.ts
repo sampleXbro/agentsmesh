@@ -69,7 +69,8 @@ describe('cleanupStaleGeneratedOutputs', () => {
     // Co-owned: `~/.claude.json` is Claude Code's own account/history file.
     expect(existsSync(join(TEST_ROOT, '.claude.json'))).toBe(true);
     expect(existsSync(join(TEST_ROOT, '.mcp.json'))).toBe(true);
-    expect(existsSync(join(TEST_ROOT, '.claudeignore'))).toBe(false);
+    // A legacy ignore file is no longer owned or deleted by AgentsMesh.
+    expect(existsSync(join(TEST_ROOT, '.claudeignore'))).toBe(true);
   });
 
   it('uses Antigravity global managed outputs for cleanup', async () => {

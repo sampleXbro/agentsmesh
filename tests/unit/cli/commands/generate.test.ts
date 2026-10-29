@@ -106,7 +106,8 @@ deny:
       '"permissions"',
     );
     expect(readFileSync(join(TEST_DIR, '.claude.json'), 'utf-8')).toContain('"mcpServers"');
-    expect(readFileSync(join(TEST_DIR, '.claudeignore'), 'utf-8')).toContain('dist');
+    expect(readFileSync(join(TEST_DIR, '.claude/settings.json'), 'utf-8'))
+      .toContain('Read(./dist)');
     // Global hooks belong in ~/.claude/settings.json under `hooks`; Claude Code
     // documents no standalone hooks.json. https://code.claude.com/docs/en/hooks
     expect(existsSync(join(TEST_DIR, '.claude', 'hooks.json'))).toBe(false);

@@ -44,13 +44,6 @@ describe('stale artifact cleanup e2e', () => {
       stale: ['.windsurf/mcp_config.example.json'],
     },
     {
-      label: 'ignore',
-      target: 'claude-code',
-      features: '[rules, ignore]',
-      canonicalPath: '.agentsmesh/ignore',
-      stale: ['.claudeignore'],
-    },
-    {
       label: 'permissions',
       target: 'gemini-cli',
       features: '[rules, permissions]',

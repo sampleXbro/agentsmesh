@@ -64,7 +64,7 @@ describe('install pack (integration)', () => {
     expect(existsSync(join(project, '.claude', 'skills', 'demo', 'SKILL.md'))).toBe(true);
     expect(existsSync(join(project, '.mcp.json'))).toBe(true);
     expect(existsSync(join(project, '.claude', 'settings.json'))).toBe(true);
-    expect(existsSync(join(project, '.claudeignore'))).toBe(true);
+    expect(readFileSync(join(project, '.claude/settings.json'), 'utf8')).toContain('Read(./node_modules)');
   });
 
   it('updates the same pack on a second install instead of creating a duplicate pack', async () => {
