@@ -37,7 +37,7 @@ describe('Kilo MCP project capability (vendor config contract)', () => {
     });
     const permissions = generatePermissions(input)[0]!;
     const mcp = generateMcp(input)[0]!;
-    const merged = mergeKiloConfig(permissions.content, null, mcp.content, 'kilo.jsonc');
+    const merged = mergeKiloConfig(permissions.content, undefined, mcp.content, 'kilo.jsonc');
     expect(JSON.parse(merged!)).toEqual({
       permission: { read: 'allow' },
       mcp: { local: { type: 'local', command: ['node'] } },

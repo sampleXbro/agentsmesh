@@ -32,7 +32,7 @@ describe('Kilo project rule discovery', () => {
     const registration = outputs.find(out => out.path === 'kilo.jsonc')!;
     const merged = mergeKiloConfig(
       JSON.stringify({ permission: { read: 'allow' }, custom: true }),
-      null, registration.content, 'kilo.jsonc',
+      undefined, registration.content, 'kilo.jsonc',
     );
     expect(JSON.parse(merged!)).toEqual({
       permission: { read: 'allow' }, custom: true,

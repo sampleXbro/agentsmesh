@@ -5,7 +5,6 @@ import {
   buildRovodevConfig,
   mergeRovodevConfig,
 } from '../../../../src/targets/rovodev/settings.js';
-import { ROVODEV_GLOBAL_CONFIG_FILE } from '../../../../src/targets/rovodev/constants.js';
 
 function makeCanonical(overrides: Partial<CanonicalFiles> = {}): CanonicalFiles {
   return {
