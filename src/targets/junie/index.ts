@@ -162,7 +162,7 @@ export const descriptor = {
     mcp: 'native',
     hooks: 'partial',
     ignore: 'native',
-    permissions: 'partial',
+    permissions: 'none'
   },
   emptyImportMessage:
     'No Junie config found (.junie/guidelines.md, .junie/AGENTS.md, .junie/skills, .junie/mcp/mcp.json, or .aiignore).',

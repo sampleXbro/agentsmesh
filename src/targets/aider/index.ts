@@ -123,7 +123,7 @@ const capabilities: TargetCapabilities = {
   commands: 'none',
   agents: 'none',
   skills: 'native',
-  mcp: 'partial',
+  mcp: 'none',
   // `.aider.conf.yml` test-cmd/auto-test/lint-cmd/auto-lint/notifications-command
   // are aider's own keys for running commands around edits — its whole hook
   // surface, generated and imported. See `hooks-format.ts`.
