@@ -1523,9 +1523,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://docs.augmentcode.com/cli/rules"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -1541,9 +1543,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://docs.augmentcode.com/cli/rules"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -1559,9 +1563,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://docs.augmentcode.com/cli/subagents"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -1577,9 +1583,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://docs.augmentcode.com/cli/subagents"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -1595,9 +1603,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://github.com/augmentcode/auggie/blob/main/README.md"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -1615,9 +1625,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://github.com/augmentcode/auggie/blob/main/README.md"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -1845,9 +1857,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://docs.augmentcode.com/cli/skills"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -1863,9 +1877,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://docs.augmentcode.com/cli/skills"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -3011,9 +3027,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://learn.chatgpt.com/docs/agent-configuration/agents-md"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -3029,9 +3047,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://learn.chatgpt.com/docs/agent-configuration/agents-md"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -3047,9 +3067,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://learn.chatgpt.com/docs/agent-configuration/subagents"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -3065,9 +3087,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://learn.chatgpt.com/docs/agent-configuration/subagents"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -3083,9 +3107,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://learn.chatgpt.com/docs/build-skills"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -3107,9 +3133,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://learn.chatgpt.com/docs/build-skills"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -3338,9 +3366,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://learn.chatgpt.com/docs/build-skills"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -3356,9 +3386,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://learn.chatgpt.com/docs/build-skills"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -11817,9 +11849,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://docs.devin.ai/desktop/cascade/skills"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -11835,9 +11869,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://docs.devin.ai/desktop/cascade/skills"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -11853,9 +11889,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://docs.devin.ai/desktop/cascade/workflows"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -11874,9 +11912,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://docs.devin.ai/desktop/cascade/workflows"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -12081,9 +12121,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://docs.devin.ai/desktop/cascade/agents-md"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -12099,9 +12141,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://docs.devin.ai/desktop/cascade/skills"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {
@@ -12117,9 +12161,11 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
+      "source": [
+        "https://docs.devin.ai/desktop/cascade/skills"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
       "rejectionReason": null
     },
     {

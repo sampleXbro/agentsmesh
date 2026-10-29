@@ -14,7 +14,7 @@ all target integrations have been freshly tested against upstream releases.
 - Before corrections: one upgrade candidate, 172 unverified provenance
   entries, 24 over-declaration warnings, zero missing ledger entries.
 - After corrections in this branch: **zero ledger upgrade candidates**,
-  **71 still-unverified entries**, **24 over-declaration warnings**,
+  **48 still-unverified entries**, **24 over-declaration warnings**,
   and **zero missing entries**.
 - The 24 warnings have existing `verdict: "rejected"` ledger entries;
   do not silently lower advertised support without independently checking
@@ -132,7 +132,7 @@ runs on branch pushes and provides the authoritative repository tests.
 
 Before closing the wider capability-refresh effort:
 
-1. Independently research the remaining 71 unverified ledger cells using
+1. Independently research the remaining 48 unverified ledger cells using
    each target's own primary documentation; reject fabricated or wrong-scope
    claims instead of filling dates blindly.
 2. Reconcile the 24 over-declared/rejected cells, preserving the existing
@@ -229,3 +229,24 @@ continues to register its own relative `rules/*.md` glob separately.
 TDD tests check project/global scope, empty and target-filtered rules, and
 merging with tool-owned settings.
 https://kilo.ai/docs/customize/custom-rules.
+
+### Auggie, Codex CLI, Windsurf/Devin verification (2026-10-29)
+
+Verified another 23 ledger cells from vendor-owned documentation without raising
+runtime capability levels. Auggie project/user markdown rules, agents, commands
+and skills (8); Codex project/home hierarchical instructions, TOML subagents and
+SKILL.md-backed command/skill projections (8); and Windsurf legacy Cascade
+workflows, skills and AGENTS.md compatibility (7). Windsurf has moved its
+public documentation to Devin Desktop, which explicitly identifies the
+legacy Windsurf paths as supported and the modern Devin paths as preferred.
+
+Primary sources: https://docs.augmentcode.com/cli/rules,
+https://docs.augmentcode.com/cli/subagents,
+https://docs.augmentcode.com/cli/skills,
+https://github.com/augmentcode/auggie/blob/main/README.md;
+https://learn.chatgpt.com/docs/agent-configuration/agents-md,
+https://learn.chatgpt.com/docs/agent-configuration/subagents,
+https://learn.chatgpt.com/docs/build-skills;
+https://docs.devin.ai/desktop/cascade/skills,
+https://docs.devin.ai/desktop/cascade/workflows,
+https://docs.devin.ai/desktop/cascade/agents-md.
