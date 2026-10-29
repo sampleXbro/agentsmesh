@@ -14,7 +14,7 @@ all target integrations have been freshly tested against upstream releases.
 - Before corrections: one upgrade candidate, 172 unverified provenance
   entries, 24 over-declaration warnings, zero missing ledger entries.
 - After corrections in this branch: **zero ledger upgrade candidates**,
-  **4 still-unverified entries**, **24 over-declaration warnings**,
+  **zero unclassified entries**, **zero current over-declaration warnings**,
   and **zero missing entries**.
 - The 24 warnings have existing `verdict: "rejected"` ledger entries;
   do not silently lower advertised support without independently checking
@@ -385,3 +385,27 @@ client-rendered SPA and no accessible primary record precisely confirms those
 home-directory paths. The Chinese edition's documented `~/.trae-cn/` paths
 must NOT be conflated with the international `~/.trae/` layout. These entries
 have deliberately not been called primary-source confirmed.
+
+## Final primary-source adjudication — international Trae globals (2026-10-29)
+
+Every ledger cell is now classified: the last four are **rejected as claims of
+primary-source-confirmed native on-disk paths**, not falsely marked as verified.
+Trae documents a global rules and skills UI in the international edition but
+publishes no conclusive writable `~/.trae/user_rules`, `~/.trae/commands`,
+or `~/.trae/skills` layout/format contract; CN docs instead specify
+`~/.trae-cn` explicitly. The best-effort legacy international exporter
+remains for compatibility and may function on installations described by
+community adapters, but **must not be interpreted as a vendor guarantee**.
+This is a research rejection, not proof that Trae lacks the feature.
+
+References: https://docs.trae.ai/ide/rules,
+https://docs.trae.ai/ide/skills,
+https://docs.trae.cn/ide_rules,
+https://docs.trae.cn/ide_slash-commands,
+https://github.com/open-gsd/gsd-core/issues/793.
+
+The ledger now has **594/594 reviewed classifications**, **0 unverified**,
+**0 actionable confirmed gaps**, **0 known over-declarations** when compared
+with the generated matrix. Pending a full cross-platform CI pass, this is
+**an audited compatibility classification rather than an upstream live runtime
+smoke test on every IDE**.

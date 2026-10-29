@@ -11163,10 +11163,14 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
-      "rejectionReason": null
+      "source": [
+        "https://docs.trae.ai/ide/rules",
+        "https://docs.trae.cn/ide_rules",
+        "https://github.com/open-gsd/gsd-core/issues/793"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "rejected",
+      "rejectionReason": "UNVERIFIABLE INTERNATIONAL FILE PATH: Trae official docs describe the additionalRules global UI/feature but do not publish the international ~/.trae/user_rules/typescript.md writable path and exact format. CN docs document ~/.trae-cn instead; community installs are soft evidence only. Existing global exporter remains best-effort for compatibility, not independently proven native loading."
     },
     {
       "target": "trae",
@@ -11248,10 +11252,14 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
-      "rejectionReason": null
+      "source": [
+        "https://docs.trae.cn/ide_slash-commands",
+        "https://docs.trae.cn/ide_rules",
+        "https://github.com/open-gsd/gsd-core/issues/793"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "rejected",
+      "rejectionReason": "UNVERIFIABLE INTERNATIONAL FILE PATH: Trae official docs describe the commands global UI/feature but do not publish the international ~/.trae/commands/review.md writable path and exact format. CN docs document ~/.trae-cn instead; community installs are soft evidence only. Existing global exporter remains best-effort for compatibility, not independently proven native loading."
     },
     {
       "target": "trae",
@@ -11462,10 +11470,14 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
-      "rejectionReason": null
+      "source": [
+        "https://docs.trae.ai/ide/rules",
+        "https://docs.trae.cn/ide_rules",
+        "https://github.com/open-gsd/gsd-core/issues/793"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "rejected",
+      "rejectionReason": "UNVERIFIABLE INTERNATIONAL FILE PATH: Trae official docs describe the rules global UI/feature but do not publish the international ~/.trae/user_rules/rules.md writable path and exact format. CN docs document ~/.trae-cn instead; community installs are soft evidence only. Existing global exporter remains best-effort for compatibility, not independently proven native loading."
     },
     {
       "target": "trae",
@@ -11500,10 +11512,14 @@
         "requiredFrontmatter": [],
         "keyChecks": []
       },
-      "source": [],
-      "verifiedAt": null,
-      "verdict": "unverified",
-      "rejectionReason": null
+      "source": [
+        "https://docs.trae.ai/ide/skills",
+        "https://docs.trae.cn/ide_rules",
+        "https://github.com/open-gsd/gsd-core/issues/793"
+      ],
+      "verifiedAt": "2026-10-29",
+      "verdict": "rejected",
+      "rejectionReason": "UNVERIFIABLE INTERNATIONAL FILE PATH: Trae official docs describe the skills global UI/feature but do not publish the international ~/.trae/skills/api-generator/SKILL.md writable path and exact format. CN docs document ~/.trae-cn instead; community installs are soft evidence only. Existing global exporter remains best-effort for compatibility, not independently proven native loading."
     },
     {
       "target": "trae",
