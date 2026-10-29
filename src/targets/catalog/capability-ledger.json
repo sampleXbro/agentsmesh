@@ -2090,9 +2090,9 @@
         "https://code.claude.com/docs/en/permissions",
         "https://code.claude.com/docs/en/settings-reference"
       ],
-      "verifiedAt": "2026-08-30",
-      "verdict": "rejected",
-      "rejectionReason": "FABRICATED: no dedicated ignore file; exclusion is permissions.deny Read(...) entries in settings.json (ignorePatterns is deprecated)."
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
+      "rejectionReason": null
     },
     {
       "target": "claude-code",
@@ -2113,9 +2113,9 @@
         "https://code.claude.com/docs/en/permissions",
         "https://code.claude.com/docs/en/settings-reference"
       ],
-      "verifiedAt": "2026-08-30",
-      "verdict": "rejected",
-      "rejectionReason": "FABRICATED: no dedicated ignore file; exclusion is permissions.deny Read(...) entries in settings.json (ignorePatterns is deprecated)."
+      "verifiedAt": "2026-10-29",
+      "verdict": "confirmed",
+      "rejectionReason": null
     },
     {
       "target": "claude-code",

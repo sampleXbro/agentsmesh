@@ -10,7 +10,6 @@ export const claudeCodeContract: TargetPathContract = {
     '.claude/skills/api-generator/SKILL.md',
     '.claude/skills/api-generator/references/route-checklist.md',
     '.claude/skills/api-generator/template.ts',
-    '.claudeignore',
     '.mcp.json',
     'CLAUDE.md',
   ],

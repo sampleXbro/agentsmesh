@@ -350,3 +350,15 @@ Cursor's global ignore controls are IDE settings, not a home-directory
 `.cursorignore` file. Prevented generation/deletion/import of global
 `.cursorignore`, while keeping project `.cursorignore` native. Marked global
 capability `partial`, pending IDE-driven changes only.
+
+### Claude Code Read-based ignore (2026-10-29)
+
+Replaced inert `.claudeignore` generation with `permissions.deny` entries
+(`Read(./path)`, directory patterns with `/**`) in the native co-owned
+`.claude/settings.json` at both project and global scopes. A target-specific
+merge combines these denies with existing/pending permission policy and keeps
+other settings keys. Import recognizes these exact Read path rules and can
+round-trip canonical ignore without discarding the existing permissions import.
+Legacy `.claudeignore` remains import-only for migration. Negated gitignore
+patterns are not representable by permission-deny; they are skipped.
+Official: https://code.claude.com/docs/en/permissions.

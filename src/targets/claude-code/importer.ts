@@ -14,6 +14,7 @@ import { createImportReferenceNormalizer } from '../../core/reference/import-rew
 import { runDescriptorImport } from '../import/descriptor-import-runner.js';
 import { importClaudeHooksJson, importSettings } from './settings-helpers.js';
 import { importClaudeSkills } from './importer-skills.js';
+import { importClaudeDenyIgnore } from './ignore.js';
 import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
 import { descriptor } from './index.js';
 
@@ -28,5 +29,6 @@ export async function importFromClaudeCode(
   await importClaudeSkills(projectRoot, results, normalize);
   await importClaudeHooksJson(projectRoot, results);
   await importSettings(projectRoot, results);
+  await importClaudeDenyIgnore(projectRoot, results);
   return results;
 }

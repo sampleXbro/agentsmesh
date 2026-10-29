@@ -620,14 +620,16 @@ describe('generateHooks (claude-code)', () => {
 });
 
 describe('generateIgnore (claude-code)', () => {
-  it('generates .claudeignore from canonical ignore patterns', () => {
+  it('generates permissions.deny instead of inert .claudeignore', () => {
     const canonical = makeCanonical({
       ignore: ['node_modules', '.env', 'dist', 'secrets/'],
     });
     const results = generateIgnore(canonical);
     expect(results).toHaveLength(1);
-    expect(results[0]!.path).toBe('.claudeignore');
-    expect(results[0]!.content).toBe('node_modules\n.env\ndist\nsecrets/');
+    expect(results[0]!.path).toBe('.claude/settings.json');
+    expect(JSON.parse(results[0]!.content)).toEqual({
+      permissions: { deny: ['Read(./node_modules)', 'Read(./.env)', 'Read(./dist)', 'Read(./secrets/**)'] },
+    });
   });
 
   it('returns empty when ignore is empty', () => {
@@ -638,6 +640,6 @@ describe('generateIgnore (claude-code)', () => {
     const canonical = makeCanonical({ ignore: ['dist'] });
     const results = generateIgnore(canonical);
     expect(results).toHaveLength(1);
-    expect(results[0]!.content).toBe('dist');
+    expect(JSON.parse(results[0]!.content)).toEqual({ permissions: { deny: ['Read(./dist)'] } });
   });
 });

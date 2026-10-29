@@ -30,6 +30,7 @@ import { claudeAgentMapper, claudeCommandMapper, claudeRuleMapper } from './impo
 import { lintRules } from './linter.js';
 import { buildClaudeCodeImportPaths } from '../../core/reference/import-map-builders.js';
 import { mergeClaudeMcpJson } from './mcp-merge.js';
+import { mergeClaudeSettingsIgnore } from './settings-ignore-merge.js';
 
 export const target: TargetGenerators = {
   name: 'claude-code',
@@ -50,7 +51,7 @@ const project: TargetLayout = {
   skillDir: '.claude/skills',
   managedOutputs: {
     dirs: ['.claude/agents', '.claude/commands', '.claude/rules', '.claude/skills'],
-    files: [CLAUDE_ROOT, '.claudeignore'],
+    files: [CLAUDE_ROOT],
     // CLAUDE_NESTED_ROOT is the pre-migration project location: evicted once a run
     // writes the root `CLAUDE.md`, so Claude Code never concatenates both into context.
     supersededFiles: [CLAUDE_NESTED_ROOT],
@@ -87,7 +88,7 @@ const globalLayout: TargetLayout = {
       '.claude/output-styles',
       '.agents/skills',
     ],
-    files: [CLAUDE_NESTED_ROOT, CLAUDE_HOOKS_JSON, '.claudeignore'],
+    files: [CLAUDE_NESTED_ROOT, CLAUDE_HOOKS_JSON],
     // `~/.claude.json` holds the account and every project's history; deleting
     // it logs the user out. `~/.claude/settings.json` carries the user's model,
     // env and hook config and is co-owned via the `SETTINGS_JSON_PATHS` fallback.
@@ -113,7 +114,7 @@ const globalCapabilities: TargetCapabilities = {
   skills: 'native',
   mcp: 'native',
   hooks: 'native',
-  ignore: 'native',
+  ignore: 'embedded',
   permissions: 'native',
 };
 
@@ -135,12 +136,14 @@ export const descriptor = {
     skills: 'native',
     mcp: 'native',
     hooks: 'native',
-    ignore: 'native',
+    ignore: 'embedded',
     permissions: 'native',
   },
   emptyImportMessage: 'No Claude Code config found (CLAUDE.md or .claude/rules/*.md).',
   lintRules,
-  mergeGeneratedOutputContent: mergeClaudeMcpJson,
+  mergeGeneratedOutputContent: (existing, pending, next, path) =>
+    mergeClaudeMcpJson(existing, pending, next, path) ??
+    mergeClaudeSettingsIgnore(existing, pending, next, path),
   project,
   globalSupport: {
     capabilities: globalCapabilities,

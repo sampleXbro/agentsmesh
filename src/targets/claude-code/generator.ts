@@ -14,10 +14,9 @@ import {
   CLAUDE_MCP_JSON,
   CLAUDE_SKILLS_DIR,
   CLAUDE_SETTINGS,
-  CLAUDE_IGNORE,
 } from './constants.js';
 import { buildClaudeHooksObjectFromCanonical } from './hooks-format.js';
-import { ignoreOutput } from '../catalog/ignore-output.js';
+import { claudeIgnoreDenyRules } from './ignore.js';
 
 export type RulesOutput = FeatureGeneratorOutput;
 
@@ -179,8 +178,10 @@ export function generateHooks(canonical: CanonicalFiles): RulesOutput[] {
   return [{ path: CLAUDE_SETTINGS, content }];
 }
 
-/**
- * Generate .claudeignore from canonical ignore patterns.
- * Uses gitignore-style syntax (one pattern per line).
- */
-export const generateIgnore = ignoreOutput(CLAUDE_IGNORE);
+/** Claude Code ignores are Read path denies in settings.json, not a .claudeignore file. */
+export function generateIgnore(canonical: CanonicalFiles): RulesOutput[] {
+  const deny = claudeIgnoreDenyRules(canonical.ignore);
+  return deny.length > 0
+    ? [{ path: CLAUDE_SETTINGS, content: JSON.stringify({ permissions: { deny } }, null, 2) }]
+    : [];
+}
