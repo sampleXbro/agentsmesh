@@ -19,7 +19,7 @@ const COMMAND_MATCH_BUDGET = 5_000_000;
  * glob is also capped per match; this bounds a graph full of costly globs to a
  * few tens of ms. A normal query uses well under 1%.
  */
-const GLOB_MATCH_BUDGET = 2_000_000;
+export const GLOB_MATCH_BUDGET = 2_000_000;
 
 type MatchBudgets = Record<'command' | 'glob', WorkBudget>;
 
