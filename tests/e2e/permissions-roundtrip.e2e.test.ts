@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createTestProject, cleanup } from './helpers/setup.js';
 import { runCli } from './helpers/run-cli.js';
-import { readJson, readYaml } from './helpers/assertions.js';
+import { readJson, readText, readYaml } from './helpers/assertions.js';
 
 function writeProject(dir: string, target: string): void {
   mkdirSync(join(dir, '.agentsmesh', 'rules'), { recursive: true });
@@ -52,8 +52,11 @@ describe('permissions round-trip e2e', () => {
     expect((await runCli('import --from claude-code', dir)).exitCode).toBe(0);
     expect(readYaml(join(dir, '.agentsmesh', 'permissions.yaml'))).toMatchObject({
       allow: ['Read', 'Bash(pnpm test:*)'],
-      deny: ['Read(./.env)', 'Bash(curl:*)'],
+      // Claude Read path exclusions are classified as canonical ignore,
+      // while command/tool denies remain canonical permissions.
+      deny: ['Bash(curl:*)'],
     });
+    expect(readText(join(dir, '.agentsmesh', 'ignore'))).toContain('.env');
   });
 
   // Gemini's policy engine documents its Workspace tier as non-functional, so project

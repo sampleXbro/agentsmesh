@@ -45,7 +45,7 @@ describe('importing a second tool', () => {
 
     expect(perms()).toEqual({
       allow: ['Bash(npm test)', 'Shell(ls)'],
-      deny: ['Read(./secrets/**)', 'Bash(rm -rf:*)'],
+      deny: ['Bash(rm -rf:*)'],
     });
     expect(read(IGNORE)).toBe('secrets/\nbuild/\n');
   });
@@ -58,7 +58,7 @@ describe('importing a second tool', () => {
 
     expect(perms()).toEqual({
       allow: ['Shell(ls)', 'Bash(npm test)'],
-      deny: ['Read(./secrets/**)', 'Bash(rm -rf:*)'],
+      deny: ['Bash(rm -rf:*)'],
       ask: [],
     });
     expect(read(IGNORE)).toBe('build/\nsecrets/\n');
@@ -117,7 +117,7 @@ describe('importing a second tool', () => {
     const merged = perms() as { allow: string[]; deny: string[] };
     expect([[...merged.allow].sort(), [...merged.deny].sort()]).toEqual([
       ['Bash(npm test)', 'Shell(ls)'],
-      ['Bash(rm -rf:*)', 'Read(./secrets/**)'],
+      ['Bash(rm -rf:*)'],
     ]);
     expect(read(IGNORE).split('\n').filter(Boolean).sort()).toEqual(['build/', 'secrets/']);
   });
