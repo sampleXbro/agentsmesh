@@ -12,7 +12,7 @@ import type { WorkBudget } from './regex-linear/index.js';
  * uses a tiny fraction. When exhausted, remaining command patterns are treated
  * as non-matches (safe degradation, never a false positive).
  */
-const COMMAND_MATCH_BUDGET = 5_000_000;
+export const COMMAND_MATCH_BUDGET = 5_000_000;
 
 /**
  * Query-wide budget for file_glob matching (DP cells, see glob-safety.ts). Each

@@ -2,6 +2,7 @@
  * E2E: recall safety + leanness through the real binary —
  *   - ReDoS guard: a command_pattern the linear engine cannot run is a dead
  *     trigger (alone: unrecallable, exit 2); recall never executes one.
+ *   - work budget: command matching stops (fails closed) at the query budget.
  *   - default token budget: a broad match is trimmed by the default budget
  *     unless `--all` is passed.
  */
@@ -13,6 +14,8 @@ import { join } from 'node:path';
 import { runCli, runCliArgs } from './helpers/run-cli.js';
 import { addLessonCli } from './helpers/lessons-cli.js';
 import { DEFAULT_RECALL_MAX_TOKENS } from '../../src/lessons/ranking.js';
+import { COMMAND_MATCH_BUDGET } from '../../src/lessons/query.js';
+import { compileLinearMatcher } from '../../src/lessons/regex-linear/index.js';
 
 let dir: string;
 
@@ -76,22 +79,37 @@ describe('lessons CLI — ReDoS guard (P1, linear engine)', () => {
     },
   );
 
-  it('recall against a 30k-char adversarial command returns promptly (no hang)', async () => {
-    // a+b is quadratic for a backtracking engine on a long non-matching input;
-    // the linear engine evaluates it fast.
-    await addLessonCli(dir, 'quadratic-shaped rule', {
+  it('recall on a 30k-char adversarial command stops at the query work budget', async () => {
+    // a{1,100}b keeps ~100 NFA threads alive per char, so this matching input
+    // costs more than the query-wide budget: the linear engine stops and fails
+    // closed. A backtracking RegExp, or any path that skips the budget, matches it.
+    const pattern = 'a{1,100}b';
+    const id = await addLessonCli(dir, 'budget-bound rule', {
       topic: 'sec',
       newTopic: true,
       summary: 's',
-      extra: ['--trigger-cmd', 'a+b'],
+      extra: ['--trigger-cmd', pattern],
     });
-    const adversarial = 'a'.repeat(30_000);
-    const start = Date.now();
-    const r = await runCli(`lessons query --cmd ${adversarial}`, dir);
-    expect(Date.now() - start).toBeLessThan(5000);
-    expect(r.exitCode).toBe(0);
+    const adversarial = 'a'.repeat(30_000) + 'b';
+    expect(linearWork(pattern, adversarial)).toBeGreaterThan(COMMAND_MATCH_BUDGET);
+
+    expect(await recalledIds('aaab')).toEqual([id]);
+    expect(await recalledIds(adversarial)).toEqual([]);
   });
 });
+
+async function recalledIds(command: string): Promise<string[]> {
+  const r = await runCliArgs(['lessons', 'query', '--cmd', command, '--format', 'json'], dir);
+  expect(r.exitCode).toBe(0);
+  return (JSON.parse(r.stdout) as { lessons: { id: string }[] }).lessons.map((l) => l.id);
+}
+
+/** NFA work units the linear engine spends on `input`, with no budget cap. */
+function linearWork(pattern: string, input: string): number {
+  const budget = { remaining: Number.MAX_SAFE_INTEGER };
+  compileLinearMatcher(pattern)!.test(input, budget);
+  return Number.MAX_SAFE_INTEGER - budget.remaining;
+}
 
 describe('lessons CLI — corrupt graph resilience (P1)', () => {
   // Recall is a BLOCKING REQUIREMENT before every edit/command, so a corrupt
