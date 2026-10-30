@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { REPO_LOCAL_GIT_ENV, remoteGitEnv } from '../../../src/config/remote/git-env.js';
 import { clearEnv } from '../../helpers/temp-git-repo.js';
@@ -32,5 +33,19 @@ describe('remoteGitEnv', () => {
     process.env.AGENTSMESH_ALLOW_INSECURE_GIT = '1';
     process.env.AGENTSMESH_ALLOW_LOCAL_GIT = '1';
     expect(remoteGitEnv().GIT_ALLOW_PROTOCOL).toBe('https:ssh:http:file');
+  });
+});
+
+describe('test setup isolation', () => {
+  // The setup file runs before any vi.mock, so a product import there would
+  // load real modules that a later test could no longer stub.
+  it('loads the env list from a module that imports nothing', () => {
+    const list = readFileSync('src/config/remote/repo-local-git-env.ts', 'utf-8');
+    const setup = readFileSync('tests/setup/isolate-git-env.ts', 'utf-8');
+
+    expect(list).not.toMatch(/^import /m);
+    expect(setup.match(/^import .*$/gm)).toEqual([
+      "import { REPO_LOCAL_GIT_ENV } from '../../src/config/remote/repo-local-git-env.js';",
+    ]);
   });
 });

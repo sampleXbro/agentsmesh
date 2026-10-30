@@ -1,4 +1,4 @@
-import { REPO_LOCAL_GIT_ENV } from '../../src/config/remote/git-env.js';
+import { REPO_LOCAL_GIT_ENV } from '../../src/config/remote/repo-local-git-env.js';
 
 /**
  * The pre-commit hook runs this suite with git's GIT_DIR and GIT_INDEX_FILE
