@@ -1,7 +1,7 @@
 {
   "name": "agentsmesh",
   "mcpName": "io.github.samplexbro/agentsmesh",
-  "version": "0.41.0",
+  "version": "0.42.0",
   "description": "AI coding config sync CLI. Keep rules, commands, agents, skills, MCP servers, hooks and permissions in one .agentsmesh source and generate native config for Claude Code, Cursor, GitHub Copilot, Gemini CLI, Codex CLI and every other tool, plus a shared lessons memory that learns from your repo.",
   "type": "module",
   "main": "./dist/index.js",
