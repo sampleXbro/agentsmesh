@@ -15,6 +15,7 @@ import { loadCanonicalForExtend } from './extend-load.js';
 import { applyExtendPick } from './extend-pick.js';
 import { gateExtendElevatedArtifacts } from './extend-elevated.js';
 import { loadPacksCanonical } from '../load/pack-load.js';
+import { dropUnmanagedSettings, unmanagedSettingsMessage } from '../load/unmanaged-settings.js';
 import { logger } from '../../utils/output/logger.js';
 
 const FEATURE_TO_KEYS: Record<string, (keyof CanonicalFiles)[]> = {
@@ -66,7 +67,7 @@ export function filterCanonicalByFeatures(
 export async function loadCanonicalWithExtends(
   config: ValidatedConfig,
   configDir: string,
-  options: { refreshRemoteCache?: boolean } = {},
+  options: { refreshRemoteCache?: boolean; warnSkippedSettings?: boolean } = {},
   canonicalDir = join(configDir, '.agentsmesh'),
 ): Promise<{ canonical: CanonicalFiles; resolvedExtends: ResolvedExtend[] }> {
   const resolvedExtends = await resolveExtendPaths(config, configDir, {
@@ -107,6 +108,11 @@ export async function loadCanonicalWithExtends(
   // A local event overrides extends hooks, but an installed pack's hooks stay
   // (e.g. `init --lessons` adding the recall hook must not drop them).
   merged = { ...merged, hooks: combineHooks(merged.hooks, packsCanonical.hooks) };
+  const { canonical, skipped } = dropUnmanagedSettings(merged, localCanonical);
+  for (const entry of skipped) {
+    if (options.warnSkippedSettings === false || !config.features.includes(entry.feature)) continue;
+    logger.warn(unmanagedSettingsMessage(entry));
+  }
 
-  return { canonical: merged, resolvedExtends };
+  return { canonical, resolvedExtends };
 }

@@ -83,6 +83,12 @@ Patterns support wildcards using `:*` suffix for Bash commands:
   `deny` rules take precedence over `allow` rules. If a pattern appears in both, it is denied.
 </Aside>
 
+## Permissions from packs and extends
+
+Installed packs and [`extends`](../../configuration/extends/) sources can ship their own `permissions.yaml`. Their entries are added to the lists your own `permissions.yaml` manages, and an entry that is in both is kept once. Generate then writes those full lists to each tool, so an entry that is only in a tool's own config can be dropped.
+
+This works list by list. A pack's `deny` list is used only if your own file has a `deny` list, and an empty one (`deny: []`) is enough. For a list your file does not manage (missing or commented out, as `init` scaffolds them), generate skips the pack's entries and prints a warning, and that list in your tools stays as it is. To start managing your permissions, run `agentsmesh import --from <tool>` (add `--global` for `~/.agentsmesh`) to copy in the permissions your tools already have, then run `agentsmesh generate`.
+
 ## Tool-specific behavior
 
 See the **Permissions** row in the [supported tools matrix](../../reference/supported-tools/) for per-target support levels (native, partial, or unsupported).

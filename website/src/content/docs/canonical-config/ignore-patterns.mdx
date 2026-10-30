@@ -67,6 +67,14 @@ AI tools use the ignore list to decide what to index into their context and what
 - Reduces noise from build artifacts and large generated files
 - Improves response quality by focusing context on source files
 
+## Patterns from packs and extends
+
+Installed packs and [`extends`](../../configuration/extends/) sources can ship an `ignore` file too. Their patterns join yours only when your own `.agentsmesh/ignore` has at least one pattern. The file counts as empty when it is missing, blank, or has only comments, like the one `init` creates.
+
+While your file is empty, AgentsMesh does not manage your tools' ignore files. `generate` skips the patterns from packs and extends and prints a warning, so it does not replace an ignore file you wrote by hand, such as `.cursorignore` or `.claudeignore`. Global mode (`~/.agentsmesh/ignore`) works the same way.
+
+To use the shared patterns, run `agentsmesh import --from <tool>` (add `--global` for `~/.agentsmesh`) to copy in the patterns your tools already have, or add the patterns you want to `.agentsmesh/ignore`, then run `agentsmesh generate`. Each tool then gets the patterns from extends first, then from packs, then your own. A pattern listed twice is written once.
+
 ## Tool-specific behavior
 
 See the **Ignore** row in the [supported tools matrix](../../reference/supported-tools/) for per-target support levels (native or unsupported).

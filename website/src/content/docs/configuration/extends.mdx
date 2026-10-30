@@ -143,6 +143,12 @@ When extends sources define resources that conflict with your local canonical co
 
 This means your local overrides always take precedence over shared org config. The root rule follows the same order, even when the rules have different names: there is only one, taken from your local `.agentsmesh/` if it has one, else from an installed pack, else from an extended source. Any other rule marked `root: true` is used as a normal rule, and `generate` prints a warning naming it. The one exception is hooks from installed packs, which are kept next to yours; see [community packs](../../guides/community-packs/#merge-behavior).
 
+MCP servers from extended sources and installed packs join only an MCP list you manage. If your local `.agentsmesh/mcp.json` is missing or has no `mcpServers` key, `generate` skips their servers with a warning, so it does not replace the servers your tools already have. To use them, run `agentsmesh import --from <tool>` to copy in your tools' current servers, or list your servers under `mcpServers` yourself. See [MCP servers](../../canonical-config/mcp-servers/#servers-from-packs-and-extends).
+
+Permissions and hooks from extended sources and installed packs follow the same rule. Permissions count list by list: an extended `deny` list is used only if your local `permissions.yaml` has a `deny` list. Hooks are skipped while your local `hooks.yaml` is missing or has only comments. `generate` warns about whatever it skips. To use them, run `agentsmesh import --from <tool>`, or write your own lists and hooks. A project that takes all its permissions or hooks from an `extends` source can add the empty lists it wants (`allow: []`, `deny: []`, `ask: []`) to `permissions.yaml`, or `{}` to `hooks.yaml`. See [permissions](../../canonical-config/permissions/#permissions-from-packs-and-extends) and [hooks](../../canonical-config/hooks/#hooks-from-packs-and-extends).
+
+Ignore patterns from extended sources and installed packs join only an ignore list you manage. If your local `.agentsmesh/ignore` is missing or has no patterns (only comments, as after `init`), `generate` skips their patterns with a warning, so it does not replace the ignore files your tools already have. To use them, run `agentsmesh import --from <tool>`, or add your own patterns to `.agentsmesh/ignore`. See [Ignore patterns](../../canonical-config/ignore-patterns/#patterns-from-packs-and-extends).
+
 ## Installing extends via CLI
 
 Instead of manually editing `agentsmesh.yaml`, you can use `agentsmesh install --extends`:

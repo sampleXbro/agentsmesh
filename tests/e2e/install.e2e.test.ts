@@ -113,6 +113,9 @@ describe('install e2e', () => {
         join(proj, '.agentsmesh', 'rules', '_root.md'),
         '---\nroot: true\n---\n# Root\n',
       );
+      // Pack MCP servers and ignore patterns join only lists the project manages.
+      writeFileSync(join(proj, '.agentsmesh', 'mcp.json'), '{ "mcpServers": {} }\n');
+      writeFileSync(join(proj, '.agentsmesh', 'ignore'), '.env\n');
 
       const r = await runCli(`install ${upstream} --force --name shared-pack`, proj);
       expect(r.exitCode, r.stderr).toBe(0);
@@ -124,7 +127,7 @@ describe('install e2e', () => {
       expect(readFileSync(join(proj, '.claude', 'skills', 'demo', 'SKILL.md'), 'utf8')).toContain(
         '# Demo',
       );
-      expect(readFileSync(join(proj, '.claudeignore'), 'utf8')).toContain('dist');
+      expect(readFileSync(join(proj, '.claudeignore'), 'utf8')).toBe('node_modules\ndist\n.env');
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

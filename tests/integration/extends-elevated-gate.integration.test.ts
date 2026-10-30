@@ -17,6 +17,7 @@ import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { loadCanonicalWithExtends } from '../../src/canonical/extends/extends.js';
 import type { ValidatedConfig } from '../../src/config/core/schema.js';
+import type { CanonicalFiles } from '../../src/core/types.js';
 
 const ROOT = join(tmpdir(), 'am-extends-elevated-gate');
 type ElevatedAccept = 'hooks' | 'permissions' | 'mcp';
@@ -71,6 +72,10 @@ function setupProject(): string {
     join(project, '.agentsmesh', 'rules', '_root.md'),
     '---\nroot: true\n---\n# Project root\n',
   );
+  // Managed (empty) settings, so extend values reach the merged canonical.
+  writeFileSync(join(project, '.agentsmesh', 'mcp.json'), '{ "mcpServers": {} }\n');
+  writeFileSync(join(project, '.agentsmesh', 'hooks.yaml'), '{}\n');
+  writeFileSync(join(project, '.agentsmesh', 'permissions.yaml'), 'allow: []\n');
   return project;
 }
 
@@ -92,6 +97,11 @@ function configWithExtend(source: string, accept?: ElevatedAccept[]): ValidatedC
     plugins: [],
   } as unknown as ValidatedConfig;
 }
+
+// The project manages only allow (`allow: []`), so only that list is kept.
+const NO_PERMISSIONS = { allow: [] };
+const preToolUse = (canonical: CanonicalFiles): string[] =>
+  (canonical.hooks?.PreToolUse ?? []).map((h) => h.command);
 
 const ORIGINAL_ALLOW_LOCAL_GIT = process.env.AGENTSMESH_ALLOW_LOCAL_GIT;
 const ORIGINAL_CACHE = process.env.AGENTSMESH_CACHE;
@@ -120,9 +130,9 @@ describe('extends — elevated-artifact gate (integration)', () => {
 
     const { canonical } = await loadCanonicalWithExtends(config, project);
 
-    expect(canonical.hooks).toBeNull();
-    expect(canonical.permissions).toBeNull();
-    expect(canonical.mcp).toBeNull();
+    expect(canonical.hooks).toEqual({});
+    expect(canonical.permissions).toEqual(NO_PERMISSIONS);
+    expect(canonical.mcp).toEqual({ mcpServers: {} });
     // Non-elevated content still flows through.
     expect(canonical.rules.some((r) => r.body.includes('Shared rule'))).toBe(true);
   });
@@ -134,9 +144,9 @@ describe('extends — elevated-artifact gate (integration)', () => {
 
     const { canonical } = await loadCanonicalWithExtends(config, project);
 
-    expect(canonical.hooks).not.toBeNull();
-    expect(canonical.permissions).not.toBeNull();
-    expect(canonical.mcp).not.toBeNull();
+    expect(preToolUse(canonical)).toEqual(['echo PWNED']);
+    expect(canonical.permissions).toEqual({ ...NO_PERMISSIONS, allow: ['Bash(rm -rf:*)'] });
+    expect(Object.keys(canonical.mcp?.mcpServers ?? {})).toEqual(['evil']);
   });
 
   it('PRESERVES only the accepted artifact (per-artifact consent)', async () => {
@@ -146,9 +156,9 @@ describe('extends — elevated-artifact gate (integration)', () => {
 
     const { canonical } = await loadCanonicalWithExtends(config, project);
 
-    expect(canonical.hooks).not.toBeNull();
-    expect(canonical.permissions).toBeNull();
-    expect(canonical.mcp).toBeNull();
+    expect(preToolUse(canonical)).toEqual(['echo PWNED']);
+    expect(canonical.permissions).toEqual(NO_PERMISSIONS);
+    expect(canonical.mcp).toEqual({ mcpServers: {} });
   });
 
   it('PRESERVES hooks/permissions/mcp from a LOCAL extend (already trusted)', async () => {
@@ -159,8 +169,8 @@ describe('extends — elevated-artifact gate (integration)', () => {
 
     const { canonical } = await loadCanonicalWithExtends(config, project);
 
-    expect(canonical.hooks).not.toBeNull();
-    expect(canonical.permissions).not.toBeNull();
-    expect(canonical.mcp).not.toBeNull();
+    expect(preToolUse(canonical)).toEqual(['echo PWNED']);
+    expect(canonical.permissions).toEqual({ ...NO_PERMISSIONS, allow: ['Bash(rm -rf:*)'] });
+    expect(Object.keys(canonical.mcp?.mcpServers ?? {})).toEqual(['evil']);
   });
 });
