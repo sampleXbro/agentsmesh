@@ -1879,6 +1879,21 @@
         "t-kw-e61f5882"
       ]
     },
+    "fixture-and-assertion-discipline-when-import-or-a-parser": {
+      "createdAt": "2026-10-30",
+      "evidence": [
+        "commit:4ebc09ce"
+      ],
+      "rule": "When import or a parser stops writing an empty permission list it never had, sweep unit, integration AND e2e tests for expectations that pin the invented list (ask: [], deny: []) before committing; the pre-commit hook only finds them one failing file per run.",
+      "status": "active",
+      "topics": [
+        "fixture-and-assertion-discipline"
+      ],
+      "triggers": [
+        "t-glob-2b2f105e",
+        "t-kw-18d15622"
+      ]
+    },
     "fixture-and-assertion-discipline-when-testing-realpath-based-path": {
       "createdAt": "2026-06-27",
       "evidence": [],
@@ -2681,6 +2696,22 @@
         "t-kw-d1ad9a9a"
       ]
     },
+    "generation-safety-mcp-servers-from-installed-packs": {
+      "createdAt": "2026-10-29",
+      "evidence": [
+        "lesson:security-the-extends-elevated-artifact-gate"
+      ],
+      "rule": "MCP servers from installed packs and extends join only a list the local mcp.json manages: loadCanonicalWithExtends drops them via dropUnmanagedMcp (src/canonical/load/unmanaged-mcp.ts) when the local file has no mcpServers key, so generate never replaces the servers already in a tool. A test that expects pack or extends MCP in the merged canonical or in generated tool files must give the project a local {\"mcpServers\": {}}; without it an elevated-gate 'stripped' assertion (mcp toBeNull) passes even when the gate is broken, because the drop also yields null.",
+      "status": "active",
+      "topics": [
+        "generation-safety"
+      ],
+      "triggers": [
+        "t-glob-c21ba0b0",
+        "t-glob-04f7aedd",
+        "t-glob-3a6f3f1e"
+      ]
+    },
     "generation-safety-never-scaffold-an-explicitly-empty": {
       "createdAt": "2026-09-03",
       "evidence": [],
@@ -2693,6 +2724,40 @@
       "triggers": [
         "t-glob-a4ff119a",
         "t-kw-8a7ceee6"
+      ]
+    },
+    "generation-safety-packs-and-extends-must-not": {
+      "createdAt": "2026-10-29",
+      "evidence": [
+        "test:tests/integration/install-ignore-unmanaged.integration.test.ts"
+      ],
+      "rule": "Packs and extends must not turn an unmanaged settings feature into a managed one. Canonical ignore has no null state, so a local .agentsmesh/ignore with no patterns (missing, empty, or comments only like init's template) means unmanaged: loadCanonicalWithExtends drops pack and extends patterns with one warning (dropUnmanagedIgnore). A test that expects a pack-only ignore file must add a local pattern, not undo the rule.",
+      "status": "active",
+      "topics": [
+        "generation-safety"
+      ],
+      "triggers": [
+        "t-glob-c21ba0b0",
+        "t-glob-3c315a53",
+        "t-glob-fde00b4e",
+        "t-kw-9f9fe0aa"
+      ]
+    },
+    "generation-safety-treat-a-canonical-settings-feature": {
+      "createdAt": "2026-10-29",
+      "evidence": [],
+      "rationale": "Found while reproducing pack permissions/hooks data loss in ~/.claude/settings.json (tests/integration/install-permissions-hooks-unmanaged.integration.test.ts).",
+      "rule": "Treat a canonical settings feature as managed per file, not per list: a missing or comment-only permissions.yaml / hooks.yaml / mcp.json parses to null (unmanaged, generate leaves the tool alone), but any parsed content makes the whole feature managed and the tool's owned keys are replaced wholesale. parsePermissionsContent fills missing allow/deny/ask with [], so uncommenting only allow wipes the user's deny and ask; and merging pack or extends layers onto a null local layer turns it into a managed list that replaces the user's tool values. Before changing merge or parse code, check the null-local case end to end against a hand-written tool file.",
+      "status": "active",
+      "topics": [
+        "generation-safety"
+      ],
+      "triggers": [
+        "t-glob-3c315a53",
+        "t-glob-f1bf65e5",
+        "t-glob-1e114ce3",
+        "t-glob-c21ba0b0",
+        "t-kw-8175a64e"
       ]
     },
     "generation-safety-when-a-code-path-deliberately": {
@@ -2926,6 +2991,34 @@
         "t-cmd-7c1c43ea"
       ]
     },
+    "git-commit-hygiene-never-run-git-commit-with": {
+      "createdAt": "2026-10-29",
+      "evidence": [
+        "lesson:verification-workflow-the-husky-pre-commit-hook"
+      ],
+      "rule": "Never run git commit with the husky pre-commit hook from a git worktree (.claude/worktrees/*): git exports GIT_DIR=<worktree gitdir> to the hook, so every test that runs git in a temp dir (git init, git config user.*, the lessons merge-driver setup) writes into the SHARED .git/config. It set core.bare=true (git then fails with 'this operation must be run in a work tree' in every checkout), added a [user] test <test@test.local> identity, and repointed merge.agentsmesh-lessons.driver at the worktree dist; 58 tests failed that pass standalone. Run the precommit gates standalone instead and ask before skipping the hook. If it happened: git config -f <common>/.git/config core.bare false, remove the [user] section, restore the driver to 'agentsmesh lessons merge-driver %O %A %B', and check refs.",
+      "status": "active",
+      "topics": [
+        "git-commit-hygiene"
+      ],
+      "triggers": [
+        "t-glob-10b2c4ed",
+        "t-cmd-cb599e19"
+      ]
+    },
+    "git-commit-hygiene-never-test-git-env-var": {
+      "createdAt": "2026-10-29",
+      "evidence": [],
+      "rule": "Never test git env-var behaviour by pointing GIT_INDEX_FILE or GIT_DIR at this repo's real index or gitdir: a one-line 'GIT_INDEX_FILE=<worktree gitdir>/index git add .' run in a temp repo replaced the worktree index with that temp file alone (every tracked path then showed as a staged delete, and git status failed on a missing blob). Use a second throwaway repo as the target. Recover with git read-tree HEAD, then re-stage only your own paths.",
+      "status": "active",
+      "topics": [
+        "git-commit-hygiene"
+      ],
+      "triggers": [
+        "t-cmd-3b644e56",
+        "t-kw-68f53311"
+      ]
+    },
     "git-commit-hygiene-other-processes-pack-install-refresh": {
       "createdAt": "2026-06-23",
       "evidence": [],
@@ -2951,6 +3044,35 @@
       ],
       "triggers": [
         "t-cmd-eae4aa4a"
+      ]
+    },
+    "git-commit-hygiene-to-bring-another-session-s": {
+      "createdAt": "2026-10-30",
+      "evidence": [
+        "commit:525939c4"
+      ],
+      "rule": "To bring another session's uncommitted worktree work into develop: export 'git -C <wt> diff HEAD --binary' without .agentsmesh/lessons/lessons.json and tests/e2e/agents-last-run.md, copy its untracked files, apply with 'git apply --3way --index', then cmp every patched file against the worktree. Merge its lessons.json with 'agentsmesh lessons merge-driver <wt HEAD copy> <ours> <wt copy>'. A file holding a raw NUL byte comes back as a conflict with no markers (git treats it as binary): when develop's copy equals the patch base, take the worktree version.",
+      "status": "active",
+      "topics": [
+        "git-commit-hygiene"
+      ],
+      "triggers": [
+        "t-cmd-5767a646",
+        "t-kw-ace5a469"
+      ]
+    },
+    "git-commit-hygiene-to-build-on-a-sibling": {
+      "createdAt": "2026-10-29",
+      "evidence": [],
+      "rationale": "Used to generalise the uncommitted MCP fix (claude/recursing-moser-80eaf5) into unmanaged-settings.ts on claude/gracious-proskuriakova-00823c.",
+      "rule": "To build on a sibling session's uncommitted fix without committing, apply its staged diff to the index (git -C <sibling> diff --cached --binary > p; git apply --index p) and keep your own work unstaged, so git diff shows only your delta. Never run git rm --cached or git add in that tree: git rm --cached on a base file removed it from the index too and broke the base. Delete with plain rm, and check the base with diff <(git diff --cached --binary) <(git -C <sibling> diff --cached --binary).",
+      "status": "active",
+      "topics": [
+        "git-commit-hygiene"
+      ],
+      "triggers": [
+        "t-cmd-0a49c912",
+        "t-kw-0182406e"
       ]
     },
     "git-commit-hygiene-when-auditing-unpushed-work-probe": {
@@ -3534,6 +3656,22 @@
       "triggers": [
         "t-glob-72c19fb3",
         "t-glob-eb1e5fce"
+      ]
+    },
+    "install-import-pickers-never-advise-agentsmesh-import-from": {
+      "createdAt": "2026-10-29",
+      "evidence": [
+        "test:tests/integration/install-ignore-unmanaged.integration.test.ts"
+      ],
+      "rule": "Never advise 'agentsmesh import --from <tool>' as the way to combine several tools' ignore files: the ignore importers (runFlatFile in descriptor-import-runner.ts, cursor importIgnore) overwrite .agentsmesh/ignore, so a second import keeps only the last tool's patterns and the next generate replaces the first tool's ignore file. Tell users to copy the patterns they want into .agentsmesh/ignore instead.",
+      "status": "active",
+      "topics": [
+        "install-import-pickers"
+      ],
+      "triggers": [
+        "t-glob-82207873",
+        "t-glob-a858eb5d",
+        "t-kw-21fc9320"
       ]
     },
     "install-import-pickers-put-a-path-boundary-check": {
@@ -7615,6 +7753,19 @@
         "t-kw-57b96a2e"
       ]
     },
+    "shell-quoting-in-zsh-an-unquoted-var": {
+      "createdAt": "2026-10-29",
+      "evidence": [
+        "lesson:shell-quoting-rule-4"
+      ],
+      "rule": "In zsh, an unquoted $VAR holding a list of file paths is passed as ONE argument (zsh does not word-split), so 'prettier --check $FILES' fails with ENAMETOOLONG; write the list to a file and pipe it through xargs, or expand with ${=VAR}.",
+      "status": "superseded",
+      "supersededBy": "shell-quoting-in-zsh-bash-calls-never-2",
+      "topics": [
+        "shell-quoting"
+      ],
+      "triggers": []
+    },
     "shell-quoting-in-zsh-bash-calls-never": {
       "createdAt": "2026-09-05",
       "evidence": [
@@ -9134,6 +9285,24 @@
       "triggers": [
         "t-glob-341a7fe1",
         "t-glob-860c694c"
+      ]
+    },
+    "target-permissions-treat-a-permissions-list-missing": {
+      "createdAt": "2026-10-29",
+      "evidence": [
+        "lesson:targets-when-a-target-writes-keys"
+      ],
+      "rationale": "parsePermissionsContent filled missing lists with [], so uncommenting only allow wiped deny/ask in .claude/settings.json and other tools; pi-agent and antigravity also revoked on a deleted permissions.yaml.",
+      "rule": "Treat a permissions list missing from canonical (Permissions.allow/deny/ask undefined) as unmanaged: when a target writes into a file the user also owns, emit only managedLists(permissions, lists) and keep the user's value for every absent list; never default a missing list to [] on the write path, and treat null permissions as 'leave the tool alone', never as revoke. Revoke with an explicit empty list.",
+      "status": "active",
+      "topics": [
+        "target-permissions"
+      ],
+      "triggers": [
+        "t-glob-62d071f5",
+        "t-glob-f1bf65e5",
+        "t-glob-4b3e62a5",
+        "t-kw-97e4e1f6"
       ]
     },
     "target-permissions-when-a-per-target-import": {
@@ -10811,6 +10980,21 @@
         "t-cmd-2a2e013d"
       ]
     },
+    "website-docs-website-node-modules-is-missing": {
+      "createdAt": "2026-10-29",
+      "evidence": [
+        "lesson:website-docs-when-applying-a-readability-quality"
+      ],
+      "rule": "website/node_modules is missing in a git worktree. To run the astro link check there, symlink the main checkout's website/node_modules into the worktree's website/, run ./node_modules/.bin/astro build from website/, then delete the symlink and website/dist; do not run pnpm install in the worktree.",
+      "status": "active",
+      "topics": [
+        "website-docs"
+      ],
+      "triggers": [
+        "t-cmd-f9a31508",
+        "t-kw-ab78dd6f"
+      ]
+    },
     "website-docs-when-applying-a-readability-quality": {
       "createdAt": "2026-06-23",
       "evidence": [],
@@ -11606,6 +11790,10 @@
       "kind": "command_pattern",
       "pattern": "git add tasks/reports"
     },
+    "t-cmd-0a49c912": {
+      "kind": "command_pattern",
+      "pattern": "\\bgit (rm|apply)\\b.*--cached"
+    },
     "t-cmd-0b25c71e": {
       "kind": "command_pattern",
       "pattern": "git\\s+(clone|ls-remote|fetch)"
@@ -11682,6 +11870,10 @@
       "kind": "command_pattern",
       "pattern": "apply_patch add document|apply_patch add .*markdown|apply_patch add .*\\.md"
     },
+    "t-cmd-3b644e56": {
+      "kind": "command_pattern",
+      "pattern": "GIT_(INDEX_FILE|DIR)="
+    },
     "t-cmd-3b8eef0f": {
       "kind": "command_pattern",
       "pattern": "cp -R dist"
@@ -11741,6 +11933,10 @@
     "t-cmd-56d79bf7": {
       "kind": "command_pattern",
       "pattern": "agentsmesh lessons add"
+    },
+    "t-cmd-5767a646": {
+      "kind": "command_pattern",
+      "pattern": "git apply --3way"
     },
     "t-cmd-5efd7022": {
       "kind": "command_pattern",
@@ -11966,6 +12162,10 @@
       "kind": "command_pattern",
       "pattern": "install --force"
     },
+    "t-cmd-cb599e19": {
+      "kind": "command_pattern",
+      "pattern": "\\bgit\\s+commit\\b"
+    },
     "t-cmd-cd48106d": {
       "kind": "command_pattern",
       "pattern": "rg -n.*src/index\\.ts|rg -n.*src/lessons\\.ts"
@@ -12078,6 +12278,10 @@
       "kind": "command_pattern",
       "pattern": "pnpm lint"
     },
+    "t-cmd-f9a31508": {
+      "kind": "command_pattern",
+      "pattern": "astro\\s+build"
+    },
     "t-cmd-fc33692e": {
       "kind": "command_pattern",
       "pattern": "capabilities:seed"
@@ -12113,6 +12317,10 @@
     "t-glob-0465888e": {
       "kind": "file_glob",
       "pattern": ".agentsmesh/lessons/lessons.json"
+    },
+    "t-glob-04f7aedd": {
+      "kind": "file_glob",
+      "pattern": "src/canonical/load/unmanaged-mcp.ts"
     },
     "t-glob-04ffddd8": {
       "kind": "file_glob",
@@ -12306,6 +12514,10 @@
       "kind": "file_glob",
       "pattern": "tests/contract/target-contract.matrix.test.ts"
     },
+    "t-glob-1e114ce3": {
+      "kind": "file_glob",
+      "pattern": "src/canonical/features/hooks.ts"
+    },
     "t-glob-1f849af2": {
       "kind": "file_glob",
       "pattern": "src/lessons/lessons-lock.ts"
@@ -12381,6 +12593,10 @@
     "t-glob-29cd251c": {
       "kind": "file_glob",
       "pattern": "src/lessons/jsonl-log.ts"
+    },
+    "t-glob-2b2f105e": {
+      "kind": "file_glob",
+      "pattern": "src/targets/import/run-target-import.ts"
     },
     "t-glob-2be00990": {
       "kind": "file_glob",
@@ -12477,6 +12693,10 @@
     "t-glob-398705da": {
       "kind": "file_glob",
       "pattern": "src/cli/commands/lessons-types.ts"
+    },
+    "t-glob-3a6f3f1e": {
+      "kind": "file_glob",
+      "pattern": "tests/integration/extends-elevated-gate.integration.test.ts"
     },
     "t-glob-3ae2ea62": {
       "kind": "file_glob",
@@ -12581,6 +12801,10 @@
     "t-glob-4ac421f1": {
       "kind": "file_glob",
       "pattern": "src/cli/renderers/lessons-render-diagnostics.ts"
+    },
+    "t-glob-4b3e62a5": {
+      "kind": "file_glob",
+      "pattern": "src/core/permissions.ts"
     },
     "t-glob-4b9b7045": {
       "kind": "file_glob",
@@ -12745,6 +12969,10 @@
     "t-glob-62ce3dcb": {
       "kind": "file_glob",
       "pattern": "src/targets/*/generator*.ts"
+    },
+    "t-glob-62d071f5": {
+      "kind": "file_glob",
+      "pattern": "src/targets/*/*permission*.ts"
     },
     "t-glob-633537fc": {
       "kind": "file_glob",
@@ -13002,6 +13230,10 @@
       "kind": "file_glob",
       "pattern": "src/lessons/import-legacy*.ts"
     },
+    "t-glob-82207873": {
+      "kind": "file_glob",
+      "pattern": "src/targets/import/descriptor-import-runner.ts"
+    },
     "t-glob-82cf3af5": {
       "kind": "file_glob",
       "pattern": "src/lessons/*hook*.ts"
@@ -13253,6 +13485,10 @@
     "t-glob-a8065af7": {
       "kind": "file_glob",
       "pattern": "src/lessons/hook-notices.ts"
+    },
+    "t-glob-a858eb5d": {
+      "kind": "file_glob",
+      "pattern": "src/targets/cursor/settings-helpers.ts"
     },
     "t-glob-a86844dd": {
       "kind": "file_glob",
@@ -13714,6 +13950,10 @@
       "kind": "file_glob",
       "pattern": "src/targets/gemini-cli/generator/hooks.ts"
     },
+    "t-glob-f1bf65e5": {
+      "kind": "file_glob",
+      "pattern": "src/canonical/features/permissions.ts"
+    },
     "t-glob-f238075d": {
       "kind": "file_glob",
       "pattern": "src/lessons/regex-linear/**"
@@ -13770,6 +14010,10 @@
       "kind": "file_glob",
       "pattern": "src/cli/commands/lessons-known-flags.ts"
     },
+    "t-glob-fde00b4e": {
+      "kind": "file_glob",
+      "pattern": "src/canonical/load/unmanaged-*.ts"
+    },
     "t-glob-ff160535": {
       "kind": "file_glob",
       "pattern": "src/targets/*/importer-spec.ts"
@@ -13793,6 +14037,10 @@
     "t-kw-013fafa7": {
       "kind": "keyword",
       "pattern": "fix wave"
+    },
+    "t-kw-0182406e": {
+      "kind": "keyword",
+      "pattern": "uncommitted sibling"
     },
     "t-kw-0182f2d9": {
       "kind": "keyword",
@@ -13898,6 +14146,10 @@
       "kind": "keyword",
       "pattern": "refactor"
     },
+    "t-kw-18d15622": {
+      "kind": "keyword",
+      "pattern": "invented empty permission list"
+    },
     "t-kw-199c98d5": {
       "kind": "keyword",
       "pattern": "agentsmesh mcp entry global"
@@ -13941,6 +14193,10 @@
     "t-kw-218f2eba": {
       "kind": "keyword",
       "pattern": "regression"
+    },
+    "t-kw-21fc9320": {
+      "kind": "keyword",
+      "pattern": "import ignore"
     },
     "t-kw-233098a2": {
       "kind": "keyword",
@@ -14222,6 +14478,10 @@
       "kind": "keyword",
       "pattern": "zsh separator echo equals"
     },
+    "t-kw-68f53311": {
+      "kind": "keyword",
+      "pattern": "GIT_INDEX_FILE"
+    },
     "t-kw-6a5a5a70": {
       "kind": "keyword",
       "pattern": "recall performance"
@@ -14318,6 +14578,10 @@
       "kind": "keyword",
       "pattern": "codecov"
     },
+    "t-kw-8175a64e": {
+      "kind": "keyword",
+      "pattern": "unmanaged"
+    },
     "t-kw-82809497": {
       "kind": "keyword",
       "pattern": "amp hooks"
@@ -14410,9 +14674,17 @@
       "kind": "keyword",
       "pattern": "root artifact collision"
     },
+    "t-kw-97e4e1f6": {
+      "kind": "keyword",
+      "pattern": "permissions unmanaged list"
+    },
     "t-kw-9a36f4fd": {
       "kind": "keyword",
       "pattern": "topLevelKeys fingerprint ledger"
+    },
+    "t-kw-9f9fe0aa": {
+      "kind": "keyword",
+      "pattern": "pack ignore patterns"
     },
     "t-kw-a00afdda": {
       "kind": "keyword",
@@ -14442,6 +14714,10 @@
       "kind": "keyword",
       "pattern": "adversarial review"
     },
+    "t-kw-ab78dd6f": {
+      "kind": "keyword",
+      "pattern": "website build worktree"
+    },
     "t-kw-abe95c07": {
       "kind": "keyword",
       "pattern": "work budget"
@@ -14449,6 +14725,10 @@
     "t-kw-ac3adf17": {
       "kind": "keyword",
       "pattern": "yagni"
+    },
+    "t-kw-ace5a469": {
+      "kind": "keyword",
+      "pattern": "bring worktree work into develop"
     },
     "t-kw-ace667f6": {
       "kind": "keyword",
