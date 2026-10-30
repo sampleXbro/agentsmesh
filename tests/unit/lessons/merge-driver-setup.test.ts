@@ -7,13 +7,13 @@ import {
   ensureLessonsMergeDriver,
   mergeDriverSetupLine,
 } from '../../../src/lessons/merge-driver-setup.js';
-import { clearEnv, git, GIT_HOOK_ENV, initRepo, writeFile } from '../../helpers/temp-git-repo.js';
+import { clearEnv, git, initRepo, writeFile } from '../../helpers/temp-git-repo.js';
 
 const KEY = 'merge.agentsmesh-lessons.driver';
 const BARE = 'agentsmesh lessons merge-driver %O %A %B';
 const LOCAL_FIRST = 'npx --no --offline agentsmesh lessons merge-driver %O %A %B';
-// Host git config could hold a driver, so it is cleared along with the hook vars.
-const ISOLATED_ENV = [...GIT_HOOK_ENV, 'GIT_CONFIG_GLOBAL', 'GIT_CONFIG_NOSYSTEM', 'PATH'];
+// Host git config could hold a driver.
+const ISOLATED_ENV = ['GIT_CONFIG_GLOBAL', 'GIT_CONFIG_NOSYSTEM', 'PATH'];
 let restoreEnv: () => void;
 
 let root: string;

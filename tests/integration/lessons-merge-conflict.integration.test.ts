@@ -13,13 +13,13 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { ensureLessonsMergeDriver } from '../../src/lessons/merge-driver-setup.js';
-import { clearEnv, GIT_HOOK_ENV } from '../helpers/temp-git-repo.js';
+import { clearEnv } from '../helpers/temp-git-repo.js';
 
 const REPO = process.cwd();
 const TSX_CLI = join(REPO, 'node_modules', 'tsx', 'dist', 'cli.mjs');
 const SRC_CLI = join(REPO, 'src', 'cli', 'index.ts');
 const GRAPH = '.agentsmesh/lessons/lessons.json';
-// Hook-exported git vars would aim git at another repo; host config could hold a driver.
+// Host git config could hold a driver.
 let restoreEnv: () => void = () => {};
 
 let dir: string;
@@ -87,7 +87,7 @@ const rules = (): string[] =>
     .sort();
 
 beforeAll(() => {
-  restoreEnv = clearEnv([...GIT_HOOK_ENV, 'GIT_CONFIG_GLOBAL', 'GIT_CONFIG_NOSYSTEM']);
+  restoreEnv = clearEnv(['GIT_CONFIG_GLOBAL', 'GIT_CONFIG_NOSYSTEM']);
   process.env.GIT_CONFIG_GLOBAL = join(tmpdir(), 'am-merge-conflict-no-global-gitconfig');
   process.env.GIT_CONFIG_NOSYSTEM = '1';
 });

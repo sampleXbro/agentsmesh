@@ -7481,6 +7481,22 @@
         "t-kw-951a5294"
       ]
     },
+    "security-spawn-git-that-works-on": {
+      "createdAt": "2026-10-29",
+      "evidence": [
+        "commit:0fc6a776"
+      ],
+      "rule": "Spawn git that works on a remote or a cache clone (any repo that is not the user's project) with remoteGitEnv() from src/config/remote/git-env.ts, never with a copy of process.env: inside a user's git hook run from a linked worktree, the inherited GIT_DIR/GIT_INDEX_FILE made the extends clone overwrite the user's index, ran checkout <ref> against the user's repo, and locked an unpinned extend to the user's own HEAD sha. Keep the inherited env for git on the user's own project (src/lessons/*): there the hook's repo and index are the right ones.",
+      "status": "active",
+      "topics": [
+        "security"
+      ],
+      "triggers": [
+        "t-glob-7017689c",
+        "t-glob-7939daea",
+        "t-glob-294f15d7"
+      ]
+    },
     "security-the-extends-elevated-artifact-gate": {
       "createdAt": "2026-06-27",
       "evidence": [],
@@ -9627,6 +9643,24 @@
         "t-kw-4859e2d1"
       ]
     },
+    "testing-do-not-clear-git-dir": {
+      "createdAt": "2026-10-29",
+      "evidence": [
+        "commit:0fc6a776"
+      ],
+      "rule": "Do not clear GIT_DIR, GIT_INDEX_FILE or GIT_WORK_TREE per test: tests/setup/isolate-git-env.ts, the setupFiles entry of BOTH vitest.config.ts and vitest.e2e.config.ts, deletes REPO_LOCAL_GIT_ENV (src/config/remote/git-env.ts) from process.env before every test file, so spawned git and CLIs must keep inheriting process.env, and any new vitest config must list that setup file. Still isolate from host config: use git/tryGit from tests/helpers/temp-git-repo.ts (fixed identity, -c commit.gpgsign=false) and point GIT_CONFIG_GLOBAL at a missing file with GIT_CONFIG_NOSYSTEM=1 when a host merge driver or signing could change the result. A test that sets GIT_DIR itself must restore it with clearEnv.",
+      "status": "active",
+      "topics": [
+        "testing"
+      ],
+      "triggers": [
+        "t-glob-ae40a94c",
+        "t-glob-8bdc3684",
+        "t-glob-4dac670a",
+        "t-glob-8ade9a3e",
+        "t-glob-303c92cb"
+      ]
+    },
     "testing-in-a-new-test-file": {
       "createdAt": "2026-09-23",
       "evidence": [
@@ -9692,7 +9726,8 @@
       "createdAt": "2026-09-23",
       "evidence": [],
       "rule": "Temp git repos in tests must be isolated from the host: unset GIT_DIR, GIT_INDEX_FILE and GIT_WORK_TREE (hooks export them), point GIT_CONFIG_GLOBAL at a missing file with GIT_CONFIG_NOSYSTEM=1, pass -c commit.gpgsign=false, and set GIT_AUTHOR_*/GIT_COMMITTER_*. Otherwise git acts on the wrong repo, or a host merge driver or signing setup changes the result.",
-      "status": "active",
+      "status": "superseded",
+      "supersededBy": "testing-do-not-clear-git-dir",
       "topics": [
         "testing"
       ],
@@ -10352,7 +10387,8 @@
       "createdAt": "2026-06-11",
       "evidence": [],
       "rule": "The husky pre-commit hook runs pnpm test:coverage, which includes git-touching tests (remote-fetcher-git, lessons-merge-driver, refresh-drift-flow, refresh-git-source, install-script's 'git ls-files --stage'). Run inside 'git commit', they collide with the commit's .git/index.lock and fail spuriously ('Unable to create .git/*.lock', empty git ls-files output, merge-driver missing a rule) yet pass standalone. When a commit's only failures are these git-contention artifacts and the change is independently verified (full suite green standalone), commit with --no-verify.",
-      "status": "active",
+      "status": "superseded",
+      "supersededBy": "verification-workflow-when-git-touching-tests-fail",
       "topics": [
         "verification-workflow"
       ],
@@ -10420,6 +10456,21 @@
         "t-glob-84b6c902",
         "t-glob-85da531e",
         "t-glob-22b2fc25"
+      ]
+    },
+    "verification-workflow-when-git-touching-tests-fail": {
+      "createdAt": "2026-10-29",
+      "evidence": [
+        "commit:0fc6a776"
+      ],
+      "rule": "When git-touching tests fail only inside the husky pre-commit hook ('Unable to create .git/*.lock', empty git ls-files output, a merge driver missing, core.bare = true or a [user] section appearing in .git/config) yet pass standalone, treat it as a GIT_DIR/GIT_INDEX_FILE leak, not lock contention: a commit from a linked worktree exports both to the hook as absolute paths, and a temp-repo git add then locks the commit's own index. Do not commit with --no-verify. Find the git or CLI spawn that bypasses tests/setup/isolate-git-env.ts (a new vitest config, or a spawn with a hand-built env), fix it, then check .git/config. Reproduce with GIT_DIR/GIT_INDEX_FILE pointed at a throwaway repo's worktree gitdir, never this repo's.",
+      "status": "active",
+      "topics": [
+        "verification-workflow"
+      ],
+      "triggers": [
+        "t-cmd-7c1c43ea",
+        "t-kw-b56fdba3"
       ]
     },
     "verification-workflow-when-locating-a-globally-installed": {
@@ -12229,6 +12280,10 @@
       "kind": "file_glob",
       "pattern": "website/src/components/og/*.astro"
     },
+    "t-glob-294f15d7": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/git-exec.ts"
+    },
     "t-glob-29cd251c": {
       "kind": "file_glob",
       "pattern": "src/lessons/jsonl-log.ts"
@@ -12264,6 +12319,10 @@
     "t-glob-300bbdba": {
       "kind": "file_glob",
       "pattern": "src/lessons/mutate.ts"
+    },
+    "t-glob-303c92cb": {
+      "kind": "file_glob",
+      "pattern": "vitest.e2e.config.ts"
     },
     "t-glob-308a43cc": {
       "kind": "file_glob",
@@ -12456,6 +12515,10 @@
     "t-glob-4d2ee3c5": {
       "kind": "file_glob",
       "pattern": "src/targets/catalog/capability-ledger.json"
+    },
+    "t-glob-4dac670a": {
+      "kind": "file_glob",
+      "pattern": "tests/setup/*.ts"
     },
     "t-glob-4eefad64": {
       "kind": "file_glob",
@@ -12661,6 +12724,10 @@
       "kind": "file_glob",
       "pattern": "src/lessons/add.ts"
     },
+    "t-glob-7017689c": {
+      "kind": "file_glob",
+      "pattern": "src/config/remote/git-*.ts"
+    },
     "t-glob-706a24db": {
       "kind": "file_glob",
       "pattern": "src/targets/*/nested-rules.ts"
@@ -12748,6 +12815,10 @@
     "t-glob-78449aa1": {
       "kind": "file_glob",
       "pattern": "src/cli/json-output.ts"
+    },
+    "t-glob-7939daea": {
+      "kind": "file_glob",
+      "pattern": "src/install/source/git-*.ts"
     },
     "t-glob-796629d0": {
       "kind": "file_glob",
@@ -14300,6 +14371,10 @@
     "t-kw-b54b3b44": {
       "kind": "keyword",
       "pattern": "acquireProcessLock"
+    },
+    "t-kw-b56fdba3": {
+      "kind": "keyword",
+      "pattern": "pre-commit hook"
     },
     "t-kw-b5a60c47": {
       "kind": "keyword",
