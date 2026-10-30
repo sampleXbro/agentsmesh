@@ -3273,7 +3273,7 @@
       "rationale": "User asked that the amsh MCP be added only at project level; verified with dist/cli.js in a temp HOME.",
       "rule": "Seed the agentsmesh self-serve MCP entry in project scope only: init --global must scaffold ~/.agentsmesh/mcp.json from TEMPLATE_MCP_GLOBAL (mcpServers key commented out) and import --global must skip seedAgentsmeshMcpEntry. A seeded global entry makes generate --global replace the user's own servers in ~/.claude.json and start the server in every folder. To drop an already-generated server, delete only its entry and keep the mcpServers key; deleting the key stops MCP management and leaves the old server in place.",
       "status": "superseded",
-      "supersededBy": "init-seed-the-agentsmesh-self-serve-2",
+      "supersededBy": "init-seed-the-agentsmesh-self-serve-3",
       "topics": [
         "init"
       ],
@@ -3292,6 +3292,27 @@
       ],
       "rationale": "The first version of this lesson and the changeset claimed generate --global drops a removed entry; a 29-target matrix showed most targets keep it.",
       "rule": "Seed the agentsmesh self-serve MCP entry in project scope only: init --global scaffolds ~/.agentsmesh/mcp.json from TEMPLATE_MCP_GLOBAL (mcpServers key commented out) and import --global skips seedAgentsmeshMcpEntry. Never promise that removing a server from canonical mcp.json removes it from tools' global config: generate --global keeps unlisted servers on 23 of 29 MCP targets (cursor, codex-cli, gemini-cli, copilot, ...), and an empty mcpServers {} makes claude-code, zed and goose clear every global server, also ones the user added in the tool. Verify any MCP removal advice per target with dist/cli.js in a temp HOME.",
+      "status": "superseded",
+      "supersededBy": "init-seed-the-agentsmesh-self-serve-3",
+      "topics": [
+        "init"
+      ],
+      "triggers": [
+        "t-glob-7da85c97",
+        "t-glob-ffcbbfc9",
+        "t-glob-4779743c",
+        "t-glob-90ecaacd",
+        "t-glob-b1cdb41a",
+        "t-kw-199c98d5"
+      ]
+    },
+    "init-seed-the-agentsmesh-self-serve-3": {
+      "createdAt": "2026-10-30",
+      "evidence": [
+        "lesson:init-seed-the-agentsmesh-self-serve-2"
+      ],
+      "rationale": "The -2 lesson said generate --global keeps unlisted servers on 23 of 29 targets; that holds only for an empty list. A review run showed removal works on all targets when other servers remain.",
+      "rule": "Seed the agentsmesh self-serve MCP entry in project scope only, and check the folder too: a project-scope command run in the home folder writes ~/.agentsmesh, the global config. When advising MCP server removal, split the cases (verified with dist/cli.js in a temp HOME): with other servers still listed, deleting one entry and running generate --global removes it from every tool; only an empty or missing mcpServers leaves old servers behind, because most generators skip an empty map, and an empty {} makes claude-code, zed and goose clear every global server.",
       "status": "active",
       "topics": [
         "init"
