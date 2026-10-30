@@ -20,7 +20,7 @@ import type { ValidationFinding } from './validate.js';
 /** Longer inputs are not real paths; they never match. */
 export const MAX_GLOB_PATH_LENGTH = 4096;
 /** Per-match cap on DP cells (~1 ms); a legitimate match uses a few hundred. */
-const MATCH_WORK_LIMIT = 200_000;
+export const MATCH_WORK_LIMIT = 200_000;
 const CACHE_LIMIT = 2000;
 
 export interface GlobMatcher {

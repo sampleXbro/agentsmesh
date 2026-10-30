@@ -7,12 +7,26 @@
  * non-match, never as proof that its file was removed.
  */
 
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createActionMatcher } from '../../../src/lessons/action-match.js';
 import { missingGlobState } from '../../../src/lessons/file-glob-liveness.js';
 import type { LessonsGraph } from '../../../src/lessons/graph-schema.js';
 import { fileGlobLiveness, fileGlobMatchCount } from '../../../src/lessons/validate-liveness.js';
-import { timed } from '../../helpers/timing.js';
+
+/** Globs the safe matcher was asked for and rejected (returned null), in order. */
+const rejected = vi.hoisted((): string[] => []);
+
+vi.mock('../../../src/lessons/glob-safety.js', async (importOriginal) => {
+  const real = await importOriginal<typeof import('../../../src/lessons/glob-safety.js')>();
+  return {
+    ...real,
+    getGlobMatcher: (pattern: string): ReturnType<typeof real.getGlobMatcher> => {
+      const matcher = real.getGlobMatcher(pattern);
+      if (matcher === null) rejected.push(pattern);
+      return matcher;
+    },
+  };
+});
 
 const HOSTILE = '**/' + '+(*)'.repeat(16) + 'ZZZ';
 const PATHS = new Set(Array.from({ length: 50 }, (_, i) => `src/dir${i}/file-${i}-aaaaaaaaaa.ts`));
@@ -36,16 +50,19 @@ function graph(pattern: string): LessonsGraph {
 }
 
 describe('non-recall glob paths use the safe matcher', () => {
-  it('fileGlobMatchCount counts an unsafe glob as matching nothing, fast', () => {
-    const { value, ms } = timed(() => fileGlobMatchCount(HOSTILE, PATHS));
-    expect(value).toBe(0);
-    expect(ms).toBeLessThan(100);
+  beforeEach(() => {
+    rejected.length = 0;
+  });
+
+  // The safe matcher rejects the glob at parse time, so it never runs.
+  it('fileGlobMatchCount counts an unsafe glob as matching nothing', () => {
+    expect(fileGlobMatchCount(HOSTILE, PATHS)).toBe(0);
+    expect(rejected).toEqual([HOSTILE]);
   });
 
   it('fileGlobLiveness never calls an unsafe glob dead', () => {
-    const { value, ms } = timed(() => fileGlobLiveness(graph(HOSTILE), PATHS));
-    expect([...value.dead]).toEqual([]);
-    expect(ms).toBeLessThan(500);
+    expect([...fileGlobLiveness(graph(HOSTILE), PATHS).dead]).toEqual([]);
+    expect(rejected).toEqual([HOSTILE]);
   });
 
   it('missingGlobState keeps an unsafe glob pending even with history', () => {
@@ -59,9 +76,8 @@ describe('non-recall glob paths use the safe matcher', () => {
 
   it('the effectiveness action matcher never matches an unsafe glob', () => {
     const matches = createActionMatcher(graph(HOSTILE));
-    const { value, ms } = timed(() => matches('l', 'file:src/dir1/file-1-aaaaaaaaaa.ts'));
-    expect(value).toBe(false);
-    expect(ms).toBeLessThan(100);
+    expect(matches('l', 'file:src/dir1/file-1-aaaaaaaaaa.ts')).toBe(false);
+    expect(rejected).toEqual([HOSTILE]);
   });
 
   it('safe globs keep their picomatch meaning', () => {

@@ -1,12 +1,24 @@
 import { describe, expect, it } from 'vitest';
 import { MAX_GLOB_LENGTH, parseGlob } from '../../../src/lessons/glob-parse.js';
-import { getGlobMatcher, MAX_GLOB_PATH_LENGTH } from '../../../src/lessons/glob-safety.js';
-import { timed } from '../../helpers/timing.js';
+import {
+  getGlobMatcher,
+  MATCH_WORK_LIMIT,
+  MAX_GLOB_PATH_LENGTH,
+} from '../../../src/lessons/glob-safety.js';
 
 function matches(pattern: string, path: string): boolean {
   const matcher = getGlobMatcher(pattern);
   if (matcher === null) throw new Error(`pattern rejected: ${pattern}`);
   return matcher.test(path);
+}
+
+/** One match against an ample budget: its result and the DP cells it charged. */
+function matchWork(pattern: string, path: string): { hit: boolean; cells: number } {
+  const matcher = getGlobMatcher(pattern);
+  if (matcher === null) throw new Error(`pattern rejected: ${pattern}`);
+  const budget = { remaining: Number.MAX_SAFE_INTEGER };
+  const hit = matcher.test(path, budget);
+  return { hit, cells: Number.MAX_SAFE_INTEGER - budget.remaining };
 }
 
 describe('getGlobMatcher — legitimate globs keep picomatch({ dot: true }) semantics', () => {
@@ -110,28 +122,33 @@ describe('parseGlob — globs outside the linear subset are rejected (fail close
 });
 
 describe('getGlobMatcher — cost is bounded (no catastrophic backtracking)', () => {
-  it('rejects the nested-extglob repro in well under a millisecond budget', () => {
+  it('rejects the nested-extglob repro at parse time', () => {
     const hostile = '**/' + '+(*)'.repeat(20) + 'ZZZ';
-    expect(timed(() => expect(getGlobMatcher(hostile)).toBeNull()).ms).toBeLessThan(20);
+    expect(parseGlob(hostile)).toEqual(expect.any(String));
+    expect(getGlobMatcher(hostile)).toBeNull();
   });
 
-  it('matches a star-heavy glob against a long segment in linear time', () => {
-    const pattern = '*a'.repeat(40) + 'b';
-    const path = 'a'.repeat(4000);
+  // Each path is one step short of a match and ends like its glob, so the
+  // literal-tail prefilter lets it through and only the per-match cap stops
+  // the DP. Counting cells, not ms, keeps this exact under any machine load.
+  it.each([
     // picomatch needs minutes here (backtracking over 40 stars).
-    expect(timed(() => expect(matches(pattern, path)).toBe(false)).ms).toBeLessThan(100);
-  });
-
-  it('matches a globstar-heavy glob against a deep path in bounded time', () => {
-    const pattern = '**/*a*/'.repeat(20) + 'z';
-    const path = 'a/'.repeat(2000) + 'b';
-    expect(timed(() => expect(matches(pattern, path)).toBe(false)).ms).toBeLessThan(100);
-  });
-
-  it('bounds the work of many near-cap brace expansions', () => {
-    const pattern = '{*a,*b}'.repeat(6) + 'z';
-    const path = 'ab'.repeat(2000);
-    expect(timed(() => expect(matches(pattern, path)).toBe(false)).ms).toBeLessThan(100);
+    [
+      'star-heavy glob on a long segment',
+      '*a'.repeat(40) + 'b',
+      `${'a'.repeat(38)}${'b'.repeat(3960)}ab`,
+    ],
+    [
+      'globstar-heavy glob on a deep path',
+      '**/*a*/'.repeat(20) + 'z',
+      `${'b/'.repeat(2000)}${'a/'.repeat(19)}z`,
+    ],
+    ['brace glob with 64 expansions', '{*a,*b}'.repeat(6) + 'z', `abab${'c'.repeat(3994)}az`],
+  ])('caps the DP work of a %s', (_label, pattern, path) => {
+    const { hit, cells } = matchWork(pattern, path);
+    expect(hit).toBe(false);
+    expect(cells).toBeGreaterThanOrEqual(MATCH_WORK_LIMIT);
+    expect(cells).toBeLessThan(MATCH_WORK_LIMIT * 1.05);
   });
 
   it('charges a shared budget and reports a non-match once it is exhausted', () => {

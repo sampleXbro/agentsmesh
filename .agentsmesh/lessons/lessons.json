@@ -996,6 +996,22 @@
         "t-glob-9a12f490"
       ]
     },
+    "dist-backed-tests-before-a-full-vitest-run": {
+      "createdAt": "2026-10-29",
+      "evidence": [
+        "commit:93042811"
+      ],
+      "rule": "Before a full vitest run in a fresh worktree, build dist first (node_modules/.bin/tsup) when dist/cli.js is missing: no global setup builds it, and only generate-process-lock's beforeAll builds it, racing ~100 dist-backed files into 'Cannot find module dist/cli.js' (789 failures that look like a regression but are not).",
+      "status": "active",
+      "topics": [
+        "dist-backed-tests"
+      ],
+      "triggers": [
+        "t-glob-64298c11",
+        "t-cmd-024ed4d1",
+        "t-kw-5ad21932"
+      ]
+    },
     "dist-backed-tests-rule-1": {
       "createdAt": "2026-06-05",
       "evidence": [
@@ -7984,6 +8000,21 @@
         "t-cmd-69dc7d4e"
       ]
     },
+    "shell-quoting-sweep-src-or-tests-for": {
+      "createdAt": "2026-10-29",
+      "evidence": [
+        "commit:9bdc4c33"
+      ],
+      "rule": "Sweep src/ or tests/ for a pattern with grep -a (or rg --text), never plain grep -r: four tracked files hold a raw NUL byte (tests/unit/lessons/regex-linear.test.ts, tests/unit/utils/filesystem/fs-write-atomic.test.ts, src/targets/kimi-code/config-toml.ts, src/targets/openhands/merge.ts), so macOS grep treats them as binary and drops their matches from -rn and -rl output. A sweep for wall-clock asserts missed the 6 in regex-linear.test.ts this way; grep -P '\\x00' also fails to find the NUL, so check with python reading bytes.",
+      "status": "active",
+      "topics": [
+        "shell-quoting"
+      ],
+      "triggers": [
+        "t-cmd-1b48051d",
+        "t-kw-f84f503f"
+      ]
+    },
     "shell-quoting-when-a-script-renames-a": {
       "createdAt": "2026-09-24",
       "evidence": [
@@ -9748,6 +9779,21 @@
         "t-cmd-d04a125f"
       ]
     },
+    "testing-to-guard-a-work-bound": {
+      "createdAt": "2026-10-29",
+      "evidence": [
+        "commit:93042811"
+      ],
+      "rule": "To guard a work bound (budget, cap) in a test, assert the work units the code charges, not wall-clock ms: wrap the counting function with vi.mock + importOriginal and sum what it charges its WorkBudget. The 500 ms query-glob budget test flaked at 510 ms in a busy full coverage run AND still passed with the shared budget removed (unbounded ~250 ms on a free machine). Prove the guard by temporarily breaking the bound.",
+      "status": "active",
+      "topics": [
+        "testing"
+      ],
+      "triggers": [
+        "t-glob-bbdcdfb7",
+        "t-kw-f5b1f549"
+      ]
+    },
     "testing-to-prove-a-pure-refactor": {
       "createdAt": "2026-09-17",
       "evidence": [
@@ -9778,6 +9824,23 @@
         "t-kw-3bd487e2"
       ]
     },
+    "testing-when-a-test-guards-a": {
+      "createdAt": "2026-10-29",
+      "evidence": [
+        "commit:9bdc4c33",
+        "lesson:testing-to-guard-a-work-bound"
+      ],
+      "rule": "When a test guards a work cap, assert the charged work both REACHES the cap (>= cap) and stays under it, and measure the input's real work first. A cheap prefilter can cut a hostile input to zero work, so a ms check or an upper-bound-only count stays green with the cap removed: the glob-safety star/globstar/brace tests charged 0 DP cells (literal-tail prefilter) until each path was made to end like its glob.",
+      "status": "active",
+      "topics": [
+        "testing"
+      ],
+      "triggers": [
+        "t-glob-bbdcdfb7",
+        "t-glob-0154b692",
+        "t-glob-918e29c2"
+      ]
+    },
     "testing-when-a-test-helper-rethrows": {
       "createdAt": "2026-09-04",
       "evidence": [
@@ -9792,6 +9855,21 @@
       "triggers": [
         "t-glob-4c29ad88",
         "t-kw-e9de15ff"
+      ]
+    },
+    "testing-when-an-e2e-test-spawns": {
+      "createdAt": "2026-10-29",
+      "evidence": [
+        "06de1425"
+      ],
+      "rule": "When an e2e test spawns the CLI, vi.mock cannot count work across the process, so do not fall back to a wall-clock cap: assert the budget's fail-closed outcome. A real match whose linear work exceeds the budget must NOT be recalled (lessons-recall-safety: a{1,100}b on 'a' x 30000 + 'b' costs ~24M units vs COMMAND_MATCH_BUDGET 5M), with an in-process precondition that the work is over the budget and a short input as a live-trigger control. The old 5000 ms cap passed even with native RegExp (a+b on 30k chars takes ~1.3 s). Keep each argv string well under Linux's 128 KiB MAX_ARG_STRLEN: raise per-char work with a wide counted repeat, not input length. Prove it by rebuilding dist with the engine or budget broken.",
+      "status": "active",
+      "topics": [
+        "testing"
+      ],
+      "triggers": [
+        "t-glob-1b182cda",
+        "t-kw-f5b1f549"
       ]
     },
     "testing-when-auditing-duplication-do-not": {
@@ -11508,6 +11586,10 @@
     }
   },
   "triggers": {
+    "t-cmd-024ed4d1": {
+      "kind": "command_pattern",
+      "pattern": "\\bvitest run --coverage\\b"
+    },
     "t-cmd-04ac8468": {
       "kind": "command_pattern",
       "pattern": "worktree"
@@ -11539,6 +11621,10 @@
     "t-cmd-18d320e9": {
       "kind": "command_pattern",
       "pattern": "pnpm flake:watch"
+    },
+    "t-cmd-1b48051d": {
+      "kind": "command_pattern",
+      "pattern": "\\bgrep -[a-zA-Z]*r"
     },
     "t-cmd-1f2e50cd": {
       "kind": "command_pattern",
@@ -12012,6 +12098,10 @@
       "kind": "file_glob",
       "pattern": "src/lessons/command-class.ts"
     },
+    "t-glob-0154b692": {
+      "kind": "file_glob",
+      "pattern": "tests/unit/lessons/regex-linear.test.ts"
+    },
     "t-glob-01a25e93": {
       "kind": "file_glob",
       "pattern": "src/targets/zed/**"
@@ -12195,6 +12285,10 @@
     "t-glob-1adbf269": {
       "kind": "file_glob",
       "pattern": "src/cli/index.ts"
+    },
+    "t-glob-1b182cda": {
+      "kind": "file_glob",
+      "pattern": "tests/e2e/lessons-*.e2e.test.ts"
     },
     "t-glob-1bd6cdf4": {
       "kind": "file_glob",
@@ -12660,6 +12754,10 @@
       "kind": "file_glob",
       "pattern": ".github/workflows/publish.yml"
     },
+    "t-glob-64298c11": {
+      "kind": "file_glob",
+      "pattern": "tests/integration/generate-process-lock.integration.test.ts"
+    },
     "t-glob-648edf5a": {
       "kind": "file_glob",
       "pattern": "tests/**/*recall*"
@@ -13020,6 +13118,10 @@
       "kind": "file_glob",
       "pattern": "src/cli/commands/import.ts"
     },
+    "t-glob-918e29c2": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/glob-safety.ts"
+    },
     "t-glob-91e8e620": {
       "kind": "file_glob",
       "pattern": "tsconfig.tests.json"
@@ -13303,6 +13405,10 @@
     "t-glob-baf0a939": {
       "kind": "file_glob",
       "pattern": ".gitignore"
+    },
+    "t-glob-bbdcdfb7": {
+      "kind": "file_glob",
+      "pattern": "tests/unit/lessons/*safety*.test.ts"
     },
     "t-glob-bdb31b92": {
       "kind": "file_glob",
@@ -14084,6 +14190,10 @@
       "kind": "keyword",
       "pattern": "regex round-trip"
     },
+    "t-kw-5ad21932": {
+      "kind": "keyword",
+      "pattern": "fresh worktree"
+    },
     "t-kw-5bc10508": {
       "kind": "keyword",
       "pattern": "config.toml"
@@ -14608,6 +14718,10 @@
       "kind": "keyword",
       "pattern": "public export error class instanceof"
     },
+    "t-kw-f5b1f549": {
+      "kind": "keyword",
+      "pattern": "wall-clock"
+    },
     "t-kw-f7df0071": {
       "kind": "keyword",
       "pattern": "global scope lessons init wizard"
@@ -14615,6 +14729,10 @@
     "t-kw-f821d655": {
       "kind": "keyword",
       "pattern": "block comment"
+    },
+    "t-kw-f84f503f": {
+      "kind": "keyword",
+      "pattern": "binary file"
     },
     "t-kw-fb488002": {
       "kind": "keyword",

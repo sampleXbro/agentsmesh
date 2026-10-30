@@ -216,10 +216,8 @@ describe('queryLessons', () => {
       },
     };
     // An adversarial input that would hang a backtracking engine — the linear
-    // engine evaluates it correctly and fast.
-    const start = Date.now();
+    // engine evaluates it correctly. Its work bound is in regex-linear.test.ts.
     const noMatch = queryLessons(evil, { command: 'a'.repeat(60) + '!' });
-    expect(Date.now() - start).toBeLessThan(1000);
     expect(noMatch.find((x) => x.id === 'redos-rule')).toBeUndefined(); // trailing '!' ⇒ no $ match
     expect(
       queryLessons(evil, { command: 'aaaa' }).find((x) => x.id === 'redos-rule'),
