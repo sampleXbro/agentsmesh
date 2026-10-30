@@ -6,6 +6,7 @@
 import { resolve } from 'node:path';
 import { readFileSafe, writeFileAtomic } from '../../utils/filesystem/fs.js';
 import { stripJsonComments } from '../../utils/text/json-comments.js';
+import { isHomeDirectory } from '../../lessons/paths.js';
 
 export const MCP_AGENTSMESH_ENTRY_VALUE = {
   type: 'stdio' as const,
@@ -71,9 +72,11 @@ function warn(message: string): void {
  * entry if absent, and atomically write back. Returns true if written.
  *
  * Every other key in the document survives. On any failure — including a file
- * we decline to rewrite — logs a warning to stderr and returns false.
+ * we decline to rewrite — logs a warning to stderr and returns false. Never seeds
+ * the home folder: its .agentsmesh is the global config.
  */
 export async function seedAgentsmeshMcpEntry(projectRoot: string): Promise<boolean> {
+  if (isHomeDirectory(projectRoot)) return false;
   const path = resolve(projectRoot, '.agentsmesh/mcp.json');
   try {
     const outcome = await readRawDocument(path);

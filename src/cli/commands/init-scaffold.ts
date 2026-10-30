@@ -94,7 +94,11 @@ export async function writeScaffoldFull(canonicalDir: string, scope: ConfigScope
     '.agentsmesh/skills/_example/SKILL.md',
   );
 
-  await writeIfAbsent(ab(canonicalDir, 'mcp.json'), mcpTemplate(scope), '.agentsmesh/mcp.json');
+  await writeIfAbsent(
+    ab(canonicalDir, 'mcp.json'),
+    mcpTemplate(scope, canonicalDir),
+    '.agentsmesh/mcp.json',
+  );
   await writeIfAbsent(ab(canonicalDir, 'hooks.yaml'), TEMPLATE_HOOKS, '.agentsmesh/hooks.yaml');
   await writeIfAbsent(
     ab(canonicalDir, 'permissions.yaml'),
@@ -149,7 +153,7 @@ export async function writeScaffoldGapFill(
 
   const mcpPath = ab(canonicalDir, 'mcp.json');
   if (!(await exists(mcpPath))) {
-    await writeFileAtomic(mcpPath, mcpTemplate(scope));
+    await writeFileAtomic(mcpPath, mcpTemplate(scope, canonicalDir));
     logger.success('Created .agentsmesh/mcp.json');
   }
   const hooksPath = ab(canonicalDir, 'hooks.yaml');

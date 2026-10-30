@@ -10,7 +10,7 @@ AgentsMesh ships a built-in MCP server that lets AI agents read and write the ca
 
 ## Quick start
 
-`agentsmesh init` seeds `.agentsmesh/mcp.json` with the server entry automatically, keeping every other key in the file. The entry is project-only: `init --global` and `import --global` do not seed it, because the server works on the project in the folder where it starts. The seeded entry looks like:
+`agentsmesh init` seeds `.agentsmesh/mcp.json` with the server entry automatically, keeping every other key in the file. The entry is project-only: `init --global`, `import --global`, and project commands run in your home folder do not seed it, because the server works on the project in the folder where it starts. The seeded entry looks like:
 
 ```json
 {
@@ -268,5 +268,3 @@ If your project already has `.agentsmesh/mcp.json` and you want to add the self-
 ```
 
 Then run `agentsmesh generate` to project the entry.
-
-Alternatively, re-running `agentsmesh init` on an existing project will inject the entry if it is absent, without overwriting other canonical files.

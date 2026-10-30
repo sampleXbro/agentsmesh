@@ -111,7 +111,7 @@ Running `agentsmesh init --global` creates the same canonical structure under `~
   ignore
 ```
 
-Only `mcp.json` differs. It has no AgentsMesh MCP server entry (see [MCP server](#mcp-server)), and its `mcpServers` key is commented out. Until MCP servers are listed — in this file, an installed pack, or an `extends` source — `generate --global` does not touch the MCP servers in your tools' global config. To manage them here, first run `agentsmesh import --global --from <tool>` to copy in the servers you already have: once servers are listed, `generate --global` writes that list to your tools and can drop servers that are not in it. Do not leave `mcpServers` as an empty object; for some tools that clears every global MCP server.
+Only `mcp.json` differs. It has no AgentsMesh MCP server entry (see [MCP server](#mcp-server)), and its `mcpServers` key is commented out. Until MCP servers are listed — in this file, an installed pack, or an `extends` source — `generate --global` does not touch the MCP servers in your tools' global config. To manage them here, first run `agentsmesh import --global --from <tool>` to copy in the servers you already have: once servers are listed, `generate --global` writes that list to your tools and can drop servers that are not in it. If an older version added the `agentsmesh` server to your tools, delete it there first, or the import copies it back. Do not leave `mcpServers` as an empty object; for some tools that clears every global MCP server.
 
 Three init steps are project-only: the `.gitignore` update, the AgentsMesh MCP server entry, and the lessons scaffold (`--lessons` is rejected with `--global`).
 
@@ -235,7 +235,7 @@ full list.
 
 `init` seeds the AgentsMesh self-serve MCP server entry into `.agentsmesh/mcp.json`. After running `agentsmesh generate`, the entry is projected into each target's native MCP config so AI agents can introspect and mutate canonical configuration directly. See [MCP Server](../../reference/mcp-server/).
 
-`init --global` does not seed this entry. The server works on the project in the folder where it starts, so a global entry would start it in every folder, also in folders without AgentsMesh.
+`init --global` does not seed this entry, and neither does a project `init` run in your home folder, whose `.agentsmesh` is the global config. The server works on the project in the folder where it starts, so a global entry would start it in every folder, also in folders without AgentsMesh.
 
 ## Next steps
 

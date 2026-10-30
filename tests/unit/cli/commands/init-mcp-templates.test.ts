@@ -27,6 +27,9 @@ describe('TEMPLATE_MCP_GLOBAL', () => {
   it('tells the user to import existing servers before managing them', () => {
     expect(TEMPLATE_MCP_GLOBAL).toContain('agentsmesh import --global --from <tool>');
   });
+  it('tells older users to delete the agentsmesh server from their tools before importing', () => {
+    expect(TEMPLATE_MCP_GLOBAL).toMatch(/older version added an agentsmesh server/);
+  });
   it('warns that an empty mcpServers object clears servers', () => {
     expect(TEMPLATE_MCP_GLOBAL).toMatch(/empty object/);
   });
