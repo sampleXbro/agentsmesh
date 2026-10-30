@@ -66,7 +66,8 @@ export function generateHooks(canonical: CanonicalFiles): FactoryDroidOutput[] {
 
 export function generatePermissions(canonical: CanonicalFiles): FactoryDroidOutput[] {
   if (!canonical.permissions) return [];
-  const { allow, deny } = canonical.permissions;
+  // An unmanaged list is left out, and the key-scoped merge keeps the user's.
+  const { allow = [], deny = [] } = canonical.permissions;
   if (allow.length === 0 && deny.length === 0) return [];
   const settings: Record<string, unknown> = {};
   if (allow.length > 0) settings.commandAllowlist = allow;

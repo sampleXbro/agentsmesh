@@ -1,3 +1,4 @@
+import { permissionEntries } from '../permissions.js';
 import type { CanonicalFiles, CompatibilityRow, SupportLevel } from '../types.js';
 import type { ValidatedConfig } from '../../config/core/schema.js';
 import type { TargetCapabilities } from '../../targets/catalog/target.interface.js';
@@ -49,11 +50,7 @@ export function buildCompatibilityMatrix(
         label = 'ignore';
         break;
       case 'permissions':
-        count =
-          canonical.permissions &&
-          (canonical.permissions.allow.length > 0 || canonical.permissions.deny.length > 0)
-            ? 1
-            : 0;
+        count = permissionEntries(canonical.permissions).length > 0 ? 1 : 0;
         label = 'permissions';
         break;
       default:

@@ -14,6 +14,7 @@ import { AB_IGNORE, AB_PERMISSIONS } from '../../core/canonical-paths.js';
 import { canonicalDocument, stringList } from '../import/yaml-import-helpers.js';
 import { join, dirname } from 'node:path';
 import type { ImportResult, Permissions } from '../../core/types.js';
+import { PERMISSION_LISTS } from '../../core/permissions.js';
 import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
 import { mkdirp, readFileSafe, writeFileAtomic } from '../../utils/filesystem/fs.js';
 import { parseZedIgnoreGlobs, mergeCanonicalIgnore } from './ignore-settings.js';
@@ -60,9 +61,10 @@ async function importPermissions(
   const destPath = join(projectRoot, AB_PERMISSIONS);
   const doc = canonicalDocument(await readFileSafe(destPath));
   const existing = (doc.toJS() ?? {}) as Record<string, unknown>;
-  doc.set('allow', mergeList(existing.allow, permissions.allow));
-  doc.set('deny', mergeList(existing.deny, permissions.deny));
-  doc.set('ask', mergeList(existing.ask, permissions.ask ?? []));
+  for (const list of PERMISSION_LISTS) {
+    const imported = permissions[list];
+    if (imported !== undefined) doc.set(list, mergeList(existing[list], imported));
+  }
 
   await mkdirp(dirname(destPath));
   await writeFileAtomic(destPath, doc.toString().trimEnd() + '\n');

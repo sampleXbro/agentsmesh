@@ -5,6 +5,7 @@ import { TARGET_IDS, isBuiltinTargetId } from '../../targets/catalog/target-ids.
 import { getDescriptor } from '../../targets/catalog/registry.js';
 import { loadCanonicalFiles } from '../../canonical/load/loader.js';
 import { generate as runEngine } from '../../core/generate/engine.js';
+import { runTargetImport } from '../../targets/import/run-target-import.js';
 import { writeFileAtomic } from '../../utils/filesystem/fs.js';
 import { assertOutputBoundary, ensureSafeOutputPath } from './generate-path.js';
 import { loadScopedConfig } from '../../config/core/scope.js';
@@ -94,7 +95,7 @@ export async function runConvert(
 
   const tempDir = createTempProjectRoot(base);
   try {
-    await fromDescriptor.generators.importFrom(tempDir, { scope });
+    await runTargetImport(fromDescriptor, tempDir, scope);
 
     const canonical = await loadCanonicalFiles(tempDir);
 

@@ -91,11 +91,13 @@ export interface CanonicalSkill {
   supportingFiles: SkillSupportingFile[];
 }
 
-/** Permission allow/deny/ask lists */
+/**
+ * Permission allow/deny/ask lists. A missing list is unmanaged: generate leaves
+ * the tool's own list alone. An empty list is managed and means "none".
+ */
 export interface Permissions {
-  allow: string[];
-  deny: string[];
-  /** Present in parsed YAML; omitted in some legacy fixtures */
+  allow?: string[];
+  deny?: string[];
   ask?: string[];
 }
 

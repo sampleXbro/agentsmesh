@@ -52,6 +52,29 @@ describe('serializeGoosePermissions', () => {
     expect(serializeGoosePermissions(null, null)).toBeNull();
     expect(serializeGoosePermissions({ allow: [], deny: [], ask: [] }, null)).toBeNull();
   });
+
+  it('leaves the file alone when no list is managed', () => {
+    expect(serializeGoosePermissions(null, 'user:\n  always_allow:\n    - mine\n')).toBeNull();
+  });
+
+  it('keeps the user category lists that permissions.yaml does not manage', () => {
+    const existing =
+      'user:\n  always_allow:\n    - old\n  ask_before:\n    - mine__ask\n  never_allow:\n    - mine__deny\n';
+    const parsed = parseYaml(serializeGoosePermissions({ allow: ['developer__shell'] }, existing)!);
+    expect(parsed).toEqual({
+      user: {
+        always_allow: ['developer__shell'],
+        ask_before: ['mine__ask'],
+        never_allow: ['mine__deny'],
+      },
+    });
+  });
+
+  it('clears a managed empty list and keeps the rest', () => {
+    const existing = 'user:\n  always_allow:\n    - old\n  never_allow:\n    - mine__deny\n';
+    const parsed = parseYaml(serializeGoosePermissions({ allow: [] }, existing)!);
+    expect(parsed).toEqual({ user: { never_allow: ['mine__deny'] } });
+  });
 });
 
 describe('parseGoosePermissions', () => {

@@ -14,12 +14,8 @@
 import { stringify as stringifyYaml, parse as parseYaml } from 'yaml';
 import type { Permissions } from '../../core/canonical-types.js';
 import { toStringArray } from '../import/shared-import-helpers.js';
-
-interface PermissionConfig {
-  always_allow?: string[];
-  ask_before?: string[];
-  never_allow?: string[];
-}
+import { managedLists } from '../../core/permissions.js';
+import { isRecord } from '../../utils/types/guards.js';
 
 function parseYamlObject(content: string | null): Record<string, unknown> {
   if (content === null) return {};
@@ -34,22 +30,30 @@ function parseYamlObject(content: string | null): Record<string, unknown> {
   return {};
 }
 
+const USER_KEYS = { allow: 'always_allow', ask: 'ask_before', deny: 'never_allow' } as const;
+
+/**
+ * Write the lists permissions.yaml manages into the `user` category: an empty
+ * one is removed, and an unmanaged one keeps the user's value. Returns null
+ * when no list is managed, or when there is nothing to write and no file.
+ */
 export function serializeGoosePermissions(
   permissions: Permissions | null,
   existingContent: string | null,
 ): string | null {
-  const allow = permissions?.allow ?? [];
-  const ask = permissions?.ask ?? [];
-  const deny = permissions?.deny ?? [];
-  if (allow.length === 0 && ask.length === 0 && deny.length === 0) return null;
-
-  const user: PermissionConfig = {};
-  if (allow.length > 0) user.always_allow = allow;
-  if (ask.length > 0) user.ask_before = ask;
-  if (deny.length > 0) user.never_allow = deny;
+  const lists = managedLists(permissions, ['allow', 'ask', 'deny']);
+  if (Object.keys(lists).length === 0) return null;
 
   const root = parseYamlObject(existingContent);
-  root.user = user;
+  const user: Record<string, unknown> = isRecord(root.user) ? { ...root.user } : {};
+  for (const [list, entries] of Object.entries(lists)) {
+    const key = USER_KEYS[list as keyof typeof USER_KEYS];
+    if (entries.length > 0) user[key] = entries;
+    else delete user[key];
+  }
+  if (Object.keys(user).length > 0) root.user = user;
+  else delete root.user;
+  if (existingContent === null && Object.keys(root).length === 0) return null;
   return stringifyYaml(root).trimEnd() + '\n';
 }
 

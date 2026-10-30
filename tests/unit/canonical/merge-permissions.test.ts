@@ -37,7 +37,24 @@ describe('mergeCanonicalFiles permissions dedup', () => {
     expect(result.permissions).toEqual({
       allow: ['Read', 'Bash(pnpm test:*)', 'Bash(git add:*)', 'Bash(pnpm build:*)'],
       deny: ['WebFetch', 'Bash(curl:*)', 'Read(./secrets/**)'],
-      ask: [],
     });
+  });
+});
+
+describe('mergeCanonicalFiles unmanaged permission lists', () => {
+  it('manages a list when any layer has it and leaves a list no layer has unmanaged', () => {
+    const base: CanonicalFiles = { ...emptyFiles(), permissions: { allow: ['Read'] } };
+    const overlay: CanonicalFiles = { ...emptyFiles(), permissions: { deny: ['Bash(rm:*)'] } };
+
+    expect(mergeCanonicalFiles(base, overlay).permissions).toEqual({
+      allow: ['Read'],
+      deny: ['Bash(rm:*)'],
+    });
+  });
+
+  it('keeps an explicit empty list managed through the merge', () => {
+    const base: CanonicalFiles = { ...emptyFiles(), permissions: { ask: [] } };
+
+    expect(mergeCanonicalFiles(base, emptyFiles()).permissions).toEqual({ ask: [] });
   });
 });

@@ -152,9 +152,10 @@ export function generateMcp(canonical: CanonicalFiles): OpenCodeOutput[] {
 export function generatePermissions(canonical: CanonicalFiles): OpenCodeOutput[] {
   if (!canonical.permissions) return [];
   const permission: Record<string, 'allow' | 'ask' | 'deny'> = {};
-  for (const name of canonical.permissions.allow) permission[name] = 'allow';
+  // The merge adds per tool, so the user's entries of an unmanaged list stay.
+  for (const name of canonical.permissions.allow ?? []) permission[name] = 'allow';
   for (const name of canonical.permissions.ask ?? []) permission[name] = 'ask';
-  for (const name of canonical.permissions.deny) permission[name] = 'deny';
+  for (const name of canonical.permissions.deny ?? []) permission[name] = 'deny';
   if (Object.keys(permission).length === 0) return [];
   return [{ path: OPENCODE_CONFIG_FILE, content: JSON.stringify({ permission }, null, 2) }];
 }

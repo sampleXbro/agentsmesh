@@ -55,25 +55,10 @@ export function piToolFor(entry: string): string | null {
   return PI_TOOL_BY_CANONICAL.get(entry.trim()) ?? null;
 }
 
-/**
- * Whether canonical says anything at all. An existing but empty permissions
- * file is treated exactly like a missing one: it is not a claim that no tool is
- * approved, so it must not project onto `defaultTools: []`.
- */
-export function hasPermissionEntries(permissions: Permissions | null): boolean {
-  if (!permissions) return false;
-  return (
-    permissions.allow.length > 0 ||
-    permissions.deny.length > 0 ||
-    (permissions.ask ?? []).length > 0
-  );
-}
-
 /** The `defaultTools` array canonical `allow` grants, in built-in order. */
 export function buildDefaultTools(permissions: Permissions | null): string[] {
-  if (!permissions) return [];
   const granted = new Set(
-    permissions.allow
+    (permissions?.allow ?? [])
       .map((entry) => piToolFor(entry))
       .filter((tool): tool is string => tool !== null),
   );
@@ -91,11 +76,10 @@ export interface UnmappedPiEntries {
  * built-in, and every deny and ask entry — Pi has neither tier.
  */
 export function unmappedPermissionEntries(permissions: Permissions | null): UnmappedPiEntries {
-  if (!permissions) return { allow: [], deny: [], ask: [] };
   return {
-    allow: permissions.allow.filter((entry) => piToolFor(entry) === null),
-    deny: [...permissions.deny],
-    ask: [...(permissions.ask ?? [])],
+    allow: (permissions?.allow ?? []).filter((entry) => piToolFor(entry) === null),
+    deny: [...(permissions?.deny ?? [])],
+    ask: [...(permissions?.ask ?? [])],
   };
 }
 
@@ -146,9 +130,10 @@ export function parseDefaultTools(content: string): string[] | null {
  *    the only safe one — DELETING the key hands every built-in back, including
  *    `bash` and `write`, which silently widens whatever the user had. `lint`
  *    names every built-in the projection switches off;
- *  - no `defaultTools` key means "agentsmesh no longer manages this": its own
- *    entries are stripped and the key is removed once nothing is left, which
- *    restores Pi's default rather than asserting an empty allow-list.
+ *  - no `defaultTools` key strips agentsmesh's own entries and removes the key
+ *    once nothing is left, restoring Pi's default. The generator no longer
+ *    sends such content (an unmanaged `allow` writes no file); this stays as
+ *    a safe default for any other caller.
  *
  * Either way the built-ins agentsmesh does not own (today `powershell`) are
  * preserved, and re-merging content that already went through this function is

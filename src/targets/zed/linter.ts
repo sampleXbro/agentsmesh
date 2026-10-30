@@ -1,4 +1,5 @@
 /** Lint rules for the zed target, plus the settings.json writability guard. */
+import { permissionEntries } from '../../core/permissions.js';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { CanonicalFiles, LintDiagnostic } from '../../core/types.js';
@@ -11,9 +12,7 @@ import { ZED_TARGET, ZED_SETTINGS_FILE, ZED_GLOBAL_SETTINGS_FILE } from './const
 function writesSettings(canonical: CanonicalFiles): boolean {
   if (Object.keys(canonical.mcp?.mcpServers ?? {}).length > 0) return true;
   if (canonical.ignore.length > 0) return true;
-  const permissions = canonical.permissions;
-  if (permissions === null) return false;
-  return permissions.allow.length + permissions.deny.length + (permissions.ask?.length ?? 0) > 0;
+  return permissionEntries(canonical.permissions).length > 0;
 }
 
 /**

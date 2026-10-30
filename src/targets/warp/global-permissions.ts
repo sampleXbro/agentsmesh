@@ -73,8 +73,8 @@ export async function importWarpGlobalPermissions(
   const destPath = join(projectRoot, AB_PERMISSIONS);
   const doc = canonicalDocument(await readFileSafe(destPath));
   const existing = (doc.toJS() ?? {}) as Record<string, unknown>;
-  doc.set('allow', mergeList(existing.allow, permissions.allow, 'allow'));
-  doc.set('deny', mergeList(existing.deny, permissions.deny, 'deny'));
+  doc.set('allow', mergeList(existing.allow, permissions.allow ?? [], 'allow'));
+  doc.set('deny', mergeList(existing.deny, permissions.deny ?? [], 'deny'));
 
   await mkdirp(dirname(destPath));
   await writeFileAtomic(destPath, doc.toString().trimEnd() + '\n');

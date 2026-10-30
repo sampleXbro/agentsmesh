@@ -284,10 +284,10 @@ describe('import: multi-target sequential merge (integration)', () => {
 
     runImport('cursor');
     runImport('claude-code');
+    // Neither tool has an ask list, so no import may start managing one.
     expect(perms()).toEqual({
       allow: ['Write', 'Read'],
       deny: ['PERM_FROM_CURSOR', 'PERM_FROM_CLAUDE'],
-      ask: [],
     });
   });
 

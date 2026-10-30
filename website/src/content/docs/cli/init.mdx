@@ -87,7 +87,7 @@ agentsmesh.local.yaml     # Local overrides (gitignored)
 
 Files and directories prefixed with `_` are excluded from generation — they exist only as reference templates. The sole exception is `_root.md`, which is always included as the project-wide root rule.
 
-The scaffolded `permissions.yaml` ships with its `allow` / `deny` / `ask` lists **commented out**, not scaffolded empty. An explicit `allow: []` is a real instruction — "grant nothing" — and targets that project permissions into a shared config file apply it, which would clear permissions you already had. Absent keys mean "AgentsMesh manages nothing here yet". Uncomment a list when you want to start managing it.
+The scaffolded `permissions.yaml` ships with its `allow` / `deny` / `ask` lists **commented out**, not scaffolded empty. An explicit `allow: []` is a real instruction — "grant nothing" — and targets that project permissions into a shared config file apply it, which would clear permissions you already had. Absent keys mean "AgentsMesh manages nothing here yet". Uncomment a list when you want to start managing it: `generate` writes only the lists you uncommented and leaves each tool's other lists as they are. See [managed and unmanaged lists](../../canonical-config/permissions/#managed-and-unmanaged-lists).
 
 Running `agentsmesh init --global` creates the same canonical structure under `~/.agentsmesh/` — the same nine scaffolded artifacts:
 

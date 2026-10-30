@@ -81,3 +81,60 @@ describe('kimiCodeScopeExtras', () => {
     expect(await kimiCodeScopeExtras(makeCanonical(), home, 'global', ALL)).toEqual([]);
   });
 });
+
+describe('kimiCodeScopeExtras unmanaged permission lists', () => {
+  const userRules = [
+    '[[permission.rules]]',
+    'decision = "allow"',
+    'pattern = "Old"',
+    '',
+    '[[permission.rules]]',
+    'decision = "deny"',
+    'pattern = "Bash(rm *)"',
+    'reason = "mine"',
+    '',
+    '[[permission.rules]]',
+    'decision = "ask"',
+    'pattern = "Write"',
+    '',
+  ].join('\n');
+
+  it('leaves the user rules alone when no permissions.yaml list is managed', async () => {
+    const home = newHome(userRules);
+    expect(await kimiCodeScopeExtras(makeCanonical(), home, 'global', ALL)).toEqual([]);
+  });
+
+  it('keeps the user rules of every decision permissions.yaml does not manage', async () => {
+    const home = newHome(userRules);
+    const managedAllow = makeCanonical({ permissions: { allow: ['Read'] } });
+
+    const results = await kimiCodeScopeExtras(managedAllow, home, 'global', ALL);
+
+    expect(results.map((result) => result.path)).toEqual([KIMI_CODE_GLOBAL_CONFIG_FILE]);
+    expect(parseToml(results[0]!.content)).toEqual({
+      permission: {
+        rules: [
+          { decision: 'allow', pattern: 'Read' },
+          { decision: 'deny', pattern: 'Bash(rm *)', reason: 'mine' },
+          { decision: 'ask', pattern: 'Write' },
+        ],
+      },
+    });
+  });
+
+  it('clears the rules of a managed empty list and keeps the rest', async () => {
+    const home = newHome(userRules);
+    const managedEmptyDeny = makeCanonical({ permissions: { deny: [] } });
+
+    const results = await kimiCodeScopeExtras(managedEmptyDeny, home, 'global', ALL);
+
+    expect(parseToml(results[0]!.content)).toEqual({
+      permission: {
+        rules: [
+          { decision: 'allow', pattern: 'Old' },
+          { decision: 'ask', pattern: 'Write' },
+        ],
+      },
+    });
+  });
+});

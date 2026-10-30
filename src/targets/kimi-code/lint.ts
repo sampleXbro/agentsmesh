@@ -7,6 +7,7 @@
  * refuses. Agent frontmatter drops are reported by `lintAgents`.
  */
 
+import { permissionEntries } from '../../core/permissions.js';
 import { AB_HOOKS } from '../../core/canonical-paths.js';
 import type { CanonicalFiles, LintDiagnostic } from '../../core/types.js';
 import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
@@ -74,9 +75,7 @@ export function lintHooks(canonical: CanonicalFiles, options?: unknown): LintDia
 
 export function lintPermissions(canonical: CanonicalFiles, options?: unknown): LintDiagnostic[] {
   const permissions = canonical.permissions;
-  if (!permissions) return [];
-  const total = permissions.allow.length + permissions.deny.length + (permissions.ask?.length ?? 0);
-  if (total === 0) return [];
+  if (permissionEntries(permissions).length === 0) return [];
 
   if (scopeOf(options) !== 'global') {
     return [

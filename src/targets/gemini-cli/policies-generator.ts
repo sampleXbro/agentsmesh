@@ -88,7 +88,7 @@ export function generateGeminiPermissionsPolicies(
   canonical: CanonicalFiles,
 ): Array<{ path: string; content: string }> {
   if (!canonical.permissions) return [];
-  const { allow, deny } = canonical.permissions;
+  const { allow = [], deny = [] } = canonical.permissions;
   const total = allow.length + deny.length;
   if (total === 0) return [];
 

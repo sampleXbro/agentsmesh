@@ -4,6 +4,7 @@
  * and for features that still have no project-level mapping.
  */
 
+import { permissionEntries } from '../../core/permissions.js';
 import { relative } from 'node:path';
 import type { CanonicalFiles, LintDiagnostic } from '../../core/types.js';
 import { WINDSURF_TARGET } from './constants.js';
@@ -39,11 +40,7 @@ export function lintRules(
   }
 
   const unsupported: string[] = [];
-  if (
-    canonical.permissions &&
-    (canonical.permissions.allow.length > 0 || canonical.permissions.deny.length > 0)
-  )
-    unsupported.push('permissions');
+  if (permissionEntries(canonical.permissions).length > 0) unsupported.push('permissions');
 
   if (unsupported.length > 0) {
     diags.push({

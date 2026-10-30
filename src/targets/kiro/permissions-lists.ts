@@ -15,9 +15,7 @@ import {
 } from './permissions-format.js';
 
 function effectEntries(permissions: Permissions, effect: KiroEffect): readonly string[] {
-  if (effect === 'allow') return permissions.allow;
-  if (effect === 'deny') return permissions.deny;
-  return permissions.ask ?? [];
+  return permissions[effect] ?? [];
 }
 
 /** Every canonical entry Kiro can express, deduped, deny first for readability. */

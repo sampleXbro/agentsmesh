@@ -6,6 +6,7 @@
  * only finds out when the agent behaves as if the config were never written.
  */
 
+import { permissionEntries } from '../../core/permissions.js';
 import { AB_MCP } from '../../core/canonical-paths.js';
 import type { CanonicalFiles, LintDiagnostic } from '../../core/types.js';
 import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
@@ -73,7 +74,7 @@ export function lintAgents(canonical: CanonicalFiles): LintDiagnostic[] {
 export function lintPermissions(canonical: CanonicalFiles): LintDiagnostic[] {
   const permissions = canonical.permissions;
   if (!permissions) return [];
-  const entries = [...permissions.allow, ...permissions.deny, ...(permissions.ask ?? [])];
+  const entries = permissionEntries(permissions);
   if (entries.length === 0) return [];
   return [
     createWarning(

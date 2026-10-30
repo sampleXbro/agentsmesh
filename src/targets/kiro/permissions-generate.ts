@@ -14,7 +14,8 @@
  * the rules whose shape it emits (see `isOwnedKiroRule`) and preserves every
  * other one — `exclude` protections, unknown capabilities, rules carrying extra
  * keys — along with all other top-level keys and comments. Owned rules are
- * rewritten on every run and disappear when canonical revokes them. A file that
+ * rewritten on every run and disappear when canonical revokes them, except for
+ * an effect whose list permissions.yaml does not manage: those stay. A file that
  * does not parse is left completely alone rather than replaced. The path stays
  * out of `managedOutputs` so stale cleanup never deletes a user's file.
  *
@@ -32,6 +33,7 @@ import type { FeatureGeneratorOutput } from '../catalog/target.interface.js';
 import type { TargetLayoutScope } from '../catalog/target-descriptor.js';
 import { readFileSafe } from '../../utils/filesystem/fs.js';
 import { computeStatus } from '../../core/generate/feature-loop.js';
+import { PERMISSION_LISTS, managedLists } from '../../core/permissions.js';
 import { buildKiroAgentOutputs } from './generator.js';
 import { canonicalToKiroRules, isOwnedKiroRule } from './permissions-lists.js';
 import { KIRO_TARGET, KIRO_GLOBAL_PERMISSIONS_FILE } from './constants.js';
@@ -56,28 +58,37 @@ function rulesSeq(doc: Document): YAMLSeq<unknown> {
   return isSeq(node) ? (node as YAMLSeq<unknown>) : new YAMLSeq<unknown>();
 }
 
-/** The rule nodes agentsmesh does not own, kept exactly as the user wrote them. */
-function handWrittenRules(seq: YAMLSeq<unknown>): unknown[] {
+/**
+ * The rule nodes to keep exactly as the user wrote them: every rule agentsmesh
+ * does not own, and an owned-shaped rule whose effect permissions.yaml does not
+ * manage (its list is missing there).
+ */
+function keptRules(seq: YAMLSeq<unknown>, managed: ReadonlySet<string>): unknown[] {
   const plain = seq.toJSON() as unknown[];
-  return seq.items.filter((_item, index) => !isOwnedKiroRule(plain[index]));
+  return seq.items.filter((_item, index) => {
+    const rule = plain[index];
+    return !isOwnedKiroRule(rule) || !managed.has(String((rule as { effect: unknown }).effect));
+  });
 }
 
 /**
  * Merge canonical permissions into an existing `permissions.yaml`. `null` means
- * "leave the file alone": either nothing is to be written and no `rules` key is
- * on disk to clear, or the file does not parse.
+ * "leave the file alone": no permissions.yaml list is managed, nothing is to be
+ * written and no `rules` key is on disk to clear, or the file does not parse.
  */
 export function buildKiroPermissionsYaml(
   permissions: Permissions | null,
   existingContent: string | null,
 ): string | null {
+  const managed = new Set(Object.keys(managedLists(permissions, PERMISSION_LISTS)));
+  if (managed.size === 0) return null;
   const doc = permissionsDocument(existingContent);
   if (doc === null) return null;
   const rules = canonicalToKiroRules(permissions);
   if (rules.length === 0 && !doc.has('rules')) return null;
 
   const seq = rulesSeq(doc);
-  seq.items = [...handWrittenRules(seq), ...rules.map((rule) => doc.createNode(rule))];
+  seq.items = [...keptRules(seq, managed), ...rules.map((rule) => doc.createNode(rule))];
   seq.flow = false;
   doc.set('rules', seq);
   return doc.toString().trimEnd() + '\n';

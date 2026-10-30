@@ -21,8 +21,7 @@ const HAS_CONTENT: Record<GapFeature, (canonical: CanonicalFiles) => boolean> = 
     Object.values(c.hooks ?? {}).some((entries) => Array.isArray(entries) && entries.length > 0),
   permissions: (c) => {
     if (!c.permissions) return false;
-    const { allow, deny } = c.permissions;
-    const ask = c.permissions.ask ?? [];
+    const { allow = [], deny = [], ask = [] } = c.permissions;
     return allow.length > 0 || deny.length > 0 || ask.length > 0;
   },
 };

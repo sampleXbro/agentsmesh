@@ -97,6 +97,38 @@ describe('serializeWarpSettings', () => {
   });
 });
 
+describe('serializeWarpSettings unmanaged lists', () => {
+  const existing = [
+    '[agents.profiles]',
+    'agent_mode_command_execution_allowlist = ["^mine$"]',
+    'agent_mode_command_execution_denylist = ["^rm$"]',
+    'agent_mode_coding_file_read_allowlist = ["docs"]',
+    'agent_mode_coding_permissions = "AlwaysAskBeforeReading"',
+  ].join('\n');
+
+  it('keeps the user deny list when permissions.yaml manages only allow', () => {
+    const content = serializeWarpSettings({ allow: ['Bash(git status:*)'] }, existing)!;
+    expect(profilesOf(content)).toEqual({
+      agent_mode_command_execution_allowlist: ['^git status(\\s.*)?$'],
+      agent_mode_command_execution_denylist: ['^rm$'],
+    });
+  });
+
+  it('keeps the user allow keys when permissions.yaml manages only deny', () => {
+    const content = serializeWarpSettings({ deny: ['Bash(curl:*)'] }, existing)!;
+    expect(profilesOf(content)).toEqual({
+      agent_mode_command_execution_allowlist: ['^mine$'],
+      agent_mode_coding_file_read_allowlist: ['docs'],
+      agent_mode_coding_permissions: 'AlwaysAskBeforeReading',
+      agent_mode_command_execution_denylist: ['curl(\\s.*)?'],
+    });
+  });
+
+  it('returns null when only ask is managed, since Warp reads no ask list', () => {
+    expect(serializeWarpSettings({ ask: ['Write'] }, existing)).toBeNull();
+  });
+});
+
 describe('parseWarpPermissions', () => {
   it('reads command lists, the read allowlist and always_allow_reading', () => {
     const content = [

@@ -599,36 +599,32 @@ describe('generatePermissions (cursor)', () => {
     expect(generatePermissions(makeCanonical({ permissions: null }))).toEqual([]);
   });
 
-  it('returns empty when both allow and deny are empty', () => {
-    expect(generatePermissions(makeCanonical({ permissions: { allow: [], deny: [] } }))).toEqual(
-      [],
-    );
+  it('writes managed empty lists, so generate clears them in cli.json', () => {
+    expect(generatePermissions(makeCanonical({ permissions: { allow: [], deny: [] } }))).toEqual([
+      {
+        path: '.cursor/cli.json',
+        content: JSON.stringify({ permissions: { allow: [], deny: [] } }, null, 2),
+      },
+    ]);
   });
 
-  it('generates cli.json with only allow when deny is empty', () => {
-    const canonical = makeCanonical({
-      permissions: { allow: ['Read'], deny: [] },
-    });
-    const results = generatePermissions(canonical);
-    expect(results).toHaveLength(1);
-    const parsed = JSON.parse(results[0]!.content) as {
-      permissions: { allow?: string[]; deny?: string[] };
-    };
-    expect(parsed.permissions.allow).toEqual(['Read']);
-    expect(parsed.permissions.deny).toBeUndefined();
+  it('leaves out an unmanaged list, so the merge keeps the user list', () => {
+    expect(generatePermissions(makeCanonical({ permissions: { allow: ['Read'] } }))).toEqual([
+      {
+        path: '.cursor/cli.json',
+        content: JSON.stringify({ permissions: { allow: ['Read'] } }, null, 2),
+      },
+    ]);
+    expect(generatePermissions(makeCanonical({ permissions: { deny: ['WebFetch'] } }))).toEqual([
+      {
+        path: '.cursor/cli.json',
+        content: JSON.stringify({ permissions: { deny: ['WebFetch'] } }, null, 2),
+      },
+    ]);
   });
 
-  it('generates cli.json with only deny when allow is empty', () => {
-    const canonical = makeCanonical({
-      permissions: { allow: [], deny: ['WebFetch'] },
-    });
-    const results = generatePermissions(canonical);
-    expect(results).toHaveLength(1);
-    const parsed = JSON.parse(results[0]!.content) as {
-      permissions: { allow?: string[]; deny?: string[] };
-    };
-    expect(parsed.permissions.allow).toBeUndefined();
-    expect(parsed.permissions.deny).toEqual(['WebFetch']);
+  it('returns empty when only ask is managed, since Cursor reads no ask list', () => {
+    expect(generatePermissions(makeCanonical({ permissions: { ask: ['Write'] } }))).toEqual([]);
   });
 });
 

@@ -26,6 +26,7 @@
  * `regexInterpretedEntries`.
  */
 
+import { managedLists } from '../../core/permissions.js';
 import type { Permissions } from '../../core/types.js';
 import {
   commandRegex,
@@ -37,13 +38,18 @@ import {
 const READ_ALL = 'always_allow_reading';
 const READ_SPECIFIC = 'allow_reading_specific_files';
 
-/** `[agents.profiles]` keys agentsmesh rewrites from canonical on every emit. */
-export const OWNED_PROFILE_KEYS = [
-  'agent_mode_command_execution_allowlist',
-  'agent_mode_command_execution_denylist',
-  'agent_mode_coding_file_read_allowlist',
-  'agent_mode_coding_permissions',
-] as const;
+/**
+ * `[agents.profiles]` keys agentsmesh rewrites from each canonical list. A list
+ * permissions.yaml does not manage leaves its keys to the user.
+ */
+export const OWNED_PROFILE_KEYS_BY_LIST = {
+  allow: [
+    'agent_mode_command_execution_allowlist',
+    'agent_mode_coding_file_read_allowlist',
+    'agent_mode_coding_permissions',
+  ],
+  deny: ['agent_mode_command_execution_denylist'],
+} as const;
 
 export interface WarpAgentProfile {
   agent_mode_command_execution_allowlist?: string[];
@@ -103,28 +109,40 @@ export function regexInterpretedEntries(permissions: Permissions | null): Unmapp
   );
 }
 
-/** The owned keys canonical permissions determine; `null` when there are none. */
+/**
+ * The owned keys the managed canonical lists determine; `null` when Warp reads
+ * none of the managed lists.
+ */
 export function buildWarpAgentProfile(permissions: Permissions | null): WarpAgentProfile | null {
-  if (permissions === null) return null;
+  const { allow, deny } = managedLists(permissions, ['allow', 'deny']);
+  if (allow === undefined && deny === undefined) return null;
 
-  const denylist = uniqueRegexes(permissions.deny, 'deny');
-  const readAllowlist: string[] = [];
-  let readAll = false;
-  for (const pattern of permissions.allow) {
-    if (pattern.trim() === 'Read') readAll = true;
-    const target = readTarget(pattern);
-    if (target !== null && !readAllowlist.includes(target)) readAllowlist.push(target);
+  const profile: WarpAgentProfile = {};
+  if (allow !== undefined) {
+    const readAllowlist: string[] = [];
+    let readAll = false;
+    for (const pattern of allow) {
+      if (pattern.trim() === 'Read') readAll = true;
+      const target = readTarget(pattern);
+      if (target !== null && !readAllowlist.includes(target)) readAllowlist.push(target);
+    }
+    profile.agent_mode_command_execution_allowlist = uniqueRegexes(allow, 'allow');
+    if (readAllowlist.length > 0) profile.agent_mode_coding_file_read_allowlist = readAllowlist;
+    if (readAll) profile.agent_mode_coding_permissions = READ_ALL;
+    else if (readAllowlist.length > 0) profile.agent_mode_coding_permissions = READ_SPECIFIC;
   }
-
-  const profile: WarpAgentProfile = {
-    agent_mode_command_execution_allowlist: uniqueRegexes(permissions.allow, 'allow'),
-  };
+  const denylist = uniqueRegexes(deny ?? [], 'deny');
   if (denylist.length > 0) profile.agent_mode_command_execution_denylist = denylist;
-  if (readAllowlist.length > 0) profile.agent_mode_coding_file_read_allowlist = readAllowlist;
-  if (readAll) profile.agent_mode_coding_permissions = READ_ALL;
-  else if (readAllowlist.length > 0) profile.agent_mode_coding_permissions = READ_SPECIFIC;
 
   return profile;
+}
+
+/** The `[agents.profiles]` keys of the lists permissions.yaml manages. */
+export function ownedProfileKeys(permissions: Permissions | null): string[] {
+  const managed = managedLists(permissions, ['allow', 'deny']);
+  return Object.keys(managed).flatMap(
+    (list) => OWNED_PROFILE_KEYS_BY_LIST[list as keyof typeof OWNED_PROFILE_KEYS_BY_LIST],
+  );
 }
 
 function stringEntries(value: unknown): string[] {

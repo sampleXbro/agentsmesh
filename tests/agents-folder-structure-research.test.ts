@@ -207,7 +207,6 @@ describe('agents-folder-structure-research: Claude Code (docs §1)', () => {
     expect(JSON.parse(s!.content).permissions).toEqual({
       allow: ['Read'],
       deny: [],
-      ask: [],
     });
   });
 

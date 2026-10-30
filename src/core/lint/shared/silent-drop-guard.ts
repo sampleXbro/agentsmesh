@@ -7,6 +7,7 @@
  * data-loss class of bug.
  */
 
+import { permissionEntries } from '../../permissions.js';
 import type { CanonicalFiles, LintDiagnostic } from '../../types.js';
 import type { TargetCapabilities } from '../../../targets/catalog/target.interface.js';
 import {
@@ -38,12 +39,7 @@ const PROBES: readonly FeatureProbe[] = [
     featureFlag: 'permissions',
     file: '.agentsmesh/permissions.yaml',
     label: 'permissions',
-    hasContent: (c) => {
-      const p = c.permissions;
-      if (!p) return false;
-      const askLen = p.ask?.length ?? 0;
-      return p.allow.length + p.deny.length + askLen > 0;
-    },
+    hasContent: (c) => permissionEntries(c.permissions).length > 0,
   },
   {
     canonicalKey: 'hooks',

@@ -90,6 +90,8 @@ export const descriptor = {
       ];
     },
 
+    // A list permissions.yaml does not manage is absent here, never `[]`. This
+    // file is owned whole, so an unmanaged list simply has no key in it.
     generatePermissions(canonical) {
       if (!canonical.permissions) return [];
       return [

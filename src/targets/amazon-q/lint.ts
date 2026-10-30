@@ -101,8 +101,7 @@ export function lintHooks(canonical: CanonicalFiles): LintDiagnostic[] {
 
 export function lintPermissions(canonical: CanonicalFiles): LintDiagnostic[] {
   if (!canonical.permissions) return [];
-  const { deny } = canonical.permissions;
-  const ask = canonical.permissions.ask ?? [];
+  const { deny = [], ask = [] } = canonical.permissions;
   // allow maps cleanly to allowedTools in agent JSON — no warning needed.
   if (deny.length === 0 && ask.length === 0) return [];
   return [

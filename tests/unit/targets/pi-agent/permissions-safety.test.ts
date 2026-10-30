@@ -4,19 +4,12 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { parse as parseYaml } from 'yaml';
 import type { CanonicalFiles } from '../../../../src/core/types.js';
-import {
-  hasPermissionEntries,
-  mergePiSettings,
-} from '../../../../src/targets/pi-agent/permissions-format.js';
+import { mergePiSettings } from '../../../../src/targets/pi-agent/permissions-format.js';
 import { generatePermissions } from '../../../../src/targets/pi-agent/generator.js';
-import { revokePiAgentPermissions } from '../../../../src/targets/pi-agent/permissions-revoke.js';
 import { importFromPiAgent } from '../../../../src/targets/pi-agent/importer.js';
 import { lintPermissions } from '../../../../src/targets/pi-agent/lint.js';
 import { descriptor } from '../../../../src/targets/pi-agent/index.js';
-import {
-  PI_AGENT_SETTINGS_FILE,
-  PI_AGENT_GLOBAL_SETTINGS_FILE,
-} from '../../../../src/targets/pi-agent/constants.js';
+import { PI_AGENT_SETTINGS_FILE } from '../../../../src/targets/pi-agent/constants.js';
 
 function canonical(overrides: Partial<CanonicalFiles> = {}): CanonicalFiles {
   return {
@@ -38,18 +31,17 @@ const SCOPED_ONLY = {
   deny: ['Bash(rm:*)'],
 };
 
-describe('hasPermissionEntries', () => {
-  it('treats a missing, empty or ask-less canonical file as saying nothing', () => {
-    expect(hasPermissionEntries(null)).toBe(false);
-    expect(hasPermissionEntries({ allow: [], deny: [] })).toBe(false);
-    expect(hasPermissionEntries({ allow: [], deny: [], ask: [] })).toBe(false);
-    expect(hasPermissionEntries({ allow: [], deny: [], ask: ['Write'] })).toBe(true);
-    expect(hasPermissionEntries({ allow: [], deny: ['Write'] })).toBe(true);
-    expect(hasPermissionEntries({ allow: ['Read'], deny: [] })).toBe(true);
+describe('generatePermissions — only a managed allow list writes defaultTools', () => {
+  it('emits nothing when allow is unmanaged, so the user defaultTools stay', () => {
+    expect(generatePermissions(canonical())).toEqual([]);
+    expect(generatePermissions(canonical({ permissions: { deny: ['Bash(rm:*)'] } }))).toEqual([]);
+    expect(generatePermissions(canonical({ permissions: { ask: ['Write'] } }))).toEqual([]);
   });
 
-  it('emits nothing for a permissions file with no entries at all', () => {
-    expect(generatePermissions(canonical({ permissions: { allow: [], deny: [] } }))).toEqual([]);
+  it('writes an empty defaultTools for a managed empty allow list', () => {
+    expect(generatePermissions(canonical({ permissions: { allow: [] } }))).toEqual([
+      { path: PI_AGENT_SETTINGS_FILE, content: JSON.stringify({ defaultTools: [] }, null, 2) },
+    ]);
   });
 });
 
@@ -84,95 +76,6 @@ describe('lintPermissions (pi-agent) — the empty projection is named', () => {
     const messages = diags.map((d) => d.message).join('\n');
     expect(diags).toHaveLength(3);
     expect(messages).toContain('read, bash, powershell, edit, write, grep, find, ls');
-  });
-});
-
-describe('revokePiAgentPermissions — canonical deleted must clear the file', () => {
-  let dir = '';
-  beforeEach(() => {
-    dir = mkdtempSync(join(tmpdir(), 'pi-revoke-'));
-  });
-  afterEach(() => rmSync(dir, { recursive: true, force: true }));
-
-  function writeSettings(rel: string, value: unknown): void {
-    mkdirSync(join(dir, rel.slice(0, rel.lastIndexOf('/'))), { recursive: true });
-    writeFileSync(join(dir, rel), JSON.stringify(value, null, 2) + '\n');
-  }
-
-  it('strips the tools agentsmesh owns and keeps everything else', async () => {
-    writeSettings(PI_AGENT_SETTINGS_FILE, {
-      theme: 'dark',
-      defaultTools: ['read', 'grep', 'powershell'],
-    });
-    const results = await revokePiAgentPermissions(
-      canonical(),
-      dir,
-      'project',
-      new Set(['permissions']),
-    );
-    expect(results).toHaveLength(1);
-    expect(results[0]!.path).toBe(PI_AGENT_SETTINGS_FILE);
-    expect(JSON.parse(results[0]!.content)).toEqual({
-      theme: 'dark',
-      defaultTools: ['powershell'],
-    });
-  });
-
-  it('removes the key entirely when nothing but agentsmesh entries remain', async () => {
-    writeSettings(PI_AGENT_GLOBAL_SETTINGS_FILE, { theme: 'dark', defaultTools: ['read'] });
-    const results = await revokePiAgentPermissions(
-      canonical(),
-      dir,
-      'global',
-      new Set(['permissions']),
-    );
-    expect(results[0]!.path).toBe(PI_AGENT_GLOBAL_SETTINGS_FILE);
-    expect(JSON.parse(results[0]!.content)).toEqual({ theme: 'dark' });
-  });
-
-  it('emits nothing when there is no settings file, no defaultTools key, or nothing changes', async () => {
-    expect(
-      await revokePiAgentPermissions(canonical(), dir, 'project', new Set(['permissions'])),
-    ).toEqual([]);
-    writeSettings(PI_AGENT_SETTINGS_FILE, { theme: 'dark' });
-    expect(
-      await revokePiAgentPermissions(canonical(), dir, 'project', new Set(['permissions'])),
-    ).toEqual([]);
-    writeSettings(PI_AGENT_SETTINGS_FILE, { defaultTools: ['powershell'] });
-    expect(
-      await revokePiAgentPermissions(canonical(), dir, 'project', new Set(['permissions'])),
-    ).toEqual([]);
-  });
-
-  it('stands down when canonical still has permissions or the feature is off', async () => {
-    writeSettings(PI_AGENT_SETTINGS_FILE, { defaultTools: ['read'] });
-    expect(
-      await revokePiAgentPermissions(
-        canonical({ permissions: SCOPED_ONLY }),
-        dir,
-        'project',
-        new Set(['permissions']),
-      ),
-    ).toEqual([]);
-    expect(await revokePiAgentPermissions(canonical(), dir, 'project', new Set(['rules']))).toEqual(
-      [],
-    );
-  });
-
-  it('treats an emptied canonical permissions file exactly like a deleted one', async () => {
-    writeSettings(PI_AGENT_SETTINGS_FILE, { defaultTools: ['read'] });
-    const results = await revokePiAgentPermissions(
-      canonical({ permissions: { allow: [], deny: [], ask: [] } }),
-      dir,
-      'project',
-      new Set(['permissions']),
-    );
-    expect(JSON.parse(results[0]!.content)).toEqual({});
-    expect(results[0]!.status).toBe('updated');
-  });
-
-  it('is wired as the descriptor scopeExtras hook', () => {
-    expect(descriptor.globalSupport.scopeExtras).toBe(revokePiAgentPermissions);
   });
 });
 

@@ -12,6 +12,7 @@
  * warning is emitted when canonical permissions are present.
  */
 
+import { permissionEntries } from '../../core/permissions.js';
 import { unsupportedFeature } from '../../core/lint/capability-gap.js';
 import type { CanonicalFiles, LintDiagnostic } from '../../core/types.js';
 import { createWarning } from '../../core/lint/shared/helpers.js';
@@ -24,9 +25,7 @@ export const lintIgnore = unsupportedFeature(
 
 export function lintPermissions(canonical: CanonicalFiles): LintDiagnostic[] {
   if (!canonical.permissions) return [];
-  const { allow, deny, ask } = canonical.permissions;
-  const hasEntries = allow.length > 0 || deny.length > 0 || (ask?.length ?? 0) > 0;
-  if (!hasEntries) return [];
+  if (permissionEntries(canonical.permissions).length === 0) return [];
   return [
     createWarning(
       '.agentsmesh/permissions.yaml',

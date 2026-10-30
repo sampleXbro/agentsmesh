@@ -78,8 +78,7 @@ export function generateHooks(canonical: CanonicalFiles): CrushOutput[] {
  */
 export function generatePermissions(canonical: CanonicalFiles): CrushOutput[] {
   if (!canonical.permissions) return [];
-  const { allow, deny } = canonical.permissions;
-  const ask = canonical.permissions.ask ?? [];
+  const { allow = [], deny = [], ask = [] } = canonical.permissions;
   if (allow.length === 0 && deny.length === 0 && ask.length === 0) return [];
   const permissions: Record<string, unknown> = {};
   if (allow.length > 0) permissions['allowed_tools'] = allow;

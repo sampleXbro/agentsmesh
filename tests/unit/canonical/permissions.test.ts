@@ -27,11 +27,10 @@ deny:
     expect(result).toEqual({
       allow: ['Read', 'Grep', 'Write'],
       deny: ['Bash'],
-      ask: [],
     });
   });
 
-  it('parses allow only when deny omitted', async () => {
+  it('leaves deny and ask unmanaged when only allow is present', async () => {
     const path = join(TEST_DIR, 'permissions.yaml');
     writeFileSync(
       path,
@@ -41,14 +40,10 @@ allow:
 `,
     );
     const result = await parsePermissions(path);
-    expect(result).toEqual({
-      allow: ['Read'],
-      deny: [],
-      ask: [],
-    });
+    expect(result).toEqual({ allow: ['Read'] });
   });
 
-  it('parses deny only when allow omitted', async () => {
+  it('leaves allow and ask unmanaged when only deny is present', async () => {
     const path = join(TEST_DIR, 'permissions.yaml');
     writeFileSync(
       path,
@@ -58,22 +53,19 @@ deny:
 `,
     );
     const result = await parsePermissions(path);
-    expect(result).toEqual({
-      allow: [],
-      deny: ['Bash'],
-      ask: [],
-    });
+    expect(result).toEqual({ deny: ['Bash'] });
   });
 
-  it('returns empty arrays for empty file', async () => {
+  it('returns null for an empty file: no list is managed', async () => {
     const path = join(TEST_DIR, 'permissions.yaml');
     writeFileSync(path, '');
-    const result = await parsePermissions(path);
-    expect(result).toEqual({
-      allow: [],
-      deny: [],
-      ask: [],
-    });
+    expect(await parsePermissions(path)).toBeNull();
+  });
+
+  it('returns null for the commented-out init template', async () => {
+    const path = join(TEST_DIR, 'permissions.yaml');
+    writeFileSync(path, '# allow:\n#   - Read\n# deny:\n#   - Bash\n');
+    expect(await parsePermissions(path)).toBeNull();
   });
 
   it('returns null for non-existent file', async () => {
@@ -106,19 +98,33 @@ deny:
     expect(result).toEqual({
       allow: ['Read', 'Grep'],
       deny: ['Bash'],
-      ask: [],
     });
   });
 
-  it('treats allow/deny as arrays when they are objects', async () => {
+  it('returns null when no key holds a list', async () => {
     const path = join(TEST_DIR, 'permissions.yaml');
     writeFileSync(path, 'allow: Read\ndeny: Bash');
-    const result = await parsePermissions(path);
-    expect(result).toEqual({
-      allow: [],
-      deny: [],
-      ask: [],
-    });
+    expect(await parsePermissions(path)).toBeNull();
+  });
+
+  it('leaves a key with no list unmanaged, so only real lists are managed', async () => {
+    const path = join(TEST_DIR, 'permissions.yaml');
+    writeFileSync(path, 'allow:\n#   - Read\ndeny:\n  - Bash\n');
+    expect(await parsePermissions(path)).toEqual({ deny: ['Bash'] });
+  });
+
+  it('ignores keys other than allow, deny and ask', async () => {
+    const path = join(TEST_DIR, 'permissions.yaml');
+    writeFileSync(path, 'defaultMode: plan\nallow:\n  - Read\n');
+    expect(await parsePermissions(path)).toEqual({ allow: ['Read'] });
+    writeFileSync(path, 'defaultMode: plan\n');
+    expect(await parsePermissions(path)).toBeNull();
+  });
+
+  it('keeps an explicit empty list managed', async () => {
+    const path = join(TEST_DIR, 'permissions.yaml');
+    writeFileSync(path, 'allow: []\n');
+    expect(await parsePermissions(path)).toEqual({ allow: [] });
   });
 
   it('parses ask array', async () => {

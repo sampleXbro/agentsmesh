@@ -3,6 +3,7 @@
  */
 
 import { basename } from 'node:path';
+import { PERMISSION_LISTS } from '../../core/permissions.js';
 import type {
   CanonicalFiles,
   CanonicalRule,
@@ -70,15 +71,21 @@ function mergeMcp(base: McpConfig | null, overlay: McpConfig | null): McpConfig 
   };
 }
 
+/** Union per list; a list stays unmanaged (absent) only when no layer has it. */
 function mergePermissions(
   base: Permissions | null,
   overlay: Permissions | null,
 ): Permissions | null {
   if (!base && !overlay) return null;
-  const allow = mergeUniqueStrings(base?.allow ?? [], overlay?.allow ?? []);
-  const deny = mergeUniqueStrings(base?.deny ?? [], overlay?.deny ?? []);
-  const ask = mergeUniqueStrings(base?.ask ?? [], overlay?.ask ?? []);
-  return { allow, deny, ask };
+  const merged: Permissions = {};
+  for (const list of PERMISSION_LISTS) {
+    const from = base?.[list];
+    const to = overlay?.[list];
+    if (from !== undefined || to !== undefined) {
+      merged[list] = mergeUniqueStrings(from ?? [], to ?? []);
+    }
+  }
+  return Object.keys(merged).length > 0 ? merged : null;
 }
 
 function mergeUniqueStrings(base: string[], overlay: string[]): string[] {

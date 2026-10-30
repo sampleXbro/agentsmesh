@@ -2,6 +2,7 @@
  * agentsmesh watch — watch canonical files and regenerate on change.
  */
 
+import { permissionEntries } from '../../core/permissions.js';
 import { join } from 'node:path';
 import { shouldIgnoreWatchPath } from './watch-path.js';
 import chokidar from 'chokidar';
@@ -95,9 +96,7 @@ export async function runWatch(
     );
 
     const mcpServerCount = canonical.mcp ? Object.keys(canonical.mcp.mcpServers).length : 0;
-    const permissionsCount = canonical.permissions
-      ? canonical.permissions.allow.length + canonical.permissions.deny.length
-      : 0;
+    const permissionsCount = permissionEntries(canonical.permissions).length;
     const hooksCount = canonical.hooks
       ? Object.values(canonical.hooks).reduce(
           (sum, arr) => sum + (Array.isArray(arr) ? arr.length : 0),

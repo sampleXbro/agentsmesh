@@ -1,3 +1,4 @@
+import { permissionEntries } from '../permissions.js';
 import { basename } from 'node:path';
 import type { CanonicalFiles } from '../types.js';
 
@@ -31,9 +32,8 @@ export function formatVerboseDetails(canonical: CanonicalFiles): string {
   if (canonical.ignore.length > 0) {
     lines.push('ignore: .agentsmesh/ignore');
   }
-  if (canonical.permissions) {
-    const total = canonical.permissions.allow.length + canonical.permissions.deny.length;
-    if (total > 0) lines.push('permissions: .agentsmesh/permissions.yaml');
+  if (permissionEntries(canonical.permissions).length > 0) {
+    lines.push('permissions: .agentsmesh/permissions.yaml');
   }
   if (lines.length === 0) return '';
   return '\nPer-file details:\n' + lines.join('\n') + '\n';

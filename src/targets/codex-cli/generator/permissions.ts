@@ -62,9 +62,9 @@ export function generatePermissions(canonical: CanonicalFiles): RulesOutput[] {
   if (!permissions) return [];
 
   const entries: { pattern: string; decision: Decision }[] = [
-    ...permissions.allow.map((pattern) => ({ pattern, decision: 'allow' as const })),
+    ...(permissions.allow ?? []).map((pattern) => ({ pattern, decision: 'allow' as const })),
     ...(permissions.ask ?? []).map((pattern) => ({ pattern, decision: 'ask' as const })),
-    ...permissions.deny.map((pattern) => ({ pattern, decision: 'deny' as const })),
+    ...(permissions.deny ?? []).map((pattern) => ({ pattern, decision: 'deny' as const })),
   ];
   if (entries.length === 0) return [];
 

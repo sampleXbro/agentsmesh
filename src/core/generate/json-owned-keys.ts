@@ -142,3 +142,34 @@ export function ownedJsonSubKeysMerger(
       ? mergeOwnedJsonSubKeys(pending?.content ?? existing, newContent, container, ownedSubKeys)
       : null;
 }
+
+/**
+ * Spread merge inside `container`: the generated sub-keys replace the user's,
+ * and every sub-key the generated content leaves out keeps the user's value. A
+ * permission list that permissions.yaml does not manage is left out, so the
+ * user's list survives; a managed list is revoked by writing it empty.
+ */
+export function mergeJsonContainer(
+  base: string | null,
+  newContent: string,
+  container: string,
+): string | null {
+  if (base === null || base.trim() === '') return null;
+  const incoming = parseJsonObject(newContent);
+  if (incoming === null) return null;
+  const baseObject = parseJsonObject(base);
+  if (baseObject === null) return base;
+  const merged = { ...asObject(baseObject[container]), ...asObject(incoming[container]) };
+  return JSON.stringify({ ...baseObject, [container]: merged }, null, 2);
+}
+
+/** Builds a `mergeGeneratedOutputContent` hook spreading `container` at `paths`. */
+export function jsonContainerMerger(
+  paths: readonly string[],
+  container: string,
+): GeneratedOutputMerger {
+  return (existing, pending, newContent, resolvedPath) =>
+    paths.includes(resolvedPath)
+      ? mergeJsonContainer(pending?.content ?? existing, newContent, container)
+      : null;
+}

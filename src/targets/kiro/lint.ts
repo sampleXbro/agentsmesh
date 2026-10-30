@@ -44,8 +44,7 @@ export function lintPermissions(canonical: CanonicalFiles, options?: unknown): L
   if (!canonical.permissions) return [];
   const unmapped = unmappedPermissionEntries(canonical.permissions);
   const dropped = [...unmapped.deny, ...unmapped.ask, ...unmapped.allow];
-  const { allow, deny } = canonical.permissions;
-  const ask = canonical.permissions.ask ?? [];
+  const { allow = [], deny = [], ask = [] } = canonical.permissions;
   if (allow.length === 0 && deny.length === 0 && ask.length === 0) return [];
 
   const scope = (options as { scope?: TargetLayoutScope } | undefined)?.scope;

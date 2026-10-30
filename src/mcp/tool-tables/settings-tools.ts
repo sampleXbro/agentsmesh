@@ -98,7 +98,7 @@ const WRITE_DESCRIPTORS: ToolDescriptor[] = [
   {
     name: 'update_permissions',
     description:
-      'Update permissions.yaml. mode=replace (default) overwrites listed fields; mode=append unions and dedups.',
+      'Update permissions.yaml. mode=replace (default) overwrites listed fields; mode=append unions and dedups. A list left out is not written, so a missing list stays unmanaged.',
     inputSchema: z.object({
       allow: PermissionListSchema.optional().describe(
         'Allowed tool patterns (e.g. ["Bash(npm run:*)"])',

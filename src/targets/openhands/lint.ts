@@ -8,6 +8,7 @@
  *     `hooks:` key, which is the one that can cost the user the whole agent.
  */
 
+import { permissionEntries } from '../../core/permissions.js';
 import { AB_HOOKS, AB_PERMISSIONS } from '../../core/canonical-paths.js';
 import type { CanonicalAgent, CanonicalFiles, LintDiagnostic } from '../../core/types.js';
 import { createWarning, unsupportedHookEventNames } from '../../core/lint/shared/helpers.js';
@@ -43,7 +44,7 @@ const OPENHANDS_INERT_AGENT_FIELDS: readonly (keyof CanonicalAgent)[] = [
 export function lintPermissions(canonical: CanonicalFiles): LintDiagnostic[] {
   const permissions = canonical.permissions;
   if (!permissions) return [];
-  const entries = [...permissions.allow, ...permissions.deny, ...(permissions.ask ?? [])];
+  const entries = permissionEntries(permissions);
   if (entries.length === 0) return [];
 
   return [

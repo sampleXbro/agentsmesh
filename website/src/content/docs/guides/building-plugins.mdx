@@ -619,8 +619,14 @@ revocation can tell its own output apart from keys the user added by hand.
 
 If your target must fail closed on an empty canonical list, handle it inside the
 generator (emit the explicitly-empty projection yourself) rather than relying on
-the engine — see `src/targets/pi-agent/permissions-revoke.ts` for the existing
+the engine — `mergePiSettings` in `src/targets/pi-agent/permissions-format.ts`,
+which writes `defaultTools: []` for an empty `allow` list, is the existing
 in-target precedent.
+
+Permission lists are managed one by one. `Permissions.allow`, `deny` and `ask` are
+each optional: a missing list is unmanaged, so leave the tool's own list alone; an
+empty list is managed and means "none". Check for `undefined` before you read a
+list.
 
 ## Descriptor Reference
 
