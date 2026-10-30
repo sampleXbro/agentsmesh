@@ -20,6 +20,7 @@ import type { InitData } from '../command-result.js';
 import type { InitTargetSource } from './init-target-resolution.js';
 import { importKeepingSameName } from './init-same-name.js';
 import { readRootRuleBody, rootRuleBodyGrew } from '../../targets/import/root-rule-body-merge.js';
+import { seedAgentsmeshMcpEntry } from './seed-mcp-entry.js';
 
 export interface InitCommandResult {
   exitCode: number;
@@ -116,6 +117,8 @@ export async function applyInitPlan(
     rootRuleMerged = res.rootRuleMerged;
     sameNameCopies = res.sameNameCopies;
     await writeScaffoldGapFill(context.canonicalDir, plan.scope);
+    // Gap-fill keeps an imported mcp.json, so the template's entry never lands there.
+    if (plan.scope === 'project') await seedAgentsmeshMcpEntry(context.rootBase);
     scaffoldType = 'gap-fill';
   } else {
     await writeScaffoldFull(context.canonicalDir, plan.scope);

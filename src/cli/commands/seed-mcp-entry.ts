@@ -30,7 +30,7 @@ function isObject(value: unknown): value is Record<string, unknown> {
 
 type ReadOutcome =
   | { kind: 'missing' }
-  | { kind: 'document'; doc: Record<string, unknown> }
+  | { kind: 'document'; doc: Record<string, unknown>; commented: boolean }
   | { kind: 'skip'; reason: string };
 
 /**
@@ -40,19 +40,17 @@ type ReadOutcome =
  * drops per-server fields agentsmesh does not model (`cwd`, `disabled`,
  * `timeout`) and every top-level key, so writing its output back erased them.
  * A file we cannot rewrite safely is skipped rather than replaced — the same
- * rule the generated-output mergers follow.
+ * rule the generated-output mergers follow. A commented file is still read, so
+ * the caller can see the entry is already there before refusing the rewrite.
  */
 async function readRawDocument(path: string): Promise<ReadOutcome> {
   const raw = await readFileSafe(path);
   if (raw === null || raw.trim() === '') return { kind: 'missing' };
 
-  const stripped = stripJsonComments(raw);
-  if (stripped !== raw) {
-    return { kind: 'skip', reason: 'it contains comments that a rewrite would discard' };
-  }
+  const json = stripJsonComments(raw);
   let parsed: unknown;
   try {
-    parsed = JSON.parse(raw);
+    parsed = JSON.parse(json);
   } catch {
     return { kind: 'skip', reason: 'it is not valid JSON' };
   }
@@ -60,11 +58,19 @@ async function readRawDocument(path: string): Promise<ReadOutcome> {
   if (parsed.mcpServers !== undefined && !isObject(parsed.mcpServers)) {
     return { kind: 'skip', reason: 'its "mcpServers" value is not an object' };
   }
-  return { kind: 'document', doc: parsed };
+  return { kind: 'document', doc: parsed, commented: json !== raw };
 }
 
 function warn(message: string): void {
   process.stderr.write(`[agentsmesh] warning: ${message}\n`);
+}
+
+function leaveUntouched(path: string, reason: string): false {
+  warn(
+    `left ${path} untouched because ${reason}. Add the agentsmesh MCP server by hand ` +
+      'if you want it available to your agents.',
+  );
+  return false;
 }
 
 /**
@@ -80,17 +86,14 @@ export async function seedAgentsmeshMcpEntry(projectRoot: string): Promise<boole
   const path = resolve(projectRoot, '.agentsmesh/mcp.json');
   try {
     const outcome = await readRawDocument(path);
-    if (outcome.kind === 'skip') {
-      warn(
-        `left ${path} untouched because ${outcome.reason}. Add the agentsmesh MCP server by hand ` +
-          'if you want it available to your agents.',
-      );
-      return false;
-    }
+    if (outcome.kind === 'skip') return leaveUntouched(path, outcome.reason);
 
     const doc = outcome.kind === 'document' ? outcome.doc : {};
     const servers = isObject(doc.mcpServers) ? doc.mcpServers : {};
     if (!injectAgentsmeshEntry({ mcpServers: servers })) return false;
+    if (outcome.kind === 'document' && outcome.commented) {
+      return leaveUntouched(path, 'it contains comments that a rewrite would discard');
+    }
     doc.mcpServers = servers;
 
     await writeFileAtomic(path, `${JSON.stringify(doc, null, 2)}\n`);
