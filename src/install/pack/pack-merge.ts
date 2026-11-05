@@ -16,6 +16,7 @@ import type { ExtendPick } from '../../config/core/schema.js';
 import { writeFileAtomic } from '../../utils/filesystem/fs.js';
 import { prependYamlSchemaDirective } from '../../utils/output/schema-directive.js';
 import { hashPackContent } from './pack-hash.js';
+import { recordMergedFiles } from '../manifest/record-merged-files.js';
 import { normalizePersistedInstallPaths } from '../core/portable-paths.js';
 import type { PreservedRootFile } from '../source/collect-preserved-root.js';
 
@@ -77,7 +78,8 @@ function mergePick(
 
 /**
  * Merge new canonical resources into an existing pack directory.
- * Adds new files alongside existing ones. Updates metadata.
+ * Adds new files alongside existing ones. Updates metadata and records the
+ * written files in the install manifest.
  *
  * @param packDir - Absolute path to the existing pack directory
  * @param existingMeta - Current pack.yaml metadata
@@ -95,13 +97,15 @@ export async function mergeIntoPack(
   refresh?: PackMetadataRefresh,
   preservedRootFiles: readonly PreservedRootFile[] = [],
 ): Promise<PackMetadata> {
-  // Write new resources
-  await copyEntitiesInto(packDir, 'rules', newCanonical.rules);
-  await copyEntitiesInto(packDir, 'commands', newCanonical.commands);
-  await copyEntitiesInto(packDir, 'agents', newCanonical.agents);
-  await copySkillsInto(newCanonical, packDir);
-  await writeSettingsInto(newCanonical, packDir);
-  await copyPreservedRootFilesInto(preservedRootFiles, packDir);
+  const written = [
+    ...(await copyEntitiesInto(packDir, 'rules', newCanonical.rules)),
+    ...(await copyEntitiesInto(packDir, 'commands', newCanonical.commands)),
+    ...(await copyEntitiesInto(packDir, 'agents', newCanonical.agents)),
+    ...(await copySkillsInto(newCanonical, packDir)),
+    ...(await writeSettingsInto(newCanonical, packDir)),
+    ...(await copyPreservedRootFilesInto(preservedRootFiles, packDir)),
+  ];
+  await recordMergedFiles(packDir, written);
 
   // Merge metadata
   const mergedFeatures = union(existingMeta.features, newFeatures) as PackMetadata['features'];

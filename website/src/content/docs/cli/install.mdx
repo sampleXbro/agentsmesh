@@ -426,7 +426,7 @@ If one entry in `installs.yaml` is invalid, agentsmesh keeps the valid entries, 
 
 ## Per-install integrity manifest
 
-Every install writes `.agentsmesh-install-manifest.json` next to the pack with the install-time `name`, `source`, `installed_at`, classifier verdict (`source_type`), and a `files` map of relative-path → `sha256:<hex>`. `agentsmesh uninstall` reuses this manifest to detect locally-modified files and prompts before deleting them. Legacy packs without a manifest auto-migrate at uninstall time (current contents become the baseline) and surface a one-line warning.
+Every install writes `.agentsmesh-install-manifest.json` next to the pack with the install-time `name`, `source`, `installed_at`, classifier verdict (`source_type`), and a `files` map of relative-path → `sha256:<hex>`. `agentsmesh uninstall` and `agentsmesh refresh` reuse this manifest to detect locally-modified files and ask before deleting or overwriting them. When a later install merges into the pack (a picked subset, or the sub-packs of a marketplace `--all`), the files it writes get their new hashes, so they never count as your edits; edits you made to other pack files still do. Legacy packs without a manifest auto-migrate at uninstall time (current contents become the baseline) and surface a one-line warning.
 
 ## Concurrent-install lock
 
