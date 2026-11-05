@@ -37,7 +37,7 @@ Mistyped a flag? The command errors (exit 2) and names the unknown flag rather t
 
 A value that starts with `--` would be read as a new flag. Join it to its flag with `=` instead: `--trigger-cmd=--force`, or `--rule="--no-verify is forbidden"` for a rule that starts with `--`. `agentsmesh lessons help` prints the overview, and `agentsmesh lessons help <subcommand>` prints the same help as `lessons <subcommand> --help`.
 
-If you initialized agentsmesh **without** `--lessons`, the lessons commands still run but tell you the subsystem isn't wired: reads (`query`, `topics`, `journal`) print a one-line hint to run `agentsmesh init --lessons`, and `lessons add` still captures to the graph but warns that **recall isn't wired into your AI tools yet** (no hook, ritual, or skill) until you run `init --lessons` + `generate`. Activate the full subsystem and the hints disappear.
+If you initialized agentsmesh **without** `--lessons`, the lessons commands still run but tell you the subsystem isn't wired: reads (`query`, `topics`, `journal`) print a one-line hint to run `agentsmesh init --lessons`, and `lessons add` still captures to the graph but warns that **recall isn't wired into your AI tools yet** (no hook, ritual, or skill) until you run `init --lessons` + `generate`. The `lessons add` that creates the graph also adds the lessons log, lock and temp files to `.gitignore`, the same lines `init --lessons` writes. Activate the full subsystem and the hints disappear.
 
 ## Usage
 

@@ -18,7 +18,10 @@ import { mcpServerInstructions } from '../../src/mcp/instructions.js';
 
 const CLI_PATH = join(process.cwd(), 'dist', 'cli.js');
 
-function sendInitialize(cwd: string): Promise<{ stdout: string; stderr: string }> {
+function sendInitialize(
+  cwd: string,
+  after: readonly Record<string, unknown>[] = [],
+): Promise<{ stdout: string; stderr: string }> {
   return new Promise((resolve, reject) => {
     const child = spawn('node', [CLI_PATH, 'mcp'], {
       cwd,
@@ -49,6 +52,7 @@ function sendInitialize(cwd: string): Promise<{ stdout: string; stderr: string }
       }) + '\n';
 
     child.stdin.write(initRequest);
+    for (const message of after) child.stdin.write(JSON.stringify(message) + '\n');
 
     // Give the server time to respond, then terminate
     setTimeout(() => {
@@ -149,7 +153,35 @@ describe('mcp-server-stdout-discipline', () => {
       expect(instructions).toBeDefined();
       expect(instructions).not.toContain('BLOCKING');
       expect(instructions).not.toContain('MUST');
-      expect(instructions).toContain('agentsmesh init --lessons');
+      expect(instructions).toContain('lessons_add');
+      expect(instructions).not.toContain('agentsmesh init');
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }, 8000);
+
+  it('lists only the lessons tools outside an agentsmesh project', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'amesh-mcp-lessons-only-'));
+    try {
+      const { stdout } = await sendInitialize(dir, [
+        { jsonrpc: '2.0', method: 'notifications/initialized' },
+        { jsonrpc: '2.0', id: 2, method: 'tools/list', params: {} },
+      ]);
+      if (stdout.length === 0) return;
+
+      const list = stdout
+        .split('\n')
+        .filter(Boolean)
+        .map((l) => JSON.parse(l) as Record<string, unknown>)
+        .find((m) => m['id'] === 2)?.['result'] as { tools: { name: string }[] } | undefined;
+
+      expect(list?.tools.map((t) => t.name)).toEqual([
+        'lessons_query',
+        'lessons_add',
+        'lessons_topics',
+        'lessons_show',
+        'lessons_deprecate',
+      ]);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

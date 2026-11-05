@@ -84,13 +84,18 @@ A lesson that could never be recalled is rejected at capture time, and the error
   and entirely optional: skip the flag and AgentsMesh works exactly as before.
 </Aside>
 
-## Or install only the plugin
+## Or use only the lessons, with no setup
 
-If you want the memory without adopting the rest of AgentsMesh, install it as a plugin. The plugin
-carries the operating manual as a skill and starts the MCP server that reads and writes the graph,
-so inside a git repository it needs no global install and no `agentsmesh.yaml`: lessons are captured
-at the repository root. Outside a repository (or in your home folder) there is no project to save
-them to, so capture fails.
+If you want the memory without adopting the rest of AgentsMesh, use only its MCP server. Inside a git
+repository it needs no `agentsmesh init`, no `agentsmesh.yaml` and no global install, only Node.js
+20.19 or later. There, the server lists only the five lessons tools (`lessons_query`, `lessons_add`,
+`lessons_topics`, `lessons_show`, `lessons_deprecate`). The first lesson the agent saves creates
+`.agentsmesh/lessons/lessons.json` at the repository root and adds the lessons log, lock and temp
+files to your `.gitignore`. Outside a repository (or in your home folder) there is no project to
+save them to, so capture fails.
+
+In Claude Code and Codex, install the plugin. It starts the server and also carries the operating
+manual as a skill:
 
 <Tabs>
   <TabItem label="Claude Code">
@@ -117,14 +122,25 @@ same skill file. The graph still lives in the repository at `.agentsmesh/lessons
 lessons captured through the plugin are reviewed and shared exactly like lessons captured through the
 CLI.
 
-<Aside type="caution" title="The plugin asks; the full setup insists">
+In any other tool with MCP support, add the same server to the tool's MCP config:
+
+```json
+{ "mcpServers": { "agentsmesh": { "command": "npx", "args": ["-y", "agentsmesh@latest", "mcp"] } } }
+```
+
+With a global install, `"command": "agentsmesh", "args": ["mcp"]` works too.
+
+When two branches both add lessons, the full setup above adds a merge driver that combines them.
+Without it, `npx agentsmesh lessons resolve` repairs the conflict after a merge.
+
+<Aside type="caution" title="The MCP server asks; the full setup insists">
   `init --lessons` writes a blocking recall/capture rule into your instruction file and wires a
-  pre-edit hook, so recall runs whether or not the agent thinks to ask for it. A plugin can ship
-  skills and servers but never your instruction file, and this one ships no hooks. It carries the
-  same contract in the MCP server's startup instructions instead, which every client shows the
-  model. That is a standing instruction rather than a guarantee: an instruction is followed by
-  choice, where a hook simply fires. Reach for the full setup when you want recall enforced, and the
-  plugin when you want the memory without adopting the rest.
+  pre-edit hook, so recall runs whether or not the agent thinks to ask for it. The MCP server, with
+  or without the plugin, can never write your instruction file, and the plugin ships no hooks. Once
+  the first lesson exists, the server carries the same contract in its startup instructions, which
+  every client shows the model. That is a standing instruction rather than a guarantee: an
+  instruction is followed by choice, where a hook simply fires. Reach for the full setup when you
+  want recall enforced, and the MCP server alone when you want the memory without adopting the rest.
 </Aside>
 
 ## A 30-second example

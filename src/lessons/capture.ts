@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import {
   addLesson,
   type AddLessonInput,
@@ -7,7 +8,9 @@ import {
 import { maybeAutoMigrateLessons } from './auto-migrate.js';
 import { maybeAutoPrune } from './auto-prune.js';
 import { recordCapture } from './capture-telemetry.js';
+import { graphFilePath } from './graph-store.js';
 import { listProjectFiles } from './project-files.js';
+import { ignoreLessonsRuntimeFiles } from './runtime-ignores.js';
 
 /**
  * Capture primitive for applications: migrate if needed, then add the lesson
@@ -37,9 +40,12 @@ export async function captureLesson(
   // DEAD_GLOB check is skipped, never a false positive. Caller-provided
   // knownPaths (e.g. legacy merge) still wins.
   const knownPaths = options.knownPaths ?? listProjectFiles(projectRoot) ?? undefined;
+  const createsGraph = !existsSync(graphFilePath(projectRoot));
   try {
     const result = await addLesson(projectRoot, input, { ...options, knownPaths });
     recordCapture(projectRoot, triggerKinds, result);
+    // A first capture may run without `init --lessons`; best effort, never fails it.
+    if (createsGraph) await ignoreLessonsRuntimeFiles(projectRoot).catch(() => false);
     // Opt-in auto-prune: GC structural cruft right after the graph changed,
     // reusing the working-tree walk we already did. No-op unless config enables
     // it; never throws, so it can't break a successful capture.

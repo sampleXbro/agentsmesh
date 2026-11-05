@@ -1,12 +1,9 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { maybeAutoMigrateLessons } from './auto-migrate.js';
-import { captureLogPath } from './capture-telemetry.js';
-import { lessonsLockPath } from './lessons-lock.js';
 import { assertLessonsDirInsideProject } from './lessons-dir-guard.js';
-import { outcomeLogPath } from './outcome-log.js';
 import { mutateLessonsGraphLocked } from './mutate.js';
-import { lessonsPaths, toRelPath } from './paths.js';
+import { lessonsPaths } from './paths.js';
 import { defaultLessonsConfig } from './recall-config.js';
 import { injectRecallHook } from './recall-hook-scaffold.js';
 import {
@@ -15,9 +12,8 @@ import {
   type MergeDriverSetup,
 } from './merge-driver-setup.js';
 import { recallHookTeamHint as teamHintFor } from './recall-hook-hint.js';
-import { recallLogPath } from './telemetry.js';
+import { ignoreLessonsRuntimeFiles } from './runtime-ignores.js';
 import { ensureGitattributesEntries } from '../utils/filesystem/gitattributes.js';
-import { ensureGitignoreEntries } from '../utils/filesystem/gitignore.js';
 import {
   appendLessonsParagraph,
   LESSONS_PARAGRAPH_BLOCK,
@@ -89,17 +85,7 @@ export async function scaffoldLessons(projectRoot: string): Promise<ScaffoldLess
   // Auto-wire deterministic hook-mode recall for hook-capable targets; non-hook
   // targets keep the always-on paragraph injected above as their fallback.
   const recallHookInjected = injectRecallHook(projectRoot);
-  // Keep every lessons runtime artifact out of git: the three logs, the lock
-  // directory, and the `*.tmp` files an atomic write leaves behind when killed.
-  // Paths come from their owning modules; the append is idempotent and
-  // coverage-aware, so a re-run or a broader `.agentsmesh/` ignore is a no-op.
-  const gitignoreUpdated = await ensureGitignoreEntries(projectRoot, [
-    toRelPath(projectRoot, recallLogPath(projectRoot)),
-    toRelPath(projectRoot, captureLogPath(projectRoot)),
-    toRelPath(projectRoot, outcomeLogPath(projectRoot)),
-    `${toRelPath(projectRoot, lessonsLockPath(projectRoot))}/`,
-    `${toRelPath(projectRoot, paths.base)}/*.tmp`,
-  ]);
+  const gitignoreUpdated = await ignoreLessonsRuntimeFiles(projectRoot);
   // Commit the merge-driver binding for the shared graph so a team's concurrent
   // captures union-merge instead of leaving conflict markers. Idempotent and
   // preserves any existing .gitattributes content.

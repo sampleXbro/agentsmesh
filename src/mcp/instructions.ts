@@ -41,6 +41,6 @@ Graph \`.agentsmesh/lessons/lessons.json\` is canonical; never hand-edit it. Ful
 /** Describes the capability without asserting anything that is not on disk. */
 const INACTIVE = `## Lessons
 
-This server can keep a git-tracked memory of rules for a repository, recalled before an edit and captured after a failure. Nothing is set up here yet, so \`lessons_query\` returns no matches.
+This server can keep a git-tracked memory of rules for a repository, recalled before an edit and captured after a failure. No lessons exist here yet, so \`lessons_query\` returns no matches.
 
-To start one inside an agentsmesh project (a directory with \`agentsmesh.yaml\`), call \`lessons_add\` with a rule, a topic, \`new_topic: true\`, a \`topic_summary\` and a \`trigger_file\` glob. Elsewhere, or to wire automatic recall into your AI tools, run \`agentsmesh init --lessons\` in your project, then \`agentsmesh generate\`.`;
+No setup is needed: call \`lessons_add\` with a rule, a topic, \`new_topic: true\`, a \`topic_summary\` and a \`trigger_file\` glob. The first lesson creates \`.agentsmesh/lessons/lessons.json\` in the nearest folder with \`agentsmesh.yaml\`, else at the git repository root.`;
