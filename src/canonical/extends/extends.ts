@@ -15,7 +15,11 @@ import { loadCanonicalForExtend } from './extend-load.js';
 import { applyExtendPick } from './extend-pick.js';
 import { gateExtendElevatedArtifacts } from './extend-elevated.js';
 import { loadPacksCanonical } from '../load/pack-load.js';
-import { dropUnmanagedSettings, unmanagedSettingsMessage } from '../load/unmanaged-settings.js';
+import {
+  dropUnmanagedSettings,
+  unmanagedSettingsMessage,
+  type SkippedSettings,
+} from '../load/unmanaged-settings.js';
 import { logger } from '../../utils/output/logger.js';
 
 const FEATURE_TO_KEYS: Record<string, (keyof CanonicalFiles)[]> = {
@@ -61,7 +65,8 @@ export function filterCanonicalByFeatures(
  *
  * @param config - Validated config with extends
  * @param configDir - Absolute path to directory containing agentsmesh.yaml
- * @returns Merged CanonicalFiles and resolved extends (for lock checksums)
+ * @returns Merged CanonicalFiles, resolved extends (for lock checksums) and the
+ *   settings skipped for enabled features (warned unless `warnSkippedSettings: false`)
  * @throws Error if extend path missing or remote
  */
 export async function loadCanonicalWithExtends(
@@ -69,7 +74,11 @@ export async function loadCanonicalWithExtends(
   configDir: string,
   options: { refreshRemoteCache?: boolean; warnSkippedSettings?: boolean } = {},
   canonicalDir = join(configDir, '.agentsmesh'),
-): Promise<{ canonical: CanonicalFiles; resolvedExtends: ResolvedExtend[] }> {
+): Promise<{
+  canonical: CanonicalFiles;
+  resolvedExtends: ResolvedExtend[];
+  skippedSettings: SkippedSettings[];
+}> {
   const resolvedExtends = await resolveExtendPaths(config, configDir, {
     refreshCache: options.refreshRemoteCache === true,
   });
@@ -109,10 +118,10 @@ export async function loadCanonicalWithExtends(
   // (e.g. `init --lessons` adding the recall hook must not drop them).
   merged = { ...merged, hooks: combineHooks(merged.hooks, packsCanonical.hooks) };
   const { canonical, skipped } = dropUnmanagedSettings(merged, localCanonical);
-  for (const entry of skipped) {
-    if (options.warnSkippedSettings === false || !config.features.includes(entry.feature)) continue;
-    logger.warn(unmanagedSettingsMessage(entry));
+  const skippedSettings = skipped.filter((entry) => config.features.includes(entry.feature));
+  if (options.warnSkippedSettings !== false) {
+    for (const entry of skippedSettings) logger.warn(unmanagedSettingsMessage(entry));
   }
 
-  return { canonical, resolvedExtends };
+  return { canonical, resolvedExtends, skippedSettings };
 }

@@ -17,6 +17,11 @@ const MINE = {
   },
 };
 
+const SKIPPED = [
+  { feature: 'permissions', items: ['allow Read'] },
+  { feature: 'hooks', items: ['PreToolUse (1 hook)'] },
+];
+
 function writeUpstream(dir: string): string {
   const upstream = join(dir, 'local-upstream');
   mkdirSync(join(upstream, '.agentsmesh', 'rules'), { recursive: true });
@@ -61,7 +66,26 @@ describe('install — unmanaged permissions and hooks (e2e)', () => {
 
     expect(JSON.parse(readFileSync(join(dir, '.claude', 'settings.json'), 'utf8'))).toEqual(MINE);
     const output = r.stdout + r.stderr;
-    expect(output).toContain('Skipped permissions from installed packs or extends: allow Read.');
-    expect(output).toContain('Skipped hooks from installed packs or extends: PreToolUse (1 hook).');
+    expect(
+      output.split('Skipped permissions from installed packs or extends: allow Read.'),
+    ).toHaveLength(2);
+    expect(
+      output.split('Skipped hooks from installed packs or extends: PreToolUse (1 hook).'),
+    ).toHaveLength(2);
+  });
+
+  it('lists the skipped settings in the --json data of install and generate', async () => {
+    dir = createTestProject();
+    const upstream = writeUpstream(dir);
+    writeProject(dir);
+
+    const install = await runCli(`install ${upstream} --json --name p`, dir);
+    const generate = await runCli('generate --json', dir);
+
+    expect([install.exitCode, generate.exitCode], install.stderr + generate.stderr).toEqual([0, 0]);
+    for (const r of [install, generate]) {
+      const envelope = JSON.parse(r.stdout) as { data: { skippedSettings?: unknown } };
+      expect(envelope.data.skippedSettings).toEqual(SKIPPED);
+    }
   });
 });

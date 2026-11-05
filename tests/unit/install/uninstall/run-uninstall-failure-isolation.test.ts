@@ -77,9 +77,7 @@ describe('runUninstall — failure isolation (H1)', () => {
       return realApply(args);
     });
 
-    const generateSpy = vi
-      .spyOn(postGenerateMod, 'runPostOperationGenerate')
-      .mockResolvedValue(undefined);
+    const generateSpy = vi.spyOn(postGenerateMod, 'runPostOperationGenerate').mockResolvedValue([]);
 
     const result = await runUninstall({ all: true, force: true }, [], projectRoot);
 
@@ -111,7 +109,7 @@ describe('runUninstall — failure isolation (H1)', () => {
       }),
     );
 
-    vi.spyOn(postGenerateMod, 'runPostOperationGenerate').mockResolvedValue(undefined);
+    vi.spyOn(postGenerateMod, 'runPostOperationGenerate').mockResolvedValue([]);
 
     const result = await runUninstall({ force: true }, ['alpha'], projectRoot);
     expect(result.exitCode).toBe(0);

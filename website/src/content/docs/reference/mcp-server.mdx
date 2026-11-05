@@ -127,7 +127,7 @@ The server runs tool calls one at a time, in the order they arrive. A client can
 
 | Tool | Description |
 |------|-------------|
-| `generate` | Generate target-native config from canonical (`lockfileUpdated` is true only when the run rewrote `.agentsmesh/.lock`; a run that changes nothing leaves it alone) |
+| `generate` | Generate target-native config from canonical (`lockfileUpdated` is true only when the run rewrote `.agentsmesh/.lock`; a run that changes nothing leaves it alone). `skippedSettings` lists the MCP servers, permissions, hooks and ignore patterns from installed packs or `extends` that were not written because your own canonical files do not manage them, in the same shape as [`generate --json`](../../cli/generate/#json-output); `warnings` holds the matching warning text with the fix. Both are empty when nothing was skipped |
 | `lint` | Lint canonical files |
 | `check` | Detect canonical-source and generated-output drift against the lock (result includes `canonicalDrift`/`outputDrift`, per-path output arrays, `outputsChecked`, `lockConflict` for a lock with git conflict markers, and `lessonsGraphError` when `.agentsmesh/lessons/lessons.json` cannot be read) |
 | `diff` | Preview generation changes |
@@ -138,7 +138,7 @@ The server runs tool calls one at a time, in the order they arrive. A client can
 
 | Tool | Description |
 |------|-------------|
-| `install` | Install a community pack from a URL or local path (auto-classifies skill-pack / canonical / tool-native; `--target` / `--as` overrides) |
+| `install` | Install a community pack from a URL or local path (auto-classifies skill-pack / canonical / tool-native; `--target` / `--as` overrides). The result has `skippedSettings` when the generate after install skipped pack settings that your own canonical files do not manage |
 | `uninstall` | Remove one or more installed packs; mid-batch failures isolated in `data.failed[]` |
 | `installs_list` | Read-only inventory of installed packs (NAME / SOURCE / FEATURES / INSTALLED) |
 | `refresh` | Re-fetch and re-apply installed packs against their recorded source/ref. Branch pins re-resolve to the current tip; tag pins re-resolve; SHA pins stay put. Per-pack atomic. |

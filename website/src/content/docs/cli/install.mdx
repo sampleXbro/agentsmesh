@@ -388,6 +388,7 @@ Field reference:
 - `installed[]` — `{ kind, name, path }` per resource that landed; `path` is forward-slash relative to scope root.
 - `skipped[]` — `{ kind, name, reason }` per resource that the user (or `--force` defaults) chose not to include.
 - `brokenResources[]` — only present when the install pipeline skipped one or more files whose YAML frontmatter could not be parsed. Each entry carries the source path, the failure category, and the underlying parser message. The renderer also surfaces a footer warning when this is non-empty.
+- `skippedSettings[]` — only present when the `generate` that runs after install skipped settings from packs or `extends` sources, because your own canonical files do not manage them (the `Skipped … from installed packs or extends` warnings in the [troubleshooting](#troubleshooting) table). Same shape as in [`generate --json`](../generate/#json-output). With `--all` or `--sync` it comes from the last generate, which sees every installed pack. A `--dry-run` runs no generate, so it never has this field.
 
 ## Pack storage
 

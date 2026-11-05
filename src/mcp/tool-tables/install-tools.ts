@@ -131,7 +131,7 @@ export const INSTALL_TOOL_DESCRIPTORS: ToolDescriptor[] = [
   {
     name: 'install',
     description:
-      'Install a community pack from a URL or local path. Auto-classifies the source layout (anthropic-skill-pack, canonical-agentsmesh, tool-native, or unknown) and dispatches accordingly; `--target` / `--as` override the classifier. Always runs non-interactively (every prompt accepts its documented `--force` default).',
+      "Install a community pack from a URL or local path. Auto-classifies the source layout (anthropic-skill-pack, canonical-agentsmesh, tool-native, or unknown) and dispatches accordingly; `--target` / `--as` override the classifier. Always runs non-interactively (every prompt accepts its documented `--force` default). `skippedSettings`, when present, lists the pack settings the generate after install did not write because the project's own files do not manage them (see the generate tool).",
     inputSchema: InstallInput,
     handler: (ctx, i) => installHandlers.install(ctx, i as never),
   },

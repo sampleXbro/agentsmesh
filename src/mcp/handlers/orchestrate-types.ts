@@ -1,5 +1,6 @@
 import { McpError } from '../errors.js';
 import { TargetNotFoundError } from '../../public/index.js';
+import type { SkippedSettings } from '../../canonical/load/unmanaged-settings.js';
 
 export interface GenerateHandlerResult {
   filesWritten: number;
@@ -8,6 +9,8 @@ export interface GenerateHandlerResult {
   lockfileUpdated: boolean;
   errors: string[];
   warnings: string[];
+  /** Pack and extends settings the user's own files do not manage; `warnings` explains each. */
+  skippedSettings: SkippedSettings[];
   files?: string[];
 }
 
