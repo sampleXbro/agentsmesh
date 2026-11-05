@@ -9348,6 +9348,23 @@
         "t-glob-860c694c"
       ]
     },
+    "target-permissions-in-goose-config-goose-permission": {
+      "createdAt": "2026-11-05",
+      "evidence": [
+        "commit:5bee87d7",
+        "lesson:target-capability-audits-goose-supports-file-based-tool"
+      ],
+      "rationale": "Managed allow/deny/ask: [] left the user's Goose lists in place, and partial user blocks were unloadable by Goose.",
+      "rule": "In Goose ~/.config/goose/permission.yaml, always write every category with all three lists (always_allow, ask_before, never_allow), using [] for an empty one, and never drop an empty list or the whole user block: Goose's PermissionConfig has no serde defaults, so a missing list makes Goose refuse to start, and ownedYamlKeysMerger only replaces owned keys present in the generated output, so a dropped user block is never cleared on disk.",
+      "status": "active",
+      "topics": [
+        "target-permissions"
+      ],
+      "triggers": [
+        "t-glob-0cdd7e6c",
+        "t-glob-98a8a54b"
+      ]
+    },
     "target-permissions-treat-a-permissions-list-missing": {
       "createdAt": "2026-10-29",
       "evidence": [
@@ -12463,6 +12480,10 @@
       "kind": "file_glob",
       "pattern": "tests/unit/cli/commands/watch.test.ts"
     },
+    "t-glob-0cdd7e6c": {
+      "kind": "file_glob",
+      "pattern": "src/targets/goose/permissions.ts"
+    },
     "t-glob-0ecc31c0": {
       "kind": "file_glob",
       "pattern": "website/astro.config.mjs"
@@ -13458,6 +13479,10 @@
     "t-glob-98419953": {
       "kind": "file_glob",
       "pattern": "src/core/generate/stale-cleanup.ts"
+    },
+    "t-glob-98a8a54b": {
+      "kind": "file_glob",
+      "pattern": "src/targets/goose/mcp-settings.ts"
     },
     "t-glob-9a12f490": {
       "kind": "file_glob",
