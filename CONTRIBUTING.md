@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- Node.js 20 or later (CI verifies 22 and 24)
+- Node.js 20.19 or later (CI verifies 20, 22 and 24)
 - pnpm 10 — CI pins this version; newer pnpm majors can trip `--frozen-lockfile` on the committed lockfile
 
 ## Setup

@@ -58,7 +58,7 @@ Lean default — keep it tight, link out for depth:
 2. **Problem → solution**: two short paragraphs — the drift pain, then how one
    `.agentsmesh/` directory + `agentsmesh generate` fixes it.
 3. **Install**: Homebrew, standalone binary, and npm/pnpm/yarn — note the
-   `agentsmesh` command and its `amsh` alias, and Node.js 20+ for the Node path.
+   `agentsmesh` command and its `amsh` alias, and Node.js 20.19+ for the Node path.
 4. **60-second quickstart**: `init` → `generate` → `check`.
 5. **Before / After**: the fragmented native configs vs. one canonical source.
 6. **Highlights**: short bullets for lessons (agent memory), global mode,
@@ -75,7 +75,7 @@ Lean default — keep it tight, link out for depth:
 Verify each before shipping; do not paste blindly if the source has changed.
 
 - **Package** `agentsmesh`; binaries `agentsmesh` and the alias `amsh`; requires
-  **Node.js 20+** for the npm path (Homebrew and the standalone binary need no
+  **Node.js 20.19+** for the npm path (Homebrew and the standalone binary need no
   Node).
 - **One-liner** lives in `package.json` `description` and the website hero
   tagline — keep the README's H1 subtitle consistent with them.

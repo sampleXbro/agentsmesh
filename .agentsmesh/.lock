@@ -1,9 +1,9 @@
 # Auto-generated. DO NOT EDIT MANUALLY.
 # Tracks the state of all config files for team conflict resolution.
 
-generated_at: 2026-09-24T18:28:00.436Z
+generated_at: 2026-11-05T12:31:02.402Z
 generated_by: serhii
-lib_version: 0.41.0
+lib_version: 0.42.0
 checksums:
   agents/code-debugger.md: sha256:33452bf839256a119a602cd10d085bff3cdb8f537ded76e60053bb9d8e5d33bc
   agents/code-documenter.md: sha256:89b4ebd27718bcd50a7283c95ea1ff9cad153b1112cf695f9f1fc22d90ec85ec
@@ -41,9 +41,9 @@ checksums:
   skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
   skills/post-feature-qa/SKILL.md: sha256:718b292a72e03a890018da90005b184439d0e180b1f3a6708a7606b2024d9eaa
   skills/post-feature-qa/references/edge-case-checklist.md: sha256:77bb7a50f3dd281003e146a5313a85799603739e049646502904d0b7b8451c70
-  skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
+  skills/prepare-release/SKILL.md: sha256:648681d513b1ba571ac78edf7354f1481454bd8cef6f2ebbae8c0ba4d6c09275
   skills/quality-gates/SKILL.md: sha256:0b7225be0afd7a9528904e4aae9816aaecc8915f0eecba987676f936ac6c06f3
-  skills/readme/SKILL.md: sha256:9f1053f467a59b2ab95915c1eac04a34ba58c62ef44cbe1d5e8ddd49015b09bb
+  skills/readme/SKILL.md: sha256:4c00a84a77d916a75e2c5ee52d3043107dbc7f373016c8668250540882fa76c0
   skills/release-manager/README.md: sha256:843ec66e67981e89493d55fd7aa0f68a98cf7bf6c5a23175e7f6bb2e79585c76
   skills/release-manager/SKILL.md: sha256:bef37ef3b482776f344fc3bc841bda06a588e6d0adc167fbc8f434c5449266e5
   skills/release-manager/assets/sample_commits.json: sha256:83a0b9c9bcb198e18bc6943a98610c8b1f4cd827d7b82806b8e1b4b531dc6f9b
@@ -96,7 +96,6 @@ checksums:
   skills/senior-developer-tool-and-command-execution/SKILL.md: sha256:656c52c4c555512faa41574e2c1c07d07bcf0d1de3699ce921d7b97290608ac2
   skills/senior-manual-qa/SKILL.md: sha256:373bf120b6793665818f0fc65ece18fab11a208e185c650cb3184b2ec568ab38
   skills/ts-library/SKILL.md: sha256:bd49e2f16aaf2917d14d3b9525cd46177fcd3844b6c1c365b9cb504b20fc352f
-  skills/ts-library/build/tooling.md: sha256:aa7b200a095d1b4b4f18a6a05d309d9470a5c8f5c3a06743d6cbc7596fd5e32c
   skills/ts-library/patterns/api.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
   skills/ts-library/patterns/types.md: sha256:222a510c39f34bef5b8024a99a62aa4492bb887d81330adccd004b0e1b838b5d
   skills/ts-library/references/api-design.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
@@ -891,11 +890,10 @@ outputs:
   .claude/skills/lessons/SKILL.md: sha256:9ab51dfeedaf89274b98a08c3f9685c83bef59654d6f3b5ccfbe65d7b855e4e8
   .claude/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .claude/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
-  .claude/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
-  .claude/skills/readme/SKILL.md: sha256:f3d8fe605fd6d53f11c271978c8382bd4ab752fface0810d28147f469184ea5e
+  .claude/skills/prepare-release/SKILL.md: sha256:648681d513b1ba571ac78edf7354f1481454bd8cef6f2ebbae8c0ba4d6c09275
+  .claude/skills/readme/SKILL.md: sha256:78ddcc68ed7b889b45278a760fe4bca89091c6c5644ee7da52f78a3ccc558d78
   .claude/skills/senior-manual-qa/SKILL.md: sha256:373bf120b6793665818f0fc65ece18fab11a208e185c650cb3184b2ec568ab38
   .claude/skills/ts-library/SKILL.md: sha256:5637a8ee27db520f9955794e11c52333a6e2f206a231a7f931f14d2c67065f9d
-  .claude/skills/ts-library/build/tooling.md: sha256:aa7b200a095d1b4b4f18a6a05d309d9470a5c8f5c3a06743d6cbc7596fd5e32c
   .claude/skills/ts-library/patterns/api.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
   .claude/skills/ts-library/patterns/types.md: sha256:222a510c39f34bef5b8024a99a62aa4492bb887d81330adccd004b0e1b838b5d
   .claude/skills/ts-library/references/api-design.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
@@ -1037,11 +1035,10 @@ outputs:
   .cursor/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .cursor/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .cursor/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
-  .cursor/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
-  .cursor/skills/readme/SKILL.md: sha256:f3d8fe605fd6d53f11c271978c8382bd4ab752fface0810d28147f469184ea5e
+  .cursor/skills/prepare-release/SKILL.md: sha256:648681d513b1ba571ac78edf7354f1481454bd8cef6f2ebbae8c0ba4d6c09275
+  .cursor/skills/readme/SKILL.md: sha256:78ddcc68ed7b889b45278a760fe4bca89091c6c5644ee7da52f78a3ccc558d78
   .cursor/skills/senior-manual-qa/SKILL.md: sha256:373bf120b6793665818f0fc65ece18fab11a208e185c650cb3184b2ec568ab38
   .cursor/skills/ts-library/SKILL.md: sha256:5637a8ee27db520f9955794e11c52333a6e2f206a231a7f931f14d2c67065f9d
-  .cursor/skills/ts-library/build/tooling.md: sha256:aa7b200a095d1b4b4f18a6a05d309d9470a5c8f5c3a06743d6cbc7596fd5e32c
   .cursor/skills/ts-library/patterns/api.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
   .cursor/skills/ts-library/patterns/types.md: sha256:222a510c39f34bef5b8024a99a62aa4492bb887d81330adccd004b0e1b838b5d
   .cursor/skills/ts-library/references/api-design.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
@@ -1183,11 +1180,10 @@ outputs:
   .github/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .github/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .github/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
-  .github/skills/prepare-release/SKILL.md: sha256:00ba45b53952289f94a6f1b4ce3c361af55fd15b7c7f57cd2e04a5f9a24d2781
-  .github/skills/readme/SKILL.md: sha256:f3d8fe605fd6d53f11c271978c8382bd4ab752fface0810d28147f469184ea5e
+  .github/skills/prepare-release/SKILL.md: sha256:068c49e945c02bcc027f05c6ffd494f4661a57dac861f981e71ebd09fd0d361c
+  .github/skills/readme/SKILL.md: sha256:78ddcc68ed7b889b45278a760fe4bca89091c6c5644ee7da52f78a3ccc558d78
   .github/skills/senior-manual-qa/SKILL.md: sha256:373bf120b6793665818f0fc65ece18fab11a208e185c650cb3184b2ec568ab38
   .github/skills/ts-library/SKILL.md: sha256:5637a8ee27db520f9955794e11c52333a6e2f206a231a7f931f14d2c67065f9d
-  .github/skills/ts-library/build/tooling.md: sha256:aa7b200a095d1b4b4f18a6a05d309d9470a5c8f5c3a06743d6cbc7596fd5e32c
   .github/skills/ts-library/patterns/api.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
   .github/skills/ts-library/patterns/types.md: sha256:222a510c39f34bef5b8024a99a62aa4492bb887d81330adccd004b0e1b838b5d
   .github/skills/ts-library/references/api-design.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
@@ -1329,11 +1325,10 @@ outputs:
   .gemini/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .gemini/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .gemini/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
-  .gemini/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
-  .gemini/skills/readme/SKILL.md: sha256:f3d8fe605fd6d53f11c271978c8382bd4ab752fface0810d28147f469184ea5e
+  .gemini/skills/prepare-release/SKILL.md: sha256:648681d513b1ba571ac78edf7354f1481454bd8cef6f2ebbae8c0ba4d6c09275
+  .gemini/skills/readme/SKILL.md: sha256:78ddcc68ed7b889b45278a760fe4bca89091c6c5644ee7da52f78a3ccc558d78
   .gemini/skills/senior-manual-qa/SKILL.md: sha256:373bf120b6793665818f0fc65ece18fab11a208e185c650cb3184b2ec568ab38
   .gemini/skills/ts-library/SKILL.md: sha256:5637a8ee27db520f9955794e11c52333a6e2f206a231a7f931f14d2c67065f9d
-  .gemini/skills/ts-library/build/tooling.md: sha256:aa7b200a095d1b4b4f18a6a05d309d9470a5c8f5c3a06743d6cbc7596fd5e32c
   .gemini/skills/ts-library/patterns/api.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
   .gemini/skills/ts-library/patterns/types.md: sha256:222a510c39f34bef5b8024a99a62aa4492bb887d81330adccd004b0e1b838b5d
   .gemini/skills/ts-library/references/api-design.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
@@ -1475,11 +1470,10 @@ outputs:
   .cline/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .cline/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .cline/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
-  .cline/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
-  .cline/skills/readme/SKILL.md: sha256:f3d8fe605fd6d53f11c271978c8382bd4ab752fface0810d28147f469184ea5e
+  .cline/skills/prepare-release/SKILL.md: sha256:648681d513b1ba571ac78edf7354f1481454bd8cef6f2ebbae8c0ba4d6c09275
+  .cline/skills/readme/SKILL.md: sha256:78ddcc68ed7b889b45278a760fe4bca89091c6c5644ee7da52f78a3ccc558d78
   .cline/skills/senior-manual-qa/SKILL.md: sha256:373bf120b6793665818f0fc65ece18fab11a208e185c650cb3184b2ec568ab38
   .cline/skills/ts-library/SKILL.md: sha256:5637a8ee27db520f9955794e11c52333a6e2f206a231a7f931f14d2c67065f9d
-  .cline/skills/ts-library/build/tooling.md: sha256:aa7b200a095d1b4b4f18a6a05d309d9470a5c8f5c3a06743d6cbc7596fd5e32c
   .cline/skills/ts-library/patterns/api.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
   .cline/skills/ts-library/patterns/types.md: sha256:222a510c39f34bef5b8024a99a62aa4492bb887d81330adccd004b0e1b838b5d
   .cline/skills/ts-library/references/api-design.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
@@ -1621,11 +1615,10 @@ outputs:
   .agents/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .agents/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .agents/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
-  .agents/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
-  .agents/skills/readme/SKILL.md: sha256:f3d8fe605fd6d53f11c271978c8382bd4ab752fface0810d28147f469184ea5e
+  .agents/skills/prepare-release/SKILL.md: sha256:648681d513b1ba571ac78edf7354f1481454bd8cef6f2ebbae8c0ba4d6c09275
+  .agents/skills/readme/SKILL.md: sha256:78ddcc68ed7b889b45278a760fe4bca89091c6c5644ee7da52f78a3ccc558d78
   .agents/skills/senior-manual-qa/SKILL.md: sha256:373bf120b6793665818f0fc65ece18fab11a208e185c650cb3184b2ec568ab38
   .agents/skills/ts-library/SKILL.md: sha256:5637a8ee27db520f9955794e11c52333a6e2f206a231a7f931f14d2c67065f9d
-  .agents/skills/ts-library/build/tooling.md: sha256:aa7b200a095d1b4b4f18a6a05d309d9470a5c8f5c3a06743d6cbc7596fd5e32c
   .agents/skills/ts-library/patterns/api.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
   .agents/skills/ts-library/patterns/types.md: sha256:222a510c39f34bef5b8024a99a62aa4492bb887d81330adccd004b0e1b838b5d
   .agents/skills/ts-library/references/api-design.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
@@ -1767,11 +1760,10 @@ outputs:
   .windsurf/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .windsurf/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .windsurf/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
-  .windsurf/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
-  .windsurf/skills/readme/SKILL.md: sha256:f3d8fe605fd6d53f11c271978c8382bd4ab752fface0810d28147f469184ea5e
+  .windsurf/skills/prepare-release/SKILL.md: sha256:648681d513b1ba571ac78edf7354f1481454bd8cef6f2ebbae8c0ba4d6c09275
+  .windsurf/skills/readme/SKILL.md: sha256:78ddcc68ed7b889b45278a760fe4bca89091c6c5644ee7da52f78a3ccc558d78
   .windsurf/skills/senior-manual-qa/SKILL.md: sha256:373bf120b6793665818f0fc65ece18fab11a208e185c650cb3184b2ec568ab38
   .windsurf/skills/ts-library/SKILL.md: sha256:5637a8ee27db520f9955794e11c52333a6e2f206a231a7f931f14d2c67065f9d
-  .windsurf/skills/ts-library/build/tooling.md: sha256:aa7b200a095d1b4b4f18a6a05d309d9470a5c8f5c3a06743d6cbc7596fd5e32c
   .windsurf/skills/ts-library/patterns/api.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
   .windsurf/skills/ts-library/patterns/types.md: sha256:222a510c39f34bef5b8024a99a62aa4492bb887d81330adccd004b0e1b838b5d
   .windsurf/skills/ts-library/references/api-design.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
@@ -1913,11 +1905,10 @@ outputs:
   .continue/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .continue/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .continue/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
-  .continue/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
-  .continue/skills/readme/SKILL.md: sha256:f3d8fe605fd6d53f11c271978c8382bd4ab752fface0810d28147f469184ea5e
+  .continue/skills/prepare-release/SKILL.md: sha256:648681d513b1ba571ac78edf7354f1481454bd8cef6f2ebbae8c0ba4d6c09275
+  .continue/skills/readme/SKILL.md: sha256:78ddcc68ed7b889b45278a760fe4bca89091c6c5644ee7da52f78a3ccc558d78
   .continue/skills/senior-manual-qa/SKILL.md: sha256:373bf120b6793665818f0fc65ece18fab11a208e185c650cb3184b2ec568ab38
   .continue/skills/ts-library/SKILL.md: sha256:5637a8ee27db520f9955794e11c52333a6e2f206a231a7f931f14d2c67065f9d
-  .continue/skills/ts-library/build/tooling.md: sha256:aa7b200a095d1b4b4f18a6a05d309d9470a5c8f5c3a06743d6cbc7596fd5e32c
   .continue/skills/ts-library/patterns/api.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
   .continue/skills/ts-library/patterns/types.md: sha256:222a510c39f34bef5b8024a99a62aa4492bb887d81330adccd004b0e1b838b5d
   .continue/skills/ts-library/references/api-design.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
@@ -2059,11 +2050,10 @@ outputs:
   .junie/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .junie/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .junie/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
-  .junie/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
-  .junie/skills/readme/SKILL.md: sha256:f3d8fe605fd6d53f11c271978c8382bd4ab752fface0810d28147f469184ea5e
+  .junie/skills/prepare-release/SKILL.md: sha256:648681d513b1ba571ac78edf7354f1481454bd8cef6f2ebbae8c0ba4d6c09275
+  .junie/skills/readme/SKILL.md: sha256:78ddcc68ed7b889b45278a760fe4bca89091c6c5644ee7da52f78a3ccc558d78
   .junie/skills/senior-manual-qa/SKILL.md: sha256:373bf120b6793665818f0fc65ece18fab11a208e185c650cb3184b2ec568ab38
   .junie/skills/ts-library/SKILL.md: sha256:5637a8ee27db520f9955794e11c52333a6e2f206a231a7f931f14d2c67065f9d
-  .junie/skills/ts-library/build/tooling.md: sha256:aa7b200a095d1b4b4f18a6a05d309d9470a5c8f5c3a06743d6cbc7596fd5e32c
   .junie/skills/ts-library/patterns/api.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
   .junie/skills/ts-library/patterns/types.md: sha256:222a510c39f34bef5b8024a99a62aa4492bb887d81330adccd004b0e1b838b5d
   .junie/skills/ts-library/references/api-design.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
@@ -2205,11 +2195,10 @@ outputs:
   .roo/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .roo/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .roo/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
-  .roo/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
-  .roo/skills/readme/SKILL.md: sha256:f3d8fe605fd6d53f11c271978c8382bd4ab752fface0810d28147f469184ea5e
+  .roo/skills/prepare-release/SKILL.md: sha256:648681d513b1ba571ac78edf7354f1481454bd8cef6f2ebbae8c0ba4d6c09275
+  .roo/skills/readme/SKILL.md: sha256:78ddcc68ed7b889b45278a760fe4bca89091c6c5644ee7da52f78a3ccc558d78
   .roo/skills/senior-manual-qa/SKILL.md: sha256:373bf120b6793665818f0fc65ece18fab11a208e185c650cb3184b2ec568ab38
   .roo/skills/ts-library/SKILL.md: sha256:5637a8ee27db520f9955794e11c52333a6e2f206a231a7f931f14d2c67065f9d
-  .roo/skills/ts-library/build/tooling.md: sha256:aa7b200a095d1b4b4f18a6a05d309d9470a5c8f5c3a06743d6cbc7596fd5e32c
   .roo/skills/ts-library/patterns/api.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
   .roo/skills/ts-library/patterns/types.md: sha256:222a510c39f34bef5b8024a99a62aa4492bb887d81330adccd004b0e1b838b5d
   .roo/skills/ts-library/references/api-design.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
@@ -2351,11 +2340,10 @@ outputs:
   .kiro/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .kiro/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .kiro/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
-  .kiro/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
-  .kiro/skills/readme/SKILL.md: sha256:f3d8fe605fd6d53f11c271978c8382bd4ab752fface0810d28147f469184ea5e
+  .kiro/skills/prepare-release/SKILL.md: sha256:648681d513b1ba571ac78edf7354f1481454bd8cef6f2ebbae8c0ba4d6c09275
+  .kiro/skills/readme/SKILL.md: sha256:78ddcc68ed7b889b45278a760fe4bca89091c6c5644ee7da52f78a3ccc558d78
   .kiro/skills/senior-manual-qa/SKILL.md: sha256:373bf120b6793665818f0fc65ece18fab11a208e185c650cb3184b2ec568ab38
   .kiro/skills/ts-library/SKILL.md: sha256:5637a8ee27db520f9955794e11c52333a6e2f206a231a7f931f14d2c67065f9d
-  .kiro/skills/ts-library/build/tooling.md: sha256:aa7b200a095d1b4b4f18a6a05d309d9470a5c8f5c3a06743d6cbc7596fd5e32c
   .kiro/skills/ts-library/patterns/api.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
   .kiro/skills/ts-library/patterns/types.md: sha256:222a510c39f34bef5b8024a99a62aa4492bb887d81330adccd004b0e1b838b5d
   .kiro/skills/ts-library/references/api-design.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
@@ -2497,11 +2485,10 @@ outputs:
   .kilo/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .kilo/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .kilo/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
-  .kilo/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
-  .kilo/skills/readme/SKILL.md: sha256:f3d8fe605fd6d53f11c271978c8382bd4ab752fface0810d28147f469184ea5e
+  .kilo/skills/prepare-release/SKILL.md: sha256:648681d513b1ba571ac78edf7354f1481454bd8cef6f2ebbae8c0ba4d6c09275
+  .kilo/skills/readme/SKILL.md: sha256:78ddcc68ed7b889b45278a760fe4bca89091c6c5644ee7da52f78a3ccc558d78
   .kilo/skills/senior-manual-qa/SKILL.md: sha256:373bf120b6793665818f0fc65ece18fab11a208e185c650cb3184b2ec568ab38
   .kilo/skills/ts-library/SKILL.md: sha256:5637a8ee27db520f9955794e11c52333a6e2f206a231a7f931f14d2c67065f9d
-  .kilo/skills/ts-library/build/tooling.md: sha256:aa7b200a095d1b4b4f18a6a05d309d9470a5c8f5c3a06743d6cbc7596fd5e32c
   .kilo/skills/ts-library/patterns/api.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
   .kilo/skills/ts-library/patterns/types.md: sha256:222a510c39f34bef5b8024a99a62aa4492bb887d81330adccd004b0e1b838b5d
   .kilo/skills/ts-library/references/api-design.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
@@ -2643,11 +2630,10 @@ outputs:
   .opencode/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .opencode/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .opencode/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
-  .opencode/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
-  .opencode/skills/readme/SKILL.md: sha256:f3d8fe605fd6d53f11c271978c8382bd4ab752fface0810d28147f469184ea5e
+  .opencode/skills/prepare-release/SKILL.md: sha256:648681d513b1ba571ac78edf7354f1481454bd8cef6f2ebbae8c0ba4d6c09275
+  .opencode/skills/readme/SKILL.md: sha256:78ddcc68ed7b889b45278a760fe4bca89091c6c5644ee7da52f78a3ccc558d78
   .opencode/skills/senior-manual-qa/SKILL.md: sha256:373bf120b6793665818f0fc65ece18fab11a208e185c650cb3184b2ec568ab38
   .opencode/skills/ts-library/SKILL.md: sha256:5637a8ee27db520f9955794e11c52333a6e2f206a231a7f931f14d2c67065f9d
-  .opencode/skills/ts-library/build/tooling.md: sha256:aa7b200a095d1b4b4f18a6a05d309d9470a5c8f5c3a06743d6cbc7596fd5e32c
   .opencode/skills/ts-library/patterns/api.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
   .opencode/skills/ts-library/patterns/types.md: sha256:222a510c39f34bef5b8024a99a62aa4492bb887d81330adccd004b0e1b838b5d
   .opencode/skills/ts-library/references/api-design.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
@@ -2789,11 +2775,10 @@ outputs:
   .warp/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .warp/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .warp/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
-  .warp/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
-  .warp/skills/readme/SKILL.md: sha256:f3d8fe605fd6d53f11c271978c8382bd4ab752fface0810d28147f469184ea5e
+  .warp/skills/prepare-release/SKILL.md: sha256:648681d513b1ba571ac78edf7354f1481454bd8cef6f2ebbae8c0ba4d6c09275
+  .warp/skills/readme/SKILL.md: sha256:78ddcc68ed7b889b45278a760fe4bca89091c6c5644ee7da52f78a3ccc558d78
   .warp/skills/senior-manual-qa/SKILL.md: sha256:373bf120b6793665818f0fc65ece18fab11a208e185c650cb3184b2ec568ab38
   .warp/skills/ts-library/SKILL.md: sha256:5637a8ee27db520f9955794e11c52333a6e2f206a231a7f931f14d2c67065f9d
-  .warp/skills/ts-library/build/tooling.md: sha256:aa7b200a095d1b4b4f18a6a05d309d9470a5c8f5c3a06743d6cbc7596fd5e32c
   .warp/skills/ts-library/patterns/api.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
   .warp/skills/ts-library/patterns/types.md: sha256:222a510c39f34bef5b8024a99a62aa4492bb887d81330adccd004b0e1b838b5d
   .warp/skills/ts-library/references/api-design.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
@@ -2935,11 +2920,10 @@ outputs:
   .aider/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .aider/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .aider/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
-  .aider/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
-  .aider/skills/readme/SKILL.md: sha256:f3d8fe605fd6d53f11c271978c8382bd4ab752fface0810d28147f469184ea5e
+  .aider/skills/prepare-release/SKILL.md: sha256:648681d513b1ba571ac78edf7354f1481454bd8cef6f2ebbae8c0ba4d6c09275
+  .aider/skills/readme/SKILL.md: sha256:78ddcc68ed7b889b45278a760fe4bca89091c6c5644ee7da52f78a3ccc558d78
   .aider/skills/senior-manual-qa/SKILL.md: sha256:373bf120b6793665818f0fc65ece18fab11a208e185c650cb3184b2ec568ab38
   .aider/skills/ts-library/SKILL.md: sha256:5637a8ee27db520f9955794e11c52333a6e2f206a231a7f931f14d2c67065f9d
-  .aider/skills/ts-library/build/tooling.md: sha256:aa7b200a095d1b4b4f18a6a05d309d9470a5c8f5c3a06743d6cbc7596fd5e32c
   .aider/skills/ts-library/patterns/api.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
   .aider/skills/ts-library/patterns/types.md: sha256:222a510c39f34bef5b8024a99a62aa4492bb887d81330adccd004b0e1b838b5d
   .aider/skills/ts-library/references/api-design.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
@@ -3081,11 +3065,10 @@ outputs:
   .augment/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .augment/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .augment/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
-  .augment/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
-  .augment/skills/readme/SKILL.md: sha256:f3d8fe605fd6d53f11c271978c8382bd4ab752fface0810d28147f469184ea5e
+  .augment/skills/prepare-release/SKILL.md: sha256:648681d513b1ba571ac78edf7354f1481454bd8cef6f2ebbae8c0ba4d6c09275
+  .augment/skills/readme/SKILL.md: sha256:78ddcc68ed7b889b45278a760fe4bca89091c6c5644ee7da52f78a3ccc558d78
   .augment/skills/senior-manual-qa/SKILL.md: sha256:373bf120b6793665818f0fc65ece18fab11a208e185c650cb3184b2ec568ab38
   .augment/skills/ts-library/SKILL.md: sha256:5637a8ee27db520f9955794e11c52333a6e2f206a231a7f931f14d2c67065f9d
-  .augment/skills/ts-library/build/tooling.md: sha256:aa7b200a095d1b4b4f18a6a05d309d9470a5c8f5c3a06743d6cbc7596fd5e32c
   .augment/skills/ts-library/patterns/api.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
   .augment/skills/ts-library/patterns/types.md: sha256:222a510c39f34bef5b8024a99a62aa4492bb887d81330adccd004b0e1b838b5d
   .augment/skills/ts-library/references/api-design.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
@@ -3227,11 +3210,10 @@ outputs:
   .crush/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .crush/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .crush/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
-  .crush/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
-  .crush/skills/readme/SKILL.md: sha256:f3d8fe605fd6d53f11c271978c8382bd4ab752fface0810d28147f469184ea5e
+  .crush/skills/prepare-release/SKILL.md: sha256:648681d513b1ba571ac78edf7354f1481454bd8cef6f2ebbae8c0ba4d6c09275
+  .crush/skills/readme/SKILL.md: sha256:78ddcc68ed7b889b45278a760fe4bca89091c6c5644ee7da52f78a3ccc558d78
   .crush/skills/senior-manual-qa/SKILL.md: sha256:373bf120b6793665818f0fc65ece18fab11a208e185c650cb3184b2ec568ab38
   .crush/skills/ts-library/SKILL.md: sha256:5637a8ee27db520f9955794e11c52333a6e2f206a231a7f931f14d2c67065f9d
-  .crush/skills/ts-library/build/tooling.md: sha256:aa7b200a095d1b4b4f18a6a05d309d9470a5c8f5c3a06743d6cbc7596fd5e32c
   .crush/skills/ts-library/patterns/api.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
   .crush/skills/ts-library/patterns/types.md: sha256:222a510c39f34bef5b8024a99a62aa4492bb887d81330adccd004b0e1b838b5d
   .crush/skills/ts-library/references/api-design.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
@@ -3373,11 +3355,10 @@ outputs:
   .qwen/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .qwen/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .qwen/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
-  .qwen/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
-  .qwen/skills/readme/SKILL.md: sha256:f3d8fe605fd6d53f11c271978c8382bd4ab752fface0810d28147f469184ea5e
+  .qwen/skills/prepare-release/SKILL.md: sha256:648681d513b1ba571ac78edf7354f1481454bd8cef6f2ebbae8c0ba4d6c09275
+  .qwen/skills/readme/SKILL.md: sha256:78ddcc68ed7b889b45278a760fe4bca89091c6c5644ee7da52f78a3ccc558d78
   .qwen/skills/senior-manual-qa/SKILL.md: sha256:373bf120b6793665818f0fc65ece18fab11a208e185c650cb3184b2ec568ab38
   .qwen/skills/ts-library/SKILL.md: sha256:5637a8ee27db520f9955794e11c52333a6e2f206a231a7f931f14d2c67065f9d
-  .qwen/skills/ts-library/build/tooling.md: sha256:aa7b200a095d1b4b4f18a6a05d309d9470a5c8f5c3a06743d6cbc7596fd5e32c
   .qwen/skills/ts-library/patterns/api.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
   .qwen/skills/ts-library/patterns/types.md: sha256:222a510c39f34bef5b8024a99a62aa4492bb887d81330adccd004b0e1b838b5d
   .qwen/skills/ts-library/references/api-design.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
@@ -3519,11 +3500,10 @@ outputs:
   .trae/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .trae/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .trae/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
-  .trae/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
-  .trae/skills/readme/SKILL.md: sha256:f3d8fe605fd6d53f11c271978c8382bd4ab752fface0810d28147f469184ea5e
+  .trae/skills/prepare-release/SKILL.md: sha256:648681d513b1ba571ac78edf7354f1481454bd8cef6f2ebbae8c0ba4d6c09275
+  .trae/skills/readme/SKILL.md: sha256:78ddcc68ed7b889b45278a760fe4bca89091c6c5644ee7da52f78a3ccc558d78
   .trae/skills/senior-manual-qa/SKILL.md: sha256:373bf120b6793665818f0fc65ece18fab11a208e185c650cb3184b2ec568ab38
   .trae/skills/ts-library/SKILL.md: sha256:5637a8ee27db520f9955794e11c52333a6e2f206a231a7f931f14d2c67065f9d
-  .trae/skills/ts-library/build/tooling.md: sha256:aa7b200a095d1b4b4f18a6a05d309d9470a5c8f5c3a06743d6cbc7596fd5e32c
   .trae/skills/ts-library/patterns/api.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
   .trae/skills/ts-library/patterns/types.md: sha256:222a510c39f34bef5b8024a99a62aa4492bb887d81330adccd004b0e1b838b5d
   .trae/skills/ts-library/references/api-design.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
@@ -3665,11 +3645,10 @@ outputs:
   .deepagents/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .deepagents/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .deepagents/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
-  .deepagents/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
-  .deepagents/skills/readme/SKILL.md: sha256:f3d8fe605fd6d53f11c271978c8382bd4ab752fface0810d28147f469184ea5e
+  .deepagents/skills/prepare-release/SKILL.md: sha256:648681d513b1ba571ac78edf7354f1481454bd8cef6f2ebbae8c0ba4d6c09275
+  .deepagents/skills/readme/SKILL.md: sha256:78ddcc68ed7b889b45278a760fe4bca89091c6c5644ee7da52f78a3ccc558d78
   .deepagents/skills/senior-manual-qa/SKILL.md: sha256:373bf120b6793665818f0fc65ece18fab11a208e185c650cb3184b2ec568ab38
   .deepagents/skills/ts-library/SKILL.md: sha256:5637a8ee27db520f9955794e11c52333a6e2f206a231a7f931f14d2c67065f9d
-  .deepagents/skills/ts-library/build/tooling.md: sha256:aa7b200a095d1b4b4f18a6a05d309d9470a5c8f5c3a06743d6cbc7596fd5e32c
   .deepagents/skills/ts-library/patterns/api.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
   .deepagents/skills/ts-library/patterns/types.md: sha256:222a510c39f34bef5b8024a99a62aa4492bb887d81330adccd004b0e1b838b5d
   .deepagents/skills/ts-library/references/api-design.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
@@ -3811,11 +3790,10 @@ outputs:
   .factory/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .factory/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .factory/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
-  .factory/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
-  .factory/skills/readme/SKILL.md: sha256:f3d8fe605fd6d53f11c271978c8382bd4ab752fface0810d28147f469184ea5e
+  .factory/skills/prepare-release/SKILL.md: sha256:648681d513b1ba571ac78edf7354f1481454bd8cef6f2ebbae8c0ba4d6c09275
+  .factory/skills/readme/SKILL.md: sha256:78ddcc68ed7b889b45278a760fe4bca89091c6c5644ee7da52f78a3ccc558d78
   .factory/skills/senior-manual-qa/SKILL.md: sha256:373bf120b6793665818f0fc65ece18fab11a208e185c650cb3184b2ec568ab38
   .factory/skills/ts-library/SKILL.md: sha256:5637a8ee27db520f9955794e11c52333a6e2f206a231a7f931f14d2c67065f9d
-  .factory/skills/ts-library/build/tooling.md: sha256:aa7b200a095d1b4b4f18a6a05d309d9470a5c8f5c3a06743d6cbc7596fd5e32c
   .factory/skills/ts-library/patterns/api.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
   .factory/skills/ts-library/patterns/types.md: sha256:222a510c39f34bef5b8024a99a62aa4492bb887d81330adccd004b0e1b838b5d
   .factory/skills/ts-library/references/api-design.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
@@ -3957,11 +3935,10 @@ outputs:
   .pi/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .pi/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .pi/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
-  .pi/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
-  .pi/skills/readme/SKILL.md: sha256:f3d8fe605fd6d53f11c271978c8382bd4ab752fface0810d28147f469184ea5e
+  .pi/skills/prepare-release/SKILL.md: sha256:648681d513b1ba571ac78edf7354f1481454bd8cef6f2ebbae8c0ba4d6c09275
+  .pi/skills/readme/SKILL.md: sha256:78ddcc68ed7b889b45278a760fe4bca89091c6c5644ee7da52f78a3ccc558d78
   .pi/skills/senior-manual-qa/SKILL.md: sha256:373bf120b6793665818f0fc65ece18fab11a208e185c650cb3184b2ec568ab38
   .pi/skills/ts-library/SKILL.md: sha256:5637a8ee27db520f9955794e11c52333a6e2f206a231a7f931f14d2c67065f9d
-  .pi/skills/ts-library/build/tooling.md: sha256:aa7b200a095d1b4b4f18a6a05d309d9470a5c8f5c3a06743d6cbc7596fd5e32c
   .pi/skills/ts-library/patterns/api.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
   .pi/skills/ts-library/patterns/types.md: sha256:222a510c39f34bef5b8024a99a62aa4492bb887d81330adccd004b0e1b838b5d
   .pi/skills/ts-library/references/api-design.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
@@ -4103,11 +4080,10 @@ outputs:
   .rovodev/skills/lessons/SKILL.md: sha256:d12648729a27bce84b1992da56462209f42f9f971a066dd25cf3a432d1f23b81
   .rovodev/skills/library-testing/SKILL.md: sha256:750c0819d76fd3585f4103b772968823f2aecfe31bd2741d5a154c6d5d56903c
   .rovodev/skills/package-release-engineering/SKILL.md: sha256:e2f26fc8d2ab1dca6547e906dd8e044d52339da6c2ca096b8f36f2bd4ecb1664
-  .rovodev/skills/prepare-release/SKILL.md: sha256:317c425107b1969a2372b430541e21c85a91715f24acf1e0267ac26e734cddb3
-  .rovodev/skills/readme/SKILL.md: sha256:f3d8fe605fd6d53f11c271978c8382bd4ab752fface0810d28147f469184ea5e
+  .rovodev/skills/prepare-release/SKILL.md: sha256:648681d513b1ba571ac78edf7354f1481454bd8cef6f2ebbae8c0ba4d6c09275
+  .rovodev/skills/readme/SKILL.md: sha256:78ddcc68ed7b889b45278a760fe4bca89091c6c5644ee7da52f78a3ccc558d78
   .rovodev/skills/senior-manual-qa/SKILL.md: sha256:373bf120b6793665818f0fc65ece18fab11a208e185c650cb3184b2ec568ab38
   .rovodev/skills/ts-library/SKILL.md: sha256:5637a8ee27db520f9955794e11c52333a6e2f206a231a7f931f14d2c67065f9d
-  .rovodev/skills/ts-library/build/tooling.md: sha256:aa7b200a095d1b4b4f18a6a05d309d9470a5c8f5c3a06743d6cbc7596fd5e32c
   .rovodev/skills/ts-library/patterns/api.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
   .rovodev/skills/ts-library/patterns/types.md: sha256:222a510c39f34bef5b8024a99a62aa4492bb887d81330adccd004b0e1b838b5d
   .rovodev/skills/ts-library/references/api-design.md: sha256:c5818923481131861d7413bd8b0459886e85eda57264265c179eafe177ba1ee0
@@ -4147,7 +4123,7 @@ outputs:
   .factory/mcp.json: sha256:beafdf9d60bbe72fa11ff90017241727fadad6bcdcb82bd87c6ec3164d2c720d
   .cursor/cli.json: sha256:3c3b42f0cfa6a777989c4f87f18101ef9da4d69f46c6bc24c594000c6cd08ccf
   .codex/rules/agentsmesh-permissions.rules: sha256:6b1e125e95aef4580c325fdf17f101b1433de06127c5f69025f6fee2cc38c568
-  .vscode/settings.json: sha256:de2e6a624e5bc4c4c5d652398089c77b57e1d6f509dba007cb009f383ce10544
+  .vscode/settings.json: sha256:87aa6ec91acf3f8e57ad1c12c005d80d2d5e1345b362788a8a028ff9cd55811b
   kilo.jsonc: sha256:630c265b1463315e3060b5e25e25c34b6ffc3f2f0d4dc22d2b814275f1049ed1
   .factory/settings.json: sha256:44127052c3853d12af2d34d7cc8bce0807a2f5927e642bdcfc9a91e99faa52a5
   .pi/settings.json: sha256:ded948deafe0744a31515b27ab1ae292e838477bc7281d9dc8724dc163b3e7f1
@@ -4207,9 +4183,9 @@ outputs:
   .kiro/agents/code-security-auditor.md: sha256:8ef33803480b9c5fde8a399c66ff276ec3f4c61922e7a4ebb7b7999c863b6632
   .kiro/agents/code-standards-enforcer.md: sha256:6693a73734d413db20145e9d4043163bf9fcabe0a455225fe315634e306eb873
   .kiro/agents/typescript-developer.md: sha256:c2bac380ce5205afb39737a70c7d14f2eaf85e73a2dc080513d15eae90f4cace
-  opencode.json: sha256:e23debb337bd6883a85f1a6cc4d4c4c65f56be0f75ca6d58c25621c87294f2ed
+  opencode.json: sha256:e411a6ed4eae72007b80ca79d7b474200ca4bd430bfd823d4729f10dfa588062
   .agents/plugins/agentsmesh/.mcp.json: sha256:beafdf9d60bbe72fa11ff90017241727fadad6bcdcb82bd87c6ec3164d2c720d
-  .amp/settings.json: sha256:6e4cf0d284153cac726c6018d58bca6195c552d052c6af0f774f22e1e07e8a8a
+  .amp/settings.json: sha256:4009b95884f1f508445548b26af5697411ee9d81b3c88ae2815e490350335a32
   .zed/settings.json: sha256:8eb6f12988863348ec57058db461869f6abe8c447facd796c0cf40b8506a99a9
   .aider.conf.yml: sha256:9c0aec04e8821683cba3386a751c97beef53dd49714d72307002edd57dbfd6ef
   .amazonq/cli-agents/code-reviewer.json: sha256:b3f941bed4c924b1cf961db67ef67997d46edf7e8840c57e2c87b40336967d05
