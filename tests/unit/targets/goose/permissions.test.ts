@@ -73,7 +73,9 @@ describe('serializeGoosePermissions', () => {
   it('clears a managed empty list and keeps the rest', () => {
     const existing = 'user:\n  always_allow:\n    - old\n  never_allow:\n    - mine__deny\n';
     const parsed = parseYaml(serializeGoosePermissions({ allow: [] }, existing)!);
-    expect(parsed).toEqual({ user: { never_allow: ['mine__deny'] } });
+    expect(parsed).toEqual({
+      user: { always_allow: [], ask_before: [], never_allow: ['mine__deny'] },
+    });
   });
 });
 

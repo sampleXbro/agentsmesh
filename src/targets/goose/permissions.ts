@@ -33,9 +33,11 @@ function parseYamlObject(content: string | null): Record<string, unknown> {
 const USER_KEYS = { allow: 'always_allow', ask: 'ask_before', deny: 'never_allow' } as const;
 
 /**
- * Write the lists permissions.yaml manages into the `user` category: an empty
- * one is removed, and an unmanaged one keeps the user's value. Returns null
- * when no list is managed, or when there is nothing to write and no file.
+ * Write the lists permissions.yaml manages into the `user` category; an
+ * unmanaged one keeps the user's value. Goose has no serde defaults and will
+ * not start when a list is missing, so every list is written, `[]` when empty.
+ * Returns null when no list is managed, or when there is nothing to write and
+ * no file.
  */
 export function serializeGoosePermissions(
   permissions: Permissions | null,
@@ -46,13 +48,11 @@ export function serializeGoosePermissions(
 
   const root = parseYamlObject(existingContent);
   const user: Record<string, unknown> = isRecord(root.user) ? { ...root.user } : {};
-  for (const [list, entries] of Object.entries(lists)) {
-    const key = USER_KEYS[list as keyof typeof USER_KEYS];
-    if (entries.length > 0) user[key] = entries;
-    else delete user[key];
+  for (const [list, key] of Object.entries(USER_KEYS)) {
+    user[key] = lists[list as keyof typeof USER_KEYS] ?? user[key] ?? [];
   }
-  if (Object.keys(user).length > 0) root.user = user;
-  else delete root.user;
+  const hasEntries = Object.values(lists).some((entries) => entries.length > 0);
+  if (hasEntries || 'user' in root) root.user = user;
   if (existingContent === null && Object.keys(root).length === 0) return null;
   return stringifyYaml(root).trimEnd() + '\n';
 }
