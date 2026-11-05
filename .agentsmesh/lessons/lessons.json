@@ -3120,6 +3120,21 @@
         "t-cmd-a17d0ed7"
       ]
     },
+    "git-commit-hygiene-when-git-fetch-push-over": {
+      "createdAt": "2026-11-05",
+      "evidence": [
+        "commit:ecb3e359"
+      ],
+      "rule": "When git fetch/push over the SSH origin fails in this environment ('Please make sure you have the correct access rights'), push over HTTPS with gh's token without changing git config: git -c credential.helper= -c 'credential.helper=!gh auth git-credential' push https://github.com/sampleXbro/agentsmesh.git develop:develop, then git update-ref refs/remotes/origin/develop develop. Ask the user before any push.",
+      "status": "active",
+      "topics": [
+        "git-commit-hygiene"
+      ],
+      "triggers": [
+        "t-cmd-c85b0fa0",
+        "t-kw-be498360"
+      ]
+    },
     "git-commit-hygiene-when-writing-a-git-commit": {
       "createdAt": "2026-07-21",
       "evidence": [
@@ -6520,6 +6535,20 @@
         "t-glob-71b4b110",
         "t-glob-629e24b4",
         "t-kw-d2cb2e25"
+      ]
+    },
+    "lessons-system-when-you-change-where-lessons": {
+      "createdAt": "2026-11-05",
+      "evidence": [],
+      "rule": "When you change where lessons can be captured (findLessonsProjectRoot in src/lessons/paths.ts), update the MCP no-lessons text (INACTIVE in src/mcp/instructions.ts), the writableLessonsRoot error and their tests in the same change: the .git fallback landed while the text still sent agents to run agentsmesh init --lessons, which set up the full tool for plugin-only users.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-db7e480d",
+        "t-glob-805035af",
+        "t-glob-fd26eddc"
       ]
     },
     "lessons-telemetry-before-proposing-an-istelemetryenabled-g": {
@@ -12401,6 +12430,10 @@
       "kind": "command_pattern",
       "pattern": "git reset --hard"
     },
+    "t-cmd-c85b0fa0": {
+      "kind": "command_pattern",
+      "pattern": "git (push|fetch)"
+    },
     "t-cmd-cae616a1": {
       "kind": "command_pattern",
       "pattern": "install --force"
@@ -14297,6 +14330,10 @@
       "kind": "file_glob",
       "pattern": "src/cli/commands/lessons-known-flags.ts"
     },
+    "t-glob-fd26eddc": {
+      "kind": "file_glob",
+      "pattern": "src/mcp/handlers/lessons-guards.ts"
+    },
     "t-glob-fde00b4e": {
       "kind": "file_glob",
       "pattern": "src/canonical/load/unmanaged-*.ts"
@@ -15108,6 +15145,10 @@
     "t-kw-bd0b86a3": {
       "kind": "keyword",
       "pattern": "wizard back navigation step prompter"
+    },
+    "t-kw-be498360": {
+      "kind": "keyword",
+      "pattern": "push access rights"
     },
     "t-kw-c34b7cc1": {
       "kind": "keyword",
