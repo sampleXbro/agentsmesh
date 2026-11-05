@@ -15,6 +15,8 @@ import {
   handleGenerateOrDryRun,
 } from './generate-handlers.js';
 import type { GenerateData } from '../command-result.js';
+import type { ValidatedConfig } from '../../config/core/schema.js';
+import type { CanonicalFiles } from '../../core/types.js';
 import { runLessonsMaintenance } from './generate-lessons.js';
 
 export interface GenerateCommandResult {
@@ -22,6 +24,8 @@ export interface GenerateCommandResult {
   data: GenerateData;
   /** True when this run rewrote `.agentsmesh/.lock`; false for check, dry-run and no-op runs. */
   lockWritten: boolean;
+  /** What this run loaded, so a caller rendering the matrix does not load (and warn) again. */
+  loaded?: { config: ValidatedConfig; canonical: CanonicalFiles };
 }
 
 export interface RunGenerateOptions {
@@ -138,5 +142,9 @@ export async function runGenerate(
             options,
             loaded: { config, canonical },
           });
-  return { ...result, exitCode: Math.max(result.exitCode, lessonsExit) };
+  return {
+    ...result,
+    exitCode: Math.max(result.exitCode, lessonsExit),
+    loaded: { config, canonical },
+  };
 }

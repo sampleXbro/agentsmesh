@@ -71,6 +71,7 @@ describe('cmdHandlers', () => {
       files: [],
       summary: { created: 0, updated: 0, unchanged: 0 },
     },
+    loaded: { config: { targets: [] }, canonical: { rules: [] } },
   };
   const initResult = {
     exitCode: 0,
@@ -164,8 +165,9 @@ describe('cmdHandlers', () => {
 
     expect(runGenerate).toHaveBeenCalledWith({}, undefined, { printMatrix: false });
     expect(renderGenerate).toHaveBeenCalledWith(generateResult);
-    // The matrix is rendered AFTER the spinner/frame closes (not during runGenerate).
-    expect(runMatrix).toHaveBeenCalled();
+    // The matrix is rendered AFTER the spinner/frame closes (not during runGenerate),
+    // from the config generate loaded, so loading warnings are not printed again.
+    expect(runMatrix).toHaveBeenCalledWith({}, process.cwd(), generateResult.loaded);
     expect(renderMatrix).toHaveBeenCalled();
   });
 

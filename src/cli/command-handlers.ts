@@ -84,7 +84,7 @@ export const cmdHandlers: Record<string, CommandHandler> = {
     handleResult('generate', result, nf, () => renderGenerate(result));
     ui.outro('Done');
     if (nf.json !== true) {
-      const matrixResult = await runMatrix(nf, process.cwd());
+      const matrixResult = await runMatrix(nf, process.cwd(), result.loaded);
       renderMatrix(matrixResult, { verbose: nf.verbose === true });
     }
   },
