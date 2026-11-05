@@ -120,6 +120,7 @@ export async function runGenerate(
           options,
           activeTargets,
           configuredTargets: allTargets,
+          loaded: { config, canonical },
         })
       : checkOnly
         ? buildCheckResult(results, scope)
@@ -135,6 +136,7 @@ export async function runGenerate(
             flags,
             root,
             options,
+            loaded: { config, canonical },
           });
   return { ...result, exitCode: Math.max(result.exitCode, lessonsExit) };
 }

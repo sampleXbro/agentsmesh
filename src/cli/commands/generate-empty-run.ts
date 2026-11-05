@@ -21,6 +21,8 @@ import { logger } from '../../utils/output/logger.js';
 import { writeLockFile } from './generate-lock.js';
 import type { GenerateData } from '../command-result.js';
 import type { ResolvedExtend } from '../../config/resolve/resolver.js';
+import type { ValidatedConfig } from '../../config/core/schema.js';
+import type { CanonicalFiles } from '../../core/types.js';
 import type { GenerateCommandResult, RunGenerateOptions } from './generate.js';
 
 export interface EmptyResultsArgs {
@@ -35,6 +37,8 @@ export interface EmptyResultsArgs {
   activeTargets: string[];
   /** Every target in the config, so the lock knows which ones this run skipped. */
   configuredTargets: string[];
+  /** What generate loaded, so the matrix does not load (and warn) again. */
+  loaded?: { config: ValidatedConfig; canonical: CanonicalFiles };
 }
 
 /**
@@ -112,7 +116,7 @@ export async function handleEmptyResults(args: EmptyResultsArgs): Promise<Genera
   if (options.printMatrix !== false) {
     const { runMatrix } = await import('./matrix.js');
     const { renderMatrix } = await import('../renderers/matrix.js');
-    const matrixResult = await runMatrix(flags, root);
+    const matrixResult = await runMatrix(flags, root, args.loaded);
     renderMatrix(matrixResult, { verbose: flags.verbose === true });
   }
 
