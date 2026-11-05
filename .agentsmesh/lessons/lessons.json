@@ -806,6 +806,22 @@
         "t-glob-78449aa1"
       ]
     },
+    "cli-presentation-test-a-fix-for-duplicated": {
+      "createdAt": "2026-11-05",
+      "evidence": [
+        "commit:d705a57e"
+      ],
+      "rule": "Test a fix for duplicated CLI output through the real CLI path, not only runGenerate: cmdHandlers.generate runs generate with printMatrix: false and renders the matrix itself, so a runGenerate-only test passed while the CLI still printed every loading warning twice. Before a release, smoke-test the packed tarball (npm pack, npm install into a temp project, run the commands and an MCP stdio handshake) and count the warnings.",
+      "status": "active",
+      "topics": [
+        "cli-presentation"
+      ],
+      "triggers": [
+        "t-glob-8173701c",
+        "t-glob-ebc9f5cd",
+        "t-kw-f2db7158"
+      ]
+    },
     "cli-presentation-when-auditing-spinner-vs-prompt": {
       "createdAt": "2026-07-09",
       "evidence": [
@@ -2743,21 +2759,36 @@
         "t-kw-9f9fe0aa"
       ]
     },
+    "generation-safety-settings-are-managed-at-different": {
+      "createdAt": "2026-11-05",
+      "evidence": [
+        "commit:525939c4"
+      ],
+      "rule": "Settings are managed at different grains: permissions per list (a missing allow/deny/ask key is unmanaged, [] is managed 'none'), MCP by the mcpServers key, hooks per file (comment-only or missing = unmanaged, a blank file parses to {} = managed), ignore by having at least one pattern. Packs and extends add values only to what the local files manage (dropUnmanagedSettings in src/canonical/load/unmanaged-settings.ts); before changing parse or merge code, run the null-local and partly-managed cases end to end against a hand-written tool file.",
+      "status": "active",
+      "topics": [
+        "generation-safety"
+      ],
+      "triggers": [
+        "t-glob-89c6bc75",
+        "t-glob-f1bf65e5",
+        "t-glob-c21ba0b0"
+      ]
+    },
     "generation-safety-treat-a-canonical-settings-feature": {
       "createdAt": "2026-10-29",
       "evidence": [],
       "rationale": "Found while reproducing pack permissions/hooks data loss in ~/.claude/settings.json (tests/integration/install-permissions-hooks-unmanaged.integration.test.ts).",
       "rule": "Treat a canonical settings feature as managed per file, not per list: a missing or comment-only permissions.yaml / hooks.yaml / mcp.json parses to null (unmanaged, generate leaves the tool alone), but any parsed content makes the whole feature managed and the tool's owned keys are replaced wholesale. parsePermissionsContent fills missing allow/deny/ask with [], so uncommenting only allow wipes the user's deny and ask; and merging pack or extends layers onto a null local layer turns it into a managed list that replaces the user's tool values. Before changing merge or parse code, check the null-local case end to end against a hand-written tool file.",
-      "status": "active",
+      "status": "superseded",
+      "supersededBy": "generation-safety-settings-are-managed-at-different",
       "topics": [
         "generation-safety"
       ],
       "triggers": [
         "t-glob-3c315a53",
         "t-glob-f1bf65e5",
-        "t-glob-1e114ce3",
-        "t-glob-c21ba0b0",
-        "t-kw-8175a64e"
+        "t-glob-c21ba0b0"
       ]
     },
     "generation-safety-when-a-code-path-deliberately": {
@@ -7223,6 +7254,36 @@
       "triggers": [
         "t-glob-c9a321aa",
         "t-kw-91081d8d"
+      ]
+    },
+    "pnpm-lockfile-after-a-pnpm-10-frozen": {
+      "createdAt": "2026-11-05",
+      "evidence": [
+        "commit:e34b654f"
+      ],
+      "rule": "After a pnpm 10 frozen install in the main checkout, the husky pre-commit hook (run by the local pnpm 11) stops with ERR_PNPM_ABORTED_REMOVE_MODULES_DIR_NO_TTY and the commit fails. Rebuild node_modules with 'pnpm install --config.confirm-modules-purge=false', check 'git diff -- pnpm-lock.yaml' is empty (restore it from the index if not), then commit again with the hook; do not skip the hook.",
+      "status": "active",
+      "topics": [
+        "pnpm-lockfile"
+      ],
+      "triggers": [
+        "t-cmd-3e61386f",
+        "t-kw-f0e3a902"
+      ]
+    },
+    "pnpm-lockfile-during-release-prep-fix-audit": {
+      "createdAt": "2026-11-05",
+      "evidence": [
+        "commit:e34b654f"
+      ],
+      "rule": "During release prep, fix audit advisories in transitive dependencies with exact-version overrides (\"proxy-addr@2.0.7\": \"2.0.8\") in BOTH package.json pnpm.overrides and pnpm-workspace.yaml, then regenerate with 'CI=true npx -y pnpm@10 install --lockfile-only'. Do not use 'pnpm update --depth Infinity <pkg>': it re-resolves unrelated transitive packages (rollup, esbuild, postcss copies) and bloats the lockfile diff.",
+      "status": "active",
+      "topics": [
+        "pnpm-lockfile"
+      ],
+      "triggers": [
+        "t-cmd-627361ef",
+        "t-kw-672fe9b8"
       ]
     },
     "pnpm-lockfile-in-this-repo-run-dev": {
@@ -11886,6 +11947,10 @@
       "kind": "command_pattern",
       "pattern": "\\b(eslint|lint)\\b"
     },
+    "t-cmd-3e61386f": {
+      "kind": "command_pattern",
+      "pattern": "pnpm@10 install"
+    },
     "t-cmd-3ef57d47": {
       "kind": "command_pattern",
       "pattern": "vitest.*effectiveness"
@@ -11941,6 +12006,10 @@
     "t-cmd-5efd7022": {
       "kind": "command_pattern",
       "pattern": ">"
+    },
+    "t-cmd-627361ef": {
+      "kind": "command_pattern",
+      "pattern": "pnpm (audit|update)"
     },
     "t-cmd-64a39b90": {
       "kind": "command_pattern",
@@ -12513,10 +12582,6 @@
     "t-glob-1d8119c8": {
       "kind": "file_glob",
       "pattern": "tests/contract/target-contract.matrix.test.ts"
-    },
-    "t-glob-1e114ce3": {
-      "kind": "file_glob",
-      "pattern": "src/canonical/features/hooks.ts"
     },
     "t-glob-1f849af2": {
       "kind": "file_glob",
@@ -14474,6 +14539,10 @@
       "kind": "keyword",
       "pattern": "zsh"
     },
+    "t-kw-672fe9b8": {
+      "kind": "keyword",
+      "pattern": "audit advisory transitive override"
+    },
     "t-kw-67b582a5": {
       "kind": "keyword",
       "pattern": "zsh separator echo equals"
@@ -14577,10 +14646,6 @@
     "t-kw-8098ffea": {
       "kind": "keyword",
       "pattern": "codecov"
-    },
-    "t-kw-8175a64e": {
-      "kind": "keyword",
-      "pattern": "unmanaged"
     },
     "t-kw-82809497": {
       "kind": "keyword",
@@ -14982,6 +15047,10 @@
       "kind": "keyword",
       "pattern": "stale cleanup provenance supersededFiles"
     },
+    "t-kw-f0e3a902": {
+      "kind": "keyword",
+      "pattern": "ERR_PNPM_ABORTED_REMOVE_MODULES_DIR_NO_TTY"
+    },
     "t-kw-f1f2d7f9": {
       "kind": "keyword",
       "pattern": "PATH delimiter"
@@ -14993,6 +15062,10 @@
     "t-kw-f27ad5f1": {
       "kind": "keyword",
       "pattern": "per-file coverage"
+    },
+    "t-kw-f2db7158": {
+      "kind": "keyword",
+      "pattern": "warning printed twice"
     },
     "t-kw-f3654aad": {
       "kind": "keyword",
