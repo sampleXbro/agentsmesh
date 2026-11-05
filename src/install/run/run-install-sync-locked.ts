@@ -11,6 +11,7 @@
 
 import { loadScopedConfig } from '../../config/core/scope.js';
 import { maybeRunInstallSync } from './install-sync.js';
+import { replayPaths } from './install-replay.js';
 import type { InstallCommandResult, RunInstallLockedArgs } from './run-install-locked.js';
 import type { InstallExecuteResult } from './run-install-execute.js';
 
@@ -27,8 +28,7 @@ export async function handleSync(
     sync,
     canonicalDir: context.canonicalDir,
     reinstall: async (entry) => {
-      const replayPaths = entry.paths && entry.paths.length > 0 ? entry.paths : [entry.path];
-      for (const replayPath of replayPaths) {
+      for (const replayPath of replayPaths(entry)) {
         const result = await recurseInstall(
           {
             ...(force ? { force: true } : {}),

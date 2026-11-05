@@ -213,6 +213,8 @@ When the source is a marketplace (`.claude-plugin/marketplace.json` or a parent 
 
   Re-run with `--all` to fan-out, or `--path plugins/<one>` to install a single sub-pack.
 
+Sub-packs from one source that ship the same features go into one pack, and `installs.yaml` records each sub-pack folder under `paths`. Their rules, commands, agents and skills add up, and so do their MCP servers, permissions, hooks and ignore patterns. If two sub-packs define an MCP server with the same name, the later sub-pack wins.
+
 ### 5. Conflict with existing canonical entities
 
 If a pack would add a rule / command / agent / skill whose name already exists in your merged canonical config (the union of `.agentsmesh/`, prior packs, and any `extends:`), AgentsMesh asks per collision before writing:
@@ -324,7 +326,7 @@ Reads `.agentsmesh/installs.yaml` and reinstalls any packs that are missing from
 agentsmesh install ./my-pack --name my-pack
 ```
 
-Running `install` again on the same source updates its pack, under the pack's current name, instead of adding a second one. AgentsMesh looks for a pack with the same source, `--target` and `--as`: the one named by `--name` when you pass it, else the one with the same features, else the only pack that covers the whole source. When both the install and the pack cover the whole source (no `--path`, no picked subset), the pack's contents are replaced, like `refresh`: files removed at the source leave the pack, and so does a whole folder the source dropped (say `commands/`). A picked subset merges into the pack instead. Packs you split on purpose (another `--path`, `--as` or pick) stay separate.
+Running `install` again on the same source updates its pack, under the pack's current name, instead of adding a second one. AgentsMesh looks for a pack with the same source, `--target` and `--as`: the one named by `--name` when you pass it, else the one with the same features, else the only pack that covers the whole source. When both the install and the pack cover the whole source (no `--path`, no picked subset), the pack's contents are replaced, like `refresh`: files removed at the source leave the pack, and so does a whole folder the source dropped (say `commands/`). A picked subset merges into the pack instead: its files join the pack, and its MCP servers, permissions, hooks and ignore patterns are added to the ones the pack already has. Packs you split on purpose (another `--path`, `--as` or pick) stay separate.
 
 `--name` never takes over a pack from another source, or one installed with another `--as` or `--target`; install stops with an error instead.
 

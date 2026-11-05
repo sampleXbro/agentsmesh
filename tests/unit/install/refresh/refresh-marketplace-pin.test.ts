@@ -1,10 +1,9 @@
 /**
- * A marketplace (`paths: [...]`) refresh re-enters the install pipeline with
- * `all: true`, so the picker fans out into one recursive `runInstall` per
- * sub-pack. Those recursions must inherit the refresh bridge's replay scope
- * (the recorded `original_ref` branch pin) and `forceFreshMaterialize`;
- * otherwise every sub-pack re-records `original_ref` as the resolved SHA and
- * every later refresh becomes a no-op "unchanged".
+ * A marketplace (`paths: [...]`) refresh re-enters the install pipeline once
+ * per recorded path. Every call must carry the refresh bridge's replay scope
+ * (the recorded `original_ref` branch pin); otherwise every sub-pack re-records
+ * `original_ref` as the resolved SHA and every later refresh becomes a no-op
+ * "unchanged". Only the first path materializes fresh; the rest merge in.
  *
  * Drives the real bridge → runInstall → picker → sub-install chain and
  * observes the `installAsPack` boundary, mirroring `flag-propagation.test.ts`.
@@ -84,7 +83,7 @@ describe('refresh of a marketplace install keeps the branch pin', () => {
     await rm(contentRoot, { recursive: true, force: true });
   });
 
-  it('every sub-pack re-install records original_ref: main and materializes fresh', async () => {
+  it('every sub-pack re-install records original_ref: main; only the first materializes fresh', async () => {
     const entry: InstallManifestEntry = {
       name: 'mp-pack',
       source: 'github:org/repo@oldsha',
@@ -102,10 +101,9 @@ describe('refresh of a marketplace install keeps the branch pin', () => {
       (call) =>
         call[0] as { pathInRepo?: string; originalRef?: string; forceFreshMaterialize?: boolean },
     );
-    expect(calls.map((c) => c.pathInRepo).sort()).toEqual(SUB_PACKS);
-    for (const call of calls) {
-      expect(call.originalRef).toBe('main');
-      expect(call.forceFreshMaterialize).toBe(true);
-    }
+    expect(calls.map((c) => [c.pathInRepo, c.originalRef, c.forceFreshMaterialize])).toEqual([
+      ['plugins/a', 'main', true],
+      ['plugins/b', 'main', false],
+    ]);
   });
 });

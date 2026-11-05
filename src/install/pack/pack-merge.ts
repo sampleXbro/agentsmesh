@@ -6,7 +6,7 @@ import {
   copyEntitiesInto,
   copyPreservedRootFilesInto,
   copySkillsInto,
-  writeSettingsInto,
+  mergeSettingsInto,
 } from './copy-entities.js';
 import { join } from 'node:path';
 import { stringify as yamlStringify } from 'yaml';
@@ -100,7 +100,7 @@ export async function mergeIntoPack(
   await copyEntitiesInto(packDir, 'commands', newCanonical.commands);
   await copyEntitiesInto(packDir, 'agents', newCanonical.agents);
   await copySkillsInto(newCanonical, packDir);
-  await writeSettingsInto(newCanonical, packDir);
+  await mergeSettingsInto(newCanonical, packDir);
   await copyPreservedRootFilesInto(preservedRootFiles, packDir);
 
   // Merge metadata
