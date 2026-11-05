@@ -3552,6 +3552,20 @@
         "t-glob-68c54751"
       ]
     },
+    "install-import-pickers-a-marketplace-install-all-whose": {
+      "createdAt": "2026-11-05",
+      "evidence": [
+        "e1cfba0b"
+      ],
+      "rule": "A marketplace install (--all) whose sub-packs come from ONE source merges them into a single pack, and each later sub-pack replaces the pack's settings files: with alpha shipping mcp.json {alphasrv} and beta {betasrv}, the pack (and the generated .mcp.json) ends with only betasrv, while rules from both stay. Do not write marketplace test expectations that assume every sub-pack's MCP servers, permissions or hooks survive; give only the LAST sub-pack settings until that merge is fixed. Install results that come from the post-install generate (skippedSettings) must take the last successful sub-pack's value, not the first or a union.",
+      "status": "active",
+      "topics": [
+        "install-import-pickers"
+      ],
+      "triggers": [
+        "t-glob-cc6aab51"
+      ]
+    },
     "install-import-pickers-agentsmesh-init-target-selection-is": {
       "createdAt": "2026-09-19",
       "evidence": [
@@ -3658,6 +3672,21 @@
       "triggers": [
         "t-glob-c424af85",
         "t-glob-b47f5129"
+      ]
+    },
+    "install-import-pickers-install-sync-reinstalls-only-packs": {
+      "createdAt": "2026-11-05",
+      "evidence": [
+        "e1cfba0b"
+      ],
+      "rule": "install --sync reinstalls only packs whose folder under .agentsmesh/packs is missing; when every recorded pack is present it reinstalls nothing and runs no generate, so anything taken from the post-install generate (for example skippedSettings) is absent. A sync test that expects a reinstall or a generate result must delete the pack folder first.",
+      "status": "active",
+      "topics": [
+        "install-import-pickers"
+      ],
+      "triggers": [
+        "t-glob-95028a79",
+        "t-glob-5b1f3cd2"
       ]
     },
     "install-import-pickers-lessons-hook-recall-has-two": {
@@ -9721,6 +9750,20 @@
         "t-glob-65f0c371"
       ]
     },
+    "test-execution-run-a-throwaway-script-that": {
+      "createdAt": "2026-11-05",
+      "evidence": [
+        "e1cfba0b"
+      ],
+      "rule": "Run a throwaway script that imports this repo's src with node_modules/.bin/tsx <file>.mts, never vitest with --root / or a test file outside the repo: vitest run --root / crawls the whole disk and hung past a 3-minute timeout. Keep scratch scripts in a /tmp folder and import src by absolute path.",
+      "status": "active",
+      "topics": [
+        "test-execution"
+      ],
+      "triggers": [
+        "t-cmd-48929698"
+      ]
+    },
     "test-execution-run-the-source-cli-as": {
       "createdAt": "2026-09-23",
       "evidence": [],
@@ -11975,6 +12018,10 @@
       "kind": "command_pattern",
       "pattern": "install --all"
     },
+    "t-cmd-48929698": {
+      "kind": "command_pattern",
+      "pattern": "vitest run --root"
+    },
     "t-cmd-49d16e5a": {
       "kind": "command_pattern",
       "pattern": "git checkout"
@@ -12979,6 +13026,10 @@
       "kind": "file_glob",
       "pattern": "src/install/lock/install-lock.ts"
     },
+    "t-glob-5b1f3cd2": {
+      "kind": "file_glob",
+      "pattern": "src/install/run/install-sync.ts"
+    },
     "t-glob-5c14835c": {
       "kind": "file_glob",
       "pattern": "src/lessons/stats-effectiveness.ts"
@@ -13443,6 +13494,10 @@
       "kind": "file_glob",
       "pattern": "pnpm-lock.yaml"
     },
+    "t-glob-95028a79": {
+      "kind": "file_glob",
+      "pattern": "src/install/run/run-install-sync-locked.ts"
+    },
     "t-glob-95700160": {
       "kind": "file_glob",
       "pattern": "src/utils/filesystem/fs.ts"
@@ -13794,6 +13849,10 @@
     "t-glob-cc00a64d": {
       "kind": "file_glob",
       "pattern": "src/targets/factory-droid/generator.ts"
+    },
+    "t-glob-cc6aab51": {
+      "kind": "file_glob",
+      "pattern": "src/install/run/run-install-marketplace.ts"
     },
     "t-glob-cd014ff3": {
       "kind": "file_glob",
