@@ -9393,6 +9393,21 @@
         "t-glob-471d1b86"
       ]
     },
+    "target-permissions-write-a-managed-empty-continue": {
+      "createdAt": "2026-11-05",
+      "evidence": [
+        "071e496d"
+      ],
+      "rule": "Write a managed empty Continue permission list as [] in ~/.continue/permissions.yaml, not by deleting the key: Continue's loader (extensions/cli/src/permissions/permissionsYamlLoader.ts) accepts empty arrays and its own default file writes allow/ask/exclude as [], so the shared ownedYamlKeysMerger can clear a list without a key-deleting merger. The same loader rejects the WHOLE file when any top-level key is not allow, ask or exclude, so never write extra keys there.",
+      "status": "active",
+      "topics": [
+        "target-permissions"
+      ],
+      "triggers": [
+        "t-glob-5b35aaf0",
+        "t-glob-89d4cc66"
+      ]
+    },
     "targets-a-target-declaring-additionalrules-embed": {
       "createdAt": "2026-09-01",
       "evidence": [],
@@ -9813,6 +9828,20 @@
       ],
       "triggers": [
         "t-cmd-b1d895c9"
+      ]
+    },
+    "test-execution-when-other-claude-sessions-run": {
+      "createdAt": "2026-11-05",
+      "evidence": [
+        "071e496d"
+      ],
+      "rule": "When other Claude sessions run vitest in parallel on this machine, run the full suite with a private TMPDIR (TMPDIR=/tmp/<session>-tmp COVERAGE=1 node_modules/.bin/vitest run --coverage): many tests use fixed names under os.tmpdir() (agentsmesh-import-cursor-test, am-integration-convert, am-extends-elevated-gate), so another session's run deletes or seeds them and unrelated files fail with ENOENT/ENOTEMPTY/'Already initialized', and a red run writes no coverage-summary.json, so coverage-floor.ts then fails with ENOENT too. Rerunning without isolation just moves the failures to other files.",
+      "status": "active",
+      "topics": [
+        "test-execution"
+      ],
+      "triggers": [
+        "t-cmd-913756a7"
       ]
     },
     "test-execution-when-the-pnpm-shim-tries": {
@@ -12979,6 +13008,10 @@
       "kind": "file_glob",
       "pattern": "src/install/lock/install-lock.ts"
     },
+    "t-glob-5b35aaf0": {
+      "kind": "file_glob",
+      "pattern": "src/targets/continue/permissions.ts"
+    },
     "t-glob-5c14835c": {
       "kind": "file_glob",
       "pattern": "src/lessons/stats-effectiveness.ts"
@@ -13366,6 +13399,10 @@
     "t-glob-89c6bc75": {
       "kind": "file_glob",
       "pattern": "src/canonical/load/*.ts"
+    },
+    "t-glob-89d4cc66": {
+      "kind": "file_glob",
+      "pattern": "src/targets/continue/config-merge.ts"
     },
     "t-glob-8ac603bd": {
       "kind": "file_glob",
