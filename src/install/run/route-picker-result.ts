@@ -105,6 +105,7 @@ export async function routePickerResult(
         ...(installReport.subPackFailures.length > 0
           ? { subPackFailures: installReport.subPackFailures }
           : {}),
+        ...(mpResult.skippedSettings ? { skippedSettings: mpResult.skippedSettings } : {}),
       },
     };
   }

@@ -79,7 +79,7 @@ export async function runGenerate(
     }
   }
 
-  const { canonical, resolvedExtends } = await loadCanonicalWithExtends(
+  const { canonical, resolvedExtends, skippedSettings } = await loadCanonicalWithExtends(
     config,
     context.configDir,
     {
@@ -144,6 +144,7 @@ export async function runGenerate(
           });
   return {
     ...result,
+    data: skippedSettings.length > 0 ? { ...result.data, skippedSettings } : result.data,
     exitCode: Math.max(result.exitCode, lessonsExit),
     loaded: { config, canonical },
   };

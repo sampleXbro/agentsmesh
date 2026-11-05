@@ -23,6 +23,8 @@ export async function handleSync(
   const { context } = await loadScopedConfig(projectRoot, scope);
   const syncInstalled: InstallExecuteResult['installed'] = [];
   const syncSkipped: InstallExecuteResult['skipped'] = [];
+  // The last replay's generate saw every pack, so its list is the final one.
+  let skippedSettings: InstallExecuteResult['skippedSettings'];
   const handled = await maybeRunInstallSync({
     sync,
     canonicalDir: context.canonicalDir,
@@ -55,6 +57,7 @@ export async function handleSync(
         );
         syncInstalled.push(...result.data.installed);
         syncSkipped.push(...result.data.skipped);
+        skippedSettings = result.data.skippedSettings;
       }
     },
   });
@@ -67,6 +70,7 @@ export async function handleSync(
       installed: syncInstalled,
       skipped: syncSkipped,
       dryRun,
+      ...(skippedSettings ? { skippedSettings } : {}),
     },
   };
 }

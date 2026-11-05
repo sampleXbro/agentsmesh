@@ -1,4 +1,5 @@
 import type { ScaffoldLessonsResult } from '../lessons/init.js';
+import type { SkippedSettings } from '../canonical/load/unmanaged-settings.js';
 
 export type CommandResult =
   | { success: true; data: unknown }
@@ -17,6 +18,8 @@ export interface GenerateData {
    * the cause is the default one.
    */
   emptyReason?: 'no-global-support';
+  /** Pack and extends settings the user's own files do not manage; absent when none. */
+  skippedSettings?: SkippedSettings[];
 }
 
 export interface InitData {
@@ -155,6 +158,8 @@ export interface InstallData {
    * marketplace installs are never silent.
    */
   subPackFailures?: InstallSubPackFailure[];
+  /** What the generate after install skipped (see GenerateData); absent when none. */
+  skippedSettings?: SkippedSettings[];
 }
 
 export interface UninstallRemovedEntry {
