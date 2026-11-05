@@ -11,6 +11,8 @@ import { parseIgnore } from '../../canonical/features/ignore.js';
 import { emptyCanonical } from '../../canonical/load/empty-canonical.js';
 import { mergeCanonicalFiles } from '../../canonical/load/merge.js';
 
+// Every helper returns the absolute paths it wrote, so a merge can record them.
+
 /**
  * Copy each entity's source file into `packDir/<subdirectory>/`, flattened to
  * its basename. Used for rules, commands and agents.
@@ -19,30 +21,41 @@ export async function copyEntitiesInto(
   packDir: string,
   subdirectory: string,
   entities: readonly { source: string }[],
-): Promise<void> {
-  if (entities.length === 0) return;
+): Promise<string[]> {
+  if (entities.length === 0) return [];
   const dir = join(packDir, subdirectory);
   await mkdirp(dir);
+  const written: string[] = [];
   for (const entity of entities) {
-    await copyFile(entity.source, join(dir, basename(entity.source)));
+    const dest = join(dir, basename(entity.source));
+    await copyFile(entity.source, dest);
+    written.push(dest);
   }
+  return written;
 }
 
 /** Copy skills to packDir/skills/{name}/ with SKILL.md and supporting files. */
-export async function copySkillsInto(canonical: CanonicalFiles, packDir: string): Promise<void> {
-  if (canonical.skills.length === 0) return;
+export async function copySkillsInto(
+  canonical: CanonicalFiles,
+  packDir: string,
+): Promise<string[]> {
+  if (canonical.skills.length === 0) return [];
   const skillsDir = join(packDir, 'skills');
   await mkdirp(skillsDir);
+  const written: string[] = [];
   for (const skill of canonical.skills) {
     const destDir = join(skillsDir, skill.name);
     await mkdirp(destDir);
     await copyFile(skill.source, join(destDir, 'SKILL.md'));
+    written.push(join(destDir, 'SKILL.md'));
     for (const sf of skill.supportingFiles) {
       const destPath = join(destDir, sf.relativePath);
       await mkdirp(dirname(destPath));
       await copyFile(sf.absolutePath, destPath);
+      written.push(destPath);
     }
   }
+  return written;
 }
 
 /**
@@ -52,30 +65,46 @@ export async function copySkillsInto(canonical: CanonicalFiles, packDir: string)
 export async function copyPreservedRootFilesInto(
   files: readonly PreservedRootFile[],
   packDir: string,
-): Promise<void> {
+): Promise<string[]> {
+  const written: string[] = [];
   for (const file of files) {
-    await copyFile(file.absolutePath, join(packDir, file.relativePath));
+    const dest = join(packDir, file.relativePath);
+    await copyFile(file.absolutePath, dest);
+    written.push(dest);
   }
+  return written;
 }
 
 /** Write mcp.json, permissions.yaml, hooks.yaml and ignore when present. */
-export async function writeSettingsInto(canonical: CanonicalFiles, packDir: string): Promise<void> {
+export async function writeSettingsInto(
+  canonical: CanonicalFiles,
+  packDir: string,
+): Promise<string[]> {
+  const written: string[] = [];
+  const write = async (name: string, content: string): Promise<void> => {
+    await writeFileAtomic(join(packDir, name), content);
+    written.push(join(packDir, name));
+  };
   if (canonical.mcp !== null) {
-    await writeFileAtomic(join(packDir, 'mcp.json'), `${JSON.stringify(canonical.mcp, null, 2)}\n`);
+    await write('mcp.json', `${JSON.stringify(canonical.mcp, null, 2)}\n`);
   }
   if (canonical.permissions !== null) {
-    await writeFileAtomic(join(packDir, 'permissions.yaml'), yamlStringify(canonical.permissions));
+    await write('permissions.yaml', yamlStringify(canonical.permissions));
   }
   if (canonical.hooks !== null) {
-    await writeFileAtomic(join(packDir, 'hooks.yaml'), yamlStringify(canonical.hooks));
+    await write('hooks.yaml', yamlStringify(canonical.hooks));
   }
   if (canonical.ignore.length > 0) {
-    await writeFileAtomic(join(packDir, 'ignore'), `${canonical.ignore.join('\n')}\n`);
+    await write('ignore', `${canonical.ignore.join('\n')}\n`);
   }
+  return written;
 }
 
-/** Add the settings to the ones already in packDir, the way generate merges packs. */
-export async function mergeSettingsInto(canonical: CanonicalFiles, packDir: string): Promise<void> {
+/** Add the settings to the ones already in packDir, the way generate merges packs; returns the paths written. */
+export async function mergeSettingsInto(
+  canonical: CanonicalFiles,
+  packDir: string,
+): Promise<string[]> {
   const [mcp, permissions, hooks, ignore] = await Promise.all([
     parseMcp(join(packDir, 'mcp.json')),
     parsePermissions(join(packDir, 'permissions.yaml')),
@@ -83,5 +112,5 @@ export async function mergeSettingsInto(canonical: CanonicalFiles, packDir: stri
     parseIgnore(join(packDir, 'ignore')),
   ]);
   const existing = { ...emptyCanonical(), mcp, permissions, hooks, ignore };
-  await writeSettingsInto(mergeCanonicalFiles(existing, canonical, { hooks: 'combine' }), packDir);
+  return writeSettingsInto(mergeCanonicalFiles(existing, canonical, { hooks: 'combine' }), packDir);
 }

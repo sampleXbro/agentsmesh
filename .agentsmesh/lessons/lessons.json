@@ -3597,6 +3597,24 @@
         "t-kw-468c3ca3"
       ]
     },
+    "install-import-pickers-any-code-that-writes-into": {
+      "createdAt": "2026-11-05",
+      "evidence": [
+        "commit:b1ed3419"
+      ],
+      "rationale": "mergeIntoPack never touched the manifest: install --all, picked-subset merges and sync replays made refresh prompt about edits nobody made.",
+      "rule": "Any code that writes into an already-installed pack (mergeIntoPack, a strip, a settings merge) must update that pack's .agentsmesh-install-manifest.json files map for exactly the paths it wrote: have the copy helpers return the paths they wrote and call recordMergedFiles. Do not re-hash the whole pack (it hides user edits made before the write) and do not diff before/after hashes (identical rewrites never heal stale entries). Without it refresh asks for consent and uninstall reports agentsmesh's own writes as modified. Check with detectModifiedFiles(packDir, manifest.files) or a non-forced refresh, never refresh --dry-run, which lists needs-consent packs as refreshed.",
+      "status": "active",
+      "topics": [
+        "install-import-pickers"
+      ],
+      "triggers": [
+        "t-glob-febd6fd7",
+        "t-glob-2eea04de",
+        "t-glob-48f23337",
+        "t-kw-7519d795"
+      ]
+    },
     "install-import-pickers-canonical-paths-are-last-import": {
       "createdAt": "2026-09-19",
       "evidence": [
@@ -12999,6 +13017,10 @@
       "kind": "file_glob",
       "pattern": "src/cli/commands/init-scaffold.ts"
     },
+    "t-glob-48f23337": {
+      "kind": "file_glob",
+      "pattern": "src/install/manifest/*.ts"
+    },
     "t-glob-49078a57": {
       "kind": "file_glob",
       "pattern": "src/lessons/normalize-query-file.ts"
@@ -14802,6 +14824,10 @@
     "t-kw-745cab00": {
       "kind": "keyword",
       "pattern": "workflow fixes"
+    },
+    "t-kw-7519d795": {
+      "kind": "keyword",
+      "pattern": "install manifest drift"
     },
     "t-kw-75645732": {
       "kind": "keyword",

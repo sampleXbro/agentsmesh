@@ -2,9 +2,10 @@
  * Per-file SHA-256 hashing for the install-time integrity manifest.
  *
  * Produces the `files` map written to `.agentsmesh-install-manifest.json`
- * alongside the pack at install time. Uninstall (P10+) re-hashes the same
- * files and compares against this map to surface user modifications before
- * blindly deleting a pack.
+ * alongside the pack at install time (a later merge into the pack updates
+ * the entries of the files it writes, see `record-merged-files.ts`).
+ * Uninstall and refresh re-hash the same files and compare against this map
+ * to surface user modifications before deleting or overwriting a pack.
  *
  * The aggregate `pack.yaml` `content_hash` (computed by `pack-hash.ts`)
  * fingerprints the whole pack as one string for tamper detection. This
