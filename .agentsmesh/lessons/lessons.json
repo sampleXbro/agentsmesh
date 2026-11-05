@@ -3750,6 +3750,22 @@
         "t-glob-d8ba983b"
       ]
     },
+    "install-import-pickers-replay-a-marketplace-pack-installs": {
+      "createdAt": "2026-11-05",
+      "evidence": [
+        "commit:a9891404"
+      ],
+      "rule": "Replay a marketplace pack (installs.yaml paths) one recorded path at a time under the entry name: the first path with forceFreshMaterialize, the rest merged into it (replayPaths in src/install/run/install-replay.ts, shared by install --sync and the refresh bridge). Never replay it with --all plus --name: the picker uses the name as the prefix of every sub-pack name, so refresh built new <pack>-plugins-x packs, left the old pack behind, dropped its installs.yaml row and failed with 'not found after install'.",
+      "status": "active",
+      "topics": [
+        "install-import-pickers"
+      ],
+      "triggers": [
+        "t-glob-8603841c",
+        "t-glob-95028a79",
+        "t-glob-b47f5129"
+      ]
+    },
     "install-import-pickers-rule-1": {
       "createdAt": "2026-06-05",
       "evidence": [
@@ -4434,6 +4450,37 @@
         "t-cmd-b66a9431",
         "t-cmd-2c6e7fc6",
         "t-cmd-e097d363"
+      ]
+    },
+    "install-import-pickers-to-see-whether-refresh-will": {
+      "createdAt": "2026-11-05",
+      "evidence": [
+        "commit:a9891404"
+      ],
+      "rule": "To see whether refresh will treat a pack as locally edited, call detectModifiedFiles(packDir, files of .agentsmesh-install-manifest.json) or run refresh without --force: refresh --dry-run lists needs-consent packs under refreshed[] exactly like clean updates, so it hides drift. Expect drift on any merged pack today: mergeIntoPack never rewrites that manifest's files map, so agentsmesh's own merge writes show as modified/added.",
+      "status": "active",
+      "topics": [
+        "install-import-pickers"
+      ],
+      "triggers": [
+        "t-glob-1a4f4ac0",
+        "t-glob-e0ac4b45",
+        "t-kw-137b00f8"
+      ]
+    },
+    "install-import-pickers-when-an-install-merges-into": {
+      "createdAt": "2026-11-05",
+      "evidence": [
+        "commit:a9891404"
+      ],
+      "rule": "When an install merges into an existing pack (mergeIntoPack: marketplace --all sub-packs, a picked subset, the merged paths of sync or refresh), add its settings with mergeSettingsInto, which merges the pack's own mcp.json/permissions.yaml/hooks.yaml/ignore with mergeCanonicalFiles(existing, incoming, { hooks: 'combine' }) like generate does across packs. Never call writeSettingsInto there: it replaces those files, so before 0.43.x only the last sub-pack's MCP servers, permissions, hooks and ignore survived while every sub-pack's rules stayed.",
+      "status": "active",
+      "topics": [
+        "install-import-pickers"
+      ],
+      "triggers": [
+        "t-glob-febd6fd7",
+        "t-glob-2eea04de"
       ]
     },
     "install-import-pickers-when-copying-entity-files-from": {
@@ -12648,6 +12695,10 @@
       "kind": "file_glob",
       "pattern": "src/canonical/features/skills.ts"
     },
+    "t-glob-1a4f4ac0": {
+      "kind": "file_glob",
+      "pattern": "src/install/refresh/run-refresh.ts"
+    },
     "t-glob-1a5e6966": {
       "kind": "file_glob",
       "pattern": "src/cli/commands/lessons-write-handlers.ts"
@@ -12779,6 +12830,10 @@
     "t-glob-2e07c687": {
       "kind": "file_glob",
       "pattern": "src/lessons/ranking.ts"
+    },
+    "t-glob-2eea04de": {
+      "kind": "file_glob",
+      "pattern": "src/install/pack/copy-entities.ts"
     },
     "t-glob-2f2abaf1": {
       "kind": "file_glob",
@@ -13432,6 +13487,10 @@
       "kind": "file_glob",
       "pattern": "src/public/index.ts"
     },
+    "t-glob-8603841c": {
+      "kind": "file_glob",
+      "pattern": "src/install/refresh/refresh-install-bridge.ts"
+    },
     "t-glob-860c694c": {
       "kind": "file_glob",
       "pattern": "src/targets/*/importer.ts"
@@ -14044,6 +14103,10 @@
       "kind": "file_glob",
       "pattern": "tests/e2e/target-contract-matrix.e2e.test.ts"
     },
+    "t-glob-e0ac4b45": {
+      "kind": "file_glob",
+      "pattern": "src/install/refresh/refresh-plan.ts"
+    },
     "t-glob-e17eb287": {
       "kind": "file_glob",
       "pattern": ".agents/skills/update-target-capabilities/SKILL.md"
@@ -14200,6 +14263,10 @@
       "kind": "file_glob",
       "pattern": "src/canonical/load/unmanaged-*.ts"
     },
+    "t-glob-febd6fd7": {
+      "kind": "file_glob",
+      "pattern": "src/install/pack/pack-merge.ts"
+    },
     "t-glob-ff160535": {
       "kind": "file_glob",
       "pattern": "src/targets/*/importer-spec.ts"
@@ -14299,6 +14366,10 @@
     "t-kw-12b92504": {
       "kind": "keyword",
       "pattern": "nested AGENTS.md collision ordering"
+    },
+    "t-kw-137b00f8": {
+      "kind": "keyword",
+      "pattern": "refresh drift"
     },
     "t-kw-1397bfda": {
       "kind": "keyword",

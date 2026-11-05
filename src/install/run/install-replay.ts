@@ -26,6 +26,17 @@ export interface InstallReplayScope {
   acceptedElevated?: ('hooks' | 'permissions' | 'mcp')[];
 }
 
+/**
+ * The source paths a replay re-installs, in order. A marketplace pack records
+ * one path per sub-pack (`paths`); every other pack one `path` or none.
+ */
+export function replayPaths(entry: {
+  readonly path?: string;
+  readonly paths?: readonly string[];
+}): Array<string | undefined> {
+  return entry.paths !== undefined && entry.paths.length > 0 ? [...entry.paths] : [entry.path];
+}
+
 export function applyReplayInstallScope(
   narrowed: CanonicalFiles,
   discoveredFeatures: string[],

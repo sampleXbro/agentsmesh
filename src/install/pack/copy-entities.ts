@@ -4,6 +4,12 @@ import { stringify as yamlStringify } from 'yaml';
 import type { CanonicalFiles } from '../../core/types.js';
 import { writeFileAtomic, mkdirp } from '../../utils/filesystem/fs.js';
 import type { PreservedRootFile } from '../source/collect-preserved-root.js';
+import { parseMcp } from '../../canonical/features/mcp.js';
+import { parsePermissions } from '../../canonical/features/permissions.js';
+import { parseHooks } from '../../canonical/features/hooks.js';
+import { parseIgnore } from '../../canonical/features/ignore.js';
+import { emptyCanonical } from '../../canonical/load/empty-canonical.js';
+import { mergeCanonicalFiles } from '../../canonical/load/merge.js';
 
 /**
  * Copy each entity's source file into `packDir/<subdirectory>/`, flattened to
@@ -66,4 +72,16 @@ export async function writeSettingsInto(canonical: CanonicalFiles, packDir: stri
   if (canonical.ignore.length > 0) {
     await writeFileAtomic(join(packDir, 'ignore'), `${canonical.ignore.join('\n')}\n`);
   }
+}
+
+/** Add the settings to the ones already in packDir, the way generate merges packs. */
+export async function mergeSettingsInto(canonical: CanonicalFiles, packDir: string): Promise<void> {
+  const [mcp, permissions, hooks, ignore] = await Promise.all([
+    parseMcp(join(packDir, 'mcp.json')),
+    parsePermissions(join(packDir, 'permissions.yaml')),
+    parseHooks(join(packDir, 'hooks.yaml')),
+    parseIgnore(join(packDir, 'ignore')),
+  ]);
+  const existing = { ...emptyCanonical(), mcp, permissions, hooks, ignore };
+  await writeSettingsInto(mergeCanonicalFiles(existing, canonical, { hooks: 'combine' }), packDir);
 }

@@ -98,6 +98,10 @@ To move a pack to a different ref, just install with the new ref — `install` s
 agentsmesh install github:org/repo@v2.0.0
 ```
 
+## Marketplace packs
+
+A pack built from several marketplace sub-packs (`paths` in `installs.yaml`) is rebuilt from each recorded sub-pack folder in turn, under the same pack name. It keeps the content and settings of every sub-pack, and drops what the source removed. `install --sync` replays such a pack the same way.
+
 ## refresh vs `install --sync`
 
 | | `refresh` | `install --sync` |
