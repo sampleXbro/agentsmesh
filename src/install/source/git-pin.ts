@@ -4,7 +4,8 @@
 
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import { assertAllowedGitUrl, gitAllowProtocolEnv } from '../../config/remote/remote-source.js';
+import { remoteGitEnv } from '../../config/remote/git-env.js';
+import { assertAllowedGitUrl } from '../../config/remote/remote-source.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -17,12 +18,8 @@ function ensureNotFlag(value: string, kind: string): void {
 }
 
 async function runGit(args: string[]): Promise<string> {
-  const { stdout } = await execFileAsync('git', args, {
-    // GIT_ALLOW_PROTOCOL is defense-in-depth against a remote redirecting to a
-    // dangerous transport (e.g. https -> ext::); the URL allowlist is the
-    // primary gate enforced by callers via assertAllowedGitUrl.
-    env: { ...process.env, GIT_TERMINAL_PROMPT: '0', GIT_ALLOW_PROTOCOL: gitAllowProtocolEnv() },
-  });
+  // The URL allowlist is the primary gate, enforced by callers via assertAllowedGitUrl.
+  const { stdout } = await execFileAsync('git', args, { env: remoteGitEnv() });
   return stdout.trim();
 }
 

@@ -19,7 +19,7 @@ afterEach(async () => {
 
 describe('writeScaffoldFull', () => {
   it('creates the full scaffold in an empty canonical directory', async () => {
-    await writeScaffoldFull(canonicalDir);
+    await writeScaffoldFull(canonicalDir, 'project');
 
     expect(await readFile(join(canonicalDir, 'rules/_root.md'), 'utf8')).not.toBe('');
     expect(await readFile(join(canonicalDir, 'mcp.json'), 'utf8')).not.toBe('');
@@ -41,7 +41,7 @@ describe('writeScaffoldFull', () => {
       await writeFile(join(canonicalDir, rel), content);
     }
 
-    await writeScaffoldFull(canonicalDir);
+    await writeScaffoldFull(canonicalDir, 'project');
 
     for (const [rel, content] of Object.entries(mine)) {
       expect(await readFile(join(canonicalDir, rel), 'utf8')).toBe(content);
@@ -51,7 +51,7 @@ describe('writeScaffoldFull', () => {
   it('fills only the gaps when some canonical files exist', async () => {
     await writeFile(join(canonicalDir, 'ignore'), 'secrets/\n');
 
-    await writeScaffoldFull(canonicalDir);
+    await writeScaffoldFull(canonicalDir, 'project');
 
     expect(await readFile(join(canonicalDir, 'ignore'), 'utf8')).toBe('secrets/\n');
     expect(await readFile(join(canonicalDir, 'mcp.json'), 'utf8')).not.toBe('');

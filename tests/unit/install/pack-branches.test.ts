@@ -135,7 +135,7 @@ describe('pack-merge branches', () => {
     const canonical = makeCanonical({
       mcp: { mcpServers: { x: { type: 'stdio', command: 'node', args: [], env: {} } } },
       permissions: { allow: [], deny: [] } as never,
-      hooks: { onSave: 'echo' } as never,
+      hooks: { PostToolUse: [{ matcher: '*', command: 'echo' }] },
       ignore: ['dist'],
     });
     await mergeIntoPack(packDir, BASE_META, canonical, ['rules'], undefined);

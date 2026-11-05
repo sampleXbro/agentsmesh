@@ -111,6 +111,8 @@ Notification:
 
 An event in your `hooks.yaml` replaces the hooks an [`extends`](../../configuration/extends/) source defines for that event. Hooks from [installed packs](../../guides/community-packs/#merge-behavior) are never dropped: they follow your own hooks for the event. A pack hook with the same type, matcher and command (or prompt text) as one of yours is the same hook, and your copy wins. To drop a pack hook, uninstall the pack or leave `hooks` out of its features.
 
+All of this needs a `hooks.yaml` that AgentsMesh manages. If your `hooks.yaml` is missing or has only comments (as `init` scaffolds it), AgentsMesh does not manage your tools' hooks: generate skips the hooks from packs and `extends` and prints a warning, so the hooks already in your tools stay as they are. To start managing them, run `agentsmesh import --from <tool>` (add `--global` for `~/.agentsmesh`) to copy in the hooks your tools already have, then run `agentsmesh generate`. If your tools have no hooks of their own, `{}` in `hooks.yaml` is enough.
+
 ## Tool-specific behavior
 
 See the **Hooks** row in the [supported tools matrix](../../reference/supported-tools/) for per-target support levels (native, partial, or unsupported).

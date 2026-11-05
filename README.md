@@ -41,7 +41,7 @@ brew install samplexbro/agentsmesh/agentsmesh
 # Windows: download agentsmesh-windows-x64.exe from GitHub Releases
 curl -fsSL https://github.com/sampleXbro/agentsmesh/releases/latest/download/install.sh | sh
 
-# npm / pnpm / yarn, requires Node.js 20+
+# npm / pnpm / yarn, requires Node.js 20.19+
 npm install -g agentsmesh     # or: pnpm add -g agentsmesh / yarn global add agentsmesh
 npm install -D agentsmesh     # pin per repo as a dev dependency, then run with npx
 ```
@@ -147,11 +147,11 @@ Built to be depended on: 12,000+ tests on Linux, macOS, and Windows CI, JSON-Sch
 - **Automatic link rebasing.** `.agentsmesh/skills/api-gen/template.hbs` becomes `.claude/skills/...` or `.cursor/skills/...` in each generated file. [Generation pipeline](https://samplexbro.github.io/agentsmesh/reference/generation-pipeline/)
 - **Safe adoption.** `import`, then `diff`, then `generate`, then `check`; nothing is overwritten blind. When several tools have a root rule, they are merged into one `_root.md` rather than the last one winning, their permissions, ignore patterns and MCP servers add up instead of replacing each other, and `init --yes` keeps both versions of a same-name rule, command or agent. [Existing-project guide](https://samplexbro.github.io/agentsmesh/guides/existing-project/)
 - **Output directory safety.** `generate` and `convert` reject output directories that resolve outside the project (or home directory with `--global`), checked before any write and under `--dry-run` too. Stale-file cleanup enforces the same boundary.
-- **Safe updates.** Explicitly empty Claude permission, hook, and MCP configurations clear their generated entries. MCP edits preserve untouched server fields and reject malformed files; skill updates validate supporting files before writing.
+- **Safe updates.** Explicitly empty Claude permission, hook, and MCP configurations clear their generated entries. MCP edits preserve untouched server fields and reject malformed files; skill updates validate supporting files before writing. A permissions list you leave out of `permissions.yaml` stays as each tool has it. [Permissions](https://samplexbro.github.io/agentsmesh/canonical-config/permissions/#managed-and-unmanaged-lists)
 - **Migrate between tools.** `convert --from <a> --to <b>` rewrites one tool's config directly into another's. [convert](https://samplexbro.github.io/agentsmesh/cli/convert/)
 - **Global mode.** `~/.agentsmesh/` syncs personal config to `~/.claude/`, `~/.cursor/`, `~/.codex/`, and more; config commands accept `--global`. [Global paths](https://samplexbro.github.io/agentsmesh/reference/supported-tools/#global-mode)
 - **CI-ready.** `check` gates drift, `diff` previews, `merge` rebuilds the lock after a Git conflict, and `lint` warns about content a tool would mishandle. [check](https://samplexbro.github.io/agentsmesh/cli/check/) · [lint](https://samplexbro.github.io/agentsmesh/cli/lint/)
-- **Community packs and `extends`.** Install rules, skills, agents, and commands from any git repo; hooks, permissions, and MCP from remote sources stay off until you opt in. [install](https://samplexbro.github.io/agentsmesh/cli/install/)
+- **Community packs and `extends`.** Install rules, skills, agents, and commands from any git repo; hooks, permissions, and MCP from remote sources stay off until you opt in, and their MCP servers, permission lists, hooks, and ignore patterns join only settings you manage, so a pack alone never replaces what is already in your tools. [install](https://samplexbro.github.io/agentsmesh/cli/install/)
 - **Target plugins.** Ship a new tool as an npm package with full parity to built-in targets. [Build a plugin](https://samplexbro.github.io/agentsmesh/guides/building-plugins/)
 - **Schema-validated configs.** Every config ships a JSON Schema for editor autocomplete. [JSON schemas](https://samplexbro.github.io/agentsmesh/reference/json-schemas/)
 - **Scriptable.** A typed API for `generate`, `import`, `lint`, `diff`, and `check`, `--json` envelopes on every command except `watch`, and an MCP server so agents can operate the config themselves. [API](https://samplexbro.github.io/agentsmesh/reference/programmatic-api/) · [MCP server](https://samplexbro.github.io/agentsmesh/reference/mcp-server/)

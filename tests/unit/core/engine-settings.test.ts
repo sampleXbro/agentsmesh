@@ -15,13 +15,21 @@ describe('mergeSettingsJson', () => {
           model: 'opus',
           permissions: {
             allow: ['Read'],
-            ask: [],
           },
         },
         null,
         2,
       ),
     );
+  });
+
+  it('keeps the user lists that the generated permissions leave out', () => {
+    const base = JSON.stringify({
+      permissions: { allow: ['Old'], deny: ['Bash(rm:*)'], ask: ['Write'], defaultMode: 'plan' },
+    });
+    expect(JSON.parse(mergeSettingsJson(base, '{"permissions":{"allow":["Read"]}}'))).toEqual({
+      permissions: { allow: ['Read'], deny: ['Bash(rm:*)'], ask: ['Write'], defaultMode: 'plan' },
+    });
   });
 });
 

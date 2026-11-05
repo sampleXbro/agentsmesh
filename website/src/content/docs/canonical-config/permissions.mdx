@@ -39,6 +39,33 @@ ask:
 
 Three lists are supported: `allow` (run without prompting), `deny` (always blocked), and `ask` (prompt the user before running, where the tool supports it).
 
+## Managed and unmanaged lists
+
+AgentsMesh manages each list on its own:
+
+- **A list in the file is managed.** `generate` writes it to each tool in place of the tool's own list. An empty list (`deny: []`) is managed too. It means "none", but some tools skip an empty list instead of writing it, so their own list stays there.
+- **A missing list is unmanaged.** This includes a list that is commented out, and a key with no list under it (`deny:` alone). `generate` leaves the tool's own list as it is.
+- **No list at all** (no file, an empty file, or the `init` template with every list commented out) means AgentsMesh manages no permissions. Every tool keeps its own.
+- **Import never starts managing an empty list.** If a tool has no `deny` list, `agentsmesh import` (and `convert`) does not add `deny: []`, so your other tools keep their own deny lists. A list the file already manages, even `[]`, stays managed.
+
+```yaml
+# Manage allow only. Each tool keeps its own deny and ask lists.
+allow:
+  - Read
+  - Bash(pnpm test:*)
+```
+
+To stop managing a list, delete it or comment it out. `generate` then leaves that list alone in every tool, including the entries it wrote there before. A list that an [`extends`](../../configuration/extends/) source or an installed pack brings in counts as managed too.
+
+### Tools that keep all lists in one place
+
+Most tools keep `allow`, `deny` and `ask` in separate settings, so an unmanaged list is simply not written. Some tools keep all three in one structure, where each entry carries its decision:
+
+- **Your entries stay.** Kimi Code and Kiro (`~/.kiro/settings/permissions.yaml`) keep your rules for an unmanaged list. OpenCode, Trae and Gemini CLI never remove entries that AgentsMesh did not write.
+- **The structure is rebuilt.** Augment Code (`toolPermissions`), Kilo Code (`permission`), Rovo Dev (`toolPermissions`), Zed (`agent.tool_permissions`) and Junie (the `executables` allowlist) rebuild that structure from `permissions.yaml` whenever AgentsMesh writes permissions to them. The tool's own entries for an unmanaged list can be lost there. To keep them, add them to `permissions.yaml` first, for example with `agentsmesh import`.
+
+Files that only AgentsMesh writes (such as the Codex CLI rules file) hold just the managed lists.
+
 ## Pattern syntax
 
 Patterns support wildcards using `:*` suffix for Bash commands:
@@ -55,6 +82,12 @@ Patterns support wildcards using `:*` suffix for Bash commands:
 <Aside type="caution">
   `deny` rules take precedence over `allow` rules. If a pattern appears in both, it is denied.
 </Aside>
+
+## Permissions from packs and extends
+
+Installed packs and [`extends`](../../configuration/extends/) sources can ship their own `permissions.yaml`. Their entries are added to the lists your own `permissions.yaml` manages, and an entry that is in both is kept once. Generate then writes those full lists to each tool, so an entry that is only in a tool's own config can be dropped.
+
+This works list by list. A pack's `deny` list is used only if your own file has a `deny` list, and an empty one (`deny: []`) is enough. For a list your file does not manage (missing or commented out, as `init` scaffolds them), generate skips the pack's entries and prints a warning, and that list in your tools stays as it is. To start managing your permissions, run `agentsmesh import --from <tool>` (add `--global` for `~/.agentsmesh`) to copy in the permissions your tools already have, then run `agentsmesh generate`.
 
 ## Tool-specific behavior
 

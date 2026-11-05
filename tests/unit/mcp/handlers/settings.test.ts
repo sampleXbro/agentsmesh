@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdtemp, rm, mkdir, writeFile, readFile, symlink } from 'node:fs/promises';
 import { tmpdir, platform } from 'node:os';
 import { join } from 'node:path';
+import { parse as parseYaml } from 'yaml';
 import { settingsHandlers } from '../../../../src/mcp/handlers/settings.js';
 import { parseHooks } from '../../../../src/canonical/features/hooks.js';
 import { resolveContext } from '../../../../src/mcp/context.js';
@@ -447,6 +448,16 @@ describe('settingsHandlers', () => {
     const written = await readFile(join(projectRoot, '.agentsmesh/permissions.yaml'), 'utf8');
     expect(written).toContain('Glob');
     expect(written).not.toContain('Bash');
+  });
+
+  it('updatePermissions writes only the given lists into a new file', async () => {
+    for (const content of [null, '# allow:\n#   - Read\n']) {
+      const path = join(projectRoot, '.agentsmesh/permissions.yaml');
+      await rm(path, { force: true });
+      if (content !== null) await writeFile(path, content, 'utf8');
+      await settingsHandlers.updatePermissions(ctx, { allow: ['Glob'] });
+      expect(parseYaml(await readFile(path, 'utf8'))).toEqual({ allow: ['Glob'] });
+    }
   });
 
   it('updatePermissions append mode unions + dedups', async () => {

@@ -806,6 +806,22 @@
         "t-glob-78449aa1"
       ]
     },
+    "cli-presentation-test-a-fix-for-duplicated": {
+      "createdAt": "2026-11-05",
+      "evidence": [
+        "commit:d705a57e"
+      ],
+      "rule": "Test a fix for duplicated CLI output through the real CLI path, not only runGenerate: cmdHandlers.generate runs generate with printMatrix: false and renders the matrix itself, so a runGenerate-only test passed while the CLI still printed every loading warning twice. Before a release, smoke-test the packed tarball (npm pack, npm install into a temp project, run the commands and an MCP stdio handshake) and count the warnings.",
+      "status": "active",
+      "topics": [
+        "cli-presentation"
+      ],
+      "triggers": [
+        "t-glob-8173701c",
+        "t-glob-ebc9f5cd",
+        "t-kw-f2db7158"
+      ]
+    },
     "cli-presentation-when-auditing-spinner-vs-prompt": {
       "createdAt": "2026-07-09",
       "evidence": [
@@ -994,6 +1010,22 @@
       ],
       "triggers": [
         "t-glob-9a12f490"
+      ]
+    },
+    "dist-backed-tests-before-a-full-vitest-run": {
+      "createdAt": "2026-10-29",
+      "evidence": [
+        "commit:93042811"
+      ],
+      "rule": "Before a full vitest run in a fresh worktree, build dist first (node_modules/.bin/tsup) when dist/cli.js is missing: no global setup builds it, and only generate-process-lock's beforeAll builds it, racing ~100 dist-backed files into 'Cannot find module dist/cli.js' (789 failures that look like a regression but are not).",
+      "status": "active",
+      "topics": [
+        "dist-backed-tests"
+      ],
+      "triggers": [
+        "t-glob-64298c11",
+        "t-cmd-024ed4d1",
+        "t-kw-5ad21932"
       ]
     },
     "dist-backed-tests-rule-1": {
@@ -1863,6 +1895,21 @@
         "t-kw-e61f5882"
       ]
     },
+    "fixture-and-assertion-discipline-when-import-or-a-parser": {
+      "createdAt": "2026-10-30",
+      "evidence": [
+        "commit:4ebc09ce"
+      ],
+      "rule": "When import or a parser stops writing an empty permission list it never had, sweep unit, integration AND e2e tests for expectations that pin the invented list (ask: [], deny: []) before committing; the pre-commit hook only finds them one failing file per run.",
+      "status": "active",
+      "topics": [
+        "fixture-and-assertion-discipline"
+      ],
+      "triggers": [
+        "t-glob-2b2f105e",
+        "t-kw-18d15622"
+      ]
+    },
     "fixture-and-assertion-discipline-when-testing-realpath-based-path": {
       "createdAt": "2026-06-27",
       "evidence": [],
@@ -2665,6 +2712,22 @@
         "t-kw-d1ad9a9a"
       ]
     },
+    "generation-safety-mcp-servers-from-installed-packs": {
+      "createdAt": "2026-10-29",
+      "evidence": [
+        "lesson:security-the-extends-elevated-artifact-gate"
+      ],
+      "rule": "MCP servers from installed packs and extends join only a list the local mcp.json manages: loadCanonicalWithExtends drops them via dropUnmanagedMcp (src/canonical/load/unmanaged-mcp.ts) when the local file has no mcpServers key, so generate never replaces the servers already in a tool. A test that expects pack or extends MCP in the merged canonical or in generated tool files must give the project a local {\"mcpServers\": {}}; without it an elevated-gate 'stripped' assertion (mcp toBeNull) passes even when the gate is broken, because the drop also yields null.",
+      "status": "active",
+      "topics": [
+        "generation-safety"
+      ],
+      "triggers": [
+        "t-glob-c21ba0b0",
+        "t-glob-04f7aedd",
+        "t-glob-3a6f3f1e"
+      ]
+    },
     "generation-safety-never-scaffold-an-explicitly-empty": {
       "createdAt": "2026-09-03",
       "evidence": [],
@@ -2677,6 +2740,55 @@
       "triggers": [
         "t-glob-a4ff119a",
         "t-kw-8a7ceee6"
+      ]
+    },
+    "generation-safety-packs-and-extends-must-not": {
+      "createdAt": "2026-10-29",
+      "evidence": [
+        "test:tests/integration/install-ignore-unmanaged.integration.test.ts"
+      ],
+      "rule": "Packs and extends must not turn an unmanaged settings feature into a managed one. Canonical ignore has no null state, so a local .agentsmesh/ignore with no patterns (missing, empty, or comments only like init's template) means unmanaged: loadCanonicalWithExtends drops pack and extends patterns with one warning (dropUnmanagedIgnore). A test that expects a pack-only ignore file must add a local pattern, not undo the rule.",
+      "status": "active",
+      "topics": [
+        "generation-safety"
+      ],
+      "triggers": [
+        "t-glob-c21ba0b0",
+        "t-glob-3c315a53",
+        "t-glob-fde00b4e",
+        "t-kw-9f9fe0aa"
+      ]
+    },
+    "generation-safety-settings-are-managed-at-different": {
+      "createdAt": "2026-11-05",
+      "evidence": [
+        "commit:525939c4"
+      ],
+      "rule": "Settings are managed at different grains: permissions per list (a missing allow/deny/ask key is unmanaged, [] is managed 'none'), MCP by the mcpServers key, hooks per file (comment-only or missing = unmanaged, a blank file parses to {} = managed), ignore by having at least one pattern. Packs and extends add values only to what the local files manage (dropUnmanagedSettings in src/canonical/load/unmanaged-settings.ts); before changing parse or merge code, run the null-local and partly-managed cases end to end against a hand-written tool file.",
+      "status": "active",
+      "topics": [
+        "generation-safety"
+      ],
+      "triggers": [
+        "t-glob-89c6bc75",
+        "t-glob-f1bf65e5",
+        "t-glob-c21ba0b0"
+      ]
+    },
+    "generation-safety-treat-a-canonical-settings-feature": {
+      "createdAt": "2026-10-29",
+      "evidence": [],
+      "rationale": "Found while reproducing pack permissions/hooks data loss in ~/.claude/settings.json (tests/integration/install-permissions-hooks-unmanaged.integration.test.ts).",
+      "rule": "Treat a canonical settings feature as managed per file, not per list: a missing or comment-only permissions.yaml / hooks.yaml / mcp.json parses to null (unmanaged, generate leaves the tool alone), but any parsed content makes the whole feature managed and the tool's owned keys are replaced wholesale. parsePermissionsContent fills missing allow/deny/ask with [], so uncommenting only allow wipes the user's deny and ask; and merging pack or extends layers onto a null local layer turns it into a managed list that replaces the user's tool values. Before changing merge or parse code, check the null-local case end to end against a hand-written tool file.",
+      "status": "superseded",
+      "supersededBy": "generation-safety-settings-are-managed-at-different",
+      "topics": [
+        "generation-safety"
+      ],
+      "triggers": [
+        "t-glob-3c315a53",
+        "t-glob-f1bf65e5",
+        "t-glob-c21ba0b0"
       ]
     },
     "generation-safety-when-a-code-path-deliberately": {
@@ -2858,6 +2970,20 @@
         "t-cmd-3b496323"
       ]
     },
+    "git-commit-hygiene-check-mergeability-with-a-real": {
+      "createdAt": "2026-10-29",
+      "evidence": [
+        "commit:10c819bd"
+      ],
+      "rule": "Check mergeability with a real git merge --no-commit in a throwaway worktree (git worktree add --detach), not git merge-tree --write-tree: this machine has git 2.33, which lacks --write-tree, so the command exits non-zero and a script that reads any non-zero as 'conflict' reports a false merge conflict.",
+      "status": "active",
+      "topics": [
+        "git-commit-hygiene"
+      ],
+      "triggers": [
+        "t-cmd-b6d46457"
+      ]
+    },
     "git-commit-hygiene-in-this-repo-docs-is": {
       "createdAt": "2026-06-23",
       "evidence": [],
@@ -2896,6 +3022,34 @@
         "t-cmd-7c1c43ea"
       ]
     },
+    "git-commit-hygiene-never-run-git-commit-with": {
+      "createdAt": "2026-10-29",
+      "evidence": [
+        "lesson:verification-workflow-the-husky-pre-commit-hook"
+      ],
+      "rule": "Never run git commit with the husky pre-commit hook from a git worktree (.claude/worktrees/*): git exports GIT_DIR=<worktree gitdir> to the hook, so every test that runs git in a temp dir (git init, git config user.*, the lessons merge-driver setup) writes into the SHARED .git/config. It set core.bare=true (git then fails with 'this operation must be run in a work tree' in every checkout), added a [user] test <test@test.local> identity, and repointed merge.agentsmesh-lessons.driver at the worktree dist; 58 tests failed that pass standalone. Run the precommit gates standalone instead and ask before skipping the hook. If it happened: git config -f <common>/.git/config core.bare false, remove the [user] section, restore the driver to 'agentsmesh lessons merge-driver %O %A %B', and check refs.",
+      "status": "active",
+      "topics": [
+        "git-commit-hygiene"
+      ],
+      "triggers": [
+        "t-glob-10b2c4ed",
+        "t-cmd-cb599e19"
+      ]
+    },
+    "git-commit-hygiene-never-test-git-env-var": {
+      "createdAt": "2026-10-29",
+      "evidence": [],
+      "rule": "Never test git env-var behaviour by pointing GIT_INDEX_FILE or GIT_DIR at this repo's real index or gitdir: a one-line 'GIT_INDEX_FILE=<worktree gitdir>/index git add .' run in a temp repo replaced the worktree index with that temp file alone (every tracked path then showed as a staged delete, and git status failed on a missing blob). Use a second throwaway repo as the target. Recover with git read-tree HEAD, then re-stage only your own paths.",
+      "status": "active",
+      "topics": [
+        "git-commit-hygiene"
+      ],
+      "triggers": [
+        "t-cmd-3b644e56",
+        "t-kw-68f53311"
+      ]
+    },
     "git-commit-hygiene-other-processes-pack-install-refresh": {
       "createdAt": "2026-06-23",
       "evidence": [],
@@ -2921,6 +3075,35 @@
       ],
       "triggers": [
         "t-cmd-eae4aa4a"
+      ]
+    },
+    "git-commit-hygiene-to-bring-another-session-s": {
+      "createdAt": "2026-10-30",
+      "evidence": [
+        "commit:525939c4"
+      ],
+      "rule": "To bring another session's uncommitted worktree work into develop: export 'git -C <wt> diff HEAD --binary' without .agentsmesh/lessons/lessons.json and tests/e2e/agents-last-run.md, copy its untracked files, apply with 'git apply --3way --index', then cmp every patched file against the worktree. Merge its lessons.json with 'agentsmesh lessons merge-driver <wt HEAD copy> <ours> <wt copy>'. A file holding a raw NUL byte comes back as a conflict with no markers (git treats it as binary): when develop's copy equals the patch base, take the worktree version.",
+      "status": "active",
+      "topics": [
+        "git-commit-hygiene"
+      ],
+      "triggers": [
+        "t-cmd-5767a646",
+        "t-kw-ace5a469"
+      ]
+    },
+    "git-commit-hygiene-to-build-on-a-sibling": {
+      "createdAt": "2026-10-29",
+      "evidence": [],
+      "rationale": "Used to generalise the uncommitted MCP fix (claude/recursing-moser-80eaf5) into unmanaged-settings.ts on claude/gracious-proskuriakova-00823c.",
+      "rule": "To build on a sibling session's uncommitted fix without committing, apply its staged diff to the index (git -C <sibling> diff --cached --binary > p; git apply --index p) and keep your own work unstaged, so git diff shows only your delta. Never run git rm --cached or git add in that tree: git rm --cached on a base file removed it from the index too and broke the base. Delete with plain rm, and check the base with diff <(git diff --cached --binary) <(git -C <sibling> diff --cached --binary).",
+      "status": "active",
+      "topics": [
+        "git-commit-hygiene"
+      ],
+      "triggers": [
+        "t-cmd-0a49c912",
+        "t-kw-0182406e"
       ]
     },
     "git-commit-hygiene-when-auditing-unpushed-work-probe": {
@@ -3251,6 +3434,81 @@
         "t-kw-f7df0071"
       ]
     },
+    "init-never-rely-on-an-init": {
+      "createdAt": "2026-10-28",
+      "evidence": [],
+      "rule": "Never rely on an init template to carry a required entry such as the agentsmesh MCP server in .agentsmesh/mcp.json: init --yes gap-fill keeps the mcp.json the import already wrote, so the template and its entry never land there (init gave servers ['mine'] while import --from gave ['mine','agentsmesh']). Call the idempotent seedAgentsmeshMcpEntry after the import, guarded by plan.scope === 'project' in applyInitPlan. A writer that refuses to rewrite a commented JSONC file must first check whether the entry is already there and return quietly; refusing first made import after project init print a false 'contains comments' warning.",
+      "status": "active",
+      "topics": [
+        "init"
+      ],
+      "triggers": [
+        "t-glob-6b98951d",
+        "t-glob-7da85c97",
+        "t-glob-4779743c"
+      ]
+    },
+    "init-seed-the-agentsmesh-self-serve": {
+      "createdAt": "2026-10-27",
+      "evidence": [
+        "user-correction:2026-10-27-mcp-project-only"
+      ],
+      "rationale": "User asked that the amsh MCP be added only at project level; verified with dist/cli.js in a temp HOME.",
+      "rule": "Seed the agentsmesh self-serve MCP entry in project scope only: init --global must scaffold ~/.agentsmesh/mcp.json from TEMPLATE_MCP_GLOBAL (mcpServers key commented out) and import --global must skip seedAgentsmeshMcpEntry. A seeded global entry makes generate --global replace the user's own servers in ~/.claude.json and start the server in every folder. To drop an already-generated server, delete only its entry and keep the mcpServers key; deleting the key stops MCP management and leaves the old server in place.",
+      "status": "superseded",
+      "supersededBy": "init-seed-the-agentsmesh-self-serve-3",
+      "topics": [
+        "init"
+      ],
+      "triggers": [
+        "t-glob-7da85c97",
+        "t-glob-ffcbbfc9",
+        "t-glob-4779743c",
+        "t-glob-90ecaacd",
+        "t-kw-199c98d5"
+      ]
+    },
+    "init-seed-the-agentsmesh-self-serve-2": {
+      "createdAt": "2026-10-28",
+      "evidence": [
+        "commit:85c06f10"
+      ],
+      "rationale": "The first version of this lesson and the changeset claimed generate --global drops a removed entry; a 29-target matrix showed most targets keep it.",
+      "rule": "Seed the agentsmesh self-serve MCP entry in project scope only: init --global scaffolds ~/.agentsmesh/mcp.json from TEMPLATE_MCP_GLOBAL (mcpServers key commented out) and import --global skips seedAgentsmeshMcpEntry. Never promise that removing a server from canonical mcp.json removes it from tools' global config: generate --global keeps unlisted servers on 23 of 29 MCP targets (cursor, codex-cli, gemini-cli, copilot, ...), and an empty mcpServers {} makes claude-code, zed and goose clear every global server, also ones the user added in the tool. Verify any MCP removal advice per target with dist/cli.js in a temp HOME.",
+      "status": "superseded",
+      "supersededBy": "init-seed-the-agentsmesh-self-serve-3",
+      "topics": [
+        "init"
+      ],
+      "triggers": [
+        "t-glob-7da85c97",
+        "t-glob-ffcbbfc9",
+        "t-glob-4779743c",
+        "t-glob-90ecaacd",
+        "t-glob-b1cdb41a",
+        "t-kw-199c98d5"
+      ]
+    },
+    "init-seed-the-agentsmesh-self-serve-3": {
+      "createdAt": "2026-10-30",
+      "evidence": [
+        "lesson:init-seed-the-agentsmesh-self-serve-2"
+      ],
+      "rationale": "The -2 lesson said generate --global keeps unlisted servers on 23 of 29 targets; that holds only for an empty list. A review run showed removal works on all targets when other servers remain.",
+      "rule": "Seed the agentsmesh self-serve MCP entry in project scope only, and check the folder too: a project-scope command run in the home folder writes ~/.agentsmesh, the global config. When advising MCP server removal, split the cases (verified with dist/cli.js in a temp HOME): with other servers still listed, deleting one entry and running generate --global removes it from every tool; only an empty or missing mcpServers leaves old servers behind, because most generators skip an empty map, and an empty {} makes claude-code, zed and goose clear every global server.",
+      "status": "active",
+      "topics": [
+        "init"
+      ],
+      "triggers": [
+        "t-glob-7da85c97",
+        "t-glob-ffcbbfc9",
+        "t-glob-4779743c",
+        "t-glob-90ecaacd",
+        "t-glob-b1cdb41a",
+        "t-kw-199c98d5"
+      ]
+    },
     "init-the-lessons-scaffold-result-shape": {
       "createdAt": "2026-07-04",
       "evidence": [
@@ -3294,6 +3552,20 @@
         "t-glob-68c54751"
       ]
     },
+    "install-import-pickers-a-marketplace-install-all-whose": {
+      "createdAt": "2026-11-05",
+      "evidence": [
+        "e1cfba0b"
+      ],
+      "rule": "A marketplace install (--all) whose sub-packs come from ONE source merges them into a single pack, and each later sub-pack replaces the pack's settings files: with alpha shipping mcp.json {alphasrv} and beta {betasrv}, the pack (and the generated .mcp.json) ends with only betasrv, while rules from both stay. Do not write marketplace test expectations that assume every sub-pack's MCP servers, permissions or hooks survive; give only the LAST sub-pack settings until that merge is fixed. Install results that come from the post-install generate (skippedSettings) must take the last successful sub-pack's value, not the first or a union.",
+      "status": "active",
+      "topics": [
+        "install-import-pickers"
+      ],
+      "triggers": [
+        "t-glob-cc6aab51"
+      ]
+    },
     "install-import-pickers-agentsmesh-init-target-selection-is": {
       "createdAt": "2026-09-19",
       "evidence": [
@@ -3323,6 +3595,24 @@
       "triggers": [
         "t-glob-dda7e920",
         "t-kw-468c3ca3"
+      ]
+    },
+    "install-import-pickers-any-code-that-writes-into": {
+      "createdAt": "2026-11-05",
+      "evidence": [
+        "commit:b1ed3419"
+      ],
+      "rationale": "mergeIntoPack never touched the manifest: install --all, picked-subset merges and sync replays made refresh prompt about edits nobody made.",
+      "rule": "Any code that writes into an already-installed pack (mergeIntoPack, a strip, a settings merge) must update that pack's .agentsmesh-install-manifest.json files map for exactly the paths it wrote: have the copy helpers return the paths they wrote and call recordMergedFiles. Do not re-hash the whole pack (it hides user edits made before the write) and do not diff before/after hashes (identical rewrites never heal stale entries). Without it refresh asks for consent and uninstall reports agentsmesh's own writes as modified. Check with detectModifiedFiles(packDir, manifest.files) or a non-forced refresh, never refresh --dry-run, which lists needs-consent packs as refreshed.",
+      "status": "active",
+      "topics": [
+        "install-import-pickers"
+      ],
+      "triggers": [
+        "t-glob-febd6fd7",
+        "t-glob-2eea04de",
+        "t-glob-48f23337",
+        "t-kw-7519d795"
       ]
     },
     "install-import-pickers-canonical-paths-are-last-import": {
@@ -3402,6 +3692,21 @@
         "t-glob-b47f5129"
       ]
     },
+    "install-import-pickers-install-sync-reinstalls-only-packs": {
+      "createdAt": "2026-11-05",
+      "evidence": [
+        "e1cfba0b"
+      ],
+      "rule": "install --sync reinstalls only packs whose folder under .agentsmesh/packs is missing; when every recorded pack is present it reinstalls nothing and runs no generate, so anything taken from the post-install generate (for example skippedSettings) is absent. A sync test that expects a reinstall or a generate result must delete the pack folder first.",
+      "status": "active",
+      "topics": [
+        "install-import-pickers"
+      ],
+      "triggers": [
+        "t-glob-95028a79",
+        "t-glob-5b1f3cd2"
+      ]
+    },
     "install-import-pickers-lessons-hook-recall-has-two": {
       "createdAt": "2026-09-19",
       "evidence": [
@@ -3431,6 +3736,22 @@
         "t-glob-eb1e5fce"
       ]
     },
+    "install-import-pickers-never-advise-agentsmesh-import-from": {
+      "createdAt": "2026-10-29",
+      "evidence": [
+        "test:tests/integration/install-ignore-unmanaged.integration.test.ts"
+      ],
+      "rule": "Never advise 'agentsmesh import --from <tool>' as the way to combine several tools' ignore files: the ignore importers (runFlatFile in descriptor-import-runner.ts, cursor importIgnore) overwrite .agentsmesh/ignore, so a second import keeps only the last tool's patterns and the next generate replaces the first tool's ignore file. Tell users to copy the patterns they want into .agentsmesh/ignore instead.",
+      "status": "active",
+      "topics": [
+        "install-import-pickers"
+      ],
+      "triggers": [
+        "t-glob-82207873",
+        "t-glob-a858eb5d",
+        "t-kw-21fc9320"
+      ]
+    },
     "install-import-pickers-put-a-path-boundary-check": {
       "createdAt": "2026-09-24",
       "evidence": [
@@ -3445,6 +3766,22 @@
         "t-glob-7d01f666",
         "t-glob-6c742b74",
         "t-glob-d8ba983b"
+      ]
+    },
+    "install-import-pickers-replay-a-marketplace-pack-installs": {
+      "createdAt": "2026-11-05",
+      "evidence": [
+        "commit:a9891404"
+      ],
+      "rule": "Replay a marketplace pack (installs.yaml paths) one recorded path at a time under the entry name: the first path with forceFreshMaterialize, the rest merged into it (replayPaths in src/install/run/install-replay.ts, shared by install --sync and the refresh bridge). Never replay it with --all plus --name: the picker uses the name as the prefix of every sub-pack name, so refresh built new <pack>-plugins-x packs, left the old pack behind, dropped its installs.yaml row and failed with 'not found after install'.",
+      "status": "active",
+      "topics": [
+        "install-import-pickers"
+      ],
+      "triggers": [
+        "t-glob-8603841c",
+        "t-glob-95028a79",
+        "t-glob-b47f5129"
       ]
     },
     "install-import-pickers-rule-1": {
@@ -4131,6 +4468,37 @@
         "t-cmd-b66a9431",
         "t-cmd-2c6e7fc6",
         "t-cmd-e097d363"
+      ]
+    },
+    "install-import-pickers-to-see-whether-refresh-will": {
+      "createdAt": "2026-11-05",
+      "evidence": [
+        "commit:a9891404"
+      ],
+      "rule": "To see whether refresh will treat a pack as locally edited, call detectModifiedFiles(packDir, files of .agentsmesh-install-manifest.json) or run refresh without --force: refresh --dry-run lists needs-consent packs under refreshed[] exactly like clean updates, so it hides drift. Expect drift on any merged pack today: mergeIntoPack never rewrites that manifest's files map, so agentsmesh's own merge writes show as modified/added.",
+      "status": "active",
+      "topics": [
+        "install-import-pickers"
+      ],
+      "triggers": [
+        "t-glob-1a4f4ac0",
+        "t-glob-e0ac4b45",
+        "t-kw-137b00f8"
+      ]
+    },
+    "install-import-pickers-when-an-install-merges-into": {
+      "createdAt": "2026-11-05",
+      "evidence": [
+        "commit:a9891404"
+      ],
+      "rule": "When an install merges into an existing pack (mergeIntoPack: marketplace --all sub-packs, a picked subset, the merged paths of sync or refresh), add its settings with mergeSettingsInto, which merges the pack's own mcp.json/permissions.yaml/hooks.yaml/ignore with mergeCanonicalFiles(existing, incoming, { hooks: 'combine' }) like generate does across packs. Never call writeSettingsInto there: it replaces those files, so before 0.43.x only the last sub-pack's MCP servers, permissions, hooks and ignore survived while every sub-pack's rules stayed.",
+      "status": "active",
+      "topics": [
+        "install-import-pickers"
+      ],
+      "triggers": [
+        "t-glob-febd6fd7",
+        "t-glob-2eea04de"
       ]
     },
     "install-import-pickers-when-copying-entity-files-from": {
@@ -5788,6 +6156,24 @@
         "t-glob-71b4b110"
       ]
     },
+    "lessons-system-to-compare-lessons-recall-between": {
+      "createdAt": "2026-09-25",
+      "evidence": [
+        "lesson:lessons-system-to-judge-whether-lessons-recall"
+      ],
+      "rule": "To compare lessons recall between agentsmesh versions, replay real events instead of reading recall-log.jsonl over time: on this machine the global agentsmesh is often a develop build whose --version shows the last release (on 2026-09-25 the global '0.41.0' was byte-identical to the 0.42.0 dist), so old logs mix builds. Get each published build with npm pack agentsmesh@<ver> --offline, extract a corpus of Edit/Write/Bash/prompt events from ~/.claude/projects transcripts, and pipe them into each build's 'lessons hook' in its own temp project and TMPDIR: a fresh session per event to compare picks, and the real session order to compare dedup, failures and injected size. Check shasum of dist/cli.js before naming a version.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-cmd-a49a9614",
+        "t-cmd-6ee459b0",
+        "t-kw-6a5a5a70",
+        "t-kw-5beda113",
+        "t-kw-2ec0dc0e"
+      ]
+    },
     "lessons-system-to-deliver-conceptual-general-lessons": {
       "createdAt": "2026-07-02",
       "evidence": [
@@ -5802,6 +6188,23 @@
         "t-glob-db7e480d",
         "t-glob-ed0be781",
         "t-kw-0af10961"
+      ]
+    },
+    "lessons-system-to-judge-whether-lessons-recall": {
+      "createdAt": "2026-09-25",
+      "evidence": [
+        "session:e8e19bf3"
+      ],
+      "rule": "To judge whether lessons recall got better, do not trust lessons stats alone: recall-log.jsonl is size-capped (here it held only 2 days, 3,800 recalls) and its counts cannot show relevance. Split the log at the change time, wait for a few hundred recalls on each side, and hand-judge a sample of delivered rules against the commands that triggered them.",
+      "status": "superseded",
+      "supersededBy": "lessons-system-to-compare-lessons-recall-between",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-cmd-a49a9614",
+        "t-kw-6a5a5a70",
+        "t-kw-2ec0dc0e"
       ]
     },
     "lessons-system-to-mimic-a-hand-written": {
@@ -6947,6 +7350,36 @@
         "t-kw-91081d8d"
       ]
     },
+    "pnpm-lockfile-after-a-pnpm-10-frozen": {
+      "createdAt": "2026-11-05",
+      "evidence": [
+        "commit:e34b654f"
+      ],
+      "rule": "After a pnpm 10 frozen install in the main checkout, the husky pre-commit hook (run by the local pnpm 11) stops with ERR_PNPM_ABORTED_REMOVE_MODULES_DIR_NO_TTY and the commit fails. Rebuild node_modules with 'pnpm install --config.confirm-modules-purge=false', check 'git diff -- pnpm-lock.yaml' is empty (restore it from the index if not), then commit again with the hook; do not skip the hook.",
+      "status": "active",
+      "topics": [
+        "pnpm-lockfile"
+      ],
+      "triggers": [
+        "t-cmd-3e61386f",
+        "t-kw-f0e3a902"
+      ]
+    },
+    "pnpm-lockfile-during-release-prep-fix-audit": {
+      "createdAt": "2026-11-05",
+      "evidence": [
+        "commit:e34b654f"
+      ],
+      "rule": "During release prep, fix audit advisories in transitive dependencies with exact-version overrides (\"proxy-addr@2.0.7\": \"2.0.8\") in BOTH package.json pnpm.overrides and pnpm-workspace.yaml, then regenerate with 'CI=true npx -y pnpm@10 install --lockfile-only'. Do not use 'pnpm update --depth Infinity <pkg>': it re-resolves unrelated transitive packages (rollup, esbuild, postcss copies) and bloats the lockfile diff.",
+      "status": "active",
+      "topics": [
+        "pnpm-lockfile"
+      ],
+      "triggers": [
+        "t-cmd-627361ef",
+        "t-kw-672fe9b8"
+      ]
+    },
     "pnpm-lockfile-in-this-repo-run-dev": {
       "createdAt": "2026-06-23",
       "evidence": [],
@@ -7267,6 +7700,20 @@
         "t-kw-a00afdda"
       ]
     },
+    "release-changesets-before-editing-a-changeset-file": {
+      "createdAt": "2026-10-29",
+      "evidence": [
+        "commit:ace98fc1"
+      ],
+      "rule": "Before editing a .changeset file, check it was not already consumed by a release (git cat-file -e master:.changeset/<file>): develop keeps released changesets until master is merged back, so an edit there never ships and turns the back-merge into a modify/delete conflict. Put new notes in a new changeset.",
+      "status": "active",
+      "topics": [
+        "release-changesets"
+      ],
+      "triggers": [
+        "t-glob-b1cdb41a"
+      ]
+    },
     "release-changesets-during-release-prep-run-pnpm": {
       "createdAt": "2026-08-30",
       "evidence": [
@@ -7341,6 +7788,22 @@
         "t-glob-98419953",
         "t-glob-bacf18ff",
         "t-kw-951a5294"
+      ]
+    },
+    "security-spawn-git-that-works-on": {
+      "createdAt": "2026-10-29",
+      "evidence": [
+        "commit:0fc6a776"
+      ],
+      "rule": "Spawn git that works on a remote or a cache clone (any repo that is not the user's project) with remoteGitEnv() from src/config/remote/git-env.ts, never with a copy of process.env: inside a user's git hook run from a linked worktree, the inherited GIT_DIR/GIT_INDEX_FILE made the extends clone overwrite the user's index, ran checkout <ref> against the user's repo, and locked an unpinned extend to the user's own HEAD sha. Keep the inherited env for git on the user's own project (src/lessons/*): there the hook's repo and index are the right ones.",
+      "status": "active",
+      "topics": [
+        "security"
+      ],
+      "triggers": [
+        "t-glob-7017689c",
+        "t-glob-7939daea",
+        "t-glob-294f15d7"
       ]
     },
     "security-the-extends-elevated-artifact-gate": {
@@ -7429,6 +7892,34 @@
       "triggers": [
         "t-cmd-edcf48e9"
       ]
+    },
+    "shell-quoting-in-qa-shell-scripts-on": {
+      "createdAt": "2026-10-28",
+      "evidence": [
+        "commit:85c06f10"
+      ],
+      "rule": "In QA shell scripts on macOS, check multi-line file content with perl -0777 -ne 'exit(!/re/)', not grep -zE: BSD grep -z does not let a negated class such as [^a-z] match a newline, so a pattern spanning pretty-printed JSON lines silently finds nothing and a real leak reads as clean.",
+      "status": "active",
+      "topics": [
+        "shell-quoting"
+      ],
+      "triggers": [
+        "t-cmd-3682d12e",
+        "t-kw-57b96a2e"
+      ]
+    },
+    "shell-quoting-in-zsh-an-unquoted-var": {
+      "createdAt": "2026-10-29",
+      "evidence": [
+        "lesson:shell-quoting-rule-4"
+      ],
+      "rule": "In zsh, an unquoted $VAR holding a list of file paths is passed as ONE argument (zsh does not word-split), so 'prettier --check $FILES' fails with ENAMETOOLONG; write the list to a file and pipe it through xargs, or expand with ${=VAR}.",
+      "status": "superseded",
+      "supersededBy": "shell-quoting-in-zsh-bash-calls-never-2",
+      "topics": [
+        "shell-quoting"
+      ],
+      "triggers": []
     },
     "shell-quoting-in-zsh-bash-calls-never": {
       "createdAt": "2026-09-05",
@@ -7813,6 +8304,21 @@
         "t-cmd-43e6903e",
         "t-cmd-813423e2",
         "t-cmd-69dc7d4e"
+      ]
+    },
+    "shell-quoting-sweep-src-or-tests-for": {
+      "createdAt": "2026-10-29",
+      "evidence": [
+        "commit:9bdc4c33"
+      ],
+      "rule": "Sweep src/ or tests/ for a pattern with grep -a (or rg --text), never plain grep -r: four tracked files hold a raw NUL byte (tests/unit/lessons/regex-linear.test.ts, tests/unit/utils/filesystem/fs-write-atomic.test.ts, src/targets/kimi-code/config-toml.ts, src/targets/openhands/merge.ts), so macOS grep treats them as binary and drops their matches from -rn and -rl output. A sweep for wall-clock asserts missed the 6 in regex-linear.test.ts this way; grep -P '\\x00' also fails to find the NUL, so check with python reading bytes.",
+      "status": "active",
+      "topics": [
+        "shell-quoting"
+      ],
+      "triggers": [
+        "t-cmd-1b48051d",
+        "t-kw-f84f503f"
       ]
     },
     "shell-quoting-when-a-script-renames-a": {
@@ -8936,6 +9442,41 @@
         "t-glob-860c694c"
       ]
     },
+    "target-permissions-in-goose-config-goose-permission": {
+      "createdAt": "2026-11-05",
+      "evidence": [
+        "commit:5bee87d7",
+        "lesson:target-capability-audits-goose-supports-file-based-tool"
+      ],
+      "rationale": "Managed allow/deny/ask: [] left the user's Goose lists in place, and partial user blocks were unloadable by Goose.",
+      "rule": "In Goose ~/.config/goose/permission.yaml, always write every category with all three lists (always_allow, ask_before, never_allow), using [] for an empty one, and never drop an empty list or the whole user block: Goose's PermissionConfig has no serde defaults, so a missing list makes Goose refuse to start, and ownedYamlKeysMerger only replaces owned keys present in the generated output, so a dropped user block is never cleared on disk.",
+      "status": "active",
+      "topics": [
+        "target-permissions"
+      ],
+      "triggers": [
+        "t-glob-0cdd7e6c",
+        "t-glob-98a8a54b"
+      ]
+    },
+    "target-permissions-treat-a-permissions-list-missing": {
+      "createdAt": "2026-10-29",
+      "evidence": [
+        "lesson:targets-when-a-target-writes-keys"
+      ],
+      "rationale": "parsePermissionsContent filled missing lists with [], so uncommenting only allow wiped deny/ask in .claude/settings.json and other tools; pi-agent and antigravity also revoked on a deleted permissions.yaml.",
+      "rule": "Treat a permissions list missing from canonical (Permissions.allow/deny/ask undefined) as unmanaged: when a target writes into a file the user also owns, emit only managedLists(permissions, lists) and keep the user's value for every absent list; never default a missing list to [] on the write path, and treat null permissions as 'leave the tool alone', never as revoke. Revoke with an explicit empty list.",
+      "status": "active",
+      "topics": [
+        "target-permissions"
+      ],
+      "triggers": [
+        "t-glob-62d071f5",
+        "t-glob-f1bf65e5",
+        "t-glob-4b3e62a5",
+        "t-kw-97e4e1f6"
+      ]
+    },
     "target-permissions-when-a-per-target-import": {
       "createdAt": "2026-09-01",
       "evidence": [],
@@ -8961,6 +9502,21 @@
       "triggers": [
         "t-glob-c36b4923",
         "t-glob-471d1b86"
+      ]
+    },
+    "target-permissions-write-a-managed-empty-continue": {
+      "createdAt": "2026-11-05",
+      "evidence": [
+        "071e496d"
+      ],
+      "rule": "Write a managed empty Continue permission list as [] in ~/.continue/permissions.yaml, not by deleting the key: Continue's loader (extensions/cli/src/permissions/permissionsYamlLoader.ts) accepts empty arrays and its own default file writes allow/ask/exclude as [], so the shared ownedYamlKeysMerger can clear a list without a key-deleting merger. The same loader rejects the WHOLE file when any top-level key is not allow, ask or exclude, so never write extra keys there.",
+      "status": "active",
+      "topics": [
+        "target-permissions"
+      ],
+      "triggers": [
+        "t-glob-5b35aaf0",
+        "t-glob-89d4cc66"
       ]
     },
     "targets-a-target-declaring-additionalrules-embed": {
@@ -9274,6 +9830,22 @@
         "t-cmd-e94ef0dd"
       ]
     },
+    "test-execution-give-every-full-vitest-run": {
+      "createdAt": "2026-11-05",
+      "evidence": [
+        "lesson:test-execution-stop-an-active-full-test"
+      ],
+      "rationale": "Node 24 showed 6 and Node 20 showed 22 integration failures while another session ran vitest; all 8 files passed on both versions with a private TMPDIR.",
+      "rule": "Give every full vitest run in this repo its own TMPDIR (export TMPDIR=/tmp/<run-id>/): integration tests write to fixed folders under os.tmpdir() such as am-integration-root-collision and agentsmesh-import-cursor-test, so a sibling session or worktree running the suite at the same time causes random ENOENT/ENOTEMPTY/uv_cwd failures. Before treating such failures as a regression, rerun the failing files with a private TMPDIR.",
+      "status": "active",
+      "topics": [
+        "test-execution"
+      ],
+      "triggers": [
+        "t-cmd-0905ac21",
+        "t-kw-46ac26be"
+      ]
+    },
     "test-execution-place-agentsmesh-src-unit-tests": {
       "createdAt": "2026-06-26",
       "evidence": [
@@ -9289,6 +9861,20 @@
         "t-kw-4c23a772",
         "t-kw-a5ed6024",
         "t-glob-65f0c371"
+      ]
+    },
+    "test-execution-run-a-throwaway-script-that": {
+      "createdAt": "2026-11-05",
+      "evidence": [
+        "e1cfba0b"
+      ],
+      "rule": "Run a throwaway script that imports this repo's src with node_modules/.bin/tsx <file>.mts, never vitest with --root / or a test file outside the repo: vitest run --root / crawls the whole disk and hung past a 3-minute timeout. Keep scratch scripts in a /tmp folder and import src by absolute path.",
+      "status": "active",
+      "topics": [
+        "test-execution"
+      ],
+      "triggers": [
+        "t-cmd-48929698"
       ]
     },
     "test-execution-run-the-source-cli-as": {
@@ -9385,6 +9971,20 @@
         "t-cmd-b1d895c9"
       ]
     },
+    "test-execution-when-other-claude-sessions-run": {
+      "createdAt": "2026-11-05",
+      "evidence": [
+        "071e496d"
+      ],
+      "rule": "When other Claude sessions run vitest in parallel on this machine, run the full suite with a private TMPDIR (TMPDIR=/tmp/<session>-tmp COVERAGE=1 node_modules/.bin/vitest run --coverage): many tests use fixed names under os.tmpdir() (agentsmesh-import-cursor-test, am-integration-convert, am-extends-elevated-gate), so another session's run deletes or seeds them and unrelated files fail with ENOENT/ENOTEMPTY/'Already initialized', and a red run writes no coverage-summary.json, so coverage-floor.ts then fails with ENOENT too. Rerunning without isolation just moves the failures to other files.",
+      "status": "active",
+      "topics": [
+        "test-execution"
+      ],
+      "triggers": [
+        "t-cmd-913756a7"
+      ]
+    },
     "test-execution-when-the-pnpm-shim-tries": {
       "createdAt": "2026-06-17",
       "evidence": [
@@ -9474,6 +10074,24 @@
         "t-kw-4859e2d1"
       ]
     },
+    "testing-do-not-clear-git-dir": {
+      "createdAt": "2026-10-29",
+      "evidence": [
+        "commit:0fc6a776"
+      ],
+      "rule": "Do not clear GIT_DIR, GIT_INDEX_FILE or GIT_WORK_TREE per test: tests/setup/isolate-git-env.ts, the setupFiles entry of BOTH vitest.config.ts and vitest.e2e.config.ts, deletes REPO_LOCAL_GIT_ENV (src/config/remote/git-env.ts) from process.env before every test file, so spawned git and CLIs must keep inheriting process.env, and any new vitest config must list that setup file. Still isolate from host config: use git/tryGit from tests/helpers/temp-git-repo.ts (fixed identity, -c commit.gpgsign=false) and point GIT_CONFIG_GLOBAL at a missing file with GIT_CONFIG_NOSYSTEM=1 when a host merge driver or signing could change the result. A test that sets GIT_DIR itself must restore it with clearEnv.",
+      "status": "active",
+      "topics": [
+        "testing"
+      ],
+      "triggers": [
+        "t-glob-ae40a94c",
+        "t-glob-8bdc3684",
+        "t-glob-4dac670a",
+        "t-glob-8ade9a3e",
+        "t-glob-303c92cb"
+      ]
+    },
     "testing-in-a-new-test-file": {
       "createdAt": "2026-09-23",
       "evidence": [
@@ -9539,7 +10157,8 @@
       "createdAt": "2026-09-23",
       "evidence": [],
       "rule": "Temp git repos in tests must be isolated from the host: unset GIT_DIR, GIT_INDEX_FILE and GIT_WORK_TREE (hooks export them), point GIT_CONFIG_GLOBAL at a missing file with GIT_CONFIG_NOSYSTEM=1, pass -c commit.gpgsign=false, and set GIT_AUTHOR_*/GIT_COMMITTER_*. Otherwise git acts on the wrong repo, or a host merge driver or signing setup changes the result.",
-      "status": "active",
+      "status": "superseded",
+      "supersededBy": "testing-do-not-clear-git-dir",
       "topics": [
         "testing"
       ],
@@ -9558,6 +10177,21 @@
       ],
       "triggers": [
         "t-cmd-d04a125f"
+      ]
+    },
+    "testing-to-guard-a-work-bound": {
+      "createdAt": "2026-10-29",
+      "evidence": [
+        "commit:93042811"
+      ],
+      "rule": "To guard a work bound (budget, cap) in a test, assert the work units the code charges, not wall-clock ms: wrap the counting function with vi.mock + importOriginal and sum what it charges its WorkBudget. The 500 ms query-glob budget test flaked at 510 ms in a busy full coverage run AND still passed with the shared budget removed (unbounded ~250 ms on a free machine). Prove the guard by temporarily breaking the bound.",
+      "status": "active",
+      "topics": [
+        "testing"
+      ],
+      "triggers": [
+        "t-glob-bbdcdfb7",
+        "t-kw-f5b1f549"
       ]
     },
     "testing-to-prove-a-pure-refactor": {
@@ -9590,6 +10224,23 @@
         "t-kw-3bd487e2"
       ]
     },
+    "testing-when-a-test-guards-a": {
+      "createdAt": "2026-10-29",
+      "evidence": [
+        "commit:9bdc4c33",
+        "lesson:testing-to-guard-a-work-bound"
+      ],
+      "rule": "When a test guards a work cap, assert the charged work both REACHES the cap (>= cap) and stays under it, and measure the input's real work first. A cheap prefilter can cut a hostile input to zero work, so a ms check or an upper-bound-only count stays green with the cap removed: the glob-safety star/globstar/brace tests charged 0 DP cells (literal-tail prefilter) until each path was made to end like its glob.",
+      "status": "active",
+      "topics": [
+        "testing"
+      ],
+      "triggers": [
+        "t-glob-bbdcdfb7",
+        "t-glob-0154b692",
+        "t-glob-918e29c2"
+      ]
+    },
     "testing-when-a-test-helper-rethrows": {
       "createdAt": "2026-09-04",
       "evidence": [
@@ -9604,6 +10255,21 @@
       "triggers": [
         "t-glob-4c29ad88",
         "t-kw-e9de15ff"
+      ]
+    },
+    "testing-when-an-e2e-test-spawns": {
+      "createdAt": "2026-10-29",
+      "evidence": [
+        "06de1425"
+      ],
+      "rule": "When an e2e test spawns the CLI, vi.mock cannot count work across the process, so do not fall back to a wall-clock cap: assert the budget's fail-closed outcome. A real match whose linear work exceeds the budget must NOT be recalled (lessons-recall-safety: a{1,100}b on 'a' x 30000 + 'b' costs ~24M units vs COMMAND_MATCH_BUDGET 5M), with an in-process precondition that the work is over the budget and a short input as a live-trigger control. The old 5000 ms cap passed even with native RegExp (a+b on 30k chars takes ~1.3 s). Keep each argv string well under Linux's 128 KiB MAX_ARG_STRLEN: raise per-char work with a wide counted repeat, not input length. Prove it by rebuilding dist with the engine or budget broken.",
+      "status": "active",
+      "topics": [
+        "testing"
+      ],
+      "triggers": [
+        "t-glob-1b182cda",
+        "t-kw-f5b1f549"
       ]
     },
     "testing-when-auditing-duplication-do-not": {
@@ -10199,7 +10865,8 @@
       "createdAt": "2026-06-11",
       "evidence": [],
       "rule": "The husky pre-commit hook runs pnpm test:coverage, which includes git-touching tests (remote-fetcher-git, lessons-merge-driver, refresh-drift-flow, refresh-git-source, install-script's 'git ls-files --stage'). Run inside 'git commit', they collide with the commit's .git/index.lock and fail spuriously ('Unable to create .git/*.lock', empty git ls-files output, merge-driver missing a rule) yet pass standalone. When a commit's only failures are these git-contention artifacts and the change is independently verified (full suite green standalone), commit with --no-verify.",
-      "status": "active",
+      "status": "superseded",
+      "supersededBy": "verification-workflow-when-git-touching-tests-fail",
       "topics": [
         "verification-workflow"
       ],
@@ -10267,6 +10934,21 @@
         "t-glob-84b6c902",
         "t-glob-85da531e",
         "t-glob-22b2fc25"
+      ]
+    },
+    "verification-workflow-when-git-touching-tests-fail": {
+      "createdAt": "2026-10-29",
+      "evidence": [
+        "commit:0fc6a776"
+      ],
+      "rule": "When git-touching tests fail only inside the husky pre-commit hook ('Unable to create .git/*.lock', empty git ls-files output, a merge driver missing, core.bare = true or a [user] section appearing in .git/config) yet pass standalone, treat it as a GIT_DIR/GIT_INDEX_FILE leak, not lock contention: a commit from a linked worktree exports both to the hook as absolute paths, and a temp-repo git add then locks the commit's own index. Do not commit with --no-verify. Find the git or CLI spawn that bypasses tests/setup/isolate-git-env.ts (a new vitest config, or a spawn with a hand-built env), fix it, then check .git/config. Reproduce with GIT_DIR/GIT_INDEX_FILE pointed at a throwaway repo's worktree gitdir, never this repo's.",
+      "status": "active",
+      "topics": [
+        "verification-workflow"
+      ],
+      "triggers": [
+        "t-cmd-7c1c43ea",
+        "t-kw-b56fdba3"
       ]
     },
     "verification-workflow-when-locating-a-globally-installed": {
@@ -10527,6 +11209,21 @@
         "t-glob-414c9b17",
         "t-glob-0ecc31c0",
         "t-cmd-2a2e013d"
+      ]
+    },
+    "website-docs-website-node-modules-is-missing": {
+      "createdAt": "2026-10-29",
+      "evidence": [
+        "lesson:website-docs-when-applying-a-readability-quality"
+      ],
+      "rule": "website/node_modules is missing in a git worktree. To run the astro link check there, symlink the main checkout's website/node_modules into the worktree's website/, run ./node_modules/.bin/astro build from website/, then delete the symlink and website/dist; do not run pnpm install in the worktree.",
+      "status": "active",
+      "topics": [
+        "website-docs"
+      ],
+      "triggers": [
+        "t-cmd-f9a31508",
+        "t-kw-ab78dd6f"
       ]
     },
     "website-docs-when-applying-a-readability-quality": {
@@ -11304,6 +12001,10 @@
     }
   },
   "triggers": {
+    "t-cmd-024ed4d1": {
+      "kind": "command_pattern",
+      "pattern": "\\bvitest run --coverage\\b"
+    },
     "t-cmd-04ac8468": {
       "kind": "command_pattern",
       "pattern": "worktree"
@@ -11320,6 +12021,10 @@
       "kind": "command_pattern",
       "pattern": "git add tasks/reports"
     },
+    "t-cmd-0a49c912": {
+      "kind": "command_pattern",
+      "pattern": "\\bgit (rm|apply)\\b.*--cached"
+    },
     "t-cmd-0b25c71e": {
       "kind": "command_pattern",
       "pattern": "git\\s+(clone|ls-remote|fetch)"
@@ -11335,6 +12040,10 @@
     "t-cmd-18d320e9": {
       "kind": "command_pattern",
       "pattern": "pnpm flake:watch"
+    },
+    "t-cmd-1b48051d": {
+      "kind": "command_pattern",
+      "pattern": "\\bgrep -[a-zA-Z]*r"
     },
     "t-cmd-1f2e50cd": {
       "kind": "command_pattern",
@@ -11376,6 +12085,10 @@
       "kind": "command_pattern",
       "pattern": "install --sync"
     },
+    "t-cmd-3682d12e": {
+      "kind": "command_pattern",
+      "pattern": "grep[^|]*-[a-zA-Z]*z"
+    },
     "t-cmd-386c44c4": {
       "kind": "command_pattern",
       "pattern": "\\bgit\\s+log\\b.*\\s-M"
@@ -11388,6 +12101,10 @@
       "kind": "command_pattern",
       "pattern": "apply_patch add document|apply_patch add .*markdown|apply_patch add .*\\.md"
     },
+    "t-cmd-3b644e56": {
+      "kind": "command_pattern",
+      "pattern": "GIT_(INDEX_FILE|DIR)="
+    },
     "t-cmd-3b8eef0f": {
       "kind": "command_pattern",
       "pattern": "cp -R dist"
@@ -11399,6 +12116,10 @@
     "t-cmd-3dd013c6": {
       "kind": "command_pattern",
       "pattern": "\\b(eslint|lint)\\b"
+    },
+    "t-cmd-3e61386f": {
+      "kind": "command_pattern",
+      "pattern": "pnpm@10 install"
     },
     "t-cmd-3ef57d47": {
       "kind": "command_pattern",
@@ -11424,6 +12145,10 @@
       "kind": "command_pattern",
       "pattern": "install --all"
     },
+    "t-cmd-48929698": {
+      "kind": "command_pattern",
+      "pattern": "vitest run --root"
+    },
     "t-cmd-49d16e5a": {
       "kind": "command_pattern",
       "pattern": "git checkout"
@@ -11448,9 +12173,17 @@
       "kind": "command_pattern",
       "pattern": "agentsmesh lessons add"
     },
+    "t-cmd-5767a646": {
+      "kind": "command_pattern",
+      "pattern": "git apply --3way"
+    },
     "t-cmd-5efd7022": {
       "kind": "command_pattern",
       "pattern": ">"
+    },
+    "t-cmd-627361ef": {
+      "kind": "command_pattern",
+      "pattern": "pnpm (audit|update)"
     },
     "t-cmd-64a39b90": {
       "kind": "command_pattern",
@@ -11471,6 +12204,10 @@
     "t-cmd-6ea72461": {
       "kind": "command_pattern",
       "pattern": "changeset publish"
+    },
+    "t-cmd-6ee459b0": {
+      "kind": "command_pattern",
+      "pattern": "npm pack agentsmesh"
     },
     "t-cmd-703162ab": {
       "kind": "command_pattern",
@@ -11576,6 +12313,10 @@
       "kind": "command_pattern",
       "pattern": "(npm|pnpm) root -g"
     },
+    "t-cmd-a49a9614": {
+      "kind": "command_pattern",
+      "pattern": "lessons stats"
+    },
     "t-cmd-a5d4409e": {
       "kind": "command_pattern",
       "pattern": "git restore"
@@ -11624,6 +12365,10 @@
       "kind": "command_pattern",
       "pattern": "install github:"
     },
+    "t-cmd-b6d46457": {
+      "kind": "command_pattern",
+      "pattern": "git merge-tree"
+    },
     "t-cmd-b7a21d14": {
       "kind": "command_pattern",
       "pattern": "lessons query.*--file.*--file"
@@ -11659,6 +12404,10 @@
     "t-cmd-cae616a1": {
       "kind": "command_pattern",
       "pattern": "install --force"
+    },
+    "t-cmd-cb599e19": {
+      "kind": "command_pattern",
+      "pattern": "\\bgit\\s+commit\\b"
     },
     "t-cmd-cd48106d": {
       "kind": "command_pattern",
@@ -11772,6 +12521,10 @@
       "kind": "command_pattern",
       "pattern": "pnpm lint"
     },
+    "t-cmd-f9a31508": {
+      "kind": "command_pattern",
+      "pattern": "astro\\s+build"
+    },
     "t-cmd-fc33692e": {
       "kind": "command_pattern",
       "pattern": "capabilities:seed"
@@ -11792,6 +12545,10 @@
       "kind": "file_glob",
       "pattern": "src/lessons/command-class.ts"
     },
+    "t-glob-0154b692": {
+      "kind": "file_glob",
+      "pattern": "tests/unit/lessons/regex-linear.test.ts"
+    },
     "t-glob-01a25e93": {
       "kind": "file_glob",
       "pattern": "src/targets/zed/**"
@@ -11803,6 +12560,10 @@
     "t-glob-0465888e": {
       "kind": "file_glob",
       "pattern": ".agentsmesh/lessons/lessons.json"
+    },
+    "t-glob-04f7aedd": {
+      "kind": "file_glob",
+      "pattern": "src/canonical/load/unmanaged-mcp.ts"
     },
     "t-glob-04ffddd8": {
       "kind": "file_glob",
@@ -11875,6 +12636,10 @@
     "t-glob-0c69c521": {
       "kind": "file_glob",
       "pattern": "tests/unit/cli/commands/watch.test.ts"
+    },
+    "t-glob-0cdd7e6c": {
+      "kind": "file_glob",
+      "pattern": "src/targets/goose/permissions.ts"
     },
     "t-glob-0ecc31c0": {
       "kind": "file_glob",
@@ -11964,6 +12729,10 @@
       "kind": "file_glob",
       "pattern": "src/canonical/features/skills.ts"
     },
+    "t-glob-1a4f4ac0": {
+      "kind": "file_glob",
+      "pattern": "src/install/refresh/run-refresh.ts"
+    },
     "t-glob-1a5e6966": {
       "kind": "file_glob",
       "pattern": "src/cli/commands/lessons-write-handlers.ts"
@@ -11975,6 +12744,10 @@
     "t-glob-1adbf269": {
       "kind": "file_glob",
       "pattern": "src/cli/index.ts"
+    },
+    "t-glob-1b182cda": {
+      "kind": "file_glob",
+      "pattern": "tests/e2e/lessons-*.e2e.test.ts"
     },
     "t-glob-1bd6cdf4": {
       "kind": "file_glob",
@@ -12060,9 +12833,17 @@
       "kind": "file_glob",
       "pattern": "website/src/components/og/*.astro"
     },
+    "t-glob-294f15d7": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/git-exec.ts"
+    },
     "t-glob-29cd251c": {
       "kind": "file_glob",
       "pattern": "src/lessons/jsonl-log.ts"
+    },
+    "t-glob-2b2f105e": {
+      "kind": "file_glob",
+      "pattern": "src/targets/import/run-target-import.ts"
     },
     "t-glob-2be00990": {
       "kind": "file_glob",
@@ -12084,6 +12865,10 @@
       "kind": "file_glob",
       "pattern": "src/lessons/ranking.ts"
     },
+    "t-glob-2eea04de": {
+      "kind": "file_glob",
+      "pattern": "src/install/pack/copy-entities.ts"
+    },
     "t-glob-2f2abaf1": {
       "kind": "file_glob",
       "pattern": "src/mcp/writers/*.ts"
@@ -12095,6 +12880,10 @@
     "t-glob-300bbdba": {
       "kind": "file_glob",
       "pattern": "src/lessons/mutate.ts"
+    },
+    "t-glob-303c92cb": {
+      "kind": "file_glob",
+      "pattern": "vitest.e2e.config.ts"
     },
     "t-glob-308a43cc": {
       "kind": "file_glob",
@@ -12155,6 +12944,10 @@
     "t-glob-398705da": {
       "kind": "file_glob",
       "pattern": "src/cli/commands/lessons-types.ts"
+    },
+    "t-glob-3a6f3f1e": {
+      "kind": "file_glob",
+      "pattern": "tests/integration/extends-elevated-gate.integration.test.ts"
     },
     "t-glob-3ae2ea62": {
       "kind": "file_glob",
@@ -12236,6 +13029,14 @@
       "kind": "file_glob",
       "pattern": "src/targets/*/*-generate.ts"
     },
+    "t-glob-4779743c": {
+      "kind": "file_glob",
+      "pattern": "src/cli/commands/init-scaffold.ts"
+    },
+    "t-glob-48f23337": {
+      "kind": "file_glob",
+      "pattern": "src/install/manifest/*.ts"
+    },
     "t-glob-49078a57": {
       "kind": "file_glob",
       "pattern": "src/lessons/normalize-query-file.ts"
@@ -12255,6 +13056,10 @@
     "t-glob-4ac421f1": {
       "kind": "file_glob",
       "pattern": "src/cli/renderers/lessons-render-diagnostics.ts"
+    },
+    "t-glob-4b3e62a5": {
+      "kind": "file_glob",
+      "pattern": "src/core/permissions.ts"
     },
     "t-glob-4b9b7045": {
       "kind": "file_glob",
@@ -12283,6 +13088,10 @@
     "t-glob-4d2ee3c5": {
       "kind": "file_glob",
       "pattern": "src/targets/catalog/capability-ledger.json"
+    },
+    "t-glob-4dac670a": {
+      "kind": "file_glob",
+      "pattern": "tests/setup/*.ts"
     },
     "t-glob-4eefad64": {
       "kind": "file_glob",
@@ -12360,6 +13169,14 @@
       "kind": "file_glob",
       "pattern": "src/install/lock/install-lock.ts"
     },
+    "t-glob-5b1f3cd2": {
+      "kind": "file_glob",
+      "pattern": "src/install/run/install-sync.ts"
+    },
+    "t-glob-5b35aaf0": {
+      "kind": "file_glob",
+      "pattern": "src/targets/continue/permissions.ts"
+    },
     "t-glob-5c14835c": {
       "kind": "file_glob",
       "pattern": "src/lessons/stats-effectiveness.ts"
@@ -12416,6 +13233,10 @@
       "kind": "file_glob",
       "pattern": "src/targets/*/generator*.ts"
     },
+    "t-glob-62d071f5": {
+      "kind": "file_glob",
+      "pattern": "src/targets/*/*permission*.ts"
+    },
     "t-glob-633537fc": {
       "kind": "file_glob",
       "pattern": "src/lessons/regex-linear/nfa.ts"
@@ -12423,6 +13244,10 @@
     "t-glob-6349b050": {
       "kind": "file_glob",
       "pattern": ".github/workflows/publish.yml"
+    },
+    "t-glob-64298c11": {
+      "kind": "file_glob",
+      "pattern": "tests/integration/generate-process-lock.integration.test.ts"
     },
     "t-glob-648edf5a": {
       "kind": "file_glob",
@@ -12487,6 +13312,10 @@
     "t-glob-6f2d56aa": {
       "kind": "file_glob",
       "pattern": "src/lessons/add.ts"
+    },
+    "t-glob-7017689c": {
+      "kind": "file_glob",
+      "pattern": "src/config/remote/git-*.ts"
     },
     "t-glob-706a24db": {
       "kind": "file_glob",
@@ -12576,6 +13405,10 @@
       "kind": "file_glob",
       "pattern": "src/cli/json-output.ts"
     },
+    "t-glob-7939daea": {
+      "kind": "file_glob",
+      "pattern": "src/install/source/git-*.ts"
+    },
     "t-glob-796629d0": {
       "kind": "file_glob",
       "pattern": "src/targets/catalog/recall-hook-targets.ts"
@@ -12599,6 +13432,10 @@
     "t-glob-7d39ded4": {
       "kind": "file_glob",
       "pattern": "src/config/core/conversions.ts"
+    },
+    "t-glob-7da85c97": {
+      "kind": "file_glob",
+      "pattern": "src/cli/commands/seed-mcp-entry.ts"
     },
     "t-glob-7e7851c6": {
       "kind": "file_glob",
@@ -12656,6 +13493,10 @@
       "kind": "file_glob",
       "pattern": "src/lessons/import-legacy*.ts"
     },
+    "t-glob-82207873": {
+      "kind": "file_glob",
+      "pattern": "src/targets/import/descriptor-import-runner.ts"
+    },
     "t-glob-82cf3af5": {
       "kind": "file_glob",
       "pattern": "src/lessons/*hook*.ts"
@@ -12683,6 +13524,10 @@
     "t-glob-85da531e": {
       "kind": "file_glob",
       "pattern": "src/public/index.ts"
+    },
+    "t-glob-8603841c": {
+      "kind": "file_glob",
+      "pattern": "src/install/refresh/refresh-install-bridge.ts"
     },
     "t-glob-860c694c": {
       "kind": "file_glob",
@@ -12723,6 +13568,10 @@
     "t-glob-89c6bc75": {
       "kind": "file_glob",
       "pattern": "src/canonical/load/*.ts"
+    },
+    "t-glob-89d4cc66": {
+      "kind": "file_glob",
+      "pattern": "src/targets/continue/config-merge.ts"
     },
     "t-glob-8ac603bd": {
       "kind": "file_glob",
@@ -12772,6 +13621,10 @@
       "kind": "file_glob",
       "pattern": "src/cli/commands/import.ts"
     },
+    "t-glob-918e29c2": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/glob-safety.ts"
+    },
     "t-glob-91e8e620": {
       "kind": "file_glob",
       "pattern": "tsconfig.tests.json"
@@ -12796,6 +13649,10 @@
       "kind": "file_glob",
       "pattern": "pnpm-lock.yaml"
     },
+    "t-glob-95028a79": {
+      "kind": "file_glob",
+      "pattern": "src/install/run/run-install-sync-locked.ts"
+    },
     "t-glob-95700160": {
       "kind": "file_glob",
       "pattern": "src/utils/filesystem/fs.ts"
@@ -12811,6 +13668,10 @@
     "t-glob-98419953": {
       "kind": "file_glob",
       "pattern": "src/core/generate/stale-cleanup.ts"
+    },
+    "t-glob-98a8a54b": {
+      "kind": "file_glob",
+      "pattern": "src/targets/goose/mcp-settings.ts"
     },
     "t-glob-9a12f490": {
       "kind": "file_glob",
@@ -12904,6 +13765,10 @@
       "kind": "file_glob",
       "pattern": "src/lessons/hook-notices.ts"
     },
+    "t-glob-a858eb5d": {
+      "kind": "file_glob",
+      "pattern": "src/targets/cursor/settings-helpers.ts"
+    },
     "t-glob-a86844dd": {
       "kind": "file_glob",
       "pattern": "src/targets/codex-cli/codex-rule-paths.ts"
@@ -12988,6 +13853,10 @@
       "kind": "file_glob",
       "pattern": "src/targets/**"
     },
+    "t-glob-b1cdb41a": {
+      "kind": "file_glob",
+      "pattern": ".changeset/*.md"
+    },
     "t-glob-b31c4e39": {
       "kind": "file_glob",
       "pattern": "src/core/check/lock-sync*.ts"
@@ -13051,6 +13920,10 @@
     "t-glob-baf0a939": {
       "kind": "file_glob",
       "pattern": ".gitignore"
+    },
+    "t-glob-bbdcdfb7": {
+      "kind": "file_glob",
+      "pattern": "tests/unit/lessons/*safety*.test.ts"
     },
     "t-glob-bdb31b92": {
       "kind": "file_glob",
@@ -13135,6 +14008,10 @@
     "t-glob-cc00a64d": {
       "kind": "file_glob",
       "pattern": "src/targets/factory-droid/generator.ts"
+    },
+    "t-glob-cc6aab51": {
+      "kind": "file_glob",
+      "pattern": "src/install/run/run-install-marketplace.ts"
     },
     "t-glob-cd014ff3": {
       "kind": "file_glob",
@@ -13264,6 +14141,10 @@
       "kind": "file_glob",
       "pattern": "tests/e2e/target-contract-matrix.e2e.test.ts"
     },
+    "t-glob-e0ac4b45": {
+      "kind": "file_glob",
+      "pattern": "src/install/refresh/refresh-plan.ts"
+    },
     "t-glob-e17eb287": {
       "kind": "file_glob",
       "pattern": ".agents/skills/update-target-capabilities/SKILL.md"
@@ -13356,6 +14237,10 @@
       "kind": "file_glob",
       "pattern": "src/targets/gemini-cli/generator/hooks.ts"
     },
+    "t-glob-f1bf65e5": {
+      "kind": "file_glob",
+      "pattern": "src/canonical/features/permissions.ts"
+    },
     "t-glob-f238075d": {
       "kind": "file_glob",
       "pattern": "src/lessons/regex-linear/**"
@@ -13412,9 +14297,21 @@
       "kind": "file_glob",
       "pattern": "src/cli/commands/lessons-known-flags.ts"
     },
+    "t-glob-fde00b4e": {
+      "kind": "file_glob",
+      "pattern": "src/canonical/load/unmanaged-*.ts"
+    },
+    "t-glob-febd6fd7": {
+      "kind": "file_glob",
+      "pattern": "src/install/pack/pack-merge.ts"
+    },
     "t-glob-ff160535": {
       "kind": "file_glob",
       "pattern": "src/targets/*/importer-spec.ts"
+    },
+    "t-glob-ffcbbfc9": {
+      "kind": "file_glob",
+      "pattern": "src/cli/commands/init-mcp-templates.ts"
     },
     "t-kw-00447f91": {
       "kind": "keyword",
@@ -13431,6 +14328,10 @@
     "t-kw-013fafa7": {
       "kind": "keyword",
       "pattern": "fix wave"
+    },
+    "t-kw-0182406e": {
+      "kind": "keyword",
+      "pattern": "uncommitted sibling"
     },
     "t-kw-0182f2d9": {
       "kind": "keyword",
@@ -13504,6 +14405,10 @@
       "kind": "keyword",
       "pattern": "nested AGENTS.md collision ordering"
     },
+    "t-kw-137b00f8": {
+      "kind": "keyword",
+      "pattern": "refresh drift"
+    },
     "t-kw-1397bfda": {
       "kind": "keyword",
       "pattern": "qa report commit"
@@ -13535,6 +14440,14 @@
     "t-kw-18a1de9b": {
       "kind": "keyword",
       "pattern": "refactor"
+    },
+    "t-kw-18d15622": {
+      "kind": "keyword",
+      "pattern": "invented empty permission list"
+    },
+    "t-kw-199c98d5": {
+      "kind": "keyword",
+      "pattern": "agentsmesh mcp entry global"
     },
     "t-kw-1b41258f": {
       "kind": "keyword",
@@ -13575,6 +14488,10 @@
     "t-kw-218f2eba": {
       "kind": "keyword",
       "pattern": "regression"
+    },
+    "t-kw-21fc9320": {
+      "kind": "keyword",
+      "pattern": "import ignore"
     },
     "t-kw-233098a2": {
       "kind": "keyword",
@@ -13623,6 +14540,10 @@
     "t-kw-2df7a7e6": {
       "kind": "keyword",
       "pattern": "chrome devtools responsive viewport screenshot"
+    },
+    "t-kw-2ec0dc0e": {
+      "kind": "keyword",
+      "pattern": "lessons stats"
     },
     "t-kw-3070d871": {
       "kind": "keyword",
@@ -13732,6 +14653,10 @@
       "kind": "keyword",
       "pattern": "pack staging backup data loss"
     },
+    "t-kw-46ac26be": {
+      "kind": "keyword",
+      "pattern": "full test suite"
+    },
     "t-kw-4859e2d1": {
       "kind": "keyword",
       "pattern": "coverage floor"
@@ -13808,6 +14733,10 @@
       "kind": "keyword",
       "pattern": "discrimination"
     },
+    "t-kw-57b96a2e": {
+      "kind": "keyword",
+      "pattern": "grep -z multi-line match"
+    },
     "t-kw-5a193613": {
       "kind": "keyword",
       "pattern": "capability ledger provenance"
@@ -13816,9 +14745,17 @@
       "kind": "keyword",
       "pattern": "regex round-trip"
     },
+    "t-kw-5ad21932": {
+      "kind": "keyword",
+      "pattern": "fresh worktree"
+    },
     "t-kw-5bc10508": {
       "kind": "keyword",
       "pattern": "config.toml"
+    },
+    "t-kw-5beda113": {
+      "kind": "keyword",
+      "pattern": "compare versions"
     },
     "t-kw-603ecbc4": {
       "kind": "keyword",
@@ -13836,9 +14773,21 @@
       "kind": "keyword",
       "pattern": "zsh"
     },
+    "t-kw-672fe9b8": {
+      "kind": "keyword",
+      "pattern": "audit advisory transitive override"
+    },
     "t-kw-67b582a5": {
       "kind": "keyword",
       "pattern": "zsh separator echo equals"
+    },
+    "t-kw-68f53311": {
+      "kind": "keyword",
+      "pattern": "GIT_INDEX_FILE"
+    },
+    "t-kw-6a5a5a70": {
+      "kind": "keyword",
+      "pattern": "recall performance"
     },
     "t-kw-6c171a08": {
       "kind": "keyword",
@@ -13895,6 +14844,10 @@
     "t-kw-745cab00": {
       "kind": "keyword",
       "pattern": "workflow fixes"
+    },
+    "t-kw-7519d795": {
+      "kind": "keyword",
+      "pattern": "install manifest drift"
     },
     "t-kw-75645732": {
       "kind": "keyword",
@@ -14024,9 +14977,17 @@
       "kind": "keyword",
       "pattern": "root artifact collision"
     },
+    "t-kw-97e4e1f6": {
+      "kind": "keyword",
+      "pattern": "permissions unmanaged list"
+    },
     "t-kw-9a36f4fd": {
       "kind": "keyword",
       "pattern": "topLevelKeys fingerprint ledger"
+    },
+    "t-kw-9f9fe0aa": {
+      "kind": "keyword",
+      "pattern": "pack ignore patterns"
     },
     "t-kw-a00afdda": {
       "kind": "keyword",
@@ -14056,6 +15017,10 @@
       "kind": "keyword",
       "pattern": "adversarial review"
     },
+    "t-kw-ab78dd6f": {
+      "kind": "keyword",
+      "pattern": "website build worktree"
+    },
     "t-kw-abe95c07": {
       "kind": "keyword",
       "pattern": "work budget"
@@ -14063,6 +15028,10 @@
     "t-kw-ac3adf17": {
       "kind": "keyword",
       "pattern": "yagni"
+    },
+    "t-kw-ace5a469": {
+      "kind": "keyword",
+      "pattern": "bring worktree work into develop"
     },
     "t-kw-ace667f6": {
       "kind": "keyword",
@@ -14095,6 +15064,10 @@
     "t-kw-b54b3b44": {
       "kind": "keyword",
       "pattern": "acquireProcessLock"
+    },
+    "t-kw-b56fdba3": {
+      "kind": "keyword",
+      "pattern": "pre-commit hook"
     },
     "t-kw-b5a60c47": {
       "kind": "keyword",
@@ -14312,6 +15285,10 @@
       "kind": "keyword",
       "pattern": "stale cleanup provenance supersededFiles"
     },
+    "t-kw-f0e3a902": {
+      "kind": "keyword",
+      "pattern": "ERR_PNPM_ABORTED_REMOVE_MODULES_DIR_NO_TTY"
+    },
     "t-kw-f1f2d7f9": {
       "kind": "keyword",
       "pattern": "PATH delimiter"
@@ -14324,9 +15301,17 @@
       "kind": "keyword",
       "pattern": "per-file coverage"
     },
+    "t-kw-f2db7158": {
+      "kind": "keyword",
+      "pattern": "warning printed twice"
+    },
     "t-kw-f3654aad": {
       "kind": "keyword",
       "pattern": "public export error class instanceof"
+    },
+    "t-kw-f5b1f549": {
+      "kind": "keyword",
+      "pattern": "wall-clock"
     },
     "t-kw-f7df0071": {
       "kind": "keyword",
@@ -14335,6 +15320,10 @@
     "t-kw-f821d655": {
       "kind": "keyword",
       "pattern": "block comment"
+    },
+    "t-kw-f84f503f": {
+      "kind": "keyword",
+      "pattern": "binary file"
     },
     "t-kw-fb488002": {
       "kind": "keyword",

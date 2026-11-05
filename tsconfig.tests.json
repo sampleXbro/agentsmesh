@@ -41,7 +41,6 @@
     "tests/unit/cli/command-handlers-uninstall-installs-mcp.test.ts",
     "tests/unit/cli/command-handlers-watch-install.test.ts",
     "tests/unit/cli/command-handlers.test.ts",
-    "tests/unit/cli/commands/init-apply.test.ts",
     "tests/unit/cli/commands/seed-mcp-entry.test.ts",
     "tests/unit/cli/renderers/import.test.ts",
     "tests/unit/cli/renderers/init.test.ts",

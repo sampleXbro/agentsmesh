@@ -104,8 +104,7 @@ export const generateIgnore = ignoreOutput(KILO_CODE_IGNORE);
 
 export function generatePermissions(canonical: CanonicalFiles): KiloCodeOutput[] {
   if (!canonical.permissions) return [];
-  const { allow, deny } = canonical.permissions;
-  const ask = canonical.permissions.ask ?? [];
+  const { allow = [], deny = [], ask = [] } = canonical.permissions;
   if (allow.length === 0 && deny.length === 0 && ask.length === 0) return [];
   const permission: Record<string, 'allow' | 'ask' | 'deny'> = {};
   for (const name of allow) permission[name] = 'allow';

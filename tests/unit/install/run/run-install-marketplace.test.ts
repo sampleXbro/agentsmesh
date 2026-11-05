@@ -72,4 +72,33 @@ describe('runInstallMarketplace', () => {
     expect(result.installed).toHaveLength(1);
     expect(executor).toHaveBeenCalledTimes(1);
   });
+
+  it('keeps skippedSettings from the last sub-pack that installed', async () => {
+    const first = [{ feature: 'mcp' as const, items: ['a'] }];
+    const executor: MarketplaceExecutor = vi
+      .fn()
+      .mockResolvedValueOnce({ installed: [], skipped: [], skippedSettings: first })
+      .mockRejectedValueOnce(new Error('fail'));
+    const targets = [makeTarget('t1', 'plugins/a'), makeTarget('t2', 'plugins/b')];
+
+    const result = await runInstallMarketplace(targets, executor, createInstallReport());
+
+    expect(result.skippedSettings).toEqual(first);
+  });
+
+  it('drops skippedSettings when the last sub-pack that installed skipped none', async () => {
+    const executor: MarketplaceExecutor = vi
+      .fn()
+      .mockResolvedValueOnce({
+        installed: [],
+        skipped: [],
+        skippedSettings: [{ feature: 'mcp', items: ['a'] }],
+      })
+      .mockResolvedValueOnce({ installed: [], skipped: [] });
+    const targets = [makeTarget('t1', 'plugins/a'), makeTarget('t2', 'plugins/b')];
+
+    const result = await runInstallMarketplace(targets, executor, createInstallReport());
+
+    expect(result).not.toHaveProperty('skippedSettings');
+  });
 });

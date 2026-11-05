@@ -52,11 +52,7 @@ describe('agentsmesh init --lessons (e2e)', () => {
   });
 
   it('sets up the per-clone merge driver itself inside a git repo', async () => {
-    // Hook-exported git variables would point git at another repo.
     const gitEnv = {
-      GIT_DIR: undefined,
-      GIT_INDEX_FILE: undefined,
-      GIT_WORK_TREE: undefined,
       GIT_CONFIG_GLOBAL: join(tempDir, 'no-global-gitconfig'),
       GIT_CONFIG_NOSYSTEM: '1',
     };

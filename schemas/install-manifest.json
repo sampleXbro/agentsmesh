@@ -15,13 +15,9 @@
       "minLength": 1
     },
     "extends_id": {
-      "anyOf": [
-        {
-          "type": "string"
-        },
-        {
-          "type": "null"
-        }
+      "type": [
+        "string",
+        "null"
       ]
     },
     "source_type": {

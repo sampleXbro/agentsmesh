@@ -121,7 +121,8 @@ export function generatePermissions(
 ): RooCodeOutput[] {
   if (ctx?.scope === 'global') return [];
   if (!canonical.permissions) return [];
-  const { allow, deny } = canonical.permissions;
+  // An unmanaged list is left out, and the key-scoped merge keeps the user's.
+  const { allow = [], deny = [] } = canonical.permissions;
   if (allow.length === 0 && deny.length === 0) return [];
   const settings: Record<string, string[]> = {};
   if (allow.length > 0) settings[ROO_CODE_ALLOWED_COMMANDS_KEY] = allow;

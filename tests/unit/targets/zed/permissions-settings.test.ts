@@ -104,6 +104,15 @@ describe('parseZedPermissions', () => {
     ).toBeNull();
   });
 
+  it('returns only the lists Zed sets', () => {
+    const parsed = parseZedPermissions({
+      agent: {
+        tool_permissions: { tools: { terminal: { always_allow: [{ pattern: '^ls$' }] } } },
+      },
+    });
+    expect(parsed).toEqual({ allow: ['Bash(ls)'] });
+  });
+
   it('returns null when the agent key is missing or malformed', () => {
     expect(parseZedPermissions({})).toBeNull();
     expect(parseZedPermissions({ agent: 'nope' })).toBeNull();

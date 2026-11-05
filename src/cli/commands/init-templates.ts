@@ -87,35 +87,6 @@ Describe the skill procedure here.
 Skills are reusable multi-step procedures that commands and agents can reference.
 `;
 
-export const TEMPLATE_MCP = `{
-  "mcpServers": {
-    // agentsmesh self-serve MCP server — exposes your canonical config to AI agents.
-    // Lets agents introspect rules/commands/agents/skills and trigger generate.
-    // Docs: https://samplexbro.github.io/agentsmesh/reference/mcp-server/
-    // For faster startup, install agentsmesh as a devDependency and replace the entry below with:
-    //   "command": "agentsmesh", "args": ["mcp"]
-    // Remove this entry to disable.
-    "agentsmesh": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "agentsmesh", "mcp"]
-    }
-
-    // "github": {
-    //   "type": "stdio",
-    //   "command": "npx",
-    //   "args": ["-y", "@modelcontextprotocol/server-github"],
-    //   "env": { "GITHUB_TOKEN": "$GITHUB_TOKEN" }
-    // },
-    // "filesystem": {
-    //   "type": "stdio",
-    //   "command": "npx",
-    //   "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/allow"]
-    // }
-  }
-}
-`;
-
 export const TEMPLATE_HOOKS = `${yamlSchemaDirective('hooks')}# Lifecycle hooks — run shell commands before/after AI tool use
 # Events: PreToolUse, PostToolUse, SubagentStart, SubagentStop
 # Matcher: tool name pattern (e.g. "Edit|Write", "Bash", "*")

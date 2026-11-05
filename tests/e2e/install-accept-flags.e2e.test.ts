@@ -167,6 +167,24 @@ describe('install — elevated-artifact consent flags (e2e)', () => {
     expect(existsSync(join(packDir, 'mcp.json'))).toBe(true);
   });
 
+  it('--accept-mcp does not replace a hand-written .mcp.json while MCP is unmanaged', async () => {
+    dir = createTestProject();
+    const upstream = createUpstreamWithElevated(dir);
+    writeProjectConfig(dir);
+    const mine = { mcpServers: { mine: { command: 'mine-cmd', args: [] } } };
+    writeFileSync(join(dir, '.mcp.json'), JSON.stringify(mine));
+
+    const r = await runCli(`install git+file://${upstream}#main --force --accept-mcp`, dir, {
+      AGENTSMESH_ALLOW_LOCAL_GIT: '1',
+    });
+    expect(r.exitCode, r.stderr).toBe(0);
+
+    expect(JSON.parse(readFileSync(join(dir, '.mcp.json'), 'utf8'))).toEqual(mine);
+    expect(r.stdout + r.stderr).toContain(
+      'Skipped MCP servers from installed packs or extends: evil.',
+    );
+  });
+
   it('local source is trusted: hooks/permissions/mcp pass through without any accept flag', async () => {
     dir = createTestProject();
     const upstream = join(dir, 'local-upstream');

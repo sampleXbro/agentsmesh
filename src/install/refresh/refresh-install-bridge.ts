@@ -1,6 +1,7 @@
 /**
  * Bridge from a recorded install manifest entry back into the install
- * pipeline, with `forceFreshMaterialize: true`. Used by `applySinglePack`.
+ * pipeline, with `forceFreshMaterialize: true` for the first recorded path.
+ * Used by `applySinglePack`.
  *
  * Uses the `replay` arg of runInstall to skip lock re-acquisition (refresh's
  * orchestrator already holds the .install.lock). The replay scope carries
@@ -9,7 +10,7 @@
 
 import { runInstall } from '../run/run-install.js';
 import type { InstallManifestEntry } from '../core/install-manifest.js';
-import type { InstallReplayScope } from '../run/install-replay.js';
+import { replayPaths, type InstallReplayScope } from '../run/install-replay.js';
 import { parseSourceUrl } from '../source/parse-source-url.js';
 
 export interface RunInstallForRefreshArgs {
@@ -56,21 +57,23 @@ function buildSourceForRefresh(entry: InstallManifestEntry, newSha: string): str
   return entry.source;
 }
 
+function refreshFlags(
+  entry: InstallManifestEntry,
+  scope: RunInstallForRefreshArgs['scope'],
+  path: string | undefined,
+  fresh: boolean,
+): Record<string, string | boolean> {
+  const flags: Record<string, string | boolean> = { force: true, name: entry.name };
+  if (fresh) flags.forceFreshMaterialize = true;
+  if (scope === 'global') flags.global = true;
+  if (entry.target !== undefined) flags.target = entry.target;
+  if (entry.as !== undefined) flags.as = entry.as;
+  if (path !== undefined) flags.path = path;
+  return flags;
+}
+
 export function createRunInstallForRefresh(args: RunInstallForRefreshArgs) {
   return async (entry: InstallManifestEntry, newSha: string): Promise<void> => {
-    const flags: Record<string, string | boolean> = {
-      force: true,
-      forceFreshMaterialize: true,
-    };
-    if (args.scope === 'global') flags.global = true;
-    if (entry.target !== undefined) flags.target = entry.target;
-    if (entry.as !== undefined) flags.as = entry.as;
-    if (entry.path !== undefined) flags.path = entry.path;
-    // Marketplace `--all` installs persist as `paths: [...]` (not `path`). Re-invoking
-    // install without `all: true` would trip the marketplace picker's threshold.
-    if (entry.paths !== undefined && entry.paths.length > 0) flags.all = true;
-    flags.name = entry.name;
-
     const replay: InstallReplayScope = {
       features: entry.features,
       pick: entry.pick,
@@ -86,11 +89,16 @@ export function createRunInstallForRefresh(args: RunInstallForRefreshArgs) {
     };
 
     const sourceForRefresh = buildSourceForRefresh(entry, newSha);
-    const result = await runInstall(flags, [sourceForRefresh], args.projectRoot, replay);
-    if (result.exitCode !== 0) {
-      throw new Error(
-        `Install for refresh "${entry.name}" failed with exit code ${result.exitCode}`,
-      );
+    // A marketplace pack holds one sub-pack per recorded path: the first
+    // rebuilds the pack, the rest merge into it under the same name.
+    for (const [index, path] of replayPaths(entry).entries()) {
+      const flags = refreshFlags(entry, args.scope, path, index === 0);
+      const result = await runInstall(flags, [sourceForRefresh], args.projectRoot, replay);
+      if (result.exitCode !== 0) {
+        throw new Error(
+          `Install for refresh "${entry.name}" failed with exit code ${result.exitCode}`,
+        );
+      }
     }
   };
 }

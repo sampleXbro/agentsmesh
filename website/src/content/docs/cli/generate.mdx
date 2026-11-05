@@ -121,6 +121,38 @@ All target path constants — such as `.cursor/rules/`, `.claude/skills/`, or `.
 
 If `~/.agentsmesh/agentsmesh.yaml` does not exist, `--global` commands fail with a scope-aware error pointing at the missing path and suggesting `agentsmesh init --global` (or dropping the flag to operate on the current project). The check applies uniformly to `generate`, `import`, `lint`, `check`, `diff`, `watch`, and `matrix`.
 
+## JSON output
+
+```bash
+agentsmesh generate --json
+```
+
+```json
+{
+  "success": true,
+  "command": "generate",
+  "data": {
+    "scope": "project",
+    "mode": "generate",
+    "files": [
+      { "path": "CLAUDE.md", "target": "claude-code", "status": "created" }
+    ],
+    "summary": { "created": 1, "updated": 0, "unchanged": 0 },
+    "skippedSettings": [
+      { "feature": "mcp", "items": ["context7"] },
+      { "feature": "permissions", "items": ["allow Read"] }
+    ]
+  }
+}
+```
+
+Field reference:
+
+- `mode` — `"generate"`, `"dry-run"` (with `--dry-run`) or `"check"` (with `--check`).
+- `files[]` — `{ path, target, status }` per generated file; `status` is `created`, `updated` or `unchanged`.
+- `emptyReason` — only present when no files were produced because no active target has a global mode (`"no-global-support"`).
+- `skippedSettings[]` — only present when settings from installed packs or `extends` sources were skipped, because your own canonical files do not manage them. One entry per feature enabled in `agentsmesh.yaml`: `feature` is `mcp`, `permissions`, `hooks` or `ignore`, and `items` names what was skipped (server names, permission entries as `<list> <entry>`, hook events with their count such as `PreToolUse (1 hook)`, and ignore patterns). It carries the same facts as the `Skipped … from installed packs or extends` warning, which `--json` does not print. See the rules for [MCP servers](../../canonical-config/mcp-servers/#servers-from-packs-and-extends), [permissions](../../canonical-config/permissions/#permissions-from-packs-and-extends), [hooks](../../canonical-config/hooks/#hooks-from-packs-and-extends) and [ignore patterns](../../canonical-config/ignore-patterns/#patterns-from-packs-and-extends).
+
 ## Exit codes
 
 | Code | Meaning |

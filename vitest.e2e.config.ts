@@ -23,6 +23,8 @@ export default defineConfig({
       GIT_CONFIG_VALUE_0: '',
       AGENTSMESH_CACHE: REMOTE_CACHE,
     },
+    // Git hooks export GIT_DIR/GIT_INDEX_FILE; inherited, test git hits the real repo.
+    setupFiles: ['./tests/setup/isolate-git-env.ts'],
     include: ['tests/e2e/**/*.e2e.test.ts'],
     testTimeout: 30_000,
     hookTimeout: 30_000,

@@ -140,6 +140,9 @@ export async function runSinglePackInstall(opts: RunSinglePackArgs): Promise<Ins
         ...(installReport.brokenResources.length > 0
           ? { brokenResources: installReport.brokenResources }
           : {}),
+        ...(executeResult.skippedSettings?.length
+          ? { skippedSettings: executeResult.skippedSettings }
+          : {}),
       },
     };
   } finally {

@@ -37,7 +37,7 @@ describe('mergeOutputContent', () => {
     );
     expect(JSON.parse(merged)).toEqual({
       theme: 'dark',
-      permissions: { allow: ['Read'], ask: [] },
+      permissions: { allow: ['Read'] },
     });
   });
 

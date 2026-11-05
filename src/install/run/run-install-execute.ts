@@ -11,6 +11,7 @@ import type { ManualInstallPersistence } from '../manual/manual-install-persiste
 import type { ManualInstallAs } from '../manual/manual-install-mode.js';
 import type { ExtendPick } from '../../config/core/schema.js';
 import type { CanonicalFiles } from '../../core/types.js';
+import type { SkippedSettings } from '../../canonical/load/unmanaged-settings.js';
 import type { InstallDiscoveryPrep } from '../core/install-discovery.js';
 import { consentedArtifactsForManifest, resolveOriginalRef } from './elevated-consent-replay.js';
 
@@ -52,6 +53,8 @@ export interface RunInstallExecuteArgs {
 export interface InstallExecuteResult {
   installed: Array<{ kind: string; name: string; path: string }>;
   skipped: Array<{ kind: string; name: string; reason: string }>;
+  /** From the generate after install; absent for a dry run, which runs none. */
+  skippedSettings?: SkippedSettings[];
 }
 
 /** Select what to install (see run-install-selection.ts), then write it as a pack or an extend. */
@@ -116,6 +119,6 @@ export async function executeRunInstallPoolsAndWrite(
       return { installed, skipped };
     }
   }
-  await runPostOperationGenerate('install', scope, context.rootBase);
-  return { installed, skipped };
+  const skippedSettings = await runPostOperationGenerate('install', scope, context.rootBase);
+  return { installed, skipped, skippedSettings };
 }

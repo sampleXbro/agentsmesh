@@ -101,10 +101,11 @@ export async function selectInstall(args: RunInstallExecuteArgs): Promise<Instal
     commands: commandsPool.length,
     agents: agentsPool.length,
   };
+  // Only rules, commands and agents matter here; the generate after install warns about skipped settings.
   const { canonical: merged } = await loadCanonicalWithExtends(
     config,
     context.configDir,
-    {},
+    { warnSkippedSettings: false },
     context.canonicalDir,
   );
   const selected =

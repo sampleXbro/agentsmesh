@@ -1,7 +1,7 @@
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { runLessons } from '../../../../src/cli/commands/lessons.js';
 import type { LessonsFlags } from '../../../../src/cli/commands/lessons-helpers.js';
 import { lessonsGraphProblem, problemFromLoad } from '../../../../src/lessons/graph-problem.js';
@@ -16,15 +16,7 @@ import {
   lesson,
   writeGraphText,
 } from '../../../helpers/lessons-graph-fixture.js';
-import {
-  clearEnv,
-  commitAll,
-  git,
-  GIT_HOOK_ENV,
-  initRepo,
-  tryGit,
-  writeFile,
-} from '../../../helpers/temp-git-repo.js';
+import { commitAll, git, initRepo, tryGit, writeFile } from '../../../helpers/temp-git-repo.js';
 
 let root: string;
 
@@ -83,12 +75,6 @@ describe('lessons subcommands on a readable graph', () => {
 });
 
 describe('lessons subcommands during an unfinished git merge', () => {
-  let restoreEnv: () => void;
-  beforeAll(() => {
-    restoreEnv = clearEnv(GIT_HOOK_ENV);
-  });
-  afterAll(() => restoreEnv());
-
   it('keep their own failure message while the graph file reads fine', async () => {
     const GRAPH = '.agentsmesh/lessons/lessons.json';
     const graph = (ids: string[]): string =>

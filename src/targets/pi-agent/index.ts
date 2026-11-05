@@ -28,7 +28,6 @@ import { importFromPiAgent } from './importer.js';
 import { lintRules } from './linter.js';
 import { lintHooks, lintPermissions, lintIgnore } from './lint.js';
 import { mergePiSettings } from './permissions-format.js';
-import { revokePiAgentPermissions } from './permissions-revoke.js';
 import { buildPiAgentImportPaths } from '../../core/reference/import-maps/pi-agent.js';
 import {
   PI_AGENT_TARGET,
@@ -145,9 +144,6 @@ export const descriptor = {
     capabilities,
     detectionPaths: [PI_AGENT_GLOBAL_ROOT_FILE],
     layout: globalLayout,
-    // Runs at both scopes; clears a stale defaultTools when canonical
-    // permissions are gone, which the canonical-only feature loop cannot see.
-    scopeExtras: revokePiAgentPermissions,
   },
   importer: {
     rules: {

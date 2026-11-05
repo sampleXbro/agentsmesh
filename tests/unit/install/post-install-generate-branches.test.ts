@@ -5,6 +5,7 @@
  *   - global vs project scope flag suffix
  *   - exitCode !== 0 → warn about manual generate
  *   - runGenerate throws → warn twice (error + remediation)
+ *   - returns the skipped settings from the generate data, [] when it threw
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
@@ -35,14 +36,14 @@ beforeEach(() => {
 
 describe('runPostOperationGenerate', () => {
   it('does not warn on success (exitCode 0) for project install', async () => {
-    mocks.runGenerateMock.mockResolvedValue({ exitCode: 0 });
+    mocks.runGenerateMock.mockResolvedValue({ exitCode: 0, data: {} });
     await runPostOperationGenerate('install', 'project', '/p');
     expect(mocks.runGenerateMock).toHaveBeenCalledWith({}, '/p', { printMatrix: false });
     expect(warnSpy).not.toHaveBeenCalled();
   });
 
   it('warns and includes "agentsmesh generate --global" hint for global uninstall failure', async () => {
-    mocks.runGenerateMock.mockResolvedValue({ exitCode: 1 });
+    mocks.runGenerateMock.mockResolvedValue({ exitCode: 1, data: {} });
     await runPostOperationGenerate('uninstall', 'global', '/p');
     expect(mocks.runGenerateMock).toHaveBeenCalledWith({ global: true }, '/p', {
       printMatrix: false,
@@ -61,6 +62,22 @@ describe('runPostOperationGenerate', () => {
     expect(warnSpy.mock.calls[1]![0]).toMatch(
       /Pack is installed.*agentsmesh generate(?! --global)/,
     );
+  });
+
+  it('returns the skipped settings from the generate data', async () => {
+    const skippedSettings = [{ feature: 'mcp', items: ['packsrv'] }];
+    mocks.runGenerateMock.mockResolvedValue({ exitCode: 0, data: { skippedSettings } });
+    expect(await runPostOperationGenerate('install', 'project', '/p')).toEqual(skippedSettings);
+  });
+
+  it('returns [] when the generate data has none or generate threw', async () => {
+    mocks.runGenerateMock.mockResolvedValueOnce({ exitCode: 0, data: {} });
+    mocks.runGenerateMock.mockRejectedValueOnce(new Error('boom'));
+    const results = [
+      await runPostOperationGenerate('install', 'project', '/p'),
+      await runPostOperationGenerate('install', 'project', '/p'),
+    ];
+    expect(results).toEqual([[], []]);
   });
 
   it('catches runGenerate throws and warns with --global suffix when scope is global', async () => {

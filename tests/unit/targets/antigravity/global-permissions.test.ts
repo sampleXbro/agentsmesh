@@ -83,6 +83,11 @@ describe('antigravity global permissions — generate', () => {
     expect(await scopeExtras(makeCanonical(), TEST_DIR, 'global', ALL)).toEqual([]);
   });
 
+  it('emits nothing for managed empty lists and no settings file', async () => {
+    const canonical = makeCanonical({ permissions: { allow: [], deny: [], ask: [] } });
+    expect(await scopeExtras(canonical, TEST_DIR, 'global', ALL)).toEqual([]);
+  });
+
   it('keeps unrelated user settings and unrelated permission sub-keys', async () => {
     writeSettings(
       JSON.stringify(
@@ -119,11 +124,48 @@ describe('antigravity global permissions — generate', () => {
       JSON.stringify({ theme: 'dark', permissions: { allow: ['run_command(old)'] } }, null, 2),
     );
 
-    const results = await scopeExtras(makeCanonical(), TEST_DIR, 'global', ALL);
+    const results = await scopeExtras(
+      makeCanonical({ permissions: { allow: [] } }),
+      TEST_DIR,
+      'global',
+      ALL,
+    );
 
     expect(results).toHaveLength(1);
     const parsed = JSON.parse(results[0]!.content) as Record<string, unknown>;
     expect(parsed).toEqual({ theme: 'dark' });
+  });
+
+  it('leaves the settings file alone when no permissions.yaml manages a list', async () => {
+    writeSettings(
+      JSON.stringify({ theme: 'dark', permissions: { allow: ['run_command(mine)'] } }, null, 2),
+    );
+
+    expect(await scopeExtras(makeCanonical(), TEST_DIR, 'global', ALL)).toEqual([]);
+  });
+
+  it('keeps the user lists that permissions.yaml does not manage', async () => {
+    writeSettings(
+      JSON.stringify({
+        permissions: {
+          allow: ['run_command(old)'],
+          deny: ['write_file(*)'],
+          ask: ['view_file(*)'],
+        },
+      }),
+    );
+
+    const results = await scopeExtras(
+      makeCanonical({ permissions: { allow: ['run_command(new)'] } }),
+      TEST_DIR,
+      'global',
+      ALL,
+    );
+
+    expect(results.map((result) => result.path)).toEqual(['.gemini/antigravity-cli/settings.json']);
+    expect(JSON.parse(results[0]!.content)).toEqual({
+      permissions: { allow: ['run_command(new)'], deny: ['write_file(*)'], ask: ['view_file(*)'] },
+    });
   });
 
   it('is not listed in managed outputs so stale cleanup never deletes user settings', () => {

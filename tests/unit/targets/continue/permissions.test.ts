@@ -27,21 +27,20 @@ function canonical(overrides: Partial<CanonicalFiles> = {}): CanonicalFiles {
 
 describe('serializeContinuePermissions', () => {
   it('maps canonical allow/ask/deny to Continue allow/ask/exclude', () => {
-    const yaml = serializeContinuePermissions({
-      allow: ['Read(*)'],
-      deny: ['Write'],
-      ask: ['Bash'],
-    });
+    const yaml = serializeContinuePermissions(
+      { allow: ['Read(*)'], deny: ['Write'], ask: ['Bash'] },
+      null,
+    );
     const parsed = parseYaml(yaml!) as Record<string, unknown>;
     expect(parsed).toEqual({ allow: ['Read(*)'], ask: ['Bash'], exclude: ['Write'] });
   });
 
-  it('omits empty lists and returns null when nothing to emit', () => {
-    expect(serializeContinuePermissions(null)).toBeNull();
-    expect(serializeContinuePermissions({ allow: [], deny: [], ask: [] })).toBeNull();
-    const yaml = serializeContinuePermissions({ allow: ['Read'], deny: [] });
+  it('keeps managed empty lists and returns null when nothing to emit', () => {
+    expect(serializeContinuePermissions(null, null)).toBeNull();
+    expect(serializeContinuePermissions({ allow: [], deny: [], ask: [] }, null)).toBeNull();
+    const yaml = serializeContinuePermissions({ allow: ['Read'], deny: [] }, null);
     const parsed = parseYaml(yaml!) as Record<string, unknown>;
-    expect(parsed).toEqual({ allow: ['Read'] });
+    expect(parsed).toEqual({ allow: ['Read'], exclude: [] });
   });
 });
 

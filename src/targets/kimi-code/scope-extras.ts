@@ -20,6 +20,7 @@ import { computeStatus } from '../../core/generate/feature-loop.js';
 import { serializeKimiConfig, type KimiOwnedConfig } from './config-toml.js';
 import { buildKimiHookEntries } from './hooks-format.js';
 import { buildKimiPermissionRules } from './permissions-format.js';
+import { PERMISSION_LISTS } from '../../core/permissions.js';
 import { KIMI_CODE_TARGET, KIMI_CODE_GLOBAL_CONFIG_FILE } from './constants.js';
 
 function ownedConfig(
@@ -28,8 +29,14 @@ function ownedConfig(
 ): KimiOwnedConfig {
   return {
     ...(enabledFeatures.has('hooks') ? { hooks: buildKimiHookEntries(canonical.hooks) } : {}),
-    ...(enabledFeatures.has('permissions')
-      ? { permissionRules: buildKimiPermissionRules(canonical.permissions) }
+    // No permissions.yaml list: permissions are unmanaged, so the rules stay untouched.
+    ...(enabledFeatures.has('permissions') && canonical.permissions !== null
+      ? {
+          permissionRules: buildKimiPermissionRules(canonical.permissions),
+          unmanagedDecisions: PERMISSION_LISTS.filter(
+            (list) => canonical.permissions?.[list] === undefined,
+          ),
+        }
       : {}),
   };
 }

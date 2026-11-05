@@ -469,11 +469,28 @@ describe('generatePermissions (claude-code)', () => {
     expect(generatePermissions(makeCanonical({ permissions: null }))).toEqual([]);
   });
 
-  it('emits empty permissions when all permission lists are empty', () => {
-    expect(generatePermissions(makeCanonical({ permissions: { allow: [], deny: [] } }))).toEqual([
+  it('emits explicit empty lists, since an empty list is managed', () => {
+    expect(
+      generatePermissions(makeCanonical({ permissions: { allow: [], deny: [], ask: [] } })),
+    ).toEqual([
       {
         path: '.claude/settings.json',
         content: JSON.stringify({ permissions: { allow: [], deny: [], ask: [] } }, null, 2),
+      },
+    ]);
+  });
+
+  it('omits unmanaged lists so the merge keeps the user lists', () => {
+    expect(generatePermissions(makeCanonical({ permissions: { allow: ['Read'] } }))).toEqual([
+      {
+        path: '.claude/settings.json',
+        content: JSON.stringify({ permissions: { allow: ['Read'] } }, null, 2),
+      },
+    ]);
+    expect(generatePermissions(makeCanonical({ permissions: { ask: [] } }))).toEqual([
+      {
+        path: '.claude/settings.json',
+        content: JSON.stringify({ permissions: { ask: [] } }, null, 2),
       },
     ]);
   });

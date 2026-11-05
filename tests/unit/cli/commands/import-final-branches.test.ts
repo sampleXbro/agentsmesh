@@ -54,6 +54,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  vi.unstubAllEnvs();
   rmSync(testDir, { recursive: true, force: true });
   hoisted.importFromStub.mockReset();
   hoisted.seedStub.mockClear();
@@ -82,5 +83,26 @@ describe('runImport — descriptor importFrom success path', () => {
     expect(hoisted.importFromStub).toHaveBeenCalledTimes(1);
     expect(hoisted.seedStub).not.toHaveBeenCalled();
     expect(result.data.files).toEqual([]);
+  });
+
+  it('skips seedAgentsmeshMcpEntry on a global import', async () => {
+    const home = join(testDir, 'home');
+    mkdirSync(join(home, '.agentsmesh'), { recursive: true });
+    writeFileSync(
+      join(home, '.agentsmesh', 'agentsmesh.yaml'),
+      `version: 1\ntargets: [claude-code]\nfeatures: [rules]\n`,
+    );
+    vi.stubEnv('HOME', home);
+    vi.stubEnv('USERPROFILE', home);
+    hoisted.importFromStub.mockResolvedValueOnce([
+      { fromPath: join(home, 'from.md'), toPath: '.agentsmesh/rules/from.md' },
+    ]);
+
+    const result = await runImport({ from: 'pluginish', global: true }, testDir);
+
+    expect(hoisted.importFromStub).toHaveBeenCalledTimes(1);
+    expect(hoisted.seedStub).not.toHaveBeenCalled();
+    expect(result.data.scope).toBe('global');
+    expect(result.data.files).toEqual([{ from: 'from.md', to: '.agentsmesh/rules/from.md' }]);
   });
 });

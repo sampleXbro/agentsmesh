@@ -15,6 +15,8 @@ import { readLock } from '../../config/core/lock.js';
 import type { GenerateData } from '../command-result.js';
 import type { ResolvedExtend } from '../../config/resolve/resolver.js';
 import type { GenerateResult } from '../../core/result-types.js';
+import type { ValidatedConfig } from '../../config/core/schema.js';
+import type { CanonicalFiles } from '../../core/types.js';
 import type { GenerateCommandResult, RunGenerateOptions } from './generate.js';
 
 export { handleEmptyResults, type EmptyResultsArgs } from './generate-empty-run.js';
@@ -48,6 +50,8 @@ export interface GenerateOrDryRunArgs {
   flags: Record<string, string | boolean>;
   root: string;
   options: RunGenerateOptions;
+  /** What generate loaded, so the matrix does not load (and warn) again. */
+  loaded?: { config: ValidatedConfig; canonical: CanonicalFiles };
 }
 
 export async function handleGenerateOrDryRun(
@@ -119,7 +123,7 @@ export async function handleGenerateOrDryRun(
   if (options.printMatrix !== false) {
     const { runMatrix } = await import('./matrix.js');
     const { renderMatrix } = await import('../renderers/matrix.js');
-    const matrixResult = await runMatrix(flags, root);
+    const matrixResult = await runMatrix(flags, root, args.loaded);
     renderMatrix(matrixResult, { verbose: flags.verbose === true });
   }
 

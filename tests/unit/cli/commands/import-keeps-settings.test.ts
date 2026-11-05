@@ -56,10 +56,10 @@ describe('importing a second tool', () => {
     await runImport({ from: 'cursor' }, root());
     await runImport({ from: 'claude-code' }, root());
 
+    // Neither tool has an ask list, so no import may start managing one.
     expect(perms()).toEqual({
       allow: ['Shell(ls)', 'Bash(npm test)'],
       deny: ['Read(./secrets/**)', 'Bash(rm -rf:*)'],
-      ask: [],
     });
     expect(read(IGNORE)).toBe('build/\nsecrets/\n');
   });

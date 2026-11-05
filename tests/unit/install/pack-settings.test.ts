@@ -119,7 +119,7 @@ describe('pack settings persistence', () => {
     const loaded = await loadPacksCanonical(rootDir);
 
     expect((loaded.mcp?.mcpServers.context7 as StdioMcpServer | undefined)?.command).toBe('npx');
-    expect(loaded.permissions).toEqual({ allow: ['Read'], deny: ['Bash(rm:*)'], ask: [] });
+    expect(loaded.permissions).toEqual({ allow: ['Read'], deny: ['Bash(rm:*)'] });
     expect(loaded.hooks?.PostToolUse?.[0]?.command).toBe('prettier --write $FILE_PATH');
     expect(loaded.ignore).toEqual(['node_modules', 'dist']);
   });

@@ -6,6 +6,8 @@
  * - Installed pack hooks are never dropped: not by another pack, not by an
  *   extend, and not by a local event (e.g. the recall hook `init --lessons`
  *   adds to PreToolUse). Removing a pack hook means uninstalling the pack.
+ * - All of this needs a local hooks.yaml that manages hooks (an empty `{}`
+ *   is enough); see extends-unmanaged-permissions-hooks.test.ts.
  */
 
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
@@ -21,6 +23,7 @@ beforeEach(() => {
   base = mkdtempSync(join(tmpdir(), 'amesh-hook-layers-'));
   project = join(base, 'project');
   mkdirSync(join(project, '.agentsmesh'), { recursive: true });
+  writeFileSync(join(project, '.agentsmesh', 'hooks.yaml'), '{}\n');
 });
 afterEach(() => rmSync(base, { recursive: true, force: true }));
 

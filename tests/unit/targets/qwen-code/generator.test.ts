@@ -557,61 +557,50 @@ describe('generatePermissions (qwen-code)', () => {
     expect(results).toHaveLength(0);
   });
 
-  it('returns empty when all permission lists are empty', () => {
-    const results = generatePermissions(
-      makeCanonical({ permissions: { allow: [], deny: [], ask: [] } }),
-    );
-    expect(results).toHaveLength(0);
+  it('writes managed empty lists, so generate clears them', () => {
+    expect(
+      generatePermissions(makeCanonical({ permissions: { allow: [], deny: [], ask: [] } })),
+    ).toEqual([
+      {
+        path: QWEN_SETTINGS,
+        content: JSON.stringify({ permissions: { allow: [], deny: [], ask: [] } }, null, 2),
+      },
+    ]);
   });
 
-  it('emits settings.json with permissions.allow', () => {
+  it('writes every managed list', () => {
     const canonical = makeCanonical({
-      permissions: { allow: ['Bash(git diff)', 'Read'], deny: [], ask: [] },
+      permissions: {
+        allow: ['Bash(git diff)', 'Read'],
+        deny: ['Bash(rm -rf)'],
+        ask: ['WebSearch'],
+      },
     });
-    const results = generatePermissions(canonical);
-    expect(results).toHaveLength(1);
-    expect(results[0].path).toBe(QWEN_SETTINGS);
-    const parsed = JSON.parse(results[0].content) as Record<string, unknown>;
-    expect(parsed).toHaveProperty('permissions');
-    const perms = parsed['permissions'] as Record<string, unknown>;
-    expect(perms['allow']).toEqual(['Bash(git diff)', 'Read']);
-    expect(perms).not.toHaveProperty('deny');
-    expect(perms).not.toHaveProperty('ask');
+    expect(generatePermissions(canonical)).toEqual([
+      {
+        path: QWEN_SETTINGS,
+        content: JSON.stringify(
+          {
+            permissions: {
+              allow: ['Bash(git diff)', 'Read'],
+              deny: ['Bash(rm -rf)'],
+              ask: ['WebSearch'],
+            },
+          },
+          null,
+          2,
+        ),
+      },
+    ]);
   });
 
-  it('emits settings.json with permissions.deny', () => {
-    const canonical = makeCanonical({
-      permissions: { allow: [], deny: ['Bash(rm -rf)'], ask: [] },
-    });
-    const results = generatePermissions(canonical);
-    expect(results).toHaveLength(1);
-    const parsed = JSON.parse(results[0].content) as Record<string, unknown>;
-    const perms = parsed['permissions'] as Record<string, unknown>;
-    expect(perms['deny']).toEqual(['Bash(rm -rf)']);
-    expect(perms).not.toHaveProperty('allow');
-  });
-
-  it('emits settings.json with permissions.ask when non-empty', () => {
-    const canonical = makeCanonical({
-      permissions: { allow: [], deny: [], ask: ['WebSearch'] },
-    });
-    const results = generatePermissions(canonical);
-    expect(results).toHaveLength(1);
-    const parsed = JSON.parse(results[0].content) as Record<string, unknown>;
-    const perms = parsed['permissions'] as Record<string, unknown>;
-    expect(perms['ask']).toEqual(['WebSearch']);
-  });
-
-  it('omits ask key when ask is undefined', () => {
-    const canonical = makeCanonical({
-      permissions: { allow: ['Read'], deny: [] },
-    });
-    const results = generatePermissions(canonical);
-    expect(results).toHaveLength(1);
-    const parsed = JSON.parse(results[0].content) as Record<string, unknown>;
-    const perms = parsed['permissions'] as Record<string, unknown>;
-    expect(perms).not.toHaveProperty('ask');
-    expect(perms['allow']).toEqual(['Read']);
+  it('leaves out unmanaged lists, so the merge keeps the user lists', () => {
+    expect(generatePermissions(makeCanonical({ permissions: { allow: ['Read'] } }))).toEqual([
+      {
+        path: QWEN_SETTINGS,
+        content: JSON.stringify({ permissions: { allow: ['Read'] } }, null, 2),
+      },
+    ]);
   });
 
   it('does not emit mcpServers or hooks keys', () => {

@@ -156,6 +156,21 @@ describe('git pin helpers', () => {
     expect(execFileMock.mock.calls[0]?.[2]?.env?.GIT_ALLOW_PROTOCOL).toBe('https:ssh:http');
   });
 
+  it("drops a git hook's repo vars from the spawned git env", async () => {
+    process.env.GIT_DIR = '/hook/.git/worktrees/wt';
+    process.env.GIT_INDEX_FILE = '/hook/.git/worktrees/wt/index';
+    try {
+      queueGitSuccess('ABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCD\tHEAD\n');
+      await resolveRemoteRefForInstall('', 'https://example.com/org/repo.git');
+      const env = execFileMock.mock.calls[0]?.[2]?.env ?? {};
+      expect(env.GIT_TERMINAL_PROMPT).toBe('0');
+      expect(['GIT_DIR', 'GIT_INDEX_FILE'].filter((key) => key in env)).toEqual([]);
+    } finally {
+      delete process.env.GIT_DIR;
+      delete process.env.GIT_INDEX_FILE;
+    }
+  });
+
   it('still resolves a direct sha for any remoteUrl without validating it', async () => {
     await expect(
       resolveRemoteRefForInstall('ABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCD', 'file:///whatever'),

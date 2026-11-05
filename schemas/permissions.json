@@ -3,28 +3,46 @@
   "type": "object",
   "properties": {
     "allow": {
-      "default": [],
-      "description": "Tool calls to allow without confirmation",
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
+      "description": "Tool calls to allow without confirmation. Omit to leave the tools' own list alone",
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
     "deny": {
-      "default": [],
-      "description": "Tool calls to always deny",
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
+      "description": "Tool calls to always deny. Omit to leave the tools' own list alone",
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
     "ask": {
-      "default": [],
-      "description": "Tool calls to confirm before running",
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
+      "description": "Tool calls to confirm before running. Omit to leave the tools' own list alone",
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
     }
   },
   "additionalProperties": false,

@@ -42,6 +42,14 @@ describe('install pack (integration)', () => {
       join(ROOT, 'project', '.agentsmesh', 'rules', '_root.md'),
       '---\nroot: true\n---\n# Root\n',
     );
+    // Pack MCP servers, permissions, hooks and ignore patterns join only settings the project manages.
+    writeFileSync(join(ROOT, 'project', '.agentsmesh', 'mcp.json'), '{ "mcpServers": {} }\n');
+    writeFileSync(
+      join(ROOT, 'project', '.agentsmesh', 'permissions.yaml'),
+      'allow: []\ndeny: []\nask: []\n',
+    );
+    writeFileSync(join(ROOT, 'project', '.agentsmesh', 'hooks.yaml'), '{}\n');
+    writeFileSync(join(ROOT, 'project', '.agentsmesh', 'ignore'), '.env\n');
   });
 
   afterEach(() => {
@@ -64,7 +72,7 @@ describe('install pack (integration)', () => {
     expect(existsSync(join(project, '.claude', 'skills', 'demo', 'SKILL.md'))).toBe(true);
     expect(existsSync(join(project, '.mcp.json'))).toBe(true);
     expect(existsSync(join(project, '.claude', 'settings.json'))).toBe(true);
-    expect(existsSync(join(project, '.claudeignore'))).toBe(true);
+    expect(readFileSync(join(project, '.claudeignore'), 'utf-8')).toBe('node_modules\ndist\n.env');
   });
 
   it('updates the same pack on a second install instead of creating a duplicate pack', async () => {

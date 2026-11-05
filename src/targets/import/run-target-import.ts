@@ -11,31 +11,39 @@
  */
 
 import { join } from 'node:path';
-import { parseDocument } from 'yaml';
+import { isMap, parseDocument } from 'yaml';
 import { parsePermissionsContent } from '../../canonical/features/permissions.js';
+import { PERMISSION_LISTS } from '../../core/permissions.js';
 import { AB_IGNORE, AB_MCP, AB_PERMISSIONS } from '../../core/canonical-paths.js';
 import type { ImportResult } from '../../core/types.js';
 import { readFileSafe, writeFileAtomic } from '../../utils/filesystem/fs.js';
 import type { TargetDescriptor, TargetLayoutScope } from '../catalog/target-descriptor.js';
 import { parseMcpServers } from './mcp-merge.js';
 
-const PERMISSION_LISTS = ['allow', 'deny', 'ask'] as const;
-
 type Keeper = (path: string, before: string) => Promise<void>;
 
 async function keepPermissions(path: string, before: string): Promise<void> {
   const after = (await readFileSafe(path)) ?? '';
-  const skipBroken = (): void => undefined;
-  const earlier = parsePermissionsContent(before, path, skipBroken);
-  const now = parsePermissionsContent(after, path, skipBroken);
-  if (earlier === null || now === null) return;
+  let broken = false;
+  const skipBroken = (): void => {
+    broken = true;
+  };
+  const earlier = parsePermissionsContent(before, path, skipBroken) ?? {};
+  // A file with no list (deleted, blank or `{}`) parses to null: add the lists back.
+  const now = parsePermissionsContent(after, path, skipBroken) ?? {};
   const doc = parseDocument(after);
+  if (broken || (doc.contents !== null && !isMap(doc.contents))) return;
   let changed = false;
   for (const list of PERMISSION_LISTS) {
     const old = earlier[list];
     const cur = now[list];
-    if (old.every((entry) => cur.includes(entry))) continue;
-    doc.set(list, [...old, ...cur.filter((entry) => !old.includes(entry))]);
+    if (old === undefined) {
+      // An empty list the tool never had would start clearing that list in every tool.
+      if (cur?.length === 0) changed = doc.delete(list) || changed;
+      continue;
+    }
+    if (cur !== undefined && old.every((entry) => cur.includes(entry))) continue;
+    doc.set(list, [...old, ...(cur ?? []).filter((entry) => !old.includes(entry))]);
     changed = true;
   }
   if (changed) await writeFileAtomic(path, doc.toString());
@@ -82,7 +90,7 @@ export async function runTargetImport(
   );
   const results = await descriptor.generators.importFrom(rootBase, { scope });
   for (const { path, keep, before } of snapshots) {
-    if (before !== null) await keep(path, before);
+    await keep(path, before ?? '');
   }
   return results;
 }

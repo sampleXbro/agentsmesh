@@ -11,6 +11,7 @@
  *   - `.qwenignore`            — ignore patterns
  */
 
+import { managedLists } from '../../core/permissions.js';
 import type { FeatureGeneratorOutput } from '../catalog/target.interface.js';
 import { basename } from 'node:path';
 import type { CanonicalFiles } from '../../core/types.js';
@@ -152,16 +153,11 @@ export function generateHooks(canonical: CanonicalFiles): QwenCodeOutput[] {
 }
 
 /**
- * Generate .qwen/settings.json with permissions from canonical permissions config.
+ * Generate .qwen/settings.json with the lists permissions.yaml manages. An
+ * unmanaged list is left out, and `mergeQwenSettings` keeps the user's own.
  */
 export function generatePermissions(canonical: CanonicalFiles): QwenCodeOutput[] {
-  if (!canonical.permissions) return [];
-  const { allow, deny } = canonical.permissions;
-  const ask = canonical.permissions.ask ?? [];
-  if (allow.length === 0 && deny.length === 0 && ask.length === 0) return [];
-  const permissions: Record<string, string[]> = {};
-  if (allow.length > 0) permissions.allow = allow;
-  if (deny.length > 0) permissions.deny = deny;
-  if (ask.length > 0) permissions.ask = ask;
+  const permissions = managedLists(canonical.permissions, ['allow', 'deny', 'ask']);
+  if (Object.keys(permissions).length === 0) return [];
   return [{ path: QWEN_SETTINGS, content: JSON.stringify({ permissions }, null, 2) }];
 }

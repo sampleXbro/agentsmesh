@@ -33,7 +33,7 @@ afterEach(() => {
 
 describe('writeScaffoldFull', () => {
   it('creates the full canonical scaffold tree', async () => {
-    await writeScaffoldFull(canonical());
+    await writeScaffoldFull(canonical(), 'project');
 
     expect(existsSync(join(canonical(), 'rules', '_root.md'))).toBe(true);
     expect(existsSync(join(canonical(), 'rules', '_example.md'))).toBe(true);
@@ -50,7 +50,7 @@ describe('writeScaffoldFull', () => {
 describe('writeScaffoldGapFill — rules branch', () => {
   it('creates _root.md and _example.md when rules dir has 0 .md files', async () => {
     mkdirSync(canonical(), { recursive: true });
-    await writeScaffoldGapFill(canonical());
+    await writeScaffoldGapFill(canonical(), 'project');
 
     expect(existsSync(join(canonical(), 'rules', '_root.md'))).toBe(true);
     expect(existsSync(join(canonical(), 'rules', '_example.md'))).toBe(true);
@@ -60,7 +60,7 @@ describe('writeScaffoldGapFill — rules branch', () => {
     mkdirSync(join(canonical(), 'rules'), { recursive: true });
     writeFileSync(join(canonical(), 'rules', 'typescript.md'), '# TS rules\n');
 
-    await writeScaffoldGapFill(canonical());
+    await writeScaffoldGapFill(canonical(), 'project');
 
     expect(existsSync(join(canonical(), 'rules', '_root.md'))).toBe(true);
     // _example.md should NOT be created because rules dir already had a non-root .md
@@ -75,7 +75,7 @@ describe('writeScaffoldGapFill — rules branch', () => {
     mkdirSync(join(canonical(), 'rules'), { recursive: true });
     writeFileSync(join(canonical(), 'rules', '_root.md'), '# Imported root\n');
 
-    await writeScaffoldGapFill(canonical());
+    await writeScaffoldGapFill(canonical(), 'project');
 
     expect(readFileSync(join(canonical(), 'rules', '_root.md'), 'utf-8')).toBe('# Imported root\n');
   });
@@ -88,7 +88,7 @@ describe('writeScaffoldGapFill — commands / agents branch', () => {
     mkdirSync(join(canonical(), 'rules'), { recursive: true });
     writeFileSync(join(canonical(), 'rules', '_root.md'), '# r');
 
-    await writeScaffoldGapFill(canonical());
+    await writeScaffoldGapFill(canonical(), 'project');
 
     expect(existsSync(join(canonical(), 'commands', '_example.md'))).toBe(false);
   });
@@ -97,7 +97,7 @@ describe('writeScaffoldGapFill — commands / agents branch', () => {
     mkdirSync(join(canonical(), 'rules'), { recursive: true });
     writeFileSync(join(canonical(), 'rules', '_root.md'), '# r');
 
-    await writeScaffoldGapFill(canonical());
+    await writeScaffoldGapFill(canonical(), 'project');
 
     expect(existsSync(join(canonical(), 'agents', '_example.md'))).toBe(true);
   });
@@ -110,7 +110,7 @@ describe('writeScaffoldGapFill — skills branch', () => {
     mkdirSync(join(canonical(), 'rules'), { recursive: true });
     writeFileSync(join(canonical(), 'rules', '_root.md'), '# r');
 
-    await writeScaffoldGapFill(canonical());
+    await writeScaffoldGapFill(canonical(), 'project');
 
     expect(existsSync(join(canonical(), 'skills', '_example', 'SKILL.md'))).toBe(true);
   });
@@ -121,7 +121,7 @@ describe('writeScaffoldGapFill — skills branch', () => {
     mkdirSync(join(canonical(), 'rules'), { recursive: true });
     writeFileSync(join(canonical(), 'rules', '_root.md'), '# r');
 
-    await writeScaffoldGapFill(canonical());
+    await writeScaffoldGapFill(canonical(), 'project');
 
     expect(existsSync(join(canonical(), 'skills', '_example'))).toBe(false);
   });
@@ -132,7 +132,7 @@ describe('writeScaffoldGapFill — skills branch', () => {
     mkdirSync(join(canonical(), 'rules'), { recursive: true });
     writeFileSync(join(canonical(), 'rules', '_root.md'), '# r');
 
-    await writeScaffoldGapFill(canonical());
+    await writeScaffoldGapFill(canonical(), 'project');
 
     expect(existsSync(join(canonical(), 'skills', '_example', 'SKILL.md'))).toBe(true);
   });
@@ -141,7 +141,7 @@ describe('writeScaffoldGapFill — skills branch', () => {
     mkdirSync(join(canonical(), 'rules'), { recursive: true });
     writeFileSync(join(canonical(), 'rules', '_root.md'), '# r');
 
-    await writeScaffoldGapFill(canonical());
+    await writeScaffoldGapFill(canonical(), 'project');
 
     expect(existsSync(join(canonical(), 'skills', '_example', 'SKILL.md'))).toBe(true);
   });
@@ -155,7 +155,7 @@ describe('writeScaffoldGapFill — settings file branches', () => {
     writeFileSync(join(canonical(), 'permissions.yaml'), 'allow: []');
     writeFileSync(join(canonical(), 'ignore'), 'pre-existing\n');
 
-    await writeScaffoldGapFill(canonical());
+    await writeScaffoldGapFill(canonical(), 'project');
 
     expect(readFileSync(join(canonical(), 'mcp.json'), 'utf-8')).toBe('{"existing":true}');
     expect(readFileSync(join(canonical(), 'hooks.yaml'), 'utf-8')).toBe('existing-hooks: yes');

@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import type { Lesson, LessonsGraph } from '../../src/lessons/graph-schema.js';
 import { serializeGraph } from '../../src/lessons/graph-store.js';
 import { lesson } from './lessons-graph-fixture.js';
-import { clearEnv, commitAll, git, GIT_HOOK_ENV, initRepo, writeFile } from './temp-git-repo.js';
+import { clearEnv, commitAll, git, initRepo, writeFile } from './temp-git-repo.js';
 
 export const LESSONS_GRAPH = '.agentsmesh/lessons/lessons.json';
 
@@ -31,9 +31,9 @@ export const TWO_CAPTURES: MergeSides = {
   theirs: graphText({ b: lesson('Theirs B.'), l0: lesson('Base.') }),
 };
 
-/** Unset hook-exported git vars and ignore host git config; returns the restore function. */
+/** Ignore host git config; returns the restore function. */
 export function isolateGit(): () => void {
-  const restore = clearEnv([...GIT_HOOK_ENV, 'GIT_CONFIG_GLOBAL', 'GIT_CONFIG_NOSYSTEM']);
+  const restore = clearEnv(['GIT_CONFIG_GLOBAL', 'GIT_CONFIG_NOSYSTEM']);
   process.env.GIT_CONFIG_GLOBAL = join(tmpdir(), 'am-lessons-merge-no-global-gitconfig');
   process.env.GIT_CONFIG_NOSYSTEM = '1';
   return restore;

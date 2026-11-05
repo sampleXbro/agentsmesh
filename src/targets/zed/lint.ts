@@ -11,6 +11,7 @@
  *   - commands: the `disable-model-invocation` flag on the projected skills.
  */
 
+import { permissionEntries } from '../../core/permissions.js';
 import { AB_IGNORE, AB_PERMISSIONS } from '../../core/canonical-paths.js';
 import type { CanonicalFiles, LintDiagnostic } from '../../core/types.js';
 import { createWarning } from '../../core/lint/shared/helpers.js';
@@ -34,8 +35,7 @@ function scopeOf(options?: unknown): 'project' | 'global' {
 
 export function lintPermissions(canonical: CanonicalFiles, options?: unknown): LintDiagnostic[] {
   const permissions = canonical.permissions;
-  if (!permissions) return [];
-  const total = permissions.allow.length + permissions.deny.length + (permissions.ask?.length ?? 0);
+  const total = permissionEntries(permissions).length;
   if (total === 0) return [];
 
   if (scopeOf(options) === 'project') {

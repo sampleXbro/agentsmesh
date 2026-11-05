@@ -6,16 +6,12 @@ import { failSyntax, type ParseErrorCallback } from './syntax-error.js';
 import { parse as parseYaml } from 'yaml';
 import { readFileSafe } from '../../utils/filesystem/fs.js';
 import type { Permissions } from '../../core/types.js';
-
-function ensureStringArray(val: unknown): string[] {
-  if (!Array.isArray(val)) return [];
-  return val.filter((x): x is string => typeof x === 'string');
-}
+import { PERMISSION_LISTS } from '../../core/permissions.js';
 
 /**
  * Parse permissions.yaml at the given path.
  * @param permissionsPath - Absolute path to .agentsmesh/permissions.yaml
- * @returns Permissions or null if file missing or malformed
+ * @returns Permissions, or null if the file is missing or holds no list
  */
 export async function parsePermissions(
   permissionsPath: string,
@@ -26,13 +22,15 @@ export async function parsePermissions(
   return parsePermissionsContent(content, permissionsPath, onParseError);
 }
 
-/** Parse permissions.yaml text; `permissionsPath` only names the file in errors. */
+/**
+ * Parse permissions.yaml text; `permissionsPath` only names the file in errors.
+ * Only a key holding a YAML list is managed; a missing list stays absent.
+ */
 export function parsePermissionsContent(
   content: string,
   permissionsPath: string,
   onParseError?: ParseErrorCallback,
-): Required<Permissions> | null {
-  if (!content.trim()) return { allow: [], deny: [], ask: [] };
+): Permissions | null {
   let parsed: unknown;
   try {
     parsed = parseYaml(content) as unknown;
@@ -41,8 +39,12 @@ export function parsePermissionsContent(
   }
   if (!parsed || typeof parsed !== 'object') return null;
   const obj = parsed as Record<string, unknown>;
-  const allow = ensureStringArray(obj.allow);
-  const deny = ensureStringArray(obj.deny);
-  const ask = ensureStringArray(obj.ask);
-  return { allow, deny, ask };
+  const permissions: Permissions = {};
+  for (const list of PERMISSION_LISTS) {
+    const value = obj[list];
+    if (Array.isArray(value)) {
+      permissions[list] = value.filter((x): x is string => typeof x === 'string');
+    }
+  }
+  return Object.keys(permissions).length > 0 ? permissions : null;
 }

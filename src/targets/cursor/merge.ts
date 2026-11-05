@@ -11,13 +11,14 @@
  *   - `.cursor/cli.json` / `.cursor/cli-config.json` — THE Agent CLI config
  *     (cursor.com/docs/cli/reference/configuration): `version`, `editor` and
  *     `network` live beside `permissions`, and the CLI persists interactive
- *     approve/deny and /sandbox choices back into it. These are two DIFFERENT
+ *     approve/deny and /sandbox choices back into it. agentsmesh owns only the
+ *     `permissions` lists that permissions.yaml manages. These are two DIFFERENT
  *     strings, so both are claimed — claiming one would leave the twin on
  *     whole-file replacement.
  */
 
 import { firstMerger, type GeneratedOutputMerger } from '../catalog/target-descriptor.js';
-import { ownedJsonKeysMerger } from '../../core/generate/json-owned-keys.js';
+import { jsonContainerMerger, ownedJsonKeysMerger } from '../../core/generate/json-owned-keys.js';
 import {
   CANONICAL_MCP_SERVER_KEYS,
   mcpServersJsonMerger,
@@ -31,9 +32,9 @@ import {
 
 const mergeMcp = mcpServersJsonMerger([CURSOR_MCP], CANONICAL_MCP_SERVER_KEYS);
 const mergeHooks = ownedJsonKeysMerger([CURSOR_HOOKS], ['version', 'hooks']);
-const mergePermissions = ownedJsonKeysMerger(
+const mergePermissions = jsonContainerMerger(
   [CURSOR_CLI_JSON, CURSOR_GLOBAL_CLI_CONFIG],
-  ['permissions'],
+  'permissions',
 );
 
 export const mergeCursorOutput: GeneratedOutputMerger = firstMerger([

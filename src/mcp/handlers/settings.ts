@@ -107,14 +107,12 @@ export const settingsHandlers = {
     },
   ): Promise<{ path: string; written: boolean }> {
     const path = resolve(ctx.projectRoot, '.agentsmesh/permissions.yaml');
-    const current = (await readYaml<{ allow?: string[]; deny?: string[]; ask?: string[] }>(
-      ctx.projectRoot,
-      path,
-    )) ?? {
-      allow: [],
-      deny: [],
-      ask: [],
-    };
+    // A list the input leaves out is not written: a missing list stays unmanaged.
+    const current =
+      (await readYaml<{ allow?: string[]; deny?: string[]; ask?: string[] }>(
+        ctx.projectRoot,
+        path,
+      )) ?? {};
     const next = { ...current };
     const apply = (k: 'allow' | 'deny' | 'ask', v: string[] | undefined): void => {
       if (v === undefined) return;

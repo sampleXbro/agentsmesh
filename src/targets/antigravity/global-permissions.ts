@@ -25,6 +25,7 @@ import type {
 } from '../../core/types.js';
 import { mkdirp, readFileSafe, writeFileAtomic } from '../../utils/filesystem/fs.js';
 import { computeStatus } from '../../core/generate/feature-loop.js';
+import { managedLists } from '../../core/permissions.js';
 import { toStringArray } from '../import/shared-import-helpers.js';
 import { ANTIGRAVITY_TARGET, ANTIGRAVITY_GLOBAL_SETTINGS_FILE } from './constants.js';
 
@@ -47,34 +48,27 @@ function parseJsonObject(content: string | null): Json {
   return {};
 }
 
-function ownedLists(permissions: Permissions | null): Json {
-  if (!permissions) return {};
-  const lists: Json = {};
-  if (permissions.allow.length > 0) lists.allow = permissions.allow;
-  if (permissions.deny.length > 0) lists.deny = permissions.deny;
-  if ((permissions.ask ?? []).length > 0) lists.ask = permissions.ask;
-  return lists;
-}
-
 /**
- * Merge canonical permissions into an existing settings.json. `null` means
- * "leave the file alone": canonical says nothing and no owned key is on disk to
- * clear, so a blank permissions.yaml never overrides Antigravity's defaults.
+ * Merge canonical permissions into an existing settings.json. Only the lists
+ * permissions.yaml manages are written: an empty one is removed from the file,
+ * and an unmanaged one keeps the user's value. `null` means "leave the file
+ * alone": no list is managed, or nothing to write and no file.
  */
 export function serializeAntigravitySettings(
   permissions: Permissions | null,
   existingContent: string | null,
 ): string | null {
-  const lists = ownedLists(permissions);
+  const lists = managedLists(permissions, OWNED_KEYS);
+  if (Object.keys(lists).length === 0) return null;
   const root = parseJsonObject(existingContent);
   const block = isRecord(root.permissions) ? { ...root.permissions } : {};
-  const ownsKeyOnDisk = OWNED_KEYS.some((key) => key in block);
-  if (Object.keys(lists).length === 0 && !ownsKeyOnDisk) return null;
-
-  for (const key of OWNED_KEYS) delete block[key];
-  const merged = { ...block, ...lists };
-  if (Object.keys(merged).length === 0) delete root.permissions;
-  else root.permissions = merged;
+  for (const [key, entries] of Object.entries(lists)) {
+    if (entries.length > 0) block[key] = entries;
+    else delete block[key];
+  }
+  if (Object.keys(block).length === 0) delete root.permissions;
+  else root.permissions = block;
+  if (existingContent === null && Object.keys(root).length === 0) return null;
   return JSON.stringify(root, null, 2) + '\n';
 }
 

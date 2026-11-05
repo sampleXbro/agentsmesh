@@ -13,11 +13,28 @@ import { z } from 'zod';
 // about minimal configs). Runtime parser still substitutes the documented
 // default when the user omits the field; the inferred TS type stays `T`,
 // never `T | undefined`.
+
+// A missing list, or a key with no list (`deny:`), is unmanaged: generate
+// leaves the tool's own list alone.
 export const permissionsSchema = z
   .object({
-    allow: z.array(z.string()).default([]).describe('Tool calls to allow without confirmation'),
-    deny: z.array(z.string()).default([]).describe('Tool calls to always deny'),
-    ask: z.array(z.string()).default([]).describe('Tool calls to confirm before running'),
+    allow: z
+      .array(z.string())
+      .nullable()
+      .optional()
+      .describe(
+        "Tool calls to allow without confirmation. Omit to leave the tools' own list alone",
+      ),
+    deny: z
+      .array(z.string())
+      .nullable()
+      .optional()
+      .describe("Tool calls to always deny. Omit to leave the tools' own list alone"),
+    ask: z
+      .array(z.string())
+      .nullable()
+      .optional()
+      .describe("Tool calls to confirm before running. Omit to leave the tools' own list alone"),
   })
   .describe('Permission allow/deny lists for AI tool calls (.agentsmesh/permissions.yaml)');
 

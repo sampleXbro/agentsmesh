@@ -15,7 +15,6 @@ import type { CanonicalFiles, LintDiagnostic } from '../../core/types.js';
 import { createWarning } from '../../core/lint/shared/helpers.js';
 import {
   buildDefaultTools,
-  hasPermissionEntries,
   unmappedPermissionEntries,
   PI_BUILTIN_TOOLS,
 } from './permissions-format.js';
@@ -35,7 +34,6 @@ export const lintHooks = unsupportedFeature(
  * switched off — writing the key disables everything it omits.
  */
 export function lintPermissions(canonical: CanonicalFiles): LintDiagnostic[] {
-  if (!hasPermissionEntries(canonical.permissions)) return [];
   const unmapped = unmappedPermissionEntries(canonical.permissions);
   const diagnostics: LintDiagnostic[] = [];
   const warn = (message: string): number =>
@@ -53,6 +51,8 @@ export function lintPermissions(canonical: CanonicalFiles): LintDiagnostic[] {
     warn(`Pi has no ask tier; ${unmapped.ask.join(', ')} are dropped.`);
   }
 
+  // `defaultTools` is written only while permissions.yaml manages `allow`.
+  if (canonical.permissions?.allow === undefined) return diagnostics;
   const enabled = buildDefaultTools(canonical.permissions);
   // `powershell` has no canonical name, so something is always switched off.
   const disabled = PI_BUILTIN_TOOLS.filter((tool) => !enabled.includes(tool));

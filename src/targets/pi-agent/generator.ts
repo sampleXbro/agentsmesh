@@ -21,7 +21,7 @@ import {
   projectedAgentSkillDirName,
   serializeProjectedAgentSkill,
 } from '../projection/projected-agent-skill.js';
-import { buildDefaultTools, hasPermissionEntries } from './permissions-format.js';
+import { buildDefaultTools } from './permissions-format.js';
 import {
   PI_AGENT_TARGET,
   PI_AGENT_ROOT_FILE,
@@ -70,15 +70,15 @@ export const generateIgnore = NO_OUTPUTS;
  * already holds. Note a project array REPLACES the global one rather than
  * extending it, so the project file must be a complete allow-list on its own.
  *
- * The key is written even when the projection is empty. `defaultTools: []` says
- * "canonical pre-approves no Pi built-in", which is what a permissions file of
- * command patterns and path globs really projects to; omitting the key instead
- * would re-enable every built-in the user had switched off. `lintPermissions`
- * names each one. Revoking canonical entirely is handled by `scopeExtras`,
- * which can see the file on disk (see `permissions-revoke.ts`).
+ * The key is written only when permissions.yaml manages `allow`, and then even
+ * when the projection is empty. `defaultTools: []` says "canonical pre-approves
+ * no Pi built-in", which is what a permissions file of command patterns and
+ * path globs really projects to; omitting the key instead would re-enable every
+ * built-in the user had switched off. `lintPermissions` names each one. With
+ * `allow` unmanaged the user's own `defaultTools` stays as it is.
  */
 export function generatePermissions(canonical: CanonicalFiles): PiAgentOutput[] {
-  if (!hasPermissionEntries(canonical.permissions)) return [];
+  if (canonical.permissions?.allow === undefined) return [];
   const defaultTools = buildDefaultTools(canonical.permissions);
   return [{ path: PI_AGENT_SETTINGS_FILE, content: JSON.stringify({ defaultTools }, null, 2) }];
 }

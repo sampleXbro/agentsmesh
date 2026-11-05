@@ -16,7 +16,11 @@ const crushIncomingSchema = z
 const claudeIncomingSchema = z
   .object({
     permissions: z
-      .object({ allow: z.array(z.string()).optional(), deny: z.array(z.string()).optional() })
+      .object({
+        allow: z.array(z.string()).optional(),
+        deny: z.array(z.string()).optional(),
+        ask: z.array(z.string()).optional(),
+      })
       .passthrough()
       .optional(),
     hooks: z.record(z.string(), z.unknown()).optional(),
@@ -57,17 +61,13 @@ export function mergeSettingsJson(existing: string, newContent: string): string 
   const base = parseJsonObject(existing);
   const incoming = claudeIncomingSchema.parse(JSON.parse(newContent));
   const merged = { ...base };
-  // Key-scoped inside `permissions` too: agentsmesh owns allow/deny/ask, while
-  // `defaultMode` and `additionalDirectories` are the user's. A wholesale
-  // replace dropped them on every write.
+  // Key-scoped inside `permissions` too: agentsmesh owns the allow/deny/ask lists
+  // that permissions.yaml manages, while unmanaged lists, `defaultMode` and
+  // `additionalDirectories` are the user's. A wholesale replace dropped them.
   if (incoming.permissions !== undefined) {
     merged.permissions = { ...asRecord(base.permissions), ...incoming.permissions };
   }
   if (incoming.hooks !== undefined) merged.hooks = incoming.hooks;
-  const perms = merged.permissions;
-  if (perms && typeof perms === 'object' && !Array.isArray(perms) && !('ask' in perms)) {
-    (perms as Record<string, unknown>).ask = [];
-  }
   return JSON.stringify(merged, null, 2);
 }
 

@@ -114,3 +114,5 @@ Priority order:
 3. Extended sources (`extends` in `agentsmesh.yaml`)
 
 Hooks are the exception: a pack's hooks are never dropped. Two packs with hooks on the same event are combined, and a pack adds to an extends source's hooks for that event instead of replacing them. When your `hooks.yaml` defines the same event, your hooks come first and the pack's hooks follow. A pack hook with the same type, matcher and command (or prompt text) as one of yours is the same hook, and your copy wins. To drop a pack hook, uninstall the pack or leave `hooks` out of its features.
+
+Settings have one more rule: a pack's MCP servers, permission lists, hooks and ignore patterns are only added to settings you manage in your own `mcp.json`, `permissions.yaml`, `hooks.yaml` and `ignore`. If a file is missing or leaves that setting commented out, or your `ignore` has no patterns, generate skips that part of the pack with a warning and leaves the settings in your tools alone. See [install](../../cli/install/#elevated-artifacts-hooks-permissions-mcp) and [Ignore patterns](../../canonical-config/ignore-patterns/#patterns-from-packs-and-extends).

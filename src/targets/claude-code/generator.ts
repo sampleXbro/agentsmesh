@@ -156,8 +156,8 @@ export function generateSkills(canonical: CanonicalFiles): RulesOutput[] {
  */
 export function generatePermissions(canonical: CanonicalFiles): RulesOutput[] {
   if (!canonical.permissions) return [];
-  const { allow, deny } = canonical.permissions;
-  const ask = canonical.permissions.ask ?? [];
+  // An unmanaged list is left out, so the key-scoped merge keeps the user's own.
+  const { allow, deny, ask } = canonical.permissions;
   const content = JSON.stringify({ permissions: { allow, deny, ask } }, null, 2);
   return [{ path: CLAUDE_SETTINGS, content }];
 }

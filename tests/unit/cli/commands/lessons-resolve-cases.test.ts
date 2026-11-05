@@ -9,21 +9,13 @@
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { runLessons } from '../../../../src/cli/commands/lessons.js';
 import type { LessonsResolveData } from '../../../../src/cli/commands/lessons-types.js';
 import type { Lesson, LessonsGraph } from '../../../../src/lessons/graph-schema.js';
 import { serializeGraph } from '../../../../src/lessons/graph-store.js';
 import { lesson } from '../../../helpers/lessons-graph-fixture.js';
-import {
-  clearEnv,
-  commitAll,
-  git,
-  GIT_HOOK_ENV,
-  initRepo,
-  tryGit,
-  writeFile,
-} from '../../../helpers/temp-git-repo.js';
+import { commitAll, git, initRepo, tryGit, writeFile } from '../../../helpers/temp-git-repo.js';
 
 const GRAPH = '.agentsmesh/lessons/lessons.json';
 let repo: string;
@@ -67,11 +59,6 @@ async function resolve(): Promise<{ exitCode: number; data: LessonsResolveData; 
   return r;
 }
 
-let restoreEnv: () => void;
-beforeAll(() => {
-  restoreEnv = clearEnv(GIT_HOOK_ENV);
-});
-afterAll(() => restoreEnv());
 beforeEach(() => {
   repo = mkdtempSync(join(tmpdir(), 'am-resolve-cases-'));
 });

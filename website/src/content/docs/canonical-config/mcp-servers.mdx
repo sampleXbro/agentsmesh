@@ -96,6 +96,12 @@ Use `$VAR_NAME` syntax for environment variables. They are resolved at runtime b
 | `url` | `string` | url only | HTTP endpoint URL. |
 | `headers` | `object` | url only | HTTP headers (e.g., auth tokens). |
 
+## Servers from packs and extends
+
+Installed packs and `extends` sources can ship their own `mcp.json`. Their servers are added to the list in your own `mcp.json`, and your server wins when both use the same name. Generate then writes the whole list to each tool, so a server that is only in a tool's own config can be dropped.
+
+This happens only when your own `mcp.json` has a `mcpServers` key. Without it (no file, or the key commented out, as `init --global` scaffolds it), AgentsMesh does not manage your tools' MCP servers: generate skips the servers from packs and `extends` and prints a warning, and the servers in your tools stay as they are. To start managing them, run `agentsmesh import --from <tool>` (add `--global` for `~/.agentsmesh`) to copy in the servers your tools already have, then run `agentsmesh generate`.
+
 ## Tool-specific behavior
 
 See the **MCP Servers** row in the [supported tools matrix](../../reference/supported-tools/) for per-target support levels (native, partial, or unsupported).

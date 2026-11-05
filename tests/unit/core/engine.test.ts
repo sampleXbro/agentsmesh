@@ -544,13 +544,19 @@ describe('generate', () => {
     expect(results.map((r) => r.path).sort()).toEqual([
       '.claude/settings.json',
       '.cursor/AGENTS.md',
+      '.cursor/cli.json',
       '.cursor/rules/general.mdc',
       'AGENTS.md',
       'CLAUDE.md',
     ]);
+    // `ask` is not in canonical, so it is unmanaged and not written.
     const permissions = results.find((r) => r.path === '.claude/settings.json');
     expect(JSON.parse(permissions?.content ?? '{}')).toEqual({
-      permissions: { allow: [], deny: [], ask: [] },
+      permissions: { allow: [], deny: [] },
+    });
+    const cursor = results.find((r) => r.path === '.cursor/cli.json');
+    expect(JSON.parse(cursor?.content ?? '{}')).toEqual({
+      permissions: { allow: [], deny: [] },
     });
   });
 
@@ -577,7 +583,7 @@ describe('generate', () => {
     const claudePerm = results.find((r) => r.path === '.claude/settings.json');
     expect(claudePerm).toBeDefined();
     const parsed = JSON.parse(claudePerm!.content) as Record<string, unknown>;
-    expect(parsed.permissions).toEqual({ allow: ['Read'], deny: [], ask: [] });
+    expect(parsed.permissions).toEqual({ allow: ['Read'], deny: [] });
     expect(parsed.hooks).toBeDefined();
     expect((parsed.hooks as Record<string, unknown>).PostToolUse).toBeDefined();
   });
@@ -748,7 +754,7 @@ describe('generate hooks', () => {
     const claudeSettings = results.find((r) => r.path === '.claude/settings.json');
     expect(claudeSettings).toBeDefined();
     const parsed = JSON.parse(claudeSettings!.content) as Record<string, unknown>;
-    expect(parsed.permissions).toEqual({ allow: ['Read'], deny: [], ask: [] });
+    expect(parsed.permissions).toEqual({ allow: ['Read'], deny: [] });
     expect(parsed.hooks).toBeDefined();
     const hooks = parsed.hooks as Record<string, unknown>;
     expect(hooks.PostToolUse).toBeDefined();
@@ -775,7 +781,6 @@ describe('generate hooks', () => {
     expect(claudeParsed.permissions).toEqual({
       allow: ['Bash(pnpm test)'],
       deny: [],
-      ask: [],
     });
     expect(claudeParsed.hooks).toBeDefined();
     expect((claudeParsed.hooks as Record<string, unknown>).PostToolUse).toBeDefined();
@@ -2022,8 +2027,8 @@ describe('generate Windsurf', () => {
     const parsed = JSON.parse(permResult!.content) as Record<string, unknown>;
     expect(parsed).toHaveProperty('permissions');
     const perms = parsed.permissions as Record<string, unknown>;
-    expect(perms.allow).toEqual(['Read']);
-    expect(perms).not.toHaveProperty('deny');
+    // A managed empty `deny` is written, so generate clears Cursor's deny list.
+    expect(perms).toEqual({ allow: ['Read'], deny: [] });
     expect(results.find((r) => r.path === '.cursor/settings.json')).toBeUndefined();
   });
 

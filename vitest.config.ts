@@ -23,6 +23,8 @@ export default defineConfig({
       GIT_CONFIG_VALUE_0: '',
       AGENTSMESH_CACHE: REMOTE_CACHE,
     },
+    // Git hooks export GIT_DIR/GIT_INDEX_FILE; inherited, test git hits the real repo.
+    setupFiles: ['./tests/setup/isolate-git-env.ts'],
     testTimeout: 60_000,
     // Parity with vitest.e2e.config.ts: this config also runs tests/e2e, whose
     // setup hooks spawn the built CLI plus git. 10s tripped on a Windows runner.

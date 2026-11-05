@@ -11,6 +11,7 @@
 
 import { loadScopedConfig } from '../../config/core/scope.js';
 import { maybeRunInstallSync } from './install-sync.js';
+import { replayPaths } from './install-replay.js';
 import type { InstallCommandResult, RunInstallLockedArgs } from './run-install-locked.js';
 import type { InstallExecuteResult } from './run-install-execute.js';
 
@@ -23,12 +24,13 @@ export async function handleSync(
   const { context } = await loadScopedConfig(projectRoot, scope);
   const syncInstalled: InstallExecuteResult['installed'] = [];
   const syncSkipped: InstallExecuteResult['skipped'] = [];
+  // The last replay's generate saw every pack, so its list is the final one.
+  let skippedSettings: InstallExecuteResult['skippedSettings'];
   const handled = await maybeRunInstallSync({
     sync,
     canonicalDir: context.canonicalDir,
     reinstall: async (entry) => {
-      const replayPaths = entry.paths && entry.paths.length > 0 ? entry.paths : [entry.path];
-      for (const replayPath of replayPaths) {
+      for (const replayPath of replayPaths(entry)) {
         const result = await recurseInstall(
           {
             ...(force ? { force: true } : {}),
@@ -55,6 +57,7 @@ export async function handleSync(
         );
         syncInstalled.push(...result.data.installed);
         syncSkipped.push(...result.data.skipped);
+        skippedSettings = result.data.skippedSettings;
       }
     },
   });
@@ -67,6 +70,7 @@ export async function handleSync(
       installed: syncInstalled,
       skipped: syncSkipped,
       dryRun,
+      ...(skippedSettings ? { skippedSettings } : {}),
     },
   };
 }

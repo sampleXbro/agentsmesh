@@ -8,8 +8,8 @@ import { isRecord } from '../../utils/types/guards.js';
 import { parse as parseToml, stringify as stringifyToml } from 'smol-toml';
 import type { Permissions } from '../../core/types.js';
 import {
-  OWNED_PROFILE_KEYS,
   buildWarpAgentProfile,
+  ownedProfileKeys,
   profileToPermissions,
   type WarpAgentProfile,
 } from './permissions-format.js';
@@ -32,18 +32,16 @@ function tableCopy(root: Record<string, unknown>, key: string): Record<string, u
 
 /** Nothing to say: no command, read or mode key carries canonical content. */
 function isEmptyProjection(profile: WarpAgentProfile): boolean {
-  return (
-    Object.keys(profile).length === 1 &&
-    (profile.agent_mode_command_execution_allowlist?.length ?? 0) === 0
-  );
+  return Object.values(profile).every((value) => Array.isArray(value) && value.length === 0);
 }
 
 /**
- * Merge canonical permissions into an existing `settings.toml`: the four owned
- * keys are replaced (or removed), every other key survives — this is the user's
- * own settings file, not an agentsmesh artifact. `null` means "leave the file
- * alone": canonical says nothing and no owned key is on disk to clear, so a
- * blank `permissions.yaml` never overrides Warp's own defaults.
+ * Merge canonical permissions into an existing `settings.toml`: the owned keys
+ * of each managed list are replaced (or removed), every other key survives —
+ * this is the user's own settings file, not an agentsmesh artifact. Keys of a
+ * list permissions.yaml does not manage stay the user's. `null` means "leave
+ * the file alone": canonical says nothing and no owned key is on disk to clear,
+ * so an empty list never overrides Warp's own defaults.
  */
 export function serializeWarpSettings(
   permissions: Permissions | null,
@@ -55,10 +53,11 @@ export function serializeWarpSettings(
   const root = parseTomlObject(existingContent);
   const agents = tableCopy(root, 'agents');
   const profiles = tableCopy(agents, 'profiles');
-  const ownsKeyOnDisk = OWNED_PROFILE_KEYS.some((key) => key in profiles);
+  const ownedKeys = ownedProfileKeys(permissions);
+  const ownsKeyOnDisk = ownedKeys.some((key) => key in profiles);
   if (isEmptyProjection(profile) && !ownsKeyOnDisk) return null;
 
-  for (const key of OWNED_PROFILE_KEYS) delete profiles[key];
+  for (const key of ownedKeys) delete profiles[key];
   agents.profiles = { ...profiles, ...profile };
   return stringifyToml({ ...root, agents }).trimEnd() + '\n';
 }

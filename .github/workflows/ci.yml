@@ -13,6 +13,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # Node 20 is the engines floor (>=20.19.0); keep it tested until engines drops it.
+          - os: ubuntu-latest
+            node-version: 20
           - os: ubuntu-latest
             node-version: 22
           - os: ubuntu-latest

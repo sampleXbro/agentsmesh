@@ -11,8 +11,7 @@ import { createWarning } from '../../core/lint/shared/helpers.js';
  */
 export function lintPermissions(canonical: CanonicalFiles, options?: unknown): LintDiagnostic[] {
   if (!canonical.permissions) return [];
-  const { allow, deny } = canonical.permissions;
-  const ask = canonical.permissions.ask ?? [];
+  const { allow = [], deny = [], ask = [] } = canonical.permissions;
   const scope = (options as { scope?: TargetLayoutScope } | undefined)?.scope;
 
   if (scope === 'global') {

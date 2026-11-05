@@ -81,16 +81,32 @@ describe('permissionsSchema → JSON Schema', () => {
     expect(schema).toMatchObject({ type: 'object' });
   });
 
-  it('has allow, deny, ask as arrays of strings', () => {
+  it('has allow, deny, ask as arrays of strings, or null for a key with no list', () => {
     const schema = z.toJSONSchema(permissionsSchema, { unrepresentable: 'any' }) as Record<
       string,
       unknown
     >;
-    const props = schema.properties as Record<string, unknown>;
+    const props = schema.properties as Record<string, { anyOf: Array<Record<string, unknown>> }>;
     for (const field of ['allow', 'deny', 'ask']) {
-      const f = props[field] as Record<string, unknown>;
-      expect(f.type).toBe('array');
+      expect(props[field]!.anyOf).toEqual([
+        { type: 'array', items: { type: 'string' } },
+        { type: 'null' },
+      ]);
     }
+  });
+
+  it('keeps every list optional with no default, since a missing list is unmanaged', () => {
+    const schema = z.toJSONSchema(permissionsSchema, { unrepresentable: 'any' }) as Record<
+      string,
+      unknown
+    >;
+    const props = schema.properties as Record<string, Record<string, unknown>>;
+    expect(schema.required).toBeUndefined();
+    expect(['allow', 'deny', 'ask'].map((field) => props[field]!.default)).toEqual([
+      undefined,
+      undefined,
+      undefined,
+    ]);
   });
 });
 

@@ -114,6 +114,25 @@ describe('buildKiroPermissionsYaml — hand-written rules survive a regenerate',
     ]);
   });
 
+  it('leaves the file alone when no permissions.yaml list is managed', () => {
+    expect(buildKiroPermissionsYaml(null, HAND_WRITTEN)).toBeNull();
+  });
+
+  it('keeps the rules of an effect permissions.yaml does not manage', () => {
+    const content = buildKiroPermissionsYaml({ deny: ['Bash(rm:*)'] }, HAND_WRITTEN)!;
+    expect((parseYaml(content) as { rules: unknown[] }).rules).toEqual([
+      {
+        capability: 'fs_write',
+        match: ['**'],
+        exclude: ['.env', 'secrets/**'],
+        effect: 'allow',
+      },
+      { capability: 'mcp', effect: 'ask' },
+      { capability: 'fs_read', effect: 'allow' },
+      { capability: 'shell', match: ['rm*'], effect: 'deny' },
+    ]);
+  });
+
   it('leaves an unparsable or non-map permissions file completely alone', () => {
     expect(buildKiroPermissionsYaml({ allow: ['Read'], deny: [] }, '\tnot: [valid')).toBeNull();
     expect(buildKiroPermissionsYaml({ allow: ['Read'], deny: [] }, '- a\n- b\n')).toBeNull();

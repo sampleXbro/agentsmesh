@@ -30,7 +30,6 @@ import {
 import type { TargetDescriptor } from '../../../../src/targets/catalog/target-descriptor.js';
 import type { CanonicalFiles, GenerateResult } from '../../../../src/core/types.js';
 import { zedScopeExtras } from '../../../../src/targets/zed/scope-extras.js';
-import { revokePiAgentPermissions } from '../../../../src/targets/pi-agent/permissions-revoke.js';
 import { clearAiderConf } from '../../../../src/targets/aider/conf-file.js';
 
 let root = '';
@@ -195,22 +194,6 @@ describe('generators that merge internally survive the shared policy', () => {
     );
     expect(merged).toBe(extras[0]!.content);
   }
-
-  it('pi-agent: the revoked settings.json survives its own merge hook', async () => {
-    const onDisk = JSON.stringify(
-      { model: 'gpt', defaultTools: ['read', 'bash', 'userTool'] },
-      null,
-      2,
-    );
-    seed('.pi/settings.json', onDisk);
-    const extras = await revokePiAgentPermissions(
-      canonical(),
-      root,
-      'project',
-      new Set(['permissions']),
-    );
-    await assertIdempotent('pi-agent', extras, onDisk);
-  });
 
   it('aider: the cleared .aider.conf.yml survives its own merge hook', async () => {
     const onDisk = ['model: gpt-4o', '# agentsmesh: generated', 'lint-cmd: npm run lint', ''].join(

@@ -82,8 +82,9 @@ describe('global mode round-trip: Claude Code', () => {
     validJson(join(homeDir, '.claude', 'settings.json'));
     const settings = JSON.parse(readText(join(homeDir, '.claude', 'settings.json')));
     expect(settings.permissions?.allow).toContain('Read');
-    expect(settings.permissions?.deny).toEqual([]);
-    expect(settings.permissions?.ask).toEqual([]);
+    // deny and ask are not in permissions.yaml, so they stay unmanaged and unwritten.
+    expect(settings.permissions?.deny).toBeUndefined();
+    expect(settings.permissions?.ask).toBeUndefined();
 
     // 4. Skills primary (docs: ~/.claude/skills/<skill>/SKILL.md)
     fileExists(join(homeDir, '.claude', 'skills', 'test-skill', 'SKILL.md'));

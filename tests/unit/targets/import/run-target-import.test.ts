@@ -103,6 +103,22 @@ describe('runTargetImport', () => {
     expect([perms(), read(IGNORE)]).toEqual([{ deny: ['Secret'] }, 'keep/\n']);
   });
 
+  it('restores the lists when the import leaves a permissions file with no list', async () => {
+    write(PERMS, 'allow:\n  - Read\n');
+
+    await importWith(() => write(PERMS, '{}\n'));
+
+    expect(perms()).toEqual({ allow: ['Read'] });
+  });
+
+  it('leaves a permissions file the import broke as it is', async () => {
+    write(PERMS, 'allow:\n  - Read\n');
+
+    await importWith(() => write(PERMS, 'allow: [unclosed\n'));
+
+    expect(read(PERMS)).toBe('allow: [unclosed\n');
+  });
+
   it('keeps what the import wrote when the earlier files are broken', async () => {
     write(PERMS, 'allow: [unclosed\n');
     write(MCP, '{ not json');

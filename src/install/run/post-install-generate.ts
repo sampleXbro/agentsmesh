@@ -16,14 +16,16 @@
 import { runGenerate } from '../../cli/commands/generate.js';
 import { renderGenerate } from '../../cli/renderers/generate.js';
 import { logger } from '../../utils/output/logger.js';
+import type { SkippedSettings } from '../../canonical/load/unmanaged-settings.js';
 
 export type PostGenerateMode = 'install' | 'uninstall' | 'refresh';
 
+/** Returns the settings the generate skipped from packs and extends; empty if it threw. */
 export async function runPostOperationGenerate(
   mode: PostGenerateMode,
   scope: 'project' | 'global',
   rootBase: string,
-): Promise<void> {
+): Promise<SkippedSettings[]> {
   const action =
     mode === 'install'
       ? 'Pack is installed'
@@ -39,9 +41,11 @@ export async function runPostOperationGenerate(
     if (genResult.exitCode !== 0) {
       logger.warn(`Generate failed after ${mode}. ${action}; run agentsmesh generate${genFlag}.`);
     }
+    return genResult.data.skippedSettings ?? [];
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     logger.warn(`Generate failed after ${mode}: ${msg}`);
     logger.warn(`${action}; run agentsmesh generate${genFlag} after resolving the issue.`);
+    return [];
   }
 }

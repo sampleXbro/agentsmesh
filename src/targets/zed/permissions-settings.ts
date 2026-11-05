@@ -16,6 +16,7 @@
 
 import { isRecord } from '../../utils/types/guards.js';
 import type { Permissions } from '../../core/types.js';
+import { PERMISSION_LISTS } from '../../core/permissions.js';
 import { ZED_OWNED_TOOL_KEYS, toZedRule, fromZedRule } from './permissions-map.js';
 
 export type ZedDecision = 'allow' | 'deny' | 'confirm';
@@ -95,7 +96,7 @@ export function parseZedPermissions(settings: Record<string, unknown>): Permissi
   const tools = readTools(settings);
   if (tools === null) return null;
 
-  const result: Permissions = { allow: [], deny: [], ask: [] };
+  const result: Required<Permissions> = { allow: [], deny: [], ask: [] };
   for (const [tool, rawEntry] of Object.entries(tools)) {
     if (!isRecord(rawEntry)) continue;
     for (const { list, key, decision } of DECISIONS) {
@@ -110,8 +111,10 @@ export function parseZedPermissions(settings: Record<string, unknown>): Permissi
     }
   }
 
-  const total = result.allow.length + result.deny.length + (result.ask?.length ?? 0);
-  return total === 0 ? null : result;
+  // Only the lists Zed sets: an empty one would start clearing that list elsewhere.
+  const parsed: Permissions = {};
+  for (const list of PERMISSION_LISTS) if (result[list].length > 0) parsed[list] = result[list];
+  return Object.keys(parsed).length === 0 ? null : parsed;
 }
 
 /** Canonical entries Zed has no permission tool for, in allow/deny/ask order. */

@@ -23,7 +23,7 @@ export const INSTALL_METHODS = Object.freeze([
   {
     id: 'npm',
     label: 'npm',
-    note: 'Node.js 20+',
+    note: 'Node.js 20.19+',
     command: 'npm install -D agentsmesh',
   },
 ]);

@@ -2,6 +2,7 @@ import type { McpContext } from '../context.js';
 import { loadProjectContext, lint as engineLint, diff as engineDiff } from '../../public/index.js';
 import { runCheck } from '../../cli/commands/check.js';
 import { runGenerate } from '../../cli/commands/generate.js';
+import { unmanagedSettingsMessage } from '../../canonical/load/unmanaged-settings.js';
 import {
   type CheckHandlerResult,
   type DiffHandlerResult,
@@ -46,12 +47,14 @@ async function generate(
       byTarget[f.target] = { filesWritten: entry.filesWritten + 1 };
     }
 
+    const skippedSettings = data.skippedSettings ?? [];
     const result: GenerateHandlerResult = {
       filesWritten: written.length,
       byTarget,
       lockfileUpdated: lockWritten,
       errors: [],
-      warnings: [],
+      warnings: skippedSettings.map(unmanagedSettingsMessage),
+      skippedSettings,
     };
 
     if (input.verbose === true) result.files = data.files.map((f) => f.path);

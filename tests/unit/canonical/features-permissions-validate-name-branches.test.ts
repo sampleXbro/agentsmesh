@@ -27,10 +27,10 @@ afterEach(() => {
 });
 
 describe('parsePermissions — branch coverage', () => {
-  it('returns empty permissions when file is whitespace-only', async () => {
+  it('returns null when file is whitespace-only', async () => {
     const p = join(dir, 'permissions.yaml');
     writeFileSync(p, '   \n  \n');
-    expect(await parsePermissions(p)).toEqual({ allow: [], deny: [], ask: [] });
+    expect(await parsePermissions(p)).toBeNull();
   });
 
   it('rejects when YAML parse fails', async () => {

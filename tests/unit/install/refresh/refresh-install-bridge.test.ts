@@ -181,33 +181,6 @@ describe('createRunInstallForRefresh', () => {
     expect(args[0]).toBe('git+https://example.com/repo.git#newsha456');
   });
 
-  it('passes all: true when the manifest entry has paths (marketplace --all install)', async () => {
-    const entry: InstallManifestEntry = {
-      name: 'composio-pack',
-      source: 'github:org/repo',
-      source_kind: 'github',
-      features: ['skills'],
-      paths: ['plugins/a', 'plugins/b'],
-    };
-    const fn = createRunInstallForRefresh({ projectRoot: '/tmp/x', scope: 'project' });
-    await fn(entry, 'newsha');
-
-    expect(mockRunInstall).toHaveBeenCalledWith(
-      expect.objectContaining({ all: true, force: true, forceFreshMaterialize: true }),
-      expect.any(Array),
-      '/tmp/x',
-      expect.any(Object),
-    );
-  });
-
-  it('does not set all when the manifest entry has no paths field', async () => {
-    const fn = createRunInstallForRefresh({ projectRoot: '/proj', scope: 'project' });
-    await fn(baseEntry, 'newsha');
-
-    const [flags] = mockRunInstall.mock.calls[0]!;
-    expect(flags.all).toBeUndefined();
-  });
-
   it('falls back to entry.source when source cannot be parsed', async () => {
     const entry: InstallManifestEntry = {
       ...baseEntry,

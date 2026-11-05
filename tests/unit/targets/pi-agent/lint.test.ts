@@ -44,10 +44,15 @@ describe('lintPermissions (pi-agent)', () => {
     expect(lintPermissions(makeCanonical())).toHaveLength(0);
   });
 
-  it('returns empty when permissions are all empty', () => {
-    expect(
-      lintPermissions(makeCanonical({ permissions: { allow: [], deny: [], ask: [] } })),
-    ).toHaveLength(0);
+  it('returns empty when allow is unmanaged and the other lists are empty', () => {
+    expect(lintPermissions(makeCanonical({ permissions: { deny: [], ask: [] } }))).toHaveLength(0);
+  });
+
+  it('warns that a managed empty allow list switches every built-in off', () => {
+    const result = lintPermissions(makeCanonical({ permissions: { allow: [] } }));
+    expect(result.map((d) => d.message)).toEqual([
+      expect.stringContaining('Pi starts with no tools'),
+    ]);
   });
 
   it('warns when permissions have allow entries', () => {

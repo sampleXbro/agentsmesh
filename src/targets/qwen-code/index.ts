@@ -4,6 +4,7 @@
  * settings.json holds MCP, hooks, and permissions (merged via mergeGeneratedOutputContent).
  */
 
+import { isRecord } from '../../utils/types/guards.js';
 import type { TargetGenerators } from '../catalog/target.interface.js';
 import type { TargetDescriptor, GeneratedOutputMerger } from '../catalog/target-descriptor.js';
 import {
@@ -76,7 +77,11 @@ const mergeQwenSettings: GeneratedOutputMerger = (existing, pending, newContent,
     const incoming = JSON.parse(newContent) as Record<string, unknown>;
     if (incoming.mcpServers !== undefined) base.mcpServers = incoming.mcpServers;
     if (incoming.hooks !== undefined) base.hooks = incoming.hooks;
-    if (incoming.permissions !== undefined) base.permissions = incoming.permissions;
+    // Key-scoped inside `permissions`: a list permissions.yaml leaves out is the user's.
+    if (isRecord(incoming.permissions)) {
+      const basePermissions = isRecord(base.permissions) ? base.permissions : {};
+      base.permissions = { ...basePermissions, ...incoming.permissions };
+    }
   } catch {
     return pending?.content ?? existing ?? newContent;
   }
