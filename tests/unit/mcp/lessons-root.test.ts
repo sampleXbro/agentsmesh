@@ -1,12 +1,20 @@
 /**
  * The lessons tools resolve their root exactly like the MCP instructions and
  * the recall hook: the nearest directory holding lessons, else the nearest
- * agentsmesh project, else none. They never use the home directory: a graph
+ * agentsmesh project, else the git repository root, else none. They never use the home directory: a graph
  * there is recalled in every folder under it and leaks rules across projects.
  * With no root, reads are empty and writes are refused without touching disk.
  */
 
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync } from 'node:fs';
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  realpathSync,
+  rmSync,
+} from 'node:fs';
 import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -76,7 +84,7 @@ function projectAt(dir: string): void {
 
 const NO_PROJECT = {
   code: 'NO_PROJECT',
-  message: expect.stringContaining('run `agentsmesh init --lessons` in your project'),
+  message: expect.stringContaining('Lessons are saved in a git repository'),
 };
 
 describe('lessons tools outside any project', () => {
@@ -127,6 +135,21 @@ describe('lessons tools outside any project', () => {
 });
 
 describe('lessons tools inside a project', () => {
+  it('captures at the root of a git repository with no agentsmesh setup', async () => {
+    const repo = join(root, 'plain-repo');
+    mkdirSync(join(repo, '.git'), { recursive: true });
+    const ctx = await lessonsCtx(join(repo, 'src', 'cli'));
+
+    await tool('lessons_add')(ctx, ADD);
+
+    expect(readdirSync(join(repo, '.agentsmesh')).sort()).toEqual(['lessons']);
+    expect(existsSync(graphFilePath(repo))).toBe(true);
+    expect(existsSync(join(repo, 'agentsmesh.yaml'))).toBe(false);
+    expect(readFileSync(join(repo, '.gitignore'), 'utf8')).toContain(
+      '.agentsmesh/lessons/capture-log.jsonl',
+    );
+  });
+
   it('captures into an agentsmesh project that has no lessons yet', async () => {
     const proj = join(fakeHome.dir, 'work', 'proj');
     projectAt(proj);

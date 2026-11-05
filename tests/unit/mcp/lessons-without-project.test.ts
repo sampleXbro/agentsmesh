@@ -5,8 +5,8 @@
  * agent reaching lessons over MCP — the documented path for an agent with no
  * shell, and the only path a Claude Code plugin has — could not recall at all.
  * Reads now work anywhere. A capture needs a home for the graph: a directory
- * that already holds lessons, or an agentsmesh project; elsewhere it is
- * refused (see lessons-root.test.ts).
+ * that already holds lessons, an agentsmesh project, or a git repository;
+ * elsewhere it is refused (see lessons-root.test.ts).
  *
  * Config tools still require a project.
  */

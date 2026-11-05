@@ -16,6 +16,7 @@ import { McpError } from './errors.js';
 import { enrichValidationIssues } from './validation-errors.js';
 import { mcpServerInstructions } from './instructions.js';
 import { createCallQueue } from './call-queue.js';
+import { visibleResources, visibleTools } from './visible-tools.js';
 
 export async function startServer(): Promise<void> {
   const server = new Server(
@@ -30,7 +31,7 @@ export async function startServer(): Promise<void> {
   );
 
   server.setRequestHandler(ListToolsRequestSchema, async () => ({
-    tools: TOOL_DESCRIPTORS.map((d) => ({
+    tools: (await visibleTools(process.cwd())).map((d) => ({
       name: d.name,
       description: d.description,
       inputSchema: zodToMcpSchema(d.inputSchema),
@@ -78,7 +79,7 @@ export async function startServer(): Promise<void> {
   }
 
   server.setRequestHandler(ListResourcesRequestSchema, async () => ({
-    resources: RESOURCE_DESCRIPTORS.map((r) => ({
+    resources: (await visibleResources(process.cwd())).map((r) => ({
       uri: r.uri,
       name: r.name,
       description: r.description,

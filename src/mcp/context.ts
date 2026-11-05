@@ -22,7 +22,8 @@ export function lessonsRootOf(ctx: McpContext): string | null {
   return ctx.lessonsRoot === undefined ? ctx.projectRoot : ctx.lessonsRoot;
 }
 
-async function findProjectRoot(start: string): Promise<string> {
+/** The nearest of `start` and its ancestors holding `agentsmesh.yaml`, or null. */
+export async function findAgentsmeshProject(start: string): Promise<string | null> {
   let dir = resolve(start);
   while (true) {
     try {
@@ -32,9 +33,15 @@ async function findProjectRoot(start: string): Promise<string> {
       /* not here */
     }
     const parent = dirname(dir);
-    if (parent === dir) throw new McpError('NO_PROJECT', 'agentsmesh.yaml not found');
+    if (parent === dir) return null;
     dir = parent;
   }
+}
+
+async function findProjectRoot(start: string): Promise<string> {
+  const root = await findAgentsmeshProject(start);
+  if (root === null) throw new McpError('NO_PROJECT', 'agentsmesh.yaml not found');
+  return root;
 }
 
 const pluginRoots = new Set<string>();

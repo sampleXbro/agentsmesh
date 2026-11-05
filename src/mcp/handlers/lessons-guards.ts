@@ -11,7 +11,7 @@ export function writableLessonsRoot(ctx: McpContext, tool: string): string {
   if (root === null) {
     throw new McpError(
       'NO_PROJECT',
-      `${tool}: no agentsmesh project here — run \`agentsmesh init --lessons\` in your project.`,
+      `${tool}: no place to save lessons here. Lessons are saved in a git repository or an agentsmesh project, never in the home folder.`,
     );
   }
   return root;

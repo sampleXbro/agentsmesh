@@ -102,7 +102,8 @@ describe('where lessons are not set up', () => {
     expect(text).not.toMatch(/Full manual/);
     // What the server offers and how to start, so the plugin is not mute.
     expect(text).toContain('lessons_add');
-    expect(text).toContain('agentsmesh init --lessons');
+    // Lessons over MCP need no AgentsMesh setup.
+    expect(text).not.toContain('agentsmesh init');
     // The fields a first capture needs, since an empty graph has no topic yet.
     expect(text).toContain('new_topic');
     expect(text).toContain('topic_summary');
@@ -111,10 +112,13 @@ describe('where lessons are not set up', () => {
     expect(text.length).toBeLessThanOrEqual(600);
   });
 
-  it('says capture works inside an agentsmesh project, since it is refused outside one', () => {
+  it('says the first capture needs no setup, inside a git repository', () => {
+    // Capture falls back to the repository root, so a plugin-only repo needs
+    // no agentsmesh.yaml. Sending the model to `init` set up the whole tool.
     const text = mcpServerInstructions(dir);
-    expect(text).toContain('inside an agentsmesh project');
-    expect(text).toContain('`agentsmesh.yaml`');
+    expect(text).toMatch(/no setup/i);
+    expect(text).toContain('git repository');
+    expect(text).toContain('.agentsmesh/lessons/lessons.json');
   });
 
   it('ignores a stray graph in the home directory, from home or below it', () => {

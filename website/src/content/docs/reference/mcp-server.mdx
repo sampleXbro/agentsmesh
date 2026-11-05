@@ -50,7 +50,7 @@ Three deployment forms are supported:
 }
 ```
 
-The server reads `projectRoot` from the process working directory at startup, walking up to the nearest directory with `agentsmesh.yaml`. The lessons tools also work without `agentsmesh.yaml` (for example with only the lessons plugin). They use the nearest directory with `.agentsmesh/lessons/` (a `lessons.json` or `config.json`), even when an `agentsmesh.yaml` is nearer; else the nearest directory with `agentsmesh.yaml`; else the git repository root. They never use your home folder. Outside all of these, reads find no lessons, and `lessons_add` and `lessons_deprecate` fail with `NO_PROJECT`. So starting the server in a subdirectory of the project works. No configuration flags are accepted; the MCP host controls the working directory via the `cwd` field in the MCP server entry when needed.
+The server reads `projectRoot` from the process working directory at startup, walking up to the nearest directory with `agentsmesh.yaml`. The lessons tools also work without `agentsmesh.yaml` (for example with only the lessons plugin). They use the nearest directory with `.agentsmesh/lessons/` (a `lessons.json` or `config.json`), even when an `agentsmesh.yaml` is nearer; else the nearest directory with `agentsmesh.yaml`; else the git repository root. They never use your home folder. Outside all of these, reads find no lessons, and `lessons_add` and `lessons_deprecate` fail with `NO_PROJECT`. So starting the server in a subdirectory of the project works. Outside an `agentsmesh.yaml` project, the server lists only the five lessons tools and no resources, because the other tools need a project. The first `lessons_add` there creates the graph and adds the lessons log, lock and temp files to `.gitignore`; no `agentsmesh init` is needed (see [Use only the lessons](../../guides/lessons/#or-use-only-the-lessons-with-no-setup)). No configuration flags are accepted; the MCP host controls the working directory via the `cwd` field in the MCP server entry when needed.
 
 ## Tools reference
 
@@ -235,9 +235,9 @@ Guards in place:
 
 The MCP entry was seeded into `.agentsmesh/mcp.json` but you must run `agentsmesh generate` to project it into each target's native settings file. Run `generate`, then restart your AI tool.
 
-**`NO_PROJECT` error when calling any tool**
+**Only the lessons tools are listed, or `NO_PROJECT` when calling a tool**
 
-The server process started in a directory without `agentsmesh.yaml`. Set the `cwd` field in the MCP server entry to your project root, or start your AI tool from the project root. The lessons tools need less: `lessons_add` and `lessons_deprecate` fail with `NO_PROJECT` only outside any lessons project, `agentsmesh.yaml` or git repository, for example in your home folder.
+The server process started in a directory without `agentsmesh.yaml`. Set the `cwd` field in the MCP server entry to your project root, or start your AI tool from the project root, then restart it. The lessons tools need less: `lessons_add` and `lessons_deprecate` fail with `NO_PROJECT` only outside any lessons project, `agentsmesh.yaml` or git repository, for example in your home folder.
 
 **`LOCK_HELD` on `generate`**
 
