@@ -18,32 +18,56 @@ const SETTINGS_FEATURES: readonly SettingsFeature[] = ['mcp', 'permissions', 'ho
 
 const IMPORT_HINT = 'run "agentsmesh import --from <tool>" (add --global for ~/.agentsmesh)';
 
-const MESSAGES: Record<SettingsFeature, (items: string) => string> = {
-  mcp: (items) =>
-    `[agentsmesh] Skipped MCP servers from installed packs or extends: ${items}. ` +
-    'Your own mcp.json has no "mcpServers" key, so AgentsMesh leaves the MCP servers in your tools alone. ' +
-    `To use these servers, ${IMPORT_HINT} ` +
-    'to copy in the servers your tools already have, or list them under "mcpServers" in mcp.json, then generate again.',
-  permissions: (items) =>
-    `[agentsmesh] Skipped permissions from installed packs or extends: ${items}. ` +
-    'Your own permissions.yaml does not manage these lists (missing or commented out), so AgentsMesh leaves them in your tools alone. ' +
-    `To use these permissions, ${IMPORT_HINT} to copy in the permissions your tools already have, ` +
-    'or add the list to permissions.yaml (an empty list is fine), then generate again.',
-  hooks: (items) =>
-    `[agentsmesh] Skipped hooks from installed packs or extends: ${items}. ` +
-    'Your own hooks.yaml is missing or has only comments, so AgentsMesh leaves the hooks in your tools alone. ' +
-    `To use these hooks, ${IMPORT_HINT} to copy in the hooks your tools already have, ` +
-    'or write your hooks in hooks.yaml ("{}" if you have none), then generate again.',
-  ignore: (items) =>
-    `[agentsmesh] Skipped ignore patterns from installed packs or extends: ${items}. ` +
-    'Your own ignore file (.agentsmesh/ignore, or ~/.agentsmesh/ignore with --global) has no patterns, ' +
-    'so AgentsMesh leaves the ignore files in your tools alone. ' +
-    `To use these patterns, ${IMPORT_HINT} to copy in the patterns your tools already have, ` +
-    'or add the patterns you want to your own ignore file, then generate again.',
+interface Wording {
+  readonly what: string;
+  readonly reason: string;
+  readonly kept: string;
+  readonly add: string;
+  readonly copied: string;
+}
+
+const WORDING: Record<SettingsFeature, Wording> = {
+  mcp: {
+    what: 'MCP servers',
+    reason: 'Your own mcp.json has no "mcpServers" key',
+    kept: 'their own servers',
+    add: 'list your servers under "mcpServers" in mcp.json',
+    copied: 'servers',
+  },
+  permissions: {
+    what: 'permissions',
+    reason: 'Your own permissions.yaml does not manage these lists (missing or commented out)',
+    kept: 'their own lists',
+    add: 'add the list to permissions.yaml (an empty list is fine)',
+    copied: 'lists',
+  },
+  hooks: {
+    what: 'hooks',
+    reason: 'Your own hooks.yaml is missing or has only comments',
+    kept: 'their own hooks',
+    add: 'write your hooks in hooks.yaml ("{}" if you have none)',
+    copied: 'hooks',
+  },
+  ignore: {
+    what: 'ignore patterns',
+    reason:
+      'Your own ignore file (.agentsmesh/ignore, or ~/.agentsmesh/ignore with --global) has no patterns',
+    kept: 'their own ignore files',
+    add: 'add the patterns you want to your own ignore file',
+    copied: 'patterns',
+  },
 };
 
+// Say that a file AgentsMesh wrote only from these values goes away: stale
+// cleanup removes it, which for ignore files can expose a secret it hid.
 export function unmanagedSettingsMessage(skipped: SkippedSettings): string {
-  return MESSAGES[skipped.feature](skipped.items.join(', '));
+  const w = WORDING[skipped.feature];
+  return (
+    `[agentsmesh] Skipped ${w.what} from installed packs or extends: ${skipped.items.join(', ')}. ` +
+    `${w.reason}, so AgentsMesh does not write them to your tools: your tools keep ${w.kept}, ` +
+    'and a file AgentsMesh wrote only from them is removed. ' +
+    `To use them, ${w.add}, or ${IMPORT_HINT} to copy in the ${w.copied} your tools already have, then generate again.`
+  );
 }
 
 /** Only the lists the local file manages; a pack's other lists are dropped. */

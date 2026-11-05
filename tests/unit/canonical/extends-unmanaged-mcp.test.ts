@@ -15,9 +15,10 @@ import { TEMPLATE_MCP_GLOBAL } from '../../../src/cli/commands/init-mcp-template
 
 const SKIPPED_WARNING =
   '[agentsmesh] Skipped MCP servers from installed packs or extends: ext-srv, pack-srv. ' +
-  'Your own mcp.json has no "mcpServers" key, so AgentsMesh leaves the MCP servers in your tools alone. ' +
-  'To use these servers, run "agentsmesh import --from <tool>" (add --global for ~/.agentsmesh) ' +
-  'to copy in the servers your tools already have, or list them under "mcpServers" in mcp.json, then generate again.';
+  'Your own mcp.json has no "mcpServers" key, so AgentsMesh does not write them to your tools: your tools keep their own servers, ' +
+  'and a file AgentsMesh wrote only from them is removed. ' +
+  'To use them, list your servers under "mcpServers" in mcp.json, or run "agentsmesh import --from <tool>" (add --global for ~/.agentsmesh) ' +
+  'to copy in the servers your tools already have, then generate again.';
 
 let base: string;
 let project: string;

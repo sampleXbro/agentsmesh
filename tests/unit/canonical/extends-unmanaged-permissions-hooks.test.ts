@@ -15,19 +15,19 @@ import type { CanonicalFiles } from '../../../src/core/types.js';
 import { logger } from '../../../src/utils/output/logger.js';
 import { TEMPLATE_HOOKS, TEMPLATE_PERMISSIONS } from '../../../src/cli/commands/init-templates.js';
 
-const IMPORT_HINT =
-  'run "agentsmesh import --from <tool>" (add --global for ~/.agentsmesh) to copy in the';
 const permissionsWarning = (items: string): string =>
   `[agentsmesh] Skipped permissions from installed packs or extends: ${items}. ` +
-  'Your own permissions.yaml does not manage these lists (missing or commented out), so AgentsMesh leaves them in your tools alone. ' +
-  `To use these permissions, ${IMPORT_HINT} permissions your tools already have, ` +
-  'or add the list to permissions.yaml (an empty list is fine), then generate again.';
+  `Your own permissions.yaml does not manage these lists (missing or commented out), so AgentsMesh does not write them to your tools: your tools keep their own lists, ` +
+  `and a file AgentsMesh wrote only from them is removed. ` +
+  `To use them, add the list to permissions.yaml (an empty list is fine), or run "agentsmesh import --from <tool>" (add --global for ~/.agentsmesh) ` +
+  `to copy in the lists your tools already have, then generate again.`;
 const PERMISSIONS_WARNING = permissionsWarning('allow Grep, allow Read, deny WebFetch, ask Write');
 const HOOKS_WARNING =
   '[agentsmesh] Skipped hooks from installed packs or extends: PreToolUse (2 hooks), PostToolUse (1 hook). ' +
-  'Your own hooks.yaml is missing or has only comments, so AgentsMesh leaves the hooks in your tools alone. ' +
-  `To use these hooks, ${IMPORT_HINT} hooks your tools already have, ` +
-  'or write your hooks in hooks.yaml ("{}" if you have none), then generate again.';
+  'Your own hooks.yaml is missing or has only comments, so AgentsMesh does not write them to your tools: your tools keep their own hooks, ' +
+  'and a file AgentsMesh wrote only from them is removed. ' +
+  'To use them, write your hooks in hooks.yaml ("{}" if you have none), or run "agentsmesh import --from <tool>" (add --global for ~/.agentsmesh) ' +
+  'to copy in the hooks your tools already have, then generate again.';
 
 let base: string;
 let project: string;

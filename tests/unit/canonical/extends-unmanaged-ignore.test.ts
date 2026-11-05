@@ -15,11 +15,10 @@ import { TEMPLATE_IGNORE } from '../../../src/cli/commands/init-templates.js';
 
 const SKIPPED_WARNING =
   '[agentsmesh] Skipped ignore patterns from installed packs or extends: ext-dir/, pack-dir/. ' +
-  'Your own ignore file (.agentsmesh/ignore, or ~/.agentsmesh/ignore with --global) has no patterns, ' +
-  'so AgentsMesh leaves the ignore files in your tools alone. ' +
-  'To use these patterns, run "agentsmesh import --from <tool>" (add --global for ~/.agentsmesh) ' +
-  'to copy in the patterns your tools already have, ' +
-  'or add the patterns you want to your own ignore file, then generate again.';
+  'Your own ignore file (.agentsmesh/ignore, or ~/.agentsmesh/ignore with --global) has no patterns, so AgentsMesh does not write them to your tools: your tools keep their own ignore files, ' +
+  'and a file AgentsMesh wrote only from them is removed. ' +
+  'To use them, add the patterns you want to your own ignore file, or run "agentsmesh import --from <tool>" (add --global for ~/.agentsmesh) ' +
+  'to copy in the patterns your tools already have, then generate again.';
 
 let base: string;
 let project: string;
