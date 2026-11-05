@@ -32,9 +32,9 @@ export const generateContinueScopeExtras: ScopeExtrasFn = async (
   const results = [...configResults];
 
   if (enabledFeatures.has('permissions')) {
-    const content = serializeContinuePermissions(canonical.permissions);
+    const existing = await readFileSafe(join(projectRoot, CONTINUE_GLOBAL_PERMISSIONS));
+    const content = serializeContinuePermissions(canonical.permissions, existing);
     if (content) {
-      const existing = await readFileSafe(join(projectRoot, CONTINUE_GLOBAL_PERMISSIONS));
       results.push({
         target: 'continue',
         path: CONTINUE_GLOBAL_PERMISSIONS,

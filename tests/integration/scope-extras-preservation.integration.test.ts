@@ -193,7 +193,7 @@ describe('scopeExtras output never replaces a user-co-owned config wholesale', (
     );
 
     const canonical = emptyCanonical();
-    canonical.permissions = { allow: ['Grep'], deny: [] };
+    canonical.permissions = { allow: ['Grep'] };
 
     const results = await runGlobal('continue', ['permissions'], canonical);
     const parsed = parseYaml(emitted(results, '.continue/permissions.yaml').content) as Record<

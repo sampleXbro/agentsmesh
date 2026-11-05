@@ -11,18 +11,30 @@
 
 import { stringify as stringifyYaml, parse as parseYaml } from 'yaml';
 import type { Permissions } from '../../core/canonical-types.js';
+import { managedLists } from '../../core/permissions.js';
 import { toStringArray } from '../import/shared-import-helpers.js';
 
-export function serializeContinuePermissions(permissions: Permissions | null): string | null {
-  if (!permissions) return null;
-  const allow = permissions.allow ?? [];
-  const ask = permissions.ask ?? [];
-  const exclude = permissions.deny ?? [];
-  if (allow.length === 0 && ask.length === 0 && exclude.length === 0) return null;
+const CONTINUE_KEYS = { allow: 'allow', ask: 'ask', deny: 'exclude' } as const;
+
+/**
+ * Write the lists permissions.yaml manages, `[]` when empty (Continue's own
+ * default file does the same). An unmanaged list is left out, so the owned-keys
+ * merge keeps the user's key. Returns null when no list is managed, or when
+ * every managed list is empty and there is no file.
+ */
+export function serializeContinuePermissions(
+  permissions: Permissions | null,
+  existingContent: string | null,
+): string | null {
+  const lists = managedLists(permissions, ['allow', 'ask', 'deny']);
   const out: Record<string, string[]> = {};
-  if (allow.length > 0) out.allow = allow;
-  if (ask.length > 0) out.ask = ask;
-  if (exclude.length > 0) out.exclude = exclude;
+  for (const [list, key] of Object.entries(CONTINUE_KEYS)) {
+    const entries = lists[list as keyof typeof CONTINUE_KEYS];
+    if (entries !== undefined) out[key] = entries;
+  }
+  const managed = Object.values(out);
+  if (managed.length === 0) return null;
+  if (existingContent === null && managed.every((entries) => entries.length === 0)) return null;
   return stringifyYaml(out).trimEnd() + '\n';
 }
 
