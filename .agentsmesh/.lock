@@ -1,9 +1,9 @@
 # Auto-generated. DO NOT EDIT MANUALLY.
 # Tracks the state of all config files for team conflict resolution.
 
-generated_at: 2026-09-24T18:28:00.436Z
+generated_at: 2026-11-05T10:24:16.182Z
 generated_by: serhii
-lib_version: 0.41.0
+lib_version: 0.42.0
 checksums:
   agents/code-debugger.md: sha256:33452bf839256a119a602cd10d085bff3cdb8f537ded76e60053bb9d8e5d33bc
   agents/code-documenter.md: sha256:89b4ebd27718bcd50a7283c95ea1ff9cad153b1112cf695f9f1fc22d90ec85ec
@@ -4145,7 +4145,7 @@ outputs:
   .amazonq/mcp.json: sha256:beafdf9d60bbe72fa11ff90017241727fadad6bcdcb82bd87c6ec3164d2c720d
   .trae/mcp.json: sha256:beafdf9d60bbe72fa11ff90017241727fadad6bcdcb82bd87c6ec3164d2c720d
   .factory/mcp.json: sha256:beafdf9d60bbe72fa11ff90017241727fadad6bcdcb82bd87c6ec3164d2c720d
-  .cursor/cli.json: sha256:3c3b42f0cfa6a777989c4f87f18101ef9da4d69f46c6bc24c594000c6cd08ccf
+  .cursor/cli.json: sha256:2860f9ecfe760570f53164a42234cefed3cf223210d8060f302121b860ee698b
   .codex/rules/agentsmesh-permissions.rules: sha256:6b1e125e95aef4580c325fdf17f101b1433de06127c5f69025f6fee2cc38c568
   .vscode/settings.json: sha256:de2e6a624e5bc4c4c5d652398089c77b57e1d6f509dba007cb009f383ce10544
   kilo.jsonc: sha256:630c265b1463315e3060b5e25e25c34b6ffc3f2f0d4dc22d2b814275f1049ed1
@@ -4174,7 +4174,7 @@ outputs:
   .kiro/hooks/user-prompt-submit-1.json: sha256:cea32221e54fdf91851a62d8d351d9961be52761a9b7bf1b9c8cce24bea16040
   .agents/plugins/agentsmesh/hooks/hooks.json: sha256:728bcf841f9f21dbc9aa892fbe527807461b7d5bd96d10ca48353e619f1b5708
   crush.json: sha256:c67f8112a1286c9ce2875dbccab72ccb183dc8d4d77a9fc5933088ae296f4bda
-  .qwen/settings.json: sha256:8b2b50e4c858e4e1c20289a79220e8e5e7b5fb9cd70f646a4e7c6fd0f8b17948
+  .qwen/settings.json: sha256:397244ec174876b5475e6c26e7916c448f159a4dade44a6e8775b8bfdf011bb1
   .trae/hooks.json: sha256:34ad4a532264d1cc3b96156c7896bc2f0f72f8cc38f74e7629ca7cbe6442345b
   .factory/hooks.json: sha256:728bcf841f9f21dbc9aa892fbe527807461b7d5bd96d10ca48353e619f1b5708
   .claudeignore: sha256:53ad60cb2c945a41619fbb5dd0d43559c8461e4cb35e30f4d98b901c73766e12
