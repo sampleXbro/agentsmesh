@@ -93,7 +93,7 @@ Check that both workflow files exist and are correct:
 7. `pnpm test:e2e` — must come after build (it self-builds via `pnpm build && vitest run --config vitest.e2e.config.ts`); never run e2e in parallel with another build because they share `dist/`.
 8. Coverage job (separate matrix entry): `pnpm test:coverage` with Codecov upload (`fail_ci_if_error: false` so fork PRs don't break).
 
-The quality matrix must include `ubuntu-latest` × Node 20/22/24, `macos-latest` × Node 22, and `windows-latest` × Node 22. Use pnpm 10 + `cache: pnpm` in `setup-node`. Both workflows must set `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true` at the job level to suppress the Node 20 deprecation warning.
+The quality matrix must include `ubuntu-latest` × Node 20/22/24, `macos-latest` × Node 22, and `windows-latest` × Node 22/24 (Node 20 because `engines` allows `>=20.19.0`). Use pnpm 10 + `cache: pnpm` in `setup-node`. Both workflows must set `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true` at the job level to suppress the Node 20 deprecation warning.
 
 ### publish.yml must use changesets/action@v1 and trigger on push to master
 

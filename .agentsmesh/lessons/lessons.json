@@ -9830,6 +9830,22 @@
         "t-cmd-e94ef0dd"
       ]
     },
+    "test-execution-give-every-full-vitest-run": {
+      "createdAt": "2026-11-05",
+      "evidence": [
+        "lesson:test-execution-stop-an-active-full-test"
+      ],
+      "rationale": "Node 24 showed 6 and Node 20 showed 22 integration failures while another session ran vitest; all 8 files passed on both versions with a private TMPDIR.",
+      "rule": "Give every full vitest run in this repo its own TMPDIR (export TMPDIR=/tmp/<run-id>/): integration tests write to fixed folders under os.tmpdir() such as am-integration-root-collision and agentsmesh-import-cursor-test, so a sibling session or worktree running the suite at the same time causes random ENOENT/ENOTEMPTY/uv_cwd failures. Before treating such failures as a regression, rerun the failing files with a private TMPDIR.",
+      "status": "active",
+      "topics": [
+        "test-execution"
+      ],
+      "triggers": [
+        "t-cmd-0905ac21",
+        "t-kw-46ac26be"
+      ]
+    },
     "test-execution-place-agentsmesh-src-unit-tests": {
       "createdAt": "2026-06-26",
       "evidence": [
@@ -14636,6 +14652,10 @@
     "t-kw-468c3ca3": {
       "kind": "keyword",
       "pattern": "pack staging backup data loss"
+    },
+    "t-kw-46ac26be": {
+      "kind": "keyword",
+      "pattern": "full test suite"
     },
     "t-kw-4859e2d1": {
       "kind": "keyword",

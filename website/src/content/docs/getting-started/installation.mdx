@@ -31,7 +31,7 @@ AgentsMesh ships three ways. Pick whichever matches your environment — every i
     Or download a binary directly from [GitHub Releases](https://github.com/sampleXbro/agentsmesh/releases/latest).
   </TabItem>
   <TabItem label="npm / pnpm / yarn">
-    Requires Node.js 20+. Recommended when AgentsMesh is part of a Node.js project's dev tooling so it's pinned per repo.
+    Requires Node.js 20.19+. Recommended when AgentsMesh is part of a Node.js project's dev tooling so it's pinned per repo.
 
     ```bash
     # Global install
@@ -92,7 +92,7 @@ All schemas resolve via the published `https://unpkg.com/agentsmesh@<version>/sc
 
 ## Use as a TypeScript / Node.js library
 
-In addition to the CLI, AgentsMesh exports a typed programmatic API for scripts, IDE extensions, and CI tooling. This path requires Node.js 20+ and `npm install agentsmesh` (or pnpm/yarn equivalent).
+In addition to the CLI, AgentsMesh exports a typed programmatic API for scripts, IDE extensions, and CI tooling. This path requires Node.js 20.19+ and `npm install agentsmesh` (or pnpm/yarn equivalent).
 
 ```typescript
 import { generate, importFrom, loadCanonical } from 'agentsmesh';

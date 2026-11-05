@@ -41,7 +41,7 @@ brew install samplexbro/agentsmesh/agentsmesh
 # Windows: download agentsmesh-windows-x64.exe from GitHub Releases
 curl -fsSL https://github.com/sampleXbro/agentsmesh/releases/latest/download/install.sh | sh
 
-# npm / pnpm / yarn, requires Node.js 20+
+# npm / pnpm / yarn, requires Node.js 20.19+
 npm install -g agentsmesh     # or: pnpm add -g agentsmesh / yarn global add agentsmesh
 npm install -D agentsmesh     # pin per repo as a dev dependency, then run with npx
 ```

@@ -157,7 +157,7 @@ export const HOME_FAQ: readonly HomeFaq[] = [
   {
     question: 'Do I need Node.js?',
     answer:
-      'No. Homebrew and the standalone binary run without Node. The npm package needs Node.js 20 or newer and also exposes the TypeScript API.',
+      'No. Homebrew and the standalone binary run without Node. The npm package needs Node.js 20.19 or newer and also exposes the TypeScript API.',
   },
   {
     question: 'Is AgentsMesh free?',
