@@ -70,7 +70,7 @@ const CASES: readonly Case[] = [
     parse: parseYaml,
     expected: {
       smart_approve: { always_allow: ['cached__tool'] },
-      user: { always_allow: ['developer__shell'], never_allow: ['developer__rm'] },
+      user: { always_allow: ['developer__shell'], ask_before: [], never_allow: ['developer__rm'] },
     },
   },
   {
