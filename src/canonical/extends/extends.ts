@@ -31,6 +31,7 @@ const FEATURE_TO_KEYS: Record<string, (keyof CanonicalFiles)[]> = {
   permissions: ['permissions'],
   hooks: ['hooks'],
   ignore: ['ignore'],
+  files: ['files'],
 };
 
 /**
@@ -56,6 +57,7 @@ export function filterCanonicalByFeatures(
     permissions: keys.has('permissions') ? canonical.permissions : null,
     hooks: keys.has('hooks') ? canonical.hooks : null,
     ignore: keys.has('ignore') ? canonical.ignore : [],
+    ...(keys.has('files') && canonical.files !== undefined ? { files: canonical.files } : {}),
   };
 }
 

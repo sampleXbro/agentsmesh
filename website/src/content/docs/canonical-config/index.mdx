@@ -14,41 +14,29 @@ The `.agentsmesh/` directory is the **single source of truth** for all your AI t
 ## Directory structure
 
 <FileTree>
-- .agentsmesh/
-  - rules/
-    - _root.md  Root rule (always applied, required)
-    - *.md  Additional scoped rules
-  - commands/
-    - *.md  Slash-command prompts
-  - agents/
-    - *.md  Subagent definitions
-  - skills/
-    - skill-name/
-      - SKILL.md  Skill definition
-      - *.*  Supporting files
-  - mcp.json  MCP server definitions
-  - permissions.yaml  Allow/deny tool lists
-  - hooks.yaml  Lifecycle hooks
-  - ignore  gitignore-style exclusion patterns
-  - installs.yaml  Record of installed packs (managed by CLI)
-  - .lock  Generated state checksums (managed by CLI)
-- agentsmesh.yaml  Project configuration
-- agentsmesh.local.yaml  Local overrides (gitignored)
+  - .agentsmesh/ - rules/ - _root.md Root rule (always applied, required) - *.md Additional scoped
+  rules - commands/ - *.md Slash-command prompts - agents/ - *.md Subagent definitions - skills/ -
+  skill-name/ - SKILL.md Skill definition - *.* Supporting files - mcp.json MCP server definitions -
+  permissions.yaml Allow/deny tool lists - hooks.yaml Lifecycle hooks - ignore gitignore-style
+  exclusion patterns - files/ Whole-file templates copied to the project root - installs.yaml Record
+  of installed packs (managed by CLI) - .lock Generated state checksums (managed by CLI) -
+  agentsmesh.yaml Project configuration - agentsmesh.local.yaml Local overrides (gitignored)
 </FileTree>
 
 ## Feature types
 
-| Feature | File(s) | Description |
-|---------|---------|-------------|
-| [Rules](./rules/) | `rules/*.md` | Markdown files with optional frontmatter. Scoped by target, glob, or always-on. |
-| [Commands](./commands/) | `commands/*.md` | Reusable slash-command prompts. |
-| [Agents](./agents/) | `agents/*.md` | Subagent definitions with tools, model, hooks, and skills. |
-| [Skills](./skills/) | `skills/{name}/SKILL.md` | Skill directories with definition and supporting files. |
-| [MCP Servers](./mcp-servers/) | `mcp.json` | Model Context Protocol server definitions. |
-| [Hooks](./hooks/) | `hooks.yaml` | Lifecycle hooks triggered before/after tool use. |
-| [Ignore Patterns](./ignore-patterns/) | `ignore` | gitignore-style patterns for AI tools to skip. |
-| [Permissions](./permissions/) | `permissions.yaml` | Allow/deny lists for tool operations. |
-| [Lessons](../../guides/lessons/) | `lessons/lessons.json` | Optional shared agent memory: rules captured after failures, recalled before edits. Managed via `agentsmesh lessons`, never hand-edited. |
+| Feature                               | File(s)                  | Description                                                                                                                              |
+| ------------------------------------- | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| [Rules](./rules/)                     | `rules/*.md`             | Markdown files with optional frontmatter. Scoped by target, glob, or always-on.                                                          |
+| [Commands](./commands/)               | `commands/*.md`          | Reusable slash-command prompts.                                                                                                          |
+| [Agents](./agents/)                   | `agents/*.md`            | Subagent definitions with tools, model, hooks, and skills.                                                                               |
+| [Skills](./skills/)                   | `skills/{name}/SKILL.md` | Skill directories with definition and supporting files.                                                                                  |
+| [MCP Servers](./mcp-servers/)         | `mcp.json`               | Model Context Protocol server definitions.                                                                                               |
+| [Hooks](./hooks/)                     | `hooks.yaml`             | Lifecycle hooks triggered before/after tool use.                                                                                         |
+| [Ignore Patterns](./ignore-patterns/) | `ignore`                 | gitignore-style patterns for AI tools to skip.                                                                                           |
+| [Permissions](./permissions/)         | `permissions.yaml`       | Allow/deny lists for tool operations.                                                                                                    |
+| [Shared Files](./files/)              | `files/**`               | Whole-file templates copied byte-for-byte to the project root (tooling, CI, `.gitignore`).                                               |
+| [Lessons](../../guides/lessons/)      | `lessons/lessons.json`   | Optional shared agent memory: rules captured after failures, recalled before edits. Managed via `agentsmesh lessons`, never hand-edited. |
 
 ## The generation contract
 
@@ -60,7 +48,8 @@ AgentsMesh enforces a strict separation between **canonical sources** and **gene
 When you run `agentsmesh generate`, the CLI reads `.agentsmesh/`, applies per-target transformations, and writes the output. The lock file (`.agentsmesh/.lock`) records checksums of both the canonical sources and every generated file. `agentsmesh check` uses the lock to detect drift in either — including direct hand-edits to generated files.
 
 <Aside type="caution">
-  Never edit generated files directly. If you need to customize per-target output, use `agentsmesh.yaml` overrides or frontmatter fields like `targets` in your canonical files.
+  Never edit generated files directly. If you need to customize per-target output, use
+  `agentsmesh.yaml` overrides or frontmatter fields like `targets` in your canonical files.
 </Aside>
 
 ## Syntax errors fail loudly

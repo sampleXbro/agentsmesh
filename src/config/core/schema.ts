@@ -10,6 +10,7 @@ const VALID_FEATURES = [
   'hooks',
   'ignore',
   'permissions',
+  'files',
 ] as const;
 
 /** Valid `extends[].target` / `agentsmesh install --target` identifiers */
@@ -24,6 +25,8 @@ export const extendPickSchema = z
     commands: z.array(z.string()).optional(),
     rules: z.array(z.string()).optional(),
     agents: z.array(z.string()).optional(),
+    /** Picomatch globs (same dialect as rule `globs`); `dir/` + `**` selects a folder. */
+    files: z.array(z.string()).optional(),
   })
   .strict();
 

@@ -12,6 +12,7 @@ import { hashFile, hashContent } from '../../utils/crypto/hash.js';
 import type { LockFile } from '../../core/types.js';
 import { listPacks } from '../../install/pack/pack-reader.js';
 import { parseStaleTargets } from './lock-stale-targets.js';
+import { parseVerbatimOutputs } from './lock-verbatim.js';
 
 const LOCK_FILENAME = '.lock';
 
@@ -25,10 +26,11 @@ const CANONICAL_PATTERNS = [
   (r: string) => r === 'permissions.yaml',
   (r: string) => r === 'hooks.yaml',
   (r: string) => r === 'ignore',
+  (r: string) => r.startsWith('files/'),
 ];
 
 function isCanonical(relPath: string): boolean {
-  if (relPath.startsWith('packs/')) return false; // tracked separately
+  if (relPath.startsWith('packs/')) return false;
   return CANONICAL_PATTERNS.some((p) => p(relPath));
 }
 
@@ -41,6 +43,7 @@ const FEATURE_PATTERNS: Record<string, (path: string) => boolean> = {
   permissions: (path) => path === 'permissions.yaml',
   hooks: (path) => path === 'hooks.yaml',
   ignore: (path) => path === 'ignore',
+  files: (path) => path.startsWith('files/'),
 };
 
 /** Read `.agentsmesh/.lock`; null when it is missing or cannot be parsed. */
@@ -58,6 +61,7 @@ export async function readLock(abDir: string): Promise<LockFile | null> {
       extends?: Record<string, string>;
       packs?: Record<string, string>;
       outputs?: Record<string, string>;
+      verbatim_outputs?: unknown;
       stale_targets?: unknown;
     };
     if (!raw || typeof raw !== 'object') return null;
@@ -70,6 +74,7 @@ export async function readLock(abDir: string): Promise<LockFile | null> {
       packs: raw.packs && typeof raw.packs === 'object' ? raw.packs : {},
       // undefined (not {}) when absent → old-format lock; skips output check.
       outputs: raw.outputs && typeof raw.outputs === 'object' ? raw.outputs : undefined,
+      verbatimOutputs: parseVerbatimOutputs(raw.verbatim_outputs),
       staleTargets: parseStaleTargets(raw.stale_targets),
     };
   } catch {
@@ -87,8 +92,8 @@ export async function writeLock(abDir: string, lock: LockFile): Promise<void> {
     checksums: lock.checksums,
     extends: lock.extends,
     packs: lock.packs,
-    // Omit the key entirely when undefined (old-format lock).
     ...(lock.outputs !== undefined ? { outputs: lock.outputs } : {}),
+    ...(lock.verbatimOutputs !== undefined ? { verbatim_outputs: lock.verbatimOutputs } : {}),
     ...(lock.staleTargets !== undefined ? { stale_targets: lock.staleTargets } : {}),
   };
   const content =

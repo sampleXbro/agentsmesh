@@ -88,6 +88,7 @@ AGENTS.md
   hooks.yaml          # pre/post tool hooks
   permissions.yaml    # allow/deny rules
   ignore              # paths the assistant must not touch
+  files/              # whole-file templates copied to the project root
   lessons/            # optional shared agent memory
 ```
 
@@ -123,21 +124,21 @@ Full walkthrough: [Teach your AI agents with lessons](https://samplexbro.github.
 
 [Ruler](https://github.com/intellectronica/ruler) and [rulesync](https://github.com/dyoshikawa/rulesync) both cover the common ground well, and rulesync supports more tools than AgentsMesh does. What is left to differentiate is what survives translation: links rewritten per target, a round-trip that loses nothing, a lockfile-backed drift gate, new tools addable without a core release, and a memory that learns.
 
-| Capability | AgentsMesh | Ruler | rulesync |
-|---|:---:|:---:|:---:|
-| Generate native config for many tools | ✅ | ✅ | ✅ |
-| Tools supported (counted from source) | 33 | ~31 | ~50 |
-| Import existing tool config back to source | ✅ | — | ✅ |
-| Convert one tool's config directly to another | ✅ | — | ✅ |
-| CI drift gate (non-zero exit on drift) | ✅ | partial | ✅ |
-| Lint before a target silently drops content | ✅ | partial | partial |
-| Self-serve MCP server (agent-operable config) | ✅ | — | ✅ |
-| `--json` output + typed programmatic API | ✅ | — | ✅ |
-| **Lossless round-trip** (re-import restores originals) | ✅ | — | partial |
-| **Cross-file links rewritten per target** | ✅ | — | — |
-| **Lockfile-verified drift + git-merge recovery** | ✅ | — | — |
-| **Target plugins: add a tool without a core release** | ✅ | — | — |
-| **Lessons: a shared agent memory that learns** | ✅ | — | — |
+| Capability                                             | AgentsMesh |  Ruler  | rulesync |
+| ------------------------------------------------------ | :--------: | :-----: | :------: |
+| Generate native config for many tools                  |     ✅     |   ✅    |    ✅    |
+| Tools supported (counted from source)                  |     33     |   ~31   |   ~50    |
+| Import existing tool config back to source             |     ✅     |    —    |    ✅    |
+| Convert one tool's config directly to another          |     ✅     |    —    |    ✅    |
+| CI drift gate (non-zero exit on drift)                 |     ✅     | partial |    ✅    |
+| Lint before a target silently drops content            |     ✅     | partial | partial  |
+| Self-serve MCP server (agent-operable config)          |     ✅     |    —    |    ✅    |
+| `--json` output + typed programmatic API               |     ✅     |    —    |    ✅    |
+| **Lossless round-trip** (re-import restores originals) |     ✅     |    —    | partial  |
+| **Cross-file links rewritten per target**              |     ✅     |    —    |    —     |
+| **Lockfile-verified drift + git-merge recovery**       |     ✅     |    —    |    —     |
+| **Target plugins: add a tool without a core release**  |     ✅     |    —    |    —     |
+| **Lessons: a shared agent memory that learns**         |     ✅     |    —    |    —     |
 
 <sub>Verified against each project's source and docs on 2026-09-19. Tool counts are counted from source, not marketing claims, and differ by how variants are tallied. Two newer projects solve adjacent problems rather than this one: [capa](https://github.com/infragate/capa) is a package manager and MCP gateway, and [Sentry's dotagents](https://github.com/getsentry/dotagents) manages skill and MCP dependencies without emitting instruction files. Detail and sources in the [alternatives guide](https://samplexbro.github.io/agentsmesh/reference/alternatives/); corrections welcome.</sub>
 
@@ -160,24 +161,24 @@ Built to be depended on: 12,000+ tests on Linux, macOS, and Windows CI, JSON-Sch
 
 ## Commands
 
-| Command | What it does |
-|---|---|
-| `init` | Scaffold `.agentsmesh/` and config (interactive wizard on a TTY) |
-| `generate` | Write native config for every enabled tool |
-| `check` | Fail when generated files drift from `.agentsmesh/.lock` (CI gate) |
-| `diff` | Preview what the next `generate` would change |
-| `import` | Pull an existing tool's config into `.agentsmesh/` |
-| `convert` | Convert one tool's config directly into another's |
-| `lint` | Validate canonical config against target constraints |
-| `watch` | Regenerate target files on save |
-| `merge` | Rebuild `.agentsmesh/.lock` after a Git merge conflict |
-| `matrix` | Print the feature and target support matrix |
-| `install` · `uninstall` · `installs` | Add, remove, and list community packs |
-| `refresh` | Re-fetch installed packs from their sources |
-| `plugin` | Add, list, or remove plugin-provided targets |
-| `target` | Scaffold a new target's source skeleton (for contributors) |
-| `lessons` | Query and capture agent memory |
-| `mcp` | Start the AgentsMesh MCP server (stdio) |
+| Command                              | What it does                                                       |
+| ------------------------------------ | ------------------------------------------------------------------ |
+| `init`                               | Scaffold `.agentsmesh/` and config (interactive wizard on a TTY)   |
+| `generate`                           | Write native config for every enabled tool                         |
+| `check`                              | Fail when generated files drift from `.agentsmesh/.lock` (CI gate) |
+| `diff`                               | Preview what the next `generate` would change                      |
+| `import`                             | Pull an existing tool's config into `.agentsmesh/`                 |
+| `convert`                            | Convert one tool's config directly into another's                  |
+| `lint`                               | Validate canonical config against target constraints               |
+| `watch`                              | Regenerate target files on save                                    |
+| `merge`                              | Rebuild `.agentsmesh/.lock` after a Git merge conflict             |
+| `matrix`                             | Print the feature and target support matrix                        |
+| `install` · `uninstall` · `installs` | Add, remove, and list community packs                              |
+| `refresh`                            | Re-fetch installed packs from their sources                        |
+| `plugin`                             | Add, list, or remove plugin-provided targets                       |
+| `target`                             | Scaffold a new target's source skeleton (for contributors)         |
+| `lessons`                            | Query and capture agent memory                                     |
+| `mcp`                                | Start the AgentsMesh MCP server (stdio)                            |
 
 Run `agentsmesh <command> --help` for flags, or see the [CLI reference](https://samplexbro.github.io/agentsmesh/cli/).
 
@@ -186,6 +187,7 @@ Run `agentsmesh <command> --help` for flags, or see the [CLI reference](https://
 AgentsMesh generates native config for every major AI coding assistant, plus plugin targets. Native, embedded, and partial support per feature is tracked in the [supported-tools matrix](https://samplexbro.github.io/agentsmesh/reference/supported-tools/).
 
 <!-- agentsmesh:tool-list -->
+
 - **CLI agents:** [Aider](https://aider.chat), [Amp](https://ampcode.com), [Claude Code](https://www.anthropic.com/claude-code), [Codebuff](https://github.com/CodebuffAI/freebuff), [Codex CLI](https://github.com/openai/codex), [Crush](https://github.com/charmbracelet/crush), [Deep Agents CLI](https://github.com/langchain-ai/deepagents), [Gemini CLI](https://github.com/google-gemini/gemini-cli), [Goose](https://block.github.io/goose), [Kimi Code CLI](https://moonshotai.github.io/kimi-code/en/), [OpenCode](https://opencode.ai), [OpenHands](https://docs.openhands.dev), [Pi Agent](https://github.com/earendil-works/pi), [Qwen Code](https://github.com/QwenLM/qwen-code), [Rovo Dev](https://www.atlassian.com/solutions/devops/rovo-dev), [Warp](https://www.warp.dev).
 - **IDE integrations:** [Amazon Q Developer](https://aws.amazon.com/q/developer), [Antigravity](https://antigravity.google), [Augment Code](https://www.augmentcode.com), [Cline](https://cline.bot), [Continue](https://continue.dev), [GitHub Copilot](https://github.com/features/copilot), [Cursor](https://cursor.com), [Junie](https://www.jetbrains.com/junie), [Kilo Code](https://kilocode.ai), [Kiro](https://kiro.dev), [Roo Code](https://roocode.com), [Trae](https://www.trae.ai), [Windsurf](https://windsurf.com), [Zed](https://zed.dev).
 - **Cloud agent platforms:** [Factory Droid](https://www.factory.ai), [Jules](https://jules.google), [Replit Agent](https://replit.com).
@@ -197,17 +199,19 @@ AgentsMesh generates native config for every major AI coding assistant, plus plu
 <summary>Per-feature support for all 33 tools</summary>
 
 <!-- agentsmesh:support-matrix:project -->
-| Feature | Aider | Amazon Q Developer | Amp | Antigravity | Augment Code | Claude Code | Cline | Codebuff | Codex CLI | Continue | GitHub Copilot | Crush | Cursor | Deep Agents CLI | Factory Droid | Gemini CLI | Goose | Jules | Junie | Kilo Code | Kimi Code CLI | Kiro | OpenCode | OpenHands | Pi Agent | Qwen Code | Replit Agent | Roo Code | Rovo Dev | Trae | Warp | Windsurf | Zed |
-|---|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|
-| Rules | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native |
-| Additional Rules | Embedded | Native | Embedded | Native | Native | Native | Native | Native | Native | Native | Native | Embedded | Native | Embedded | Embedded | Embedded | Embedded | Embedded | Native | Native | Embedded | Native | Native | Native | Embedded | Native | Embedded | Native | Embedded | Native | Embedded | Native | Embedded |
-| Commands | — | Native | Embedded | Native (workflows) | Native | Native | Native (workflows) | Embedded | Embedded | Native | Native | Embedded | Native | Embedded | Native | Native | Embedded | Partial | Native | Native | Embedded | Embedded | Native | Native | Native | Native | Embedded | Native | Native | Native | Embedded | Native (workflows) | Embedded |
-| Agents | — | Native | Embedded | Native | Native | Native | Native | Partial | Native | Native | Native | — | Native | Native | Native | Native | Embedded | — | Native | Native | Native | Native | Native | Native | — | Native | Embedded | Native | Embedded | Native | — | Embedded | — |
-| Skills | Native | — | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | — | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native |
-| MCP Servers | Partial | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Partial | Native | Native | Native | Native | Native | Native | — | Native | Partial | Native | Partial | Native | Native | Partial | Native |
-| Hooks | Native | Embedded | Partial | Native | Native | Native | Native | Partial | Native | Native | Native | Native | Native | — | Native | Native | Native | Partial | Partial | Partial | Partial | Native | Partial | Native | Partial | Native | Partial | — | — | Native | Partial | Native | — |
-| Ignore | Native | Embedded | Partial | Native | Native | Native | Native | Native | — | Native | — | Native | Native | Partial | Partial | Native (settings-embedded) | Native | Partial | Native | Native | — | Native | Embedded | — | Partial | Native | Partial | Native | Partial | Native | Native | Native | Embedded |
-| Permissions | Partial | Embedded | Partial | Partial | Native | Native | Partial | Partial | Native | — | — | Native | Native | Partial | Native | Partial | Partial | Partial | Partial | Native | Partial | Embedded | Native | Partial | Native | Native | Partial | Native | — | — | Partial | Partial | — |
+
+| Feature          |  Aider   | Amazon Q Developer |   Amp    |    Antigravity     | Augment Code | Claude Code |       Cline        | Codebuff | Codex CLI | Continue | GitHub Copilot |  Crush   | Cursor | Deep Agents CLI | Factory Droid |         Gemini CLI         |  Goose   |  Jules   |  Junie  | Kilo Code | Kimi Code CLI |   Kiro   | OpenCode | OpenHands | Pi Agent | Qwen Code | Replit Agent | Roo Code | Rovo Dev |  Trae  |   Warp   |      Windsurf      |   Zed    |
+| ---------------- | :------: | :----------------: | :------: | :----------------: | :----------: | :---------: | :----------------: | :------: | :-------: | :------: | :------------: | :------: | :----: | :-------------: | :-----------: | :------------------------: | :------: | :------: | :-----: | :-------: | :-----------: | :------: | :------: | :-------: | :------: | :-------: | :----------: | :------: | :------: | :----: | :------: | :----------------: | :------: |
+| Rules            |  Native  |       Native       |  Native  |       Native       |    Native    |   Native    |       Native       |  Native  |  Native   |  Native  |     Native     |  Native  | Native |     Native      |    Native     |           Native           |  Native  |  Native  | Native  |  Native   |    Native     |  Native  |  Native  |  Native   |  Native  |  Native   |    Native    |  Native  |  Native  | Native |  Native  |       Native       |  Native  |
+| Additional Rules | Embedded |       Native       | Embedded |       Native       |    Native    |   Native    |       Native       |  Native  |  Native   |  Native  |     Native     | Embedded | Native |    Embedded     |   Embedded    |          Embedded          | Embedded | Embedded | Native  |  Native   |   Embedded    |  Native  |  Native  |  Native   | Embedded |  Native   |   Embedded   |  Native  | Embedded | Native | Embedded |       Native       | Embedded |
+| Commands         |    —     |       Native       | Embedded | Native (workflows) |    Native    |   Native    | Native (workflows) | Embedded | Embedded  |  Native  |     Native     | Embedded | Native |    Embedded     |    Native     |           Native           | Embedded | Partial  | Native  |  Native   |   Embedded    | Embedded |  Native  |  Native   |  Native  |  Native   |   Embedded   |  Native  |  Native  | Native | Embedded | Native (workflows) | Embedded |
+| Agents           |    —     |       Native       | Embedded |       Native       |    Native    |   Native    |       Native       | Partial  |  Native   |  Native  |     Native     |    —     | Native |     Native      |    Native     |           Native           | Embedded |    —     | Native  |  Native   |    Native     |  Native  |  Native  |  Native   |    —     |  Native   |   Embedded   |  Native  | Embedded | Native |    —     |      Embedded      |    —     |
+| Skills           |  Native  |         —          |  Native  |       Native       |    Native    |   Native    |       Native       |  Native  |  Native   |  Native  |     Native     |  Native  | Native |     Native      |    Native     |           Native           |  Native  |    —     | Native  |  Native   |    Native     |  Native  |  Native  |  Native   |  Native  |  Native   |    Native    |  Native  |  Native  | Native |  Native  |       Native       |  Native  |
+| MCP Servers      | Partial  |       Native       |  Native  |       Native       |    Native    |   Native    |       Native       |  Native  |  Native   |  Native  |     Native     |  Native  | Native |     Native      |    Native     |           Native           |  Native  | Partial  | Native  |  Native   |    Native     |  Native  |  Native  |  Native   |    —     |  Native   |   Partial    |  Native  | Partial  | Native |  Native  |      Partial       |  Native  |
+| Hooks            |  Native  |      Embedded      | Partial  |       Native       |    Native    |   Native    |       Native       | Partial  |  Native   |  Native  |     Native     |  Native  | Native |        —        |    Native     |           Native           |  Native  | Partial  | Partial |  Partial  |    Partial    |  Native  | Partial  |  Native   | Partial  |  Native   |   Partial    |    —     |    —     | Native | Partial  |       Native       |    —     |
+| Ignore           |  Native  |      Embedded      | Partial  |       Native       |    Native    |   Native    |       Native       |  Native  |     —     |  Native  |       —        |  Native  | Native |     Partial     |    Partial    | Native (settings-embedded) |  Native  | Partial  | Native  |  Native   |       —       |  Native  | Embedded |     —     | Partial  |  Native   |   Partial    |  Native  | Partial  | Native |  Native  |       Native       | Embedded |
+| Permissions      | Partial  |      Embedded      | Partial  |      Partial       |    Native    |   Native    |      Partial       | Partial  |  Native   |    —     |       —        |  Native  | Native |     Partial     |    Native     |          Partial           | Partial  | Partial  | Partial |  Native   |    Partial    | Embedded |  Native  |  Partial  |  Native  |  Native   |   Partial    |  Native  |    —     |   —    | Partial  |      Partial       |    —     |
+
 <!-- /agentsmesh:support-matrix:project -->
 
 </details>
@@ -218,17 +222,19 @@ AgentsMesh generates native config for every major AI coding assistant, plus plu
 <summary>Per-feature support for all 33 tools in global mode</summary>
 
 <!-- agentsmesh:support-matrix:global -->
-| Feature | Aider | Amazon Q Developer | Amp | Antigravity | Augment Code | Claude Code | Cline | Codebuff | Codex CLI | Continue | GitHub Copilot | Crush | Cursor | Deep Agents CLI | Factory Droid | Gemini CLI | Goose | Jules | Junie | Kilo Code | Kimi Code CLI | Kiro | OpenCode | OpenHands | Pi Agent | Qwen Code | Replit Agent | Roo Code | Rovo Dev | Trae | Warp | Windsurf | Zed |
-|---|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|
-| Rules | Native | Embedded | Native | Native | Native | Native | — | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | — | Native | Native | Native | Native | Native | Native | Native | Native | — | Native | Native | Native | Native | Native | Native |
-| Additional Rules | Embedded | Embedded | Embedded | Embedded | Native | Native | Native | Embedded | Embedded | Native | Embedded | Embedded | Native | Embedded | Embedded | Embedded | Embedded | — | Embedded | Native | Embedded | Native | Native | Native | Embedded | Native | — | Native | Embedded | Native | Embedded | Embedded | Embedded |
-| Commands | — | Native | Embedded | Native (workflows) | Native | Native | Native (workflows) | Embedded | Embedded | Native | — | Embedded | Native | Embedded | Native | Native | Embedded | — | Native | Native | Embedded | Embedded | Native | Native | Native | Native | — | Native | Native | Native | Embedded | Native (workflows) | Embedded |
-| Agents | — | Native | Embedded | Native | Native | Native | — | Partial | Native | Native | Native | — | Native | Native | Native | Native | Embedded | — | Native | Native | Native | Native | Native | Native | — | Native | — | Partial | Embedded | Native | — | Embedded | — |
-| Skills | Native | — | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | — | Native | Native | Native | Native | Native | Native | Native | Native | — | Native | Native | Native | Native | Native | Native |
-| MCP Servers | Partial | Native | Native | Native | Native | Native | — | Native | Native | Native | Native | Native | Native | Native | Native | Native | Native | — | Native | Native | Native | Native | Native | Native | — | Native | — | Partial | Native | Native | Native | Native | Native |
-| Hooks | Native | Embedded | Partial | Native | Native | Native | Native | Partial | Native | Native | Native | Native | Native | Native | Native | Native | Native | — | Embedded | Partial | Native | Partial | Partial | Native | Partial | Native | — | — | Native | Native | Partial | Native | — |
-| Ignore | Native | Embedded | Partial | — | — | Native | — | — | — | Native | — | Native | Native | Partial | Partial | — | Native | — | — | — | — | Native | Embedded | — | Partial | — | — | — | Partial | — | Partial | Native | Embedded |
-| Permissions | Partial | Embedded | Partial | Native | Native | Native | Partial | Partial | Native | Native | Partial | Native | Native | Embedded | Native | Native | Native | — | Native | Native | Native | Native | Native | Partial | Native | Native | — | Partial | Native | Partial | Native | Partial | Native |
+
+| Feature          |  Aider   | Amazon Q Developer |   Amp    |    Antigravity     | Augment Code | Claude Code |       Cline        | Codebuff | Codex CLI | Continue | GitHub Copilot |  Crush   | Cursor | Deep Agents CLI | Factory Droid | Gemini CLI |  Goose   | Jules |  Junie   | Kilo Code | Kimi Code CLI |   Kiro   | OpenCode | OpenHands | Pi Agent | Qwen Code | Replit Agent | Roo Code | Rovo Dev |  Trae   |   Warp   |      Windsurf      |   Zed    |
+| ---------------- | :------: | :----------------: | :------: | :----------------: | :----------: | :---------: | :----------------: | :------: | :-------: | :------: | :------------: | :------: | :----: | :-------------: | :-----------: | :--------: | :------: | :---: | :------: | :-------: | :-----------: | :------: | :------: | :-------: | :------: | :-------: | :----------: | :------: | :------: | :-----: | :------: | :----------------: | :------: |
+| Rules            |  Native  |      Embedded      |  Native  |       Native       |    Native    |   Native    |         —          |  Native  |  Native   |  Native  |     Native     |  Native  | Native |     Native      |    Native     |   Native   |  Native  |   —   |  Native  |  Native   |    Native     |  Native  |  Native  |  Native   |  Native  |  Native   |      —       |  Native  |  Native  | Native  |  Native  |       Native       |  Native  |
+| Additional Rules | Embedded |      Embedded      | Embedded |      Embedded      |    Native    |   Native    |       Native       | Embedded | Embedded  |  Native  |    Embedded    | Embedded | Native |    Embedded     |   Embedded    |  Embedded  | Embedded |   —   | Embedded |  Native   |   Embedded    |  Native  |  Native  |  Native   | Embedded |  Native   |      —       |  Native  | Embedded | Native  | Embedded |      Embedded      | Embedded |
+| Commands         |    —     |       Native       | Embedded | Native (workflows) |    Native    |   Native    | Native (workflows) | Embedded | Embedded  |  Native  |       —        | Embedded | Native |    Embedded     |    Native     |   Native   | Embedded |   —   |  Native  |  Native   |   Embedded    | Embedded |  Native  |  Native   |  Native  |  Native   |      —       |  Native  |  Native  | Native  | Embedded | Native (workflows) | Embedded |
+| Agents           |    —     |       Native       | Embedded |       Native       |    Native    |   Native    |         —          | Partial  |  Native   |  Native  |     Native     |    —     | Native |     Native      |    Native     |   Native   | Embedded |   —   |  Native  |  Native   |    Native     |  Native  |  Native  |  Native   |    —     |  Native   |      —       | Partial  | Embedded | Native  |    —     |      Embedded      |    —     |
+| Skills           |  Native  |         —          |  Native  |       Native       |    Native    |   Native    |       Native       |  Native  |  Native   |  Native  |     Native     |  Native  | Native |     Native      |    Native     |   Native   |  Native  |   —   |  Native  |  Native   |    Native     |  Native  |  Native  |  Native   |  Native  |  Native   |      —       |  Native  |  Native  | Native  |  Native  |       Native       |  Native  |
+| MCP Servers      | Partial  |       Native       |  Native  |       Native       |    Native    |   Native    |         —          |  Native  |  Native   |  Native  |     Native     |  Native  | Native |     Native      |    Native     |   Native   |  Native  |   —   |  Native  |  Native   |    Native     |  Native  |  Native  |  Native   |    —     |  Native   |      —       | Partial  |  Native  | Native  |  Native  |       Native       |  Native  |
+| Hooks            |  Native  |      Embedded      | Partial  |       Native       |    Native    |   Native    |       Native       | Partial  |  Native   |  Native  |     Native     |  Native  | Native |     Native      |    Native     |   Native   |  Native  |   —   | Embedded |  Partial  |    Native     | Partial  | Partial  |  Native   | Partial  |  Native   |      —       |    —     |  Native  | Native  | Partial  |       Native       |    —     |
+| Ignore           |  Native  |      Embedded      | Partial  |         —          |      —       |   Native    |         —          |    —     |     —     |  Native  |       —        |  Native  | Native |     Partial     |    Partial    |     —      |  Native  |   —   |    —     |     —     |       —       |  Native  | Embedded |     —     | Partial  |     —     |      —       |    —     | Partial  |    —    | Partial  |       Native       | Embedded |
+| Permissions      | Partial  |      Embedded      | Partial  |       Native       |    Native    |   Native    |      Partial       | Partial  |  Native   |  Native  |    Partial     |  Native  | Native |    Embedded     |    Native     |   Native   |  Native  |   —   |  Native  |  Native   |    Native     |  Native  |  Native  |  Partial  |  Native  |  Native   |      —       | Partial  |  Native  | Partial |  Native  |      Partial       |  Native  |
+
 <!-- /agentsmesh:support-matrix:global -->
 
 </details>

@@ -14,6 +14,12 @@ export interface LockFile {
    * detection skips output verification in that case.
    */
   outputs?: Record<string, string>;
+  /**
+   * Project-root paths written by the `files` feature on the last full generate.
+   * Used to delete unpicked copies on a later full run. Absent on locks written
+   * before this field existed.
+   */
+  verbatimOutputs?: string[];
   /** Targets a `generate --targets` run left out after sources changed; see lock-stale-targets.ts. */
   staleTargets?: string[];
 }

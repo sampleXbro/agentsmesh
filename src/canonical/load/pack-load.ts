@@ -13,6 +13,7 @@ import { parseMcp } from '../features/mcp.js';
 import { parsePermissions } from '../features/permissions.js';
 import { parseHooks } from '../features/hooks.js';
 import { parseIgnore } from '../features/ignore.js';
+import { parseCopiedFiles } from '../features/files/load.js';
 import { mergeCanonicalFiles } from './merge.js';
 import { filterCanonicalByFeatures } from '../extends/extends.js';
 import { applyExtendPick } from '../extends/extend-pick.js';
@@ -25,17 +26,30 @@ import { listPacks } from '../../install/pack/pack-reader.js';
  * @param packDir - Absolute path to the pack directory (contains rules/, commands/, etc.)
  */
 export async function loadPackCanonical(packDir: string): Promise<CanonicalFiles> {
-  const [rules, commands, agents, skills, mcp, permissions, hooks, ignore] = await Promise.all([
-    parseRules(join(packDir, 'rules')),
-    parseCommands(join(packDir, 'commands')),
-    parseAgents(join(packDir, 'agents')),
-    parseSkills(join(packDir, 'skills')),
-    parseMcp(join(packDir, 'mcp.json')),
-    parsePermissions(join(packDir, 'permissions.yaml')),
-    parseHooks(join(packDir, 'hooks.yaml')),
-    parseIgnore(join(packDir, 'ignore')),
-  ]);
-  return { ...emptyCanonical(), rules, commands, agents, skills, mcp, permissions, hooks, ignore };
+  const [rules, commands, agents, skills, mcp, permissions, hooks, ignore, files] =
+    await Promise.all([
+      parseRules(join(packDir, 'rules')),
+      parseCommands(join(packDir, 'commands')),
+      parseAgents(join(packDir, 'agents')),
+      parseSkills(join(packDir, 'skills')),
+      parseMcp(join(packDir, 'mcp.json')),
+      parsePermissions(join(packDir, 'permissions.yaml')),
+      parseHooks(join(packDir, 'hooks.yaml')),
+      parseIgnore(join(packDir, 'ignore')),
+      parseCopiedFiles(join(packDir, 'files')),
+    ]);
+  return {
+    ...emptyCanonical(),
+    rules,
+    commands,
+    agents,
+    skills,
+    mcp,
+    permissions,
+    hooks,
+    ignore,
+    ...(files.length > 0 ? { files } : {}),
+  };
 }
 
 /**

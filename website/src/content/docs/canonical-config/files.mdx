@@ -1,0 +1,91 @@
+---
+draft: false
+title: Shared Files
+description: Copy whole project files from .agentsmesh/files/ onto the project root so shared tooling templates stay byte-identical across repos.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+The `.agentsmesh/files/` tree holds **whole-file templates** — `.gitignore`, CI workflows, `mise.toml`, linter configs, and anything else that should land at the same relative path in every repo that opts in.
+
+`agentsmesh generate` writes each selected file to the project root. There is no per-target transform, no link rewrite, and no line merge: the on-disk bytes match the template (text files are LF-normalized the same way every other generated text file is).
+
+## Layout
+
+```text
+.agentsmesh/files/
+  .gitignore
+  mise.toml
+  eslint.config.js
+  .github/
+    workflows/
+      ci.yml
+```
+
+`.agentsmesh/files/.github/workflows/ci.yml` becomes `.github/workflows/ci.yml` at the project root.
+
+A central pack repo keeps its own working-tree configs outside `.agentsmesh/files/`. Only the templates it publishes for other repos live under `files/`.
+
+## Enabling the feature
+
+List `files` in `agentsmesh.yaml` (it is included when `features` is omitted):
+
+```yaml
+features:
+  - files
+  - rules
+```
+
+Consumers typically pull templates through [`extends`](../../configuration/extends/):
+
+```yaml
+extends:
+  - name: tooling
+    source: github:org/shared-tooling@v1
+    features: [files]
+    pick:
+      files:
+        - .gitignore
+        - .github/**
+        - mise.toml
+        - '!eslint.config.local.js'
+```
+
+## Cherry-picking with globs
+
+`pick.files` uses the **same picomatch globs** as rule `globs:` (dotfiles included):
+
+| Pattern                   | Meaning                                    |
+| ------------------------- | ------------------------------------------ |
+| `.gitignore`              | Only that path at the template root        |
+| `.github/**`              | Every file under `.github/`                |
+| `**/eslint.config.js`     | That filename at any depth                 |
+| `!eslint.config.local.js` | Exclude a path a positive pattern included |
+
+Quote exclusions in YAML (`"!…"`) because `!` is special there. A file is copied when it matches a positive pattern and no exclusion. A later positive pattern does not bring an excluded file back. A pattern that matches nothing warns.
+
+Omit `pick` to inherit every file under that source’s `files/` tree.
+
+## Merge order
+
+Same as every other feature: earlier extends → later extends → installed packs → the consumer’s own `.agentsmesh/files/`. The same relative path is replaced as a whole file. A local `.agentsmesh/files/.gitignore` is how one repo overrides the shared gitignore without forking the pack.
+
+## Scope and safety
+
+- **Project scope only.** Global generate skips copied files and warns.
+- Symlinks under `files/` are not followed.
+- Paths with `..`, absolute paths, or backslashes are rejected.
+- `.git/**`, `.agentsmesh/**`, `agentsmesh.yaml`, and `agentsmesh.local.yaml` cannot be written this way.
+- Picking a file is consent to write it (including CI workflows). There is no separate `accept:` gate.
+
+## Lock and removal
+
+The lock records every path the files feature wrote (`verbatim_outputs`). On a later full project generate, a previously recorded path that is no longer emitted is deleted. Filtered `--targets` runs do not prune, matching the rest of the lock contract.
+
+`agentsmesh check` treats hand-edits to these outputs as drift, the same as other generated files.
+
+<Aside type="tip">
+  `agentsmesh init` may append AgentsMesh lines to an existing `.gitignore`. A picked `.gitignore`
+  replaces the whole file on the next generate, so the shared template should include those lines
+  itself.
+</Aside>

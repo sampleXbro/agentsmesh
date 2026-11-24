@@ -104,6 +104,16 @@ export interface Permissions {
 /** Ignore patterns (gitignore syntax lines) */
 export type IgnorePatterns = string[];
 
+/** Whole-file template copied from `.agentsmesh/files/` to the project root. */
+export interface CanonicalCopiedFile {
+  /** Project-root-relative POSIX path (e.g. `.gitignore`, `.github/workflows/ci.yml`). */
+  readonly path: string;
+  /** File payload; binary paths use latin1 so every byte survives a JS string. */
+  readonly content: string;
+  /** When set, `writeFileAtomic` applies this mode (owner-executable sources use `0o755`). */
+  readonly mode?: number;
+}
+
 /** All canonical files loaded from .agentsmesh/ */
 export interface CanonicalFiles {
   rules: CanonicalRule[];
@@ -114,4 +124,6 @@ export interface CanonicalFiles {
   permissions: Permissions | null;
   hooks: Hooks | null;
   ignore: IgnorePatterns;
+  /** Optional: absent when the project has no `files/` tree. */
+  files?: CanonicalCopiedFile[];
 }

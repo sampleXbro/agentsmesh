@@ -33,7 +33,8 @@ export function isCanonicalSliceEmpty(c: CanonicalFiles): boolean {
     c.mcp === null &&
     c.permissions === null &&
     c.hooks === null &&
-    c.ignore.length === 0
+    c.ignore.length === 0 &&
+    (c.files?.length ?? 0) === 0
   );
 }
 

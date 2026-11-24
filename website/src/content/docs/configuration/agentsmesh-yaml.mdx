@@ -49,6 +49,7 @@ features:
   - hooks
   - ignore
   - permissions
+  - files
 
 # Inherit shared config from other sources
 extends:
@@ -79,15 +80,15 @@ conversions:
 
 ## Top-level fields
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `version` | `number` | Yes | Config schema version. Currently `1`. |
-| `targets` | `string[]` | Yes | Tool IDs to generate config for. |
-| `features` | `string[]` | No | Features to sync. Omit to enable all. |
-| `extends` | `array` | No | Shared config sources to inherit from. |
-| `overrides` | `object` | No | Per-target config overrides. |
-| `collaboration` | `object` | No | Team collaboration and lock settings. |
-| `conversions` | `object` | No | Control feature projection per target. |
+| Field           | Type       | Required | Description                            |
+| --------------- | ---------- | -------- | -------------------------------------- |
+| `version`       | `number`   | Yes      | Config schema version. Currently `1`.  |
+| `targets`       | `string[]` | Yes      | Tool IDs to generate config for.       |
+| `features`      | `string[]` | No       | Features to sync. Omit to enable all.  |
+| `extends`       | `array`    | No       | Shared config sources to inherit from. |
+| `overrides`     | `object`   | No       | Per-target config overrides.           |
+| `collaboration` | `object`   | No       | Team collaboration and lock settings.  |
+| `conversions`   | `object`   | No       | Control feature projection per target. |
 
 ## targets
 
@@ -95,16 +96,16 @@ Sample starter config (curated subset):
 
 ```yaml
 targets:
-  - claude-code    # Claude Code (.claude/)
-  - cursor         # Cursor (.cursor/)
-  - copilot        # GitHub Copilot (.github/)
-  - gemini-cli     # Gemini CLI (.gemini/)
-  - cline          # Cline (.cline/)
-  - codex-cli      # Codex CLI (AGENTS.md)
-  - windsurf       # Windsurf (.windsurf/)
-  - continue       # Continue (.continue/)
-  - junie          # Junie (.junie/)
-  - kiro           # Kiro (.kiro/ + AGENTS.md)
+  - claude-code # Claude Code (.claude/)
+  - cursor # Cursor (.cursor/)
+  - copilot # GitHub Copilot (.github/)
+  - gemini-cli # Gemini CLI (.gemini/)
+  - cline # Cline (.cline/)
+  - codex-cli # Codex CLI (AGENTS.md)
+  - windsurf # Windsurf (.windsurf/)
+  - continue # Continue (.continue/)
+  - junie # Junie (.junie/)
+  - kiro # Kiro (.kiro/ + AGENTS.md)
 ```
 
 See the [supported tools matrix](../../reference/supported-tools/) for every valid built-in target ID. Plugin targets installed via `agentsmesh plugin add` are also valid.
@@ -113,14 +114,14 @@ See the [supported tools matrix](../../reference/supported-tools/) for every val
 
 ```yaml
 features:
-  - rules        # .agentsmesh/rules/*.md
-  - commands     # .agentsmesh/commands/*.md
-  - agents       # .agentsmesh/agents/*.md
-  - skills       # .agentsmesh/skills/*/SKILL.md
-  - mcp          # .agentsmesh/mcp.json
-  - hooks        # .agentsmesh/hooks.yaml
-  - ignore       # .agentsmesh/ignore
-  - permissions  # .agentsmesh/permissions.yaml
+  - rules # .agentsmesh/rules/*.md
+  - commands # .agentsmesh/commands/*.md
+  - agents # .agentsmesh/agents/*.md
+  - skills # .agentsmesh/skills/*/SKILL.md
+  - mcp # .agentsmesh/mcp.json
+  - hooks # .agentsmesh/hooks.yaml
+  - ignore # .agentsmesh/ignore
+  - permissions # .agentsmesh/permissions.yaml
 ```
 
 Omitting `features` enables all features. Specifying a subset disables all others.
@@ -140,5 +141,6 @@ overrides:
 ```
 
 <Aside type="note">
-  `overrides` narrow down from the top-level `features`. You cannot add features in overrides that aren't in the top-level `features` list.
+  `overrides` narrow down from the top-level `features`. You cannot add features in overrides that
+  aren't in the top-level `features` list.
 </Aside>

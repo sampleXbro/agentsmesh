@@ -12,6 +12,11 @@ import { writeLockFile } from './generate-lock.js';
 import { isFilteredRun } from './generate-empty-run.js';
 import { buildOutputChecksums } from '../../config/core/lock-outputs.js';
 import { readLock } from '../../config/core/lock.js';
+import {
+  cleanupStaleVerbatimOutputs,
+  mergeVerbatimOutputs,
+} from '../../canonical/features/files/cleanup.js';
+import { verbatimPathsFromResults } from '../../canonical/features/files/emit.js';
 import type { GenerateData } from '../command-result.js';
 import type { ResolvedExtend } from '../../config/resolve/resolver.js';
 import type { GenerateResult } from '../../core/result-types.js';
@@ -90,7 +95,11 @@ export async function handleGenerateOrDryRun(
       for (const r of results) {
         if (r.status === 'created' || r.status === 'updated') {
           const fullPath = await ensureSafeOutputPath(context.rootBase, r.path, r.target);
-          await writeFileAtomic(fullPath, r.content);
+          await writeFileAtomic(
+            fullPath,
+            r.content,
+            r.mode !== undefined ? { mode: r.mode } : undefined,
+          );
         }
       }
       // The lock on disk is still the PREVIOUS run's until `writeLockFile`
@@ -100,6 +109,14 @@ export async function handleGenerateOrDryRun(
       // one on. The alternative — deleting on missing provenance — is the bug
       // itself, and it lands hardest on first-run and just-upgraded users.
       const previousLock = await readLock(context.canonicalDir);
+      const filtered = isFilteredRun(flags);
+      const currentVerbatim = verbatimPathsFromResults(results);
+      await cleanupStaleVerbatimOutputs({
+        projectRoot: context.rootBase,
+        previous: previousLock?.verbatimOutputs,
+        current: currentVerbatim,
+        prune: !filtered && scope === 'project',
+      });
       await cleanupStaleGeneratedOutputs({
         projectRoot: context.rootBase,
         targets: activeTargets,
@@ -112,8 +129,9 @@ export async function handleGenerateOrDryRun(
         context,
         resolvedExtends,
         buildOutputChecksums(results),
-        isFilteredRun(flags),
+        filtered,
         inactiveTargets,
+        mergeVerbatimOutputs(previousLock?.verbatimOutputs, currentVerbatim, filtered),
       );
     }
   } finally {

@@ -1,10 +1,13 @@
 <!-- agentsmesh:root-generation-contract:start -->
+
 ## AgentsMesh Generation Contract
 
 **NEVER edit generated files** (`CLAUDE.md`, `AGENTS.md`, `.claude/`, `.cursor/`, `.github/copilot-instructions.md`, and other tool outputs) — `agentsmesh generate` overwrites them. Edit the canonical source in `.agentsmesh` instead, or `agentsmesh.yaml` to change targets and features, then run `agentsmesh generate`.
+
 <!-- agentsmesh:root-generation-contract:end -->
 
 <!-- agentsmesh:lessons-contract:start -->
+
 ## Lessons (BLOCKING)
 
 Graph `.agentsmesh/lessons/lessons.json` is canonical; never hand-edit it. Manual: `lessons` skill.
@@ -14,6 +17,7 @@ Graph `.agentsmesh/lessons/lessons.json` is canonical; never hand-edit it. Manua
 **Capture:** after any failure, user correction, regression, wrong assumption, useful surprise, repeated friction, or non-obvious fix, MUST self-critique and run `agentsmesh lessons add "<imperative rule>" --topic <id> --trigger-file <glob> --evidence <sha|lesson-id>`.
 
 **Before final:** report `Lesson: captured <id>` or `Lesson: none`. No recall/capture gate = task incomplete. No shell: use `lessons_query` / `lessons_add`.
+
 <!-- agentsmesh:lessons-contract:end -->
 
 # Operational Guidelines
@@ -50,7 +54,6 @@ Graph `.agentsmesh/lessons/lessons.json` is canonical; never hand-edit it. Manua
 - **post-feature-qa** — Apply after every feature/story. Senior QA: verify edge-case coverage and story alignment.
 - **add-agent-target** — Use when adding a new AI agent target. Covers research, implementation, fixtures, full test coverage, docs.
 - **add-global-mode-target** — Use when adding or extending **global mode** (`--global`, `.agentsmesh`) for an existing target. Covers descriptor.global wiring, import/generate paths, reference rewriting, tests, and matrix docs.
-
 
 ## Core Principles
 

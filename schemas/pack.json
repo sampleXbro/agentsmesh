@@ -41,7 +41,8 @@
           "mcp",
           "hooks",
           "ignore",
-          "permissions"
+          "permissions",
+          "files"
         ]
       }
     },
@@ -67,6 +68,12 @@
           }
         },
         "agents": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "files": {
           "type": "array",
           "items": {
             "type": "string"

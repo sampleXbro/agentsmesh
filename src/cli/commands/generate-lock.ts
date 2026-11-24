@@ -19,7 +19,7 @@ import type { ResolvedExtend } from '../../config/resolve/resolver.js';
 import type { LockFile } from '../../core/types.js';
 
 type LockSources = Pick<LockFile, 'checksums' | 'extends' | 'packs'>;
-type LockContent = LockSources & Pick<LockFile, 'outputs' | 'staleTargets'>;
+type LockContent = LockSources & Pick<LockFile, 'outputs' | 'staleTargets' | 'verbatimOutputs'>;
 
 function sameMap(
   a: Record<string, string> | undefined,
@@ -28,6 +28,11 @@ function sameMap(
   if (a === undefined || b === undefined) return a === b;
   const keys = Object.keys(a);
   return keys.length === Object.keys(b).length && keys.every((key) => a[key] === b[key]);
+}
+
+function sameList(a: readonly string[] | undefined, b: readonly string[] | undefined): boolean {
+  if (a === undefined || b === undefined) return a === b;
+  return a.length === b.length && a.every((value, i) => value === b[i]);
 }
 
 function sameSources(previous: LockFile, next: LockSources): boolean {
@@ -42,6 +47,7 @@ function sameContent(previous: LockFile, next: LockContent): boolean {
   return (
     sameSources(previous, next) &&
     sameMap(previous.outputs, next.outputs) &&
+    sameList(previous.verbatimOutputs, next.verbatimOutputs) &&
     (previous.staleTargets ?? []).join('\n') === (next.staleTargets ?? []).join('\n')
   );
 }
@@ -56,6 +62,7 @@ export async function writeLockFile(
   runOutputs: Record<string, string>,
   filtered: boolean,
   skippedTargets: readonly string[] = [],
+  verbatimOutputs?: string[],
 ): Promise<boolean> {
   const previous = await readLock(context.canonicalDir);
   const sources: LockSources = {
@@ -72,7 +79,12 @@ export async function writeLockFile(
   // Filtered generate merges per-path so untouched targets' entries survive; it
   // never prunes stale entries — an accepted limitation until the next full run.
   const outputs = filtered ? { ...(previous?.outputs ?? {}), ...runOutputs } : runOutputs;
-  const content = { ...sources, outputs, ...(staleTargets ? { staleTargets } : {}) };
+  const content = {
+    ...sources,
+    outputs,
+    ...(verbatimOutputs !== undefined ? { verbatimOutputs } : {}),
+    ...(staleTargets ? { staleTargets } : {}),
+  };
   // Time, user and version describe the last run that changed the content.
   // Rewriting them on a no-op run dirtied the git tree after every generate.
   const changed = previous === null || !sameContent(previous, content);

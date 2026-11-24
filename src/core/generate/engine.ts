@@ -25,6 +25,8 @@ import {
   generateScopedSettingsFeature,
 } from './optional-features.js';
 import type { TargetLayoutScope } from '../../targets/catalog/target-descriptor.js';
+import { emitCopiedFiles } from '../../canonical/features/files/emit.js';
+import { logger } from '../../utils/output/logger.js';
 
 export interface GenerateContext {
   config: ValidatedConfig;
@@ -136,7 +138,21 @@ export async function generate(ctx: GenerateContext): Promise<GenerateResult[]> 
     packOriginatedKeys: buildPackOriginatedKeys(canonical),
   });
 
-  return resolveOutputCollisions(rewrittenResults.map(refreshResultStatus));
+  // Copied files skip reference rewrite (byte-identical templates). Append after
+  // rewrite so a path shared with a target output still hits collision checks.
+  let withFiles = rewrittenResults;
+  const copied = canonical.files ?? [];
+  if (config.features.includes('files') && copied.length > 0) {
+    if (scope === 'global') {
+      logger.warn(
+        `[agentsmesh] Skipping ${copied.length} copied file(s): the files feature only writes in project scope.`,
+      );
+    } else {
+      withFiles = [...rewrittenResults, ...(await emitCopiedFiles(copied, projectRoot))];
+    }
+  }
+
+  return resolveOutputCollisions(withFiles.map(refreshResultStatus));
 }
 
 // Root-instruction paths (primary + compat) claimed by 2+ targets keep canonical references so

@@ -12,6 +12,8 @@ export interface GenerateResult {
   status: 'created' | 'updated' | 'unchanged' | 'skipped';
   /** If skipped, why */
   skipReason?: string;
+  /** Optional POSIX mode passed through to `writeFileAtomic` (e.g. `0o755`). */
+  mode?: number;
 }
 
 /** Result of importing from a tool */

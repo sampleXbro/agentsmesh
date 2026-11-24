@@ -1,8 +1,0 @@
-allow:
-  - Bash(pnpm build:*)
-  - Bash(pnpm test:*)
-  - Bash(git add:*)
-  - Bash(npx vitest:*)
-  - Bash(node -e "console.log\(['.windsurfrules', 'AGENTS.md'].sort\(\)\)":*)
-deny: []
-ask: []

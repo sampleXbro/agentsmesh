@@ -6,6 +6,7 @@ import { basename } from 'node:path';
 import type { ExtendPick } from '../../config/core/schema.js';
 import type { CanonicalFiles } from '../../core/types.js';
 import { logger } from '../../utils/output/logger.js';
+import { applyFilesPick } from '../features/files/pick.js';
 
 export function applyExtendPick(
   canonical: CanonicalFiles,
@@ -70,6 +71,13 @@ export function applyExtendPick(
         );
       }
     }
+  }
+
+  if (pick.files?.length && features.includes('files')) {
+    next = {
+      ...next,
+      files: applyFilesPick(next.files ?? [], pick.files, extendName),
+    };
   }
 
   return next;

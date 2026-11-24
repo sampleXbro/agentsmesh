@@ -91,7 +91,8 @@
         "mcp",
         "hooks",
         "ignore",
-        "permissions"
+        "permissions",
+        "files"
       ],
       "type": "array",
       "items": {
@@ -104,7 +105,8 @@
           "mcp",
           "hooks",
           "ignore",
-          "permissions"
+          "permissions",
+          "files"
         ]
       }
     },
@@ -182,7 +184,8 @@
                 "mcp",
                 "hooks",
                 "ignore",
-                "permissions"
+                "permissions",
+                "files"
               ]
             }
           },
@@ -211,6 +214,12 @@
                 }
               },
               "agents": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "files": {
                 "type": "array",
                 "items": {
                   "type": "string"

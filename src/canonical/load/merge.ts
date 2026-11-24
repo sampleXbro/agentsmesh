@@ -12,6 +12,7 @@ import type {
   HookEntry,
   Hooks,
 } from '../../core/types.js';
+import { mergeCopiedFiles } from '../features/files/merge.js';
 
 function ruleSlug(r: CanonicalRule): string {
   return basename(r.source, '.md');
@@ -50,6 +51,7 @@ export function mergeCanonicalFiles(
       : overrideHooks(base.hooks, overlay.hooks);
   const ignore = mergeUniqueStrings(base.ignore, overlay.ignore);
 
+  const files = mergeCopiedFiles(base.files, overlay.files);
   return {
     rules: mergeByKey(base.rules, overlay.rules, ruleSlug),
     commands: mergeByKey(base.commands, overlay.commands, (c) => c.name),
@@ -59,6 +61,7 @@ export function mergeCanonicalFiles(
     permissions,
     hooks,
     ignore,
+    ...(files !== undefined ? { files } : {}),
   };
 }
 

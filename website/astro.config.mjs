@@ -147,6 +147,7 @@ export default defineConfig({
             { label: 'Hooks', slug: 'canonical-config/hooks' },
             { label: 'Ignore Patterns', slug: 'canonical-config/ignore-patterns' },
             { label: 'Permissions', slug: 'canonical-config/permissions' },
+            { label: 'Shared Files', slug: 'canonical-config/files' },
           ],
         },
         {

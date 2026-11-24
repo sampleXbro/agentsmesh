@@ -42,28 +42,28 @@ extends:
 
 ## Fields
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `name` | `string` | Yes | Identifier for this extends entry. Used in error messages. |
-| `source` | `string` | Yes | Source URL or path (see formats below). |
-| `version` | `string` | No | Version tag for remote sources (alternative to `@tag` in source). |
-| `target` | `string` | No | Hint for native format auto-discovery (e.g., `claude-code`). |
-| `as` | `string` | No | Force manual loading as `rules`, `commands`, `agents`, or `skills`. Useful for flat markdown directories. |
-| `features` | `string[]` | No | Which features to inherit. Omit to inherit all. |
-| `path` | `string` | No | Subdirectory within the source to look for config. |
-| `pick` | `object` | No | Cherry-pick specific named resources. |
-| `accept` | `string[]` | No | Consent to keep elevated artifacts (`hooks`, `permissions`, `mcp`) from a **remote** source. Stripped by default; ignored for local sources. |
+| Field      | Type       | Required | Description                                                                                                                                  |
+| ---------- | ---------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`     | `string`   | Yes      | Identifier for this extends entry. Used in error messages.                                                                                   |
+| `source`   | `string`   | Yes      | Source URL or path (see formats below).                                                                                                      |
+| `version`  | `string`   | No       | Version tag for remote sources (alternative to `@tag` in source).                                                                            |
+| `target`   | `string`   | No       | Hint for native format auto-discovery (e.g., `claude-code`).                                                                                 |
+| `as`       | `string`   | No       | Force manual loading as `rules`, `commands`, `agents`, or `skills`. Useful for flat markdown directories.                                    |
+| `features` | `string[]` | No       | Which features to inherit. Omit to inherit all.                                                                                              |
+| `path`     | `string`   | No       | Subdirectory within the source to look for config.                                                                                           |
+| `pick`     | `object`   | No       | Cherry-pick specific named resources.                                                                                                        |
+| `accept`   | `string[]` | No       | Consent to keep elevated artifacts (`hooks`, `permissions`, `mcp`) from a **remote** source. Stripped by default; ignored for local sources. |
 
 ## Source formats
 
-| Format | Example |
-|--------|---------|
-| GitHub shorthand | `github:org/repo@v1.0.0` |
-| GitHub (latest) | `github:org/repo` |
-| GitLab shorthand | `gitlab:group/repo@main` |
-| Git SSH | `git+ssh://git@github.com/org/repo#main` |
-| Git HTTPS | `git+https://github.com/org/repo.git#v2.0.0` |
-| Local path | `../shared-config` or `local:../shared-config` |
+| Format           | Example                                        |
+| ---------------- | ---------------------------------------------- |
+| GitHub shorthand | `github:org/repo@v1.0.0`                       |
+| GitHub (latest)  | `github:org/repo`                              |
+| GitLab shorthand | `gitlab:group/repo@main`                       |
+| Git SSH          | `git+ssh://git@github.com/org/repo#main`       |
+| Git HTTPS        | `git+https://github.com/org/repo.git#v2.0.0`   |
+| Local path       | `../shared-config` or `local:../shared-config` |
 
 ## Cherry-picking specific resources
 
@@ -81,6 +81,21 @@ extends:
 
 Only the listed items are inherited; everything else in the source is ignored.
 
+For the [`files`](../../canonical-config/files/) feature, `pick.files` takes the same picomatch globs as rule `globs:` (not only literal names). A folder is selected with `dir/**`. A leading `!` excludes a path. Each matched path is copied as a whole file — there is no line merge:
+
+```yaml
+extends:
+  - name: tooling
+    source: github:org/shared-tooling@v1
+    features: [files]
+    pick:
+      files:
+        - .gitignore
+        - .github/**
+        - mise.toml
+        - '!eslint.config.local.js'
+```
+
 ## Cache behavior
 
 Remote sources are cached in `~/.agentsmesh/cache/` after the first fetch. Subsequent `generate` runs use the cache.
@@ -93,18 +108,19 @@ agentsmesh generate --no-cache   # alias
 ```
 
 <Aside type="tip">
-  Pin remote sources to a version tag (e.g., `@v1.0.0`) to ensure deterministic builds. Using `@main` or no version means you get the latest on every cache refresh.
+  Pin remote sources to a version tag (e.g., `@v1.0.0`) to ensure deterministic builds. Using
+  `@main` or no version means you get the latest on every cache refresh.
 </Aside>
 
 ## Environment variables
 
-| Variable | Effect |
-|---|---|
-| `AGENTSMESH_CACHE` | Override the cache directory. Must be an absolute path and must not be the filesystem root (`/` or a Windows drive root); otherwise the CLI throws at startup. Defaults to `~/.agentsmesh/cache`. |
-| `AGENTSMESH_GITHUB_TOKEN` | Token attached as `Authorization: Bearer …` for GitHub tarball/clone fetches. Required for private repos. |
-| `AGENTSMESH_GITLAB_TOKEN` | Token interpolated into GitLab clone URLs (`https://oauth2:$TOKEN@host/…`). Required for private repos. |
-| `AGENTSMESH_ALLOW_INSECURE_GIT` | When set to `1`, enables insecure `http://` git transports. Disabled by default because `http` strips transport security — a MITM on any hop can swap the cloned bytes before the SHA is pinned. Set to `1` only for closed-network development. |
-| `AGENTSMESH_ALLOW_LOCAL_GIT` | When set to `1`, enables `git+file://` sources. Disabled by default because on shared/multi-tenant hosts a `git+file:///tmp/world-writable-repo` source could be planted by another user; combined with elevated-artifact emission this is a local privilege-escalation vector. Set to `1` only for closed-network development. |
+| Variable                        | Effect                                                                                                                                                                                                                                                                                                                          |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `AGENTSMESH_CACHE`              | Override the cache directory. Must be an absolute path and must not be the filesystem root (`/` or a Windows drive root); otherwise the CLI throws at startup. Defaults to `~/.agentsmesh/cache`.                                                                                                                               |
+| `AGENTSMESH_GITHUB_TOKEN`       | Token attached as `Authorization: Bearer …` for GitHub tarball/clone fetches. Required for private repos.                                                                                                                                                                                                                       |
+| `AGENTSMESH_GITLAB_TOKEN`       | Token interpolated into GitLab clone URLs (`https://oauth2:$TOKEN@host/…`). Required for private repos.                                                                                                                                                                                                                         |
+| `AGENTSMESH_ALLOW_INSECURE_GIT` | When set to `1`, enables insecure `http://` git transports. Disabled by default because `http` strips transport security — a MITM on any hop can swap the cloned bytes before the SHA is pinned. Set to `1` only for closed-network development.                                                                                |
+| `AGENTSMESH_ALLOW_LOCAL_GIT`    | When set to `1`, enables `git+file://` sources. Disabled by default because on shared/multi-tenant hosts a `git+file:///tmp/world-writable-repo` source could be planted by another user; combined with elevated-artifact emission this is a local privilege-escalation vector. Set to `1` only for closed-network development. |
 
 ## Fetch hardening
 

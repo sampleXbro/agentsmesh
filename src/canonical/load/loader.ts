@@ -12,6 +12,7 @@ import { parseMcp } from '../features/mcp.js';
 import { parsePermissions } from '../features/permissions.js';
 import { parseHooks } from '../features/hooks.js';
 import { parseIgnore } from '../features/ignore.js';
+import { parseCopiedFiles } from '../features/files/load.js';
 import { exists } from '../../utils/filesystem/fs.js';
 
 /**
@@ -32,16 +33,18 @@ export async function loadCanonicalFiles(
     ? nestedCanonicalDir
     : canonicalDirOrProjectRoot;
 
-  const [rules, commands, agents, skills, mcp, permissions, hooks, ignore] = await Promise.all([
-    parseRules(join(canonicalDir, 'rules'), opts),
-    parseCommands(join(canonicalDir, 'commands'), opts),
-    parseAgents(join(canonicalDir, 'agents'), opts),
-    parseSkills(join(canonicalDir, 'skills'), opts),
-    parseMcp(join(canonicalDir, 'mcp.json'), opts.onParseError),
-    parsePermissions(join(canonicalDir, 'permissions.yaml'), opts.onParseError),
-    parseHooks(join(canonicalDir, 'hooks.yaml'), opts.onParseError),
-    parseIgnore(join(canonicalDir, 'ignore')),
-  ]);
+  const [rules, commands, agents, skills, mcp, permissions, hooks, ignore, files] =
+    await Promise.all([
+      parseRules(join(canonicalDir, 'rules'), opts),
+      parseCommands(join(canonicalDir, 'commands'), opts),
+      parseAgents(join(canonicalDir, 'agents'), opts),
+      parseSkills(join(canonicalDir, 'skills'), opts),
+      parseMcp(join(canonicalDir, 'mcp.json'), opts.onParseError),
+      parsePermissions(join(canonicalDir, 'permissions.yaml'), opts.onParseError),
+      parseHooks(join(canonicalDir, 'hooks.yaml'), opts.onParseError),
+      parseIgnore(join(canonicalDir, 'ignore')),
+      parseCopiedFiles(join(canonicalDir, 'files')),
+    ]);
 
   return {
     rules,
@@ -52,5 +55,6 @@ export async function loadCanonicalFiles(
     permissions,
     hooks,
     ignore,
+    ...(files.length > 0 ? { files } : {}),
   };
 }
