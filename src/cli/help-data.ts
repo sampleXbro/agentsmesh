@@ -248,6 +248,11 @@ export const COMMANDS: HelpCommand[] = [
         name: '--targets <csv>',
         description: 'Limit watched generate/matrix output to target IDs',
       },
+      { name: '--force', description: 'Bypass lock-strategy blocked feature violations' },
+      { name: '--refresh-cache', description: 'Refresh remote extends cache on each regeneration' },
+      { name: '--no-cache', description: 'Alias for --refresh-cache' },
+      { name: '--dry-run', description: 'Preview each regeneration without writing outputs' },
+      { name: '--check', description: 'Check drift on each change instead of writing outputs' },
     ],
   },
   {

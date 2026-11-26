@@ -25,6 +25,17 @@ amsh --help
 | `--verbose` | Show full error stack traces on failure. |
 | `--json` | Output machine-readable JSON (single envelope to stdout, complete at any payload size, safe to pipe). Not supported with `watch`. |
 
+## Unknown flags
+
+A flag that a command does not accept stops the run with exit code 2, before anything is written. A typo such as `--dryrun` no longer runs a real `generate`. The message names the flag and, when one is close, suggests it:
+
+```text
+$ agentsmesh generate --dryrun
+✗ Unknown flag --dryrun for `generate`. Did you mean --dry-run?
+```
+
+When no accepted flag is close, the message points to `agentsmesh <command> --help`. With `--json`, the same error comes back as a failure envelope with `success: false` and the message in `error`. The `lessons` and `mcp` commands check their own flags.
+
 ## Commands
 
 <CardGrid>
