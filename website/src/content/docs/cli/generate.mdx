@@ -18,8 +18,8 @@ agentsmesh generate [flags]
 |------|-------------|
 | `--targets <csv>` | Comma-separated list of target IDs to generate for. Defaults to all configured targets. If the canonical sources changed, the enabled targets the run left out are recorded in the lock as `stale_targets`, and `agentsmesh check` fails until each of them is generated again. |
 | `--global` | Generate user-level config from `~/.agentsmesh/` instead of project-local config (e.g. `claude-code`, `antigravity`, `codex-cli`; Cursor writes full `~/.cursor/` global surfaces including `rules/`, `AGENTS.md`, hooks, ignore, MCP, skills, agents, commands). |
-| `--dry-run` | Preview changes without writing any files. |
-| `--check` | Verify sync status only. Exit code 1 if out of sync, or if the project's lessons graph cannot be read. |
+| `--dry-run` | Preview changes without writing any files. It also lists the files a full run would remove (see [Removing a target](#removing-a-target)). |
+| `--check` | Verify sync status only. Exit code 1 if out of sync, if files of a removed target are still on disk, or if the project's lessons graph cannot be read. |
 | `--force` | Bypass collaboration lock violations. |
 | `--refresh-cache` | Re-fetch remote extends sources before generating. |
 | `--no-cache` | Alias for `--refresh-cache`. |
@@ -67,7 +67,24 @@ Prints one status line per file — `[dry-run] <status> <path> (<target>)` — w
 agentsmesh generate --check
 ```
 
-Exits 0 if generated files match the lock file. Exits 1 if drift is detected. Use this in CI pipelines instead of `agentsmesh check` when you want the full generation path to be verified. A run that would produce no files still counts a leftover generated file (for example, after the last pack was uninstalled) as drift.
+Exits 0 if generated files match the lock file. Exits 1 if drift is detected. Use this in CI pipelines instead of `agentsmesh check` when you want the full generation path to be verified. A run that would produce no files still counts a leftover generated file (for example, after the last pack was uninstalled) as drift. Files left by a target you removed from `targets:` also count: each one prints `[check] stale <path>`. `agentsmesh check` cannot see those before `generate` runs, so use `generate --check` for this in CI.
+
+### Removing a target
+
+When you remove a target from `targets:` in `agentsmesh.yaml`, the next full `agentsmesh generate` deletes the files that target generated:
+
+```
+✓ removed .cursor/AGENTS.md
+✓ removed .cursor/rules/general.mdc
+⚠ Kept .cursor/mcp.json: it is a shared tool config and no target generates it now. Remove the agentsmesh entries yourself if you do not need them.
+Generated: 0 created, 0 updated, 2 removed, 13 unchanged
+```
+
+- Only a file that is still exactly as agentsmesh wrote it is deleted (its checksum matches the lock). Folders left empty are removed too.
+- A file you edited is kept, with the warning `Kept <path>: you edited it, and no target generates it now. Delete it yourself if you do not need it.`
+- A shared tool config that a target only adds entries to, such as `.cursor/mcp.json` or `.codex/config.toml`, is kept with the warning shown above, because it can hold your own settings.
+- Kept files leave the lock, so from then on they are yours.
+- A `--targets` run never deletes other targets' files. `--dry-run` prints `[dry-run] removed <path>` and changes nothing. `--global` works the same way, with `~/` paths.
 
 ### Force through locks
 
@@ -94,7 +111,7 @@ Forces a re-fetch of all remote `extends` sources. Without this flag, AgentsMesh
 4. **Rewrite references** — internal `.agentsmesh/` file paths are rewritten to target-relative paths.
 5. **Resolve collisions** — detect overlapping output paths, prefer native over embedded.
 6. **Write output** — create target directories, write all files, update the lock file (canonical-source checksums plus an `outputs` map of every generated file's checksum, so `agentsmesh check` can later detect direct edits to generated files). Filtered runs (`--targets`) merge outputs per-path into the existing map; a full run replaces it. A filtered run after a canonical change records the enabled targets it left out as `stale_targets`, because they were not regenerated from the new sources. The lock is rewritten only when this content changes: a run that changes nothing leaves `.agentsmesh/.lock` untouched, so the git tree stays clean.
-7. **Clean stale files** — remove previously generated files no longer in the output set. This also runs when a full run produces no files at all, so uninstalling the last pack removes its generated outputs and resets the lock's `outputs` map.
+7. **Clean stale files** — remove previously generated files no longer in the output set. This also runs when a full run produces no files at all, so uninstalling the last pack removes its generated outputs and resets the lock's `outputs` map. A full run also removes the unedited files of targets that are no longer configured, using the previous lock (see [Removing a target](#removing-a-target)).
 
 ## Lessons upkeep
 
@@ -102,6 +119,7 @@ In project scope, when the project uses [lessons](../lessons/), `generate` also 
 
 - **Merge driver.** On a normal run it sets this clone's `merge.agentsmesh-lessons.*` git config (local config) when `.gitattributes` binds `lessons.json` to the driver, and prints what it did. It skips the setup when git could not start the driver later (see [Team workflow](../lessons/#team-workflow) for the rule), and keeps a driver you configured yourself.
 - **Unreadable graph.** When `lessons.json` has merge conflict markers, is corrupt, does not match the schema, or was written by a newer agentsmesh, a normal run warns and carries on, and `generate --check` fails with exit code 1. The same happens while git still holds `lessons.json` unmerged and the file is missing lessons from the other branch: run `agentsmesh lessons resolve` before `git add`.
+- **Hooks feature off.** When `hooks` is not in `features` in `agentsmesh.yaml` (or in `agentsmesh.local.yaml`, when that file sets `features`), it warns once that the lessons recall hook will not reach any tool, and tells you to add `hooks` to `features`.
 - **Team hint.** When the recall hook is wired but the project's `package.json` does not list agentsmesh as a dependency, it warns that teammates without a global install will not get lesson recall, and suggests adding agentsmesh as a devDependency and re-running `agentsmesh init --lessons`.
 
 The recall hook entries themselves are filtered per target: each target keeps them only on the hook events whose output reaches its model. See [Hook mode](../lessons/#hook-mode-deterministic-recall).
@@ -150,6 +168,8 @@ Field reference:
 
 - `mode` — `"generate"`, `"dry-run"` (with `--dry-run`) or `"check"` (with `--check`).
 - `files[]` — `{ path, target, status }` per generated file; `status` is `created`, `updated` or `unchanged`.
+- `removed[]` — only present when the run removed (or, with `--dry-run` and `--check`, would remove) files of targets that are no longer configured.
+- `kept[]` — only present when such files were kept: `{ path, reason }`, where `reason` is `edited` (you changed the file) or `shared` (a shared tool config). Their warnings are not printed under `--json`.
 - `emptyReason` — only present when no files were produced because no active target has a global mode (`"no-global-support"`).
 - `skippedSettings[]` — only present when settings from installed packs or `extends` sources were skipped, because your own canonical files do not manage them. One entry per feature enabled in `agentsmesh.yaml`: `feature` is `mcp`, `permissions`, `hooks` or `ignore`, and `items` names what was skipped (server names, permission entries as `<list> <entry>`, hook events with their count such as `PreToolUse (1 hook)`, and ignore patterns). It carries the same facts as the `Skipped … from installed packs or extends` warning, which `--json` does not print. See the rules for [MCP servers](../../canonical-config/mcp-servers/#servers-from-packs-and-extends), [permissions](../../canonical-config/permissions/#permissions-from-packs-and-extends), [hooks](../../canonical-config/hooks/#hooks-from-packs-and-extends) and [ignore patterns](../../canonical-config/ignore-patterns/#patterns-from-packs-and-extends).
 

@@ -3,24 +3,9 @@ import type { SkippedSettings } from '../canonical/load/unmanaged-settings.js';
 
 export type CommandResult =
   | { success: true; data: unknown }
-  | { success: false; error: string; data?: unknown };
+  | { success: false; error: string; code?: string; data?: unknown };
 
-export interface GenerateData {
-  scope: 'project' | 'global';
-  mode: 'generate' | 'check' | 'dry-run';
-  files: Array<{ path: string; target: string; status: 'created' | 'updated' | 'unchanged' }>;
-  summary: { created: number; updated: number; unchanged: number };
-  /**
-   * Why zero files were produced, when known. `no-global-support` means every
-   * active target lacks a global layout (e.g. cloud-only jules/replit-agent in
-   * `--global`); the renderer surfaces that instead of the misleading default
-   * "no root rule / rules feature disabled" cause. Absent when files exist or
-   * the cause is the default one.
-   */
-  emptyReason?: 'no-global-support';
-  /** Pack and extends settings the user's own files do not manage; absent when none. */
-  skippedSettings?: SkippedSettings[];
-}
+export type { GenerateData } from './generate-data.js';
 
 export interface InitData {
   scope: 'project' | 'global';

@@ -13,7 +13,6 @@ import { join } from 'node:path';
 import { runGenerate } from '../../../../src/cli/commands/generate.js';
 import { handleEmptyResults } from '../../../../src/cli/commands/generate-empty-run.js';
 import { readLock, writeLock } from '../../../../src/config/core/lock.js';
-import { logger } from '../../../../src/utils/output/logger.js';
 
 const ORPHAN = '.claude/skills/demo/SKILL.md';
 const USER_OWNED = '.claude/skills/mine/SKILL.md';
@@ -66,14 +65,12 @@ describe('runGenerate — zero-output run', () => {
   });
 
   it('--check reports the live orphan as drift and deletes nothing', async () => {
-    const errorSpy = vi.spyOn(logger, 'error').mockImplementation(() => undefined);
-
     const result = await runGenerate({ check: true }, testDir, { printMatrix: false });
 
     expect(result.exitCode).toBe(1);
     expect(existsSync(join(testDir, ORPHAN))).toBe(true);
     expect((await readLock(canonicalDir))?.outputs).toEqual({ [ORPHAN]: 'sha256:previous' });
-    expect(errorSpy.mock.calls.map((c) => c[0])).toContain(`[check] stale ${ORPHAN}`);
+    expect(result.data.removed).toEqual([ORPHAN]);
   });
 
   it('--check is in sync once the orphan is gone', async () => {

@@ -25,14 +25,28 @@ async function generateAll(): Promise<void> {
 }
 
 describe('openhands stale cleanup', () => {
-  it("never deletes goose's hooks file out of the shared plugin directory", async () => {
+  it("never deletes goose's edited hooks file out of the shared plugin directory", async () => {
     dir = createCanonicalProject(`version: 1\ntargets: [openhands, goose]\n${FEATURES}\n`);
     await generateAll();
     expect(existsSync(join(dir, GOOSE_HOOKS))).toBe(true);
+    writeFileSync(join(dir, GOOSE_HOOKS), '{"hooks":{}}\n');
 
     writeConfig(dir, `version: 1\ntargets: [openhands]\n${FEATURES}\n`);
     await generateAll();
+    expect(readFileSync(join(dir, GOOSE_HOOKS), 'utf8')).toBe('{"hooks":{}}\n');
+  });
+
+  it("removes goose's unedited hooks file once goose leaves targets, and nothing of openhands'", async () => {
+    dir = createCanonicalProject(`version: 1\ntargets: [openhands, goose]\n${FEATURES}\n`);
+    await generateAll();
     expect(existsSync(join(dir, GOOSE_HOOKS))).toBe(true);
+    const openhandsFiles = ['.openhands/hooks.json', '.agents/agents/researcher.md'];
+    for (const file of openhandsFiles) expect(existsSync(join(dir, file))).toBe(true);
+
+    writeConfig(dir, `version: 1\ntargets: [openhands]\n${FEATURES}\n`);
+    await generateAll();
+    expect(existsSync(join(dir, GOOSE_HOOKS))).toBe(false);
+    for (const file of openhandsFiles) expect(existsSync(join(dir, file))).toBe(true);
   });
 
   it('removes a command file the canonical directory no longer defines', async () => {

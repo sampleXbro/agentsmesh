@@ -68,9 +68,11 @@ export async function writeLockFile(
     skippedTargets,
     previous === null || !sameSources(previous, sources),
   );
-  // Full generate replaces the outputs map (dropping disabled targets' entries).
-  // Filtered generate merges per-path so untouched targets' entries survive; it
-  // never prunes stale entries — an accepted limitation until the next full run.
+  // Full generate replaces the outputs map. A dropped target's entries go with
+  // it, so the removed-output sweep must already have deleted or warned about
+  // those files. Filtered generate merges per-path so untouched targets' entries
+  // survive; it never prunes stale entries — an accepted limitation until the
+  // next full run.
   const outputs = filtered ? { ...(previous?.outputs ?? {}), ...runOutputs } : runOutputs;
   const content = { ...sources, outputs, ...(staleTargets ? { staleTargets } : {}) };
   // Time, user and version describe the last run that changed the content.

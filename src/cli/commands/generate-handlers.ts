@@ -7,6 +7,12 @@ import { join } from 'node:path';
 import { writeFileAtomic } from '../../utils/filesystem/fs.js';
 import { acquireProcessLock } from '../../utils/filesystem/process-lock.js';
 import { cleanupStaleGeneratedOutputs } from '../../core/generate/stale-cleanup.js';
+import {
+  NO_REMOVALS,
+  deleteRemovedOutputs,
+  planRemovedOutputs,
+} from '../../core/generate/removed-outputs.js';
+import { removalFields } from '../generate-data.js';
 import { assertOutputBoundary, ensureSafeOutputPath } from './generate-path.js';
 import { writeLockFile } from './generate-lock.js';
 import { isFilteredRun } from './generate-empty-run.js';
@@ -72,6 +78,7 @@ export async function handleGenerateOrDryRun(
   } = args;
 
   const inactiveTargets = configuredTargets.filter((t) => !activeTargets.includes(t));
+  const filtered = isFilteredRun(flags);
   await assertOutputBoundary(results, {
     projectRoot: context.rootBase,
     targets: activeTargets,
@@ -80,12 +87,29 @@ export async function handleGenerateOrDryRun(
   });
 
   let lockWritten = false;
+  let removals = NO_REMOVALS;
   const release = dryRun
     ? null
     : await acquireProcessLock(join(context.canonicalDir, '.generate.lock'), {
         label: 'generate lock',
       });
   try {
+    // The lock on disk is still the PREVIOUS run's until `writeLockFile` below,
+    // so its outputs map is exactly the provenance the sweeps need. Absent
+    // (fresh project, or a lock predating the map) → an empty map, so nothing
+    // is deleted this run and provenance exists from the next one on. The
+    // alternative — deleting on missing provenance — is the bug itself, and it
+    // lands hardest on first-run and just-upgraded users.
+    const previousOutputs = (await readLock(context.canonicalDir))?.outputs ?? {};
+    // A filtered run never reads "not produced" as "removed": it did not
+    // generate for the other targets. Only a full run sweeps dropped targets.
+    const removedOutputs = {
+      projectRoot: context.rootBase,
+      scope,
+      previousOutputs,
+      expectedPaths: results.map((result) => result.path),
+      configuredTargets,
+    };
     if (!dryRun) {
       for (const r of results) {
         if (r.status === 'created' || r.status === 'updated') {
@@ -93,28 +117,27 @@ export async function handleGenerateOrDryRun(
           await writeFileAtomic(fullPath, r.content);
         }
       }
-      // The lock on disk is still the PREVIOUS run's until `writeLockFile`
-      // below, so its outputs map is exactly the provenance the sweep needs.
-      // Absent (fresh project, or a lock predating the map) → an empty set, so
-      // the sweep deletes nothing this run and provenance exists from the next
-      // one on. The alternative — deleting on missing provenance — is the bug
-      // itself, and it lands hardest on first-run and just-upgraded users.
-      const previousLock = await readLock(context.canonicalDir);
       await cleanupStaleGeneratedOutputs({
         projectRoot: context.rootBase,
         targets: activeTargets,
         expectedPaths: results.map((result) => result.path),
         scope,
-        generatedOutputs: Object.keys(previousLock?.outputs ?? {}),
+        generatedOutputs: Object.keys(previousOutputs),
         inactiveTargets,
       });
+      if (!filtered) {
+        removals = await planRemovedOutputs(removedOutputs);
+        await deleteRemovedOutputs(context.rootBase, removals.stale);
+      }
       lockWritten = await writeLockFile(
         context,
         resolvedExtends,
         buildOutputChecksums(results),
-        isFilteredRun(flags),
+        filtered,
         inactiveTargets,
       );
+    } else if (!filtered) {
+      removals = await planRemovedOutputs(removedOutputs);
     }
   } finally {
     if (release) await release();
@@ -133,7 +156,13 @@ export async function handleGenerateOrDryRun(
     target: r.target,
     status: r.status as 'created' | 'updated' | 'unchanged',
   }));
-  const data: GenerateData = { scope, mode, files, summary: buildSummary(actionable) };
+  const data: GenerateData = {
+    scope,
+    mode,
+    files,
+    summary: buildSummary(actionable),
+    ...removalFields(removals.stale, removals.kept),
+  };
   return { exitCode: 0, data, lockWritten };
 }
 

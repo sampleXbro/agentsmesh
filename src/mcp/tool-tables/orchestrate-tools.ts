@@ -26,7 +26,7 @@ export const ORCHESTRATE_TOOL_DESCRIPTORS: ToolDescriptor[] = [
   {
     name: 'generate',
     description:
-      "Generate target-native config files from canonical .agentsmesh/ content. Propagates rules, commands, agents, skills, MCP, hooks, ignore, and permissions to all configured targets (lockfileUpdated is true only when the run rewrote .agentsmesh/.lock). skippedSettings lists the MCP servers, permissions, hooks and ignore patterns from installed packs or extends that were not written because the project's own files do not manage them; warnings says how to fix each.",
+      "Generate target-native config files from canonical .agentsmesh/ content. Propagates rules, commands, agents, skills, MCP, hooks, ignore, and permissions to all configured targets (lockfileUpdated is true only when the run rewrote .agentsmesh/.lock). skippedSettings lists the MCP servers, permissions, hooks and ignore patterns from installed packs or extends that were not written because the project's own files do not manage them; warnings says how to fix each. removed lists the generated files of a target taken out of agentsmesh.yaml that a full run deleted (dry_run: would delete); kept lists the ones left on disk because you edited them or they are shared tool configs, with one warning for each.",
     inputSchema: z
       .object({
         targets: z
