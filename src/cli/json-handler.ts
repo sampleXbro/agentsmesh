@@ -10,6 +10,8 @@ interface CommandOutput {
   data: unknown;
   /** Actionable failure message; surfaced verbatim in the JSON envelope when present. */
   error?: string;
+  /** Stable machine code of the failure; emitted in the failed envelope when present. */
+  code?: string;
 }
 
 /**
@@ -31,7 +33,9 @@ export function handleResult(
         : `Command '${command}' failed`;
     emitJson(
       command,
-      success ? { success: true, data: result.data } : { success: false, error, data: result.data },
+      success
+        ? { success: true, data: result.data }
+        : { success: false, error, code: result.code, data: result.data },
     );
     process.exit(result.exitCode);
     return; // unreachable at runtime; guards against mocked process.exit in tests

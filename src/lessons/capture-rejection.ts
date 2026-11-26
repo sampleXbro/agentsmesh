@@ -1,5 +1,6 @@
 import {
   BroadCommandPatternError,
+  CatchAllGlobError,
   EmptyRuleError,
   InvalidTopicIdError,
   NoTriggerError,
@@ -15,6 +16,7 @@ export type CaptureRejection =
   | UnrecallableLessonError
   | RuleTooLongError
   | BroadCommandPatternError
+  | CatchAllGlobError
   | InvalidTopicIdError
   | TopicSummaryRequiredError
   | TriggerFileGlobError;
@@ -27,6 +29,7 @@ export function isCaptureRejection(err: unknown): err is CaptureRejection {
     err instanceof UnrecallableLessonError ||
     err instanceof RuleTooLongError ||
     err instanceof BroadCommandPatternError ||
+    err instanceof CatchAllGlobError ||
     err instanceof InvalidTopicIdError ||
     err instanceof TopicSummaryRequiredError ||
     err instanceof TriggerFileGlobError

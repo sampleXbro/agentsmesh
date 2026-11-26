@@ -11,6 +11,20 @@
  *   change without notice.
  */
 
+import type { UnknownTopicError } from '../lessons/add-errors.js';
+import type { CaptureRejection } from '../lessons/capture-rejection.js';
+import type {
+  InactiveLessonError,
+  LastTriggerError,
+  SelfMergeError,
+  TriggerNotAttachedError,
+  UnknownLessonError,
+  UnknownSupersederError,
+} from '../lessons/curation-errors.js';
+import type { LegacyTopicPathError } from '../lessons/import-legacy-read.js';
+import type { LessonsGraphExistsError } from '../lessons/import-legacy.js';
+import type { LessonsDirOutsideProjectError } from '../lessons/lessons-dir-guard.js';
+
 export { LessonsGraphSchema, parseGraph } from '../lessons/graph-schema.js';
 export type {
   Lesson,
@@ -75,6 +89,47 @@ export type {
   AddLessonTriggers,
 } from '../lessons/add.js';
 
+// Capture guardrail errors: each carries a stable `code` (see LessonsErrorCode).
+// Catch them by `instanceof`, or narrow with `isCaptureRejection`.
+export {
+  BroadCommandPatternError,
+  CatchAllGlobError,
+  EmptyRuleError,
+  InvalidTopicIdError,
+  NoTriggerError,
+  RuleTooLongError,
+  TopicSummaryRequiredError,
+  UnrecallableLessonError,
+} from '../lessons/add-errors.js';
+export { TriggerFileGlobError } from '../lessons/trigger-file-glob.js';
+// Curation errors (`lessons deprecate`, `merge`, `untrigger`), each with a stable `code`.
+export {
+  InactiveLessonError,
+  LastTriggerError,
+  SelfMergeError,
+  TriggerNotAttachedError,
+  UnknownLessonError,
+  UnknownSupersederError,
+} from '../lessons/curation-errors.js';
+export { isCaptureRejection } from '../lessons/capture-rejection.js';
+export type { CaptureRejection } from '../lessons/capture-rejection.js';
+// Thrown by every write when the validator refuses the change; `findings` lists why.
+export { LessonsWriteRefusedError } from '../lessons/mutate.js';
+
+/** Every stable `code` the lessons errors carry; the same strings the CLI `--json` and MCP return. */
+export type LessonsErrorCode =
+  | CaptureRejection['code']
+  | UnknownLessonError['code']
+  | UnknownSupersederError['code']
+  | InactiveLessonError['code']
+  | SelfMergeError['code']
+  | TriggerNotAttachedError['code']
+  | LastTriggerError['code']
+  | UnknownTopicError['code']
+  | LessonsGraphExistsError['code']
+  | LessonsDirOutsideProjectError['code']
+  | LegacyTopicPathError['code'];
+
 export { validateLessonsGraph } from '../lessons/validate.js';
 export type { ValidationFinding, ValidationLevel, ValidationReport } from '../lessons/validate.js';
 
@@ -91,4 +146,5 @@ export { lessonsPaths, toRelPath, LESSONS_PROCEDURAL_RULE } from '../lessons/pat
 export type { LessonsPaths } from '../lessons/paths.js';
 
 export { scaffoldLessons } from '../lessons/init.js';
-export type { ScaffoldLessonsResult } from '../lessons/init.js';
+export type { ScaffoldLessonsOptions, ScaffoldLessonsResult } from '../lessons/init.js';
+export type { RecallHookOutcome } from '../lessons/recall-hook-scaffold.js';

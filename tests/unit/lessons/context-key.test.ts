@@ -43,9 +43,9 @@ describe('normalizeCommand — compound commands key on the real program', () =>
     expect(normalizeCommand(command)).toBe(expected);
   });
 
-  it('keys a navigation-only command on the navigation program', () => {
-    expect(normalizeCommand('cd /repo')).toBe('cd');
-    expect(normalizeCommand('cd src && cd ..')).toBe('cd');
+  it('gives a navigation-only command no class (see command-class-navigation.test.ts)', () => {
+    expect(normalizeCommand('cd /repo')).toBe('');
+    expect(normalizeCommand('cd src && cd ..')).toBe('');
   });
 
   it('never splits inside quotes', () => {

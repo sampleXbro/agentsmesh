@@ -12,6 +12,8 @@
  * span any depth. A negated glob matches every path but its own, so it scores 0.
  */
 
+import { getGlobMatcher } from './glob-safety.js';
+
 const WILDCARD = /[*?[\]]/;
 
 /** A leading `!` (see glob-parse.ts): the trigger fires on every path it does NOT match. */
@@ -40,10 +42,46 @@ export function globNarrowness(pattern: string): number {
  * Broad enough that recall would fire it on most of the repo. Advisory only:
  * a deliberate file-CLASS trigger such as a per-target `index.ts` pattern is the
  * documented way to write a rule about general behaviour, so this never blocks
- * a capture.
+ * a capture. The one blocking case is {@link isCatchAllGlob}.
  */
 export const BROAD_GLOB_NARROWNESS = 0.34;
 
 export function isBroadFileGlob(pattern: string): boolean {
   return globNarrowness(pattern) < BROAD_GLOB_NARROWNESS;
+}
+
+/**
+ * Repo-shaped paths a catch-all glob must all match: a root file without an
+ * extension, a dotfile, a dot directory, a deep nested file, a path with a
+ * space or non-ASCII letters, and the usual build and dependency folders.
+ */
+export const GLOB_PROBE_PATHS: readonly string[] = [
+  'LICENSE',
+  'package.json',
+  '.gitignore',
+  'src/index.ts',
+  'src/lib/deep/nested/util.test.ts',
+  '.github/workflows/ci.yml',
+  'docs/guide/intro.md',
+  'docs/my notes.txt',
+  'assets/logo.png',
+  'dist/app.min.js.map',
+  'node_modules/pkg/index.js',
+  'src/naïve/файл.ts',
+];
+
+// A glob that matches EVERY probe path, so it would fire on every file edit.
+// Probed with the same linear matcher recall uses (like the command-pattern
+// breadth check), so a bare globstar, a globstar plus a lone star segment, a
+// `./` prefix and a brace group holding one of those all count, with no
+// glob-shape heuristics.
+//
+// Not catch-alls, by design: a bare `*` (only root files), a globstar plus
+// `*.*` (skips extensionless files such as LICENSE), a globstar plus a star
+// directory and then a globstar (needs a directory level), and a negated glob
+// (it excludes the paths it names). They stay advisory warnings.
+export function isCatchAllGlob(pattern: string): boolean {
+  if (isNegatedGlob(pattern)) return false;
+  const matcher = getGlobMatcher(pattern);
+  return matcher !== null && GLOB_PROBE_PATHS.every((path) => matcher.test(path));
 }

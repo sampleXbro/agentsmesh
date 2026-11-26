@@ -16,10 +16,13 @@ import { fileGlobLiveness, fileGlobMatchCount } from './validate-liveness.js';
  * surfaced without blocking, because an over-broad lesson is better than a lost
  * one.
  *
- * The ONE blocking case lives elsewhere (`addLessonInto` → `UnrecallableLessonError`):
- * a capture whose EVERY trigger is dead on the mandatory recall path is rejected,
- * because that lesson is captured then silently never recalled. These guardrails
- * are the warn-only complement to that single hard block.
+ * The blocking cases live elsewhere (`addLessonInto`): `UnrecallableLessonError`
+ * (EVERY trigger is dead on the mandatory recall path, so the lesson is captured
+ * then silently never recalled), `BroadCommandPatternError` and `CatchAllGlobError`
+ * (a trigger that fires on every command, or on every file). A broad but bounded
+ * glob (one directory tree plus a file extension) is a legitimate file-CLASS
+ * trigger, so it stays a warning here: these guardrails are the warn-only
+ * complement to those blocks.
  */
 
 export type GuardrailCode =

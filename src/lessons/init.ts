@@ -5,7 +5,8 @@ import { assertLessonsDirInsideProject } from './lessons-dir-guard.js';
 import { mutateLessonsGraphLocked } from './mutate.js';
 import { lessonsPaths } from './paths.js';
 import { defaultLessonsConfig } from './recall-config.js';
-import { injectRecallHook } from './recall-hook-scaffold.js';
+import { hooksFeatureOffWarning } from './hooks-feature.js';
+import { type RecallHookOutcome, wireRecallHook } from './recall-hook-scaffold.js';
 import {
   ensureLessonsMergeDriver,
   LESSONS_GITATTRIBUTES_ENTRY,
@@ -30,12 +31,21 @@ export interface ScaffoldLessonsResult {
   readonly gitignoreUpdated: boolean;
   /** True when the lessons.json merge-driver entry was added to `.gitattributes`. */
   readonly gitattributesUpdated: boolean;
-  /** True when the lessons recall hook was injected into `hooks.yaml`. */
+  /** True when `hooks.yaml` was created or changed to wire the lessons recall hook. */
   readonly recallHookInjected: boolean;
+  /** What happened to the recall hook: created, wired, current, or skipped with a reason. */
+  readonly recallHook: RecallHookOutcome;
+  /** Set when `hooks` is not in `features`, so `generate` would never project the recall hook. */
+  readonly hooksFeatureWarning: string | null;
   /** What this clone's merge-driver setup did; teammates get it on `generate`. */
   readonly mergeDriver: MergeDriverSetup;
   /** Set when recall hooks still need a global install to reach teammates. */
   readonly recallHookTeamHint: string | null;
+}
+
+export interface ScaffoldLessonsOptions {
+  /** Content for a missing `.agentsmesh/hooks.yaml`; without it a missing file is left missing. */
+  readonly hooksTemplate?: string;
 }
 
 /**
@@ -57,7 +67,10 @@ export interface ScaffoldLessonsResult {
  *   The graph, by contrast, is user data and stays create-if-missing. Targets
  *   without skills still get Tier 1.
  */
-export async function scaffoldLessons(projectRoot: string): Promise<ScaffoldLessonsResult> {
+export async function scaffoldLessons(
+  projectRoot: string,
+  options: ScaffoldLessonsOptions = {},
+): Promise<ScaffoldLessonsResult> {
   const paths = lessonsPaths(projectRoot);
   const created: string[] = [];
   const updated: string[] = [];
@@ -84,7 +97,7 @@ export async function scaffoldLessons(projectRoot: string): Promise<ScaffoldLess
   const rootRuleUpdated = injectProceduralBlock(projectRoot);
   // Auto-wire deterministic hook-mode recall for hook-capable targets; non-hook
   // targets keep the always-on paragraph injected above as their fallback.
-  const recallHookInjected = injectRecallHook(projectRoot);
+  const recallHook = wireRecallHook(projectRoot, options.hooksTemplate);
   const gitignoreUpdated = await ignoreLessonsRuntimeFiles(projectRoot);
   // Commit the merge-driver binding for the shared graph so a team's concurrent
   // captures union-merge instead of leaving conflict markers. Idempotent and
@@ -101,7 +114,9 @@ export async function scaffoldLessons(projectRoot: string): Promise<ScaffoldLess
     rootRuleUpdated,
     gitignoreUpdated,
     gitattributesUpdated,
-    recallHookInjected,
+    recallHookInjected: recallHook.status === 'created' || recallHook.status === 'wired',
+    recallHook,
+    hooksFeatureWarning: hooksFeatureOffWarning(projectRoot),
     mergeDriver,
     recallHookTeamHint: teamHintFor(projectRoot),
   };

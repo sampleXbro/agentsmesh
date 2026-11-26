@@ -6,6 +6,7 @@ export function emitJson(command: string, result: CommandResult): void {
     envelope.data = result.data;
   } else {
     envelope.error = result.error;
+    if (result.code !== undefined) envelope.code = result.code;
     if (result.data !== undefined) envelope.data = result.data;
   }
   process.stdout.write(JSON.stringify(envelope) + '\n');

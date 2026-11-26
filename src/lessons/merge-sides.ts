@@ -1,5 +1,6 @@
+import { stripBom } from '../utils/filesystem/fs-text-encoding.js';
 import { CURRENT_GRAPH_VERSION, LessonsGraphSchema, type LessonsGraph } from './graph-schema.js';
-import { LESSONS_GRAPH_PATH } from './graph-store.js';
+import { LESSONS_GRAPH_PATH, stableStringify } from './graph-store.js';
 import { mergeGraphs, renameIdCollisions } from './merge-graph.js';
 import { validateLessonsGraph } from './validate.js';
 
@@ -34,6 +35,8 @@ export interface MergedSides {
   /** Each side's lesson ids after same-id lessons were renamed apart. */
   readonly lessonIds: Readonly<Record<SideName, readonly string[]>>;
   readonly introduced: readonly string[];
+  /** Why a non-empty base was read as an empty graph; unset when it was fine, blank or absent. */
+  readonly baseUnreadable?: string;
 }
 
 type SidesUnion = MergedSides | UnreadableSide;
@@ -43,7 +46,7 @@ const absentGraph = (): LessonsGraph => ({ version: 1, lessons: {}, topics: {}, 
 export function parseGraphText(text: string): ParsedSide {
   let raw: unknown;
   try {
-    raw = JSON.parse(text);
+    raw = JSON.parse(stripBom(text));
   } catch (err) {
     return { ok: false, detail: err instanceof Error ? err.message : String(err) };
   }
@@ -67,9 +70,11 @@ function errorKeys(graph: LessonsGraph): Set<string> {
 
 /**
  * Union three texts of the graph. `null` means the file is absent on that side;
- * an empty or unreadable base is an empty graph (git passes an empty ancestor
- * when both branches created the file). `introduced` lists validation errors
- * the merge created that neither side already had.
+ * a blank base is an empty graph (git passes an empty ancestor when both
+ * branches created the file). A base that is present but unreadable is also read
+ * as empty, so a deletion one branch made cannot be seen: `baseUnreadable` says
+ * why. `introduced` lists validation errors the merge created that neither side
+ * already had.
  */
 export function unionGraphTexts(
   base: string | null,
@@ -86,14 +91,47 @@ export function unionGraphTexts(
     if (!parsed.ok) return { ...parsed, side };
     sides[side] = parsed.graph;
   }
-  const parsedBase = base === null ? null : parseGraphText(base);
+  const parsedBase = base === null || base.trim() === '' ? null : parseGraphText(base);
   const baseGraph = parsedBase?.ok === true ? parsedBase.graph : absentGraph();
   const merged = mergeGraphs(baseGraph, sides.ours, sides.theirs);
   const preExisting = new Set([...errorKeys(sides.ours), ...errorKeys(sides.theirs)]);
   const introduced = [...errorKeys(merged)].filter((k) => !preExisting.has(k));
   const [o, t] = renameIdCollisions(baseGraph.lessons, sides.ours.lessons, sides.theirs.lessons);
   const lessonIds = { ours: Object.keys(o), theirs: Object.keys(t) };
-  return { ok: true, merged, sides, lessonIds, introduced };
+  const baseUnreadable = parsedBase?.ok === false ? { baseUnreadable: parsedBase.detail } : {};
+  return { ok: true, merged, sides, lessonIds, introduced, ...baseUnreadable };
+}
+
+/** Ids of the merged lessons (after same-id lessons were renamed apart) that `graph` lacks. */
+function missingLessonIds(union: MergedSides, graph: LessonsGraph): string[] {
+  return Object.keys(union.merged.lessons).filter((id) => graph.lessons[id] === undefined);
+}
+
+const sameGraph = (a: LessonsGraph, b: LessonsGraph): boolean =>
+  stableStringify(a) === stableStringify(b);
+
+/**
+ * True when `graph`, the file that should hold the merge result, does not:
+ * - it lacks a merged lesson (by id); or
+ * - it is still exactly this branch's graph while the merge changed it. That is
+ *   what git leaves when the driver could not start: it keeps %A as it was, so
+ *   an edit the other branch made to a lesson both have would be dropped.
+ * A graph repaired after a real union (`untrigger`, `prune`) differs from this
+ * branch and holds every lesson, so an edited lesson is never counted as lost.
+ */
+export function missesMergeResult(union: MergedSides, graph: LessonsGraph): boolean {
+  if (missingLessonIds(union, graph).length > 0) return true;
+  const ours = union.sides.ours;
+  return sameGraph(graph, ours) && !sameGraph(union.merged, ours);
+}
+
+/** One sentence for a base that could not be read; the caller adds its own prefix. */
+export function describeUnreadableBase(detail: string): string {
+  return (
+    `The common ancestor of ${LESSONS_GRAPH_PATH} could not be read (${detail}), so it was ` +
+    'treated as empty. Both branches were combined and no lesson was lost, but a trigger or ' +
+    'topic that one branch deleted may be back. Check with `agentsmesh lessons validate`.'
+  );
 }
 
 /** One sentence naming lessons.json, the side, and why it cannot be merged. */

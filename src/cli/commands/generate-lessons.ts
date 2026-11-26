@@ -1,8 +1,10 @@
 import { lessonsGraphProblem } from '../../lessons/graph-problem.js';
+import { hooksFeatureOffWarning } from '../../lessons/hooks-feature.js';
 import {
   ensureLessonsMergeDriver,
   mergeDriverSetupLine,
 } from '../../lessons/merge-driver-setup.js';
+import { lessonsActivated } from '../../lessons/paths.js';
 import { recallHookTeamHint } from '../../lessons/recall-hook-hint.js';
 import { logger } from '../../utils/output/logger.js';
 import type { GenerateData } from '../command-result.js';
@@ -14,7 +16,8 @@ import type { GenerateData } from '../command-result.js';
  *
  * An unreadable graph fails `--check` (a CI gate) but only warns on a normal
  * run, since blocking generate would stall unrelated work. Only a real run
- * touches git config.
+ * touches git config. With lessons set up but `hooks` missing from `features`,
+ * every run warns once: the recall hook would never reach any tool.
  */
 export function runLessonsMaintenance(root: string, mode: GenerateData['mode']): number {
   const problem = lessonsGraphProblem(root);
@@ -25,6 +28,8 @@ export function runLessonsMaintenance(root: string, mode: GenerateData['mode']):
     }
     logger.warn(problem.message);
   }
+  const hooksOff = lessonsActivated(root) ? hooksFeatureOffWarning(root) : null;
+  if (hooksOff !== null) logger.warn(hooksOff);
   if (mode !== 'generate') return 0;
   const setup = ensureLessonsMergeDriver(root);
   // The user's own driver was their choice; `init --lessons` reports it, every run need not.

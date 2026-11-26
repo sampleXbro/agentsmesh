@@ -1,5 +1,5 @@
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import { type Document, parseDocument, YAMLMap, YAMLSeq } from 'yaml';
 import { agentsmeshInvocation } from './cli-invocation.js';
 
@@ -33,15 +33,16 @@ import { agentsmeshInvocation } from './cli-invocation.js';
  * gets recall, and the pinned version wins), else the faster bare command.
  *
  * Each event carries exactly ONE managed entry (the recall hook, bare or
- * npx-launched, with no extra args). A re-run rewrites its command and matcher
- * in place when they drift — e.g. after agentsmesh becomes a devDependency —
- * and never touches user entries. Edited via the YAML Document API so the
- * file's `# yaml-language-server` schema directive and comments survive (a
+ * npx-launched, with no extra args). A re-run rewrites its command in place when
+ * it drifts — e.g. after agentsmesh becomes a devDependency — and keeps a matcher
+ * the user chose (only the older scaffold default is upgraded). A managed entry
+ * the user deleted comes back: `init --lessons` is an explicit request to wire
+ * recall. User entries are never touched. Edited via the YAML Document API so
+ * the file's `# yaml-language-server` schema directive and comments survive (a
  * parse()→stringify() round-trip would silently drop them).
  *
- * Only injects into an EXISTING `hooks.yaml` — it never force-creates one, so a
- * project that does not use hooks is left untouched (and `init` always scaffolds
- * `hooks.yaml` before this runs, so the `init --lessons` flow is covered).
+ * A missing `hooks.yaml` is created only when the caller passes a template
+ * (`init --lessons`); otherwise it is left alone and reported as skipped.
  */
 
 const RECALL_SUBCOMMAND = 'lessons hook';
@@ -90,6 +91,9 @@ const RECALL_EVENTS: ReadonlyArray<{ readonly event: string; readonly matcher: s
   { event: 'SessionStart', matcher: '*' },
 ];
 
+/** The tool-call matcher the first scaffold wrote; the only user-visible value a re-run upgrades. */
+const LEGACY_TOOL_MATCHER = 'Edit|Write|Bash';
+
 /** Events an older scaffold wired that recall must no longer ride (see above). */
 const RETIRED_EVENTS: readonly string[] = ['PostToolUse'];
 
@@ -108,9 +112,10 @@ function removeEvent(doc: Document, event: string): boolean {
 }
 
 /**
- * Leave exactly one managed recall entry on `event`, carrying `matcher` and
- * `command`: add it when missing, rewrite a drifted one in place (other keys
- * such as `timeout` stay), drop duplicates. Returns true when anything changed.
+ * Leave exactly one managed recall entry on `event`: add it when missing, fix a
+ * drifted `command`/`type` in place (other keys such as `timeout` stay), drop
+ * duplicates. An existing `matcher` is the user's and stays, except one the
+ * scaffold itself wrote earlier. Returns true when anything changed.
  */
 function upsertEvent(doc: Document, event: string, matcher: string, command: string): boolean {
   const existing = doc.get(event);
@@ -123,7 +128,11 @@ function upsertEvent(doc: Document, event: string, matcher: string, command: str
   }
   let changed = extra.length > 0;
   if (changed) seq.items = seq.items.filter((item) => !extra.includes(item as YAMLMap));
-  const desired = { matcher, type: 'command', command } as const;
+  const current = first.get('matcher');
+  const upgrade =
+    current === undefined ||
+    (current === LEGACY_TOOL_MATCHER && matcher === RECALL_HOOK_TOOL_MATCHER);
+  const desired = { ...(upgrade ? { matcher } : {}), type: 'command', command };
   for (const [key, value] of Object.entries(desired)) {
     if (first.get(key) === value) continue;
     first.set(key, value);
@@ -132,17 +141,7 @@ function upsertEvent(doc: Document, event: string, matcher: string, command: str
   return changed;
 }
 
-/**
- * Returns true when any managed entry was added, rewritten or removed; false
- * when everything is already current or there is no hooks.yaml.
- */
-export function injectRecallHook(projectRoot: string): boolean {
-  const path = join(projectRoot, '.agentsmesh', 'hooks.yaml');
-  if (!existsSync(path)) return false;
-
-  // Document API (not parse→stringify) so the schema directive + comments survive.
-  const doc = parseDocument(readFileSync(path, 'utf8'));
-  const command = recallHookCommand(projectRoot);
+function syncRecallEntries(doc: Document, command: string): boolean {
   let changed = false;
   for (const { event, matcher } of RECALL_EVENTS) {
     if (upsertEvent(doc, event, matcher, command)) changed = true;
@@ -150,6 +149,50 @@ export function injectRecallHook(projectRoot: string): boolean {
   for (const event of RETIRED_EVENTS) {
     if (removeEvent(doc, event)) changed = true;
   }
-  if (changed) writeFileSync(path, String(doc), 'utf8');
   return changed;
+}
+
+/** What happened to the recall hook; a skip always says why. */
+export type RecallHookOutcome =
+  | { readonly status: 'created' }
+  | { readonly status: 'wired' }
+  | { readonly status: 'current' }
+  | { readonly status: 'skipped'; readonly reason: string };
+
+const HOOKS_FILE = '.agentsmesh/hooks.yaml';
+
+/**
+ * Wire the recall hook into `hooks.yaml`. `created`: the file was missing and
+ * `hooksTemplate` seeded it; `wired`: entries were added, rewritten or removed;
+ * `current`: nothing to do; `skipped`: no file (and no template) or an
+ * unreadable one, left untouched.
+ */
+export function wireRecallHook(projectRoot: string, hooksTemplate?: string): RecallHookOutcome {
+  const path = join(projectRoot, '.agentsmesh', 'hooks.yaml');
+  const missing = !existsSync(path);
+  if (missing && hooksTemplate === undefined) {
+    return { status: 'skipped', reason: `there is no ${HOOKS_FILE} to wire it into` };
+  }
+  // Document API (not parse→stringify) so the schema directive + comments survive.
+  const doc = parseDocument(missing ? (hooksTemplate ?? '') : readFileSync(path, 'utf8'));
+  if (doc.errors.length > 0) {
+    return { status: 'skipped', reason: `${HOOKS_FILE} is not valid YAML` };
+  }
+  if (doc.contents !== null && !(doc.contents instanceof YAMLMap)) {
+    return { status: 'skipped', reason: `${HOOKS_FILE} does not hold a map of events` };
+  }
+  const changed = syncRecallEntries(doc, recallHookCommand(projectRoot));
+  if (!changed && !missing) return { status: 'current' };
+  if (missing) mkdirSync(dirname(path), { recursive: true });
+  writeFileSync(path, String(doc), 'utf8');
+  return { status: missing ? 'created' : 'wired' };
+}
+
+/**
+ * True when any managed entry was added, rewritten or removed in an EXISTING
+ * hooks.yaml; false when everything is current, or there is no usable file.
+ */
+export function injectRecallHook(projectRoot: string): boolean {
+  const { status } = wireRecallHook(projectRoot);
+  return status === 'wired';
 }

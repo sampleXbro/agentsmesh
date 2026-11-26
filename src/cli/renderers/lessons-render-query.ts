@@ -46,7 +46,7 @@ export function renderQuery(data: LessonsQueryData, format: LessonsQueryFormat):
   for (const line of kept) logger.info(line);
   if (dropped > 0) {
     logger.warn(
-      `(${dropped} more rules not shown: output is capped at ${MAX_RECALL_PAYLOAD_CHARS} characters — pass --json for the full list)`,
+      `(${dropped} more rules not shown: output is capped at ${MAX_RECALL_PAYLOAD_CHARS} characters — pass --format json for the full list)`,
     );
   }
   // A wording match has no trigger behind it; say so (stderr) so a surprising rule

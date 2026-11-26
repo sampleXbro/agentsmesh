@@ -10,6 +10,7 @@ import {
 } from './hook-emit.js';
 import { failureNudge } from './hook-failure.js';
 import { detectHookHost, type HookHost } from './hook-hosts.js';
+import { mergeStagingNotice } from './hook-merge-guard.js';
 import { sessionNotices } from './hook-notices.js';
 import {
   contextSessionId,
@@ -126,7 +127,7 @@ async function recallFor(host: HookHost, processCwd: string): Promise<RecallHook
   if (eventName !== undefined && eventName !== 'PreToolUse' && eventName !== 'PostToolUse') {
     return EMPTY;
   }
-  return toolRecall(parsed, projectRoot, sessionId, action);
+  return toolRecall(parsed, projectRoot, sessionId, action, location.start);
 }
 
 /**
@@ -139,12 +140,15 @@ async function toolRecall(
   projectRoot: string,
   sessionId: string | undefined,
   action: HookAction,
+  start: string,
 ): Promise<RecallHookResult> {
   // Echo the harness's event so the SAME command serves as a PreToolUse first-touch
   // guard (injects BEFORE the edit) or a PostToolUse reactive hook; a payload
   // without an event name defaults to PostToolUse.
   const event = parsed.hook_event_name === 'PreToolUse' ? 'PreToolUse' : 'PostToolUse';
   const { command, keyword } = action;
+  // Warn before a staging command runs while lessons.json is unmerged (git runs only for those).
+  const staging = event === 'PreToolUse' ? mergeStagingNotice(projectRoot, start, command) : null;
   const queries: LessonsQuery[] = (action.files.length > 0 ? action.files : [undefined]).map(
     (file) => ({
       ...(file !== undefined ? { file } : {}),
@@ -162,7 +166,7 @@ async function toolRecall(
   // Provable command-only no-match: skip the full recall load — see cmd-fastpath.ts.
   const fast = { file: action.files[0], command, keyword, sessionId };
   if (escalation === null && hookCommandFastpath(projectRoot, fast)) {
-    const notices = paragraphs(await sessionNotices(projectRoot, sessionId, {}));
+    const notices = paragraphs([staging, ...(await sessionNotices(projectRoot, sessionId, {}))]);
     return notices === undefined ? EMPTY : contextOutput(event, notices);
   }
   const shown = new Set(escalation?.ruleIds);
@@ -172,6 +176,6 @@ async function toolRecall(
   return renderRecall(collected, {
     event,
     lead: `Recalled agentsmesh lessons for ${safeRuleLine(target, MAX_TARGET_CHARS)}`,
-    preface: paragraphs([escalation?.text ?? null, ...notices]),
+    preface: paragraphs([staging, escalation?.text ?? null, ...notices]),
   });
 }

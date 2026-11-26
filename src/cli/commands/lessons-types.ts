@@ -110,6 +110,8 @@ export interface LessonsResolveData {
   readonly baseKnown: boolean;
   /** The git operation to finish next; null outside git. */
   readonly nextStep: 'merge' | 'rebase' | 'cherry-pick' | 'revert' | 'none' | null;
+  /** True when the file already held every merged lesson, so it was kept. */
+  readonly alreadyResolved?: boolean;
 }
 
 export interface LessonsImportMdData {
@@ -159,7 +161,8 @@ export interface LessonsStatsData {
   readonly telemetryEnabled: boolean;
 }
 
-export type LessonsCommandResult =
+/** `code` is the stable code of the error behind a failure, when it has one. */
+export type LessonsCommandResult = (
   | { subcommand: 'help'; exitCode: number; error?: string; data: null; topic?: string }
   | {
       subcommand: 'query';
@@ -193,4 +196,5 @@ export type LessonsCommandResult =
       error?: string;
     }
   | { subcommand: 'hook'; exitCode: number; data: { output: string }; error?: string }
-  | { subcommand: 'merge-driver'; exitCode: number; data: { merged: boolean }; error?: string };
+  | { subcommand: 'merge-driver'; exitCode: number; data: { merged: boolean }; error?: string }
+) & { code?: string };

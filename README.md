@@ -106,7 +106,8 @@ The memory is one git-tracked file, `.agentsmesh/lessons/lessons.json`, driven b
 ```bash
 # After a failure, the agent writes the rule down with a trigger:
 agentsmesh lessons add "Normalize CLI display paths to forward slashes" \
-  --topic windows-paths --trigger-file "src/cli/**/*.ts"
+  --topic windows-paths --new-topic --topic-summary "Cross-platform paths" \
+  --trigger-file "src/cli/*.ts"
 
 # Before the next edit, any agent in any tool recalls it:
 agentsmesh lessons query --file src/cli/output.ts --session auto

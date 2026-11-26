@@ -30,7 +30,7 @@ export const LESSONS_USAGE: Record<string, LessonsSubcommandUsage> = {
     usage:
       'agentsmesh lessons add "<rule>" --topic <id> [--trigger-file <glob>]... [--trigger-cmd <regex>]... [--trigger-kw <text>]... [--evidence <ref>]... [--rationale <text>] [--new-topic --topic-summary "..."] [--scope always]',
     example:
-      'agentsmesh lessons add "Run tsc --noEmit before committing type changes" --topic build --trigger-file "src/**/*.ts" --evidence commit:abc1234',
+      'agentsmesh lessons add "Run tsc --noEmit before committing type changes" --topic build --trigger-file "src/build/*.ts" --evidence commit:abc1234',
   },
   topics: {
     usage: 'agentsmesh lessons topics',
@@ -69,7 +69,8 @@ export const LESSONS_USAGE: Record<string, LessonsSubcommandUsage> = {
   },
   stats: {
     usage: 'agentsmesh lessons stats [--json]',
-    summary: 'recall telemetry summary; needs AGENTSMESH_LESSONS_TELEMETRY=1',
+    summary:
+      'recall telemetry summary; needs "telemetry": true in config.json or AGENTSMESH_LESSONS_TELEMETRY=1',
   },
   prune: {
     usage: 'agentsmesh lessons prune [--apply] [--cap <n>]',

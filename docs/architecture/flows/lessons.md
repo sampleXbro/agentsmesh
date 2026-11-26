@@ -37,12 +37,12 @@ flowchart LR
     L([A lesson])
     L --> Rule[Rule<br/>the thing to remember<br/>e.g. normalize paths to forward slashes]
     L --> Trig[Triggers<br/>WHEN to resurface it]
-    Trig --> T1[file glob<br/>src/cli/**/*.ts<br/>most reliable]
+    Trig --> T1[file glob<br/>src/cli/*.ts<br/>most reliable]
     Trig --> T2[command pattern<br/>matches a shell command]
     Trig --> T3[keyword<br/>a task phrase]
 ```
 
-Prefer a **file glob** trigger — it's the one Recall fires on most reliably. A lesson whose every trigger is dead on the file/command path could never be recalled, so capturing one is rejected (you'll be told why).
+Prefer a **file glob** trigger — it's the one Recall fires on most reliably. A lesson whose every trigger is dead on the file/command path could never be recalled, so capturing one is rejected (you'll be told why). A catch-all glob such as `**/*` is rejected too (`CATCH_ALL_GLOB`): a rule for every task is captured with `--scope always` instead.
 
 ## How it reaches every tool
 
@@ -71,7 +71,7 @@ agentsmesh init --lessons && agentsmesh generate
 agentsmesh lessons add "Normalize CLI display paths to forward slashes" \
   --topic windows-paths \
   --new-topic --topic-summary "Cross-platform path handling" \
-  --trigger-file "src/cli/**/*.ts"
+  --trigger-file "src/cli/*.ts"
 
 # 3. Later, before editing a CLI file, the agent recalls it automatically:
 agentsmesh lessons query --file src/cli/foo.ts
@@ -91,4 +91,9 @@ The graph is a normal git-tracked file, so lessons are shared with your team and
 - Recall + capture entry points (migration-aware): `recallLessons` / `captureLesson` in `src/lessons/recall.ts`
 - The canonical graph + transactional writes: `src/lessons/mutate.ts` (lock → load → mutate → validate → atomic save)
 - Setup/scaffold: `scaffoldLessons` in `src/lessons/init.ts`
+- Finding the project (nearest lessons folder, else `agentsmesh.yaml`, else git top level; never past `.git` or into home): `src/lessons/project-root.ts`
+- One recall pipeline for the CLI, MCP and the hook (ranking, effectiveness, dedup, telemetry): `recallFromGraph` in `src/lessons/recall-core.ts`
+- Capture error classes with stable `code`s: `src/lessons/add-errors.ts`; curation errors: `src/lessons/curation-errors.ts`; the CLI puts the code in the `--json` failure envelope
+- Retiring a lesson settles the lessons merged into it (`deprecate`, `merge`): `src/lessons/retire-lineage.ts`
+- The recall hook warns before staging an unmerged `lessons.json`: `src/lessons/hook-merge-guard.ts`
 - Trigger matching + ranking: `src/lessons/query.ts`, `src/lessons/ranking.ts`

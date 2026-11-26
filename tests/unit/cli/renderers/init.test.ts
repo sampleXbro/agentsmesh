@@ -98,6 +98,8 @@ describe('renderInit', () => {
           skipped: [],
           rootRuleUpdated: true,
           gitignoreUpdated: false,
+          recallHook: { status: 'current' },
+          hooksFeatureWarning: null,
         },
       },
     });
@@ -132,6 +134,8 @@ describe('renderInit', () => {
           skipped: [],
           rootRuleUpdated: true,
           gitignoreUpdated: true,
+          recallHook: { status: 'current' },
+          hooksFeatureWarning: null,
         },
       },
     });
@@ -204,6 +208,8 @@ describe('renderInit', () => {
           skipped: [`${process.cwd()}/.agentsmesh/lessons/lessons.json`],
           rootRuleUpdated: false,
           gitignoreUpdated: false,
+          recallHook: { status: 'current' },
+          hooksFeatureWarning: null,
         },
       },
     });
@@ -236,6 +242,8 @@ describe('renderInit', () => {
           skipped: [],
           rootRuleUpdated: true,
           gitignoreUpdated: false,
+          recallHook: { status: 'current' },
+          hooksFeatureWarning: null,
         },
       },
     });

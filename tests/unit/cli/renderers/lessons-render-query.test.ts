@@ -61,8 +61,9 @@ describe('renderQuery — safe rule lines', () => {
     expect(output.stdout().length).toBeLessThanOrEqual(MAX_RECALL_PAYLOAD_CHARS + 40);
     const shown = output.stdout().trimEnd().split('\n').length;
     expect(shown).toBe(Math.floor(MAX_RECALL_PAYLOAD_CHARS / MAX_RULE_LENGTH));
-    expect(output.stderr()).toContain(`${40 - shown} more rules not shown`);
-    expect(output.stderr()).toContain('--json');
+    expect(output.stderr()).toContain(
+      `(${40 - shown} more rules not shown: output is capped at ${MAX_RECALL_PAYLOAD_CHARS} characters — pass --format json for the full list)`,
+    );
   });
 
   it('leaves --json output untouched', () => {
