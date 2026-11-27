@@ -80,7 +80,7 @@ afterEach(() => rmSync(TEST_DIR, { recursive: true, force: true }));
 describe('merge carries the outputs map forward', () => {
   it('still evicts a file generated before the merge', () => {
     rule('doomed', '# Doomed');
-    run('generate --no-matrix');
+    run('generate');
 
     const generated = join(TEST_DIR, '.claude', 'rules', 'doomed.md');
     expect(existsSync(generated)).toBe(true);
@@ -91,14 +91,14 @@ describe('merge carries the outputs map forward', () => {
     run('merge');
     rmSync(join(TEST_DIR, '.agentsmesh', 'rules', 'doomed.md'));
 
-    run('generate --no-matrix');
+    run('generate');
 
     expect(existsSync(generated)).toBe(false);
   });
 
   it('keeps the union of both conflict sides', () => {
     rule('doomed', '# Doomed');
-    run('generate --no-matrix');
+    run('generate');
 
     conflictLock('.claude/rules/ours-only.md', '.claude/rules/theirs-only.md');
     run('merge');
@@ -109,14 +109,14 @@ describe('merge carries the outputs map forward', () => {
   });
 
   it('leaves a file agentsmesh never generated alone after a merge', () => {
-    run('generate --no-matrix');
+    run('generate');
     mkdirSync(join(TEST_DIR, '.claude', 'skills'), { recursive: true });
     const foreign = join(TEST_DIR, '.claude', 'skills', 'hand-written.md');
     writeFileSync(foreign, '# mine\n');
 
     conflictLock('.claude/rules/a.md', '.claude/rules/b.md');
     run('merge');
-    run('generate --no-matrix');
+    run('generate');
 
     expect(existsSync(foreign)).toBe(true);
   });

@@ -15,10 +15,15 @@ import {
   cleanupStaleGeneratedOutputs,
   findStaleGeneratedOutputs,
 } from '../../core/generate/stale-cleanup.js';
+import {
+  NO_REMOVALS,
+  deleteRemovedOutputs,
+  planRemovedOutputs,
+} from '../../core/generate/removed-outputs.js';
 import { getTargetLayout } from '../../targets/catalog/builtin-targets.js';
 import { readLock } from '../../config/core/lock.js';
-import { logger } from '../../utils/output/logger.js';
 import { writeLockFile } from './generate-lock.js';
+import { removalFields } from '../generate-data.js';
 import type { GenerateData } from '../command-result.js';
 import type { ResolvedExtend } from '../../config/resolve/resolver.js';
 import type { ValidatedConfig } from '../../config/core/schema.js';
@@ -68,43 +73,60 @@ export async function handleEmptyResults(args: EmptyResultsArgs): Promise<Genera
   const { mode, scope, dryRun, context, resolvedExtends, flags, root, options, activeTargets } =
     args;
   const skippedTargets = args.configuredTargets.filter((t) => !activeTargets.includes(t));
-  const data: GenerateData = {
-    scope,
-    mode,
-    files: [],
-    summary: { created: 0, updated: 0, unchanged: 0 },
-    emptyReason: resolveEmptyReason(scope, activeTargets),
-  };
   // Only a full run may read "zero outputs" as "every previous output is
   // stale"; a filtered run cannot re-emit what it did not generate for.
   const prunes = !isFilteredRun(flags);
-  const previousLock = await readLock(context.canonicalDir);
+  const previousOutputs = (await readLock(context.canonicalDir))?.outputs ?? {};
   const sweep = {
     projectRoot: context.rootBase,
     targets: activeTargets,
     expectedPaths: [],
     scope,
-    generatedOutputs: Object.keys(previousLock?.outputs ?? {}),
+    generatedOutputs: Object.keys(previousOutputs),
+  };
+
+  /** What this run removes, or would: files of configured targets, then of dropped ones. */
+  const findRemovals = async (): Promise<{ data: GenerateData; dropped: string[] }> => {
+    const orphans = prunes ? await findStaleGeneratedOutputs(sweep) : [];
+    const plan = prunes
+      ? await planRemovedOutputs({
+          projectRoot: context.rootBase,
+          scope,
+          previousOutputs,
+          expectedPaths: [],
+          configuredTargets: args.configuredTargets,
+        })
+      : NO_REMOVALS;
+    const data: GenerateData = {
+      scope,
+      mode,
+      files: [],
+      summary: { created: 0, updated: 0, unchanged: 0 },
+      emptyReason: resolveEmptyReason(scope, activeTargets),
+      ...removalFields([...orphans, ...plan.stale].sort(), plan.kept),
+    };
+    return { data, dropped: plan.stale };
   };
 
   if (mode === 'check') {
-    const stale = prunes ? await findStaleGeneratedOutputs(sweep) : [];
-    for (const path of stale) {
-      logger.error(`[check] stale ${scope === 'global' ? `~/${path}` : path}`);
-    }
-    if (stale.length > 0) {
-      logger.error("Generated files are out of sync. Run 'agentsmesh generate' to remove them.");
-    }
-    return { exitCode: stale.length === 0 ? 0 : 1, data, lockWritten: false };
+    const { data } = await findRemovals();
+    return { exitCode: data.removed === undefined ? 0 : 1, data, lockWritten: false };
   }
 
   let lockWritten = false;
-  if (!dryRun) {
+  let found: Awaited<ReturnType<typeof findRemovals>>;
+  if (dryRun) {
+    found = await findRemovals();
+  } else {
     const release = await acquireProcessLock(join(context.canonicalDir, '.generate.lock'), {
       label: 'generate lock',
     });
     try {
-      if (prunes) await cleanupStaleGeneratedOutputs(sweep);
+      found = await findRemovals();
+      if (prunes) {
+        await cleanupStaleGeneratedOutputs(sweep);
+        await deleteRemovedOutputs(context.rootBase, found.dropped);
+      }
       // Full run: the outputs map becomes empty. Filtered run: `writeLockFile`
       // merges `{}` into the previous map, so earlier provenance survives.
       lockWritten = await writeLockFile(context, resolvedExtends, {}, !prunes, skippedTargets);
@@ -120,5 +142,5 @@ export async function handleEmptyResults(args: EmptyResultsArgs): Promise<Genera
     renderMatrix(matrixResult, { verbose: flags.verbose === true });
   }
 
-  return { exitCode: 0, data, lockWritten };
+  return { exitCode: 0, data: found.data, lockWritten };
 }

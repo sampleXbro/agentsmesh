@@ -35,10 +35,11 @@ describe('scaffoldLessons', async () => {
     const skillPath = join(projectRoot, '.agentsmesh/skills/lessons/SKILL.md');
     expect(result.created).toEqual([paths.graph, paths.config, skillPath]);
     expect(result.rootRuleUpdated).toBe(true);
-    // No hooks.yaml in this bare scaffold, so the recall hook is a no-op here;
-    // injection-into-an-existing-hooks.yaml is covered by recall-hook-scaffold +
-    // the init --lessons e2e (where init creates hooks.yaml first).
+    // No hooks.yaml and no template in this bare scaffold: the hook is skipped, and
+    // the result says why. Creation from a template: init-recall-hook-status.test.ts.
     expect(result.recallHookInjected).toBe(false);
+    expect(result.recallHook.status).toBe('skipped');
+    expect(existsSync(join(projectRoot, '.agentsmesh/hooks.yaml'))).toBe(false);
   });
 
   it('injects the recall hook when hooks.yaml already exists', async () => {

@@ -20,6 +20,7 @@ import {
   type InitCommandResult,
   type InitPlan,
 } from './init-apply.js';
+import { TEMPLATE_HOOKS } from './init-templates.js';
 import { runInitWizard } from './init-wizard.js';
 import type { Prompter } from '../prompts/prompter.js';
 
@@ -65,9 +66,10 @@ export async function runInit(
   const configPath = join(context.configDir, CONFIG_FILENAME);
   const alreadyInitialized = await exists(configPath);
 
-  // Lessons-only retrofit: already-initialized project + --lessons.
+  // Lessons-only retrofit: already-initialized project + --lessons. An earlier init may
+  // have left no hooks.yaml, so seed it (same file as a fresh init) to wire the recall hook.
   if (alreadyInitialized && wantLessons) {
-    const lessons = await scaffoldLessons(projectRoot);
+    const lessons = await scaffoldLessons(projectRoot, { hooksTemplate: TEMPLATE_HOOKS });
     return {
       exitCode: 0,
       data: {

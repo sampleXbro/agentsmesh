@@ -1,6 +1,6 @@
 # Agents E2E Last Run Report
 
-_Generated: 2026-09-23T10:43:33.179Z_
+_Generated: 2026-11-26T13:07:04.787Z_
 
 ## Initial — `.agentsmesh/agents/` (canonical fixture)
 

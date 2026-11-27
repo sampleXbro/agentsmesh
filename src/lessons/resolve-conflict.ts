@@ -1,8 +1,16 @@
-import { LESSONS_GRAPH_PATH, saveLessonsGraph } from './graph-store.js';
+import { readTextOrEmpty } from '../utils/filesystem/fs.js';
+import type { LessonsGraph } from './graph-schema.js';
+import { graphFilePath, LESSONS_GRAPH_PATH, saveLessonsGraph } from './graph-store.js';
 import { acquireLessonsLock, LessonsLockLostError } from './lessons-lock.js';
 import { readIndexStages, readMarkerSides, type ConflictTexts } from './merge-stages.js';
 import { gitOperation, type GitOperation } from './git-operation.js';
-import { describeUnreadableSide, unionGraphTexts, type MergedSides } from './merge-sides.js';
+import {
+  describeUnreadableSide,
+  missesMergeResult,
+  parseGraphText,
+  unionGraphTexts,
+  type MergedSides,
+} from './merge-sides.js';
 import { validateLessonsGraph } from './validate.js';
 
 /**
@@ -23,6 +31,8 @@ interface ResolvedConflict {
   /** False when the markers had no diff3 base, so one branch's deletions could not be seen. */
   readonly baseKnown: boolean;
   readonly nextStep: GitOperation | null;
+  /** Set when the file already held every lesson, so nothing was written. */
+  readonly alreadyResolved?: true;
 }
 
 type ResolveOutcome =
@@ -43,16 +53,27 @@ const FIX_IN_FILE =
   ` Fix it in ${LESSONS_GRAPH_PATH} (its conflict markers hold both sides), then run ` +
   '`agentsmesh lessons resolve` again.';
 
-function summarize(combined: Extract<Combined, { ok: true }>, root: string): ResolvedConflict {
+/** The file's own graph when it parses and already holds the merge result (see missesMergeResult). */
+function alreadyResolvedGraph(root: string, union: MergedSides): LessonsGraph | null {
+  const parsed = parseGraphText(readTextOrEmpty(graphFilePath(root)));
+  return parsed.ok && !missesMergeResult(union, parsed.graph) ? parsed.graph : null;
+}
+
+function summarize(
+  combined: Extract<Combined, { ok: true }>,
+  root: string,
+  kept: LessonsGraph | null,
+): ResolvedConflict {
   const { ours, theirs } = combined.union.lessonIds;
   return {
     source: combined.source,
-    lessonCount: Object.keys(combined.union.merged.lessons).length,
+    lessonCount: Object.keys((kept ?? combined.union.merged).lessons).length,
     onlyOurs: ours.filter((id) => !theirs.includes(id)).length,
     onlyTheirs: theirs.filter((id) => !ours.includes(id)).length,
-    introduced: combined.union.introduced,
+    introduced: kept === null ? combined.union.introduced : [],
     baseKnown: combined.baseKnown,
     nextStep: gitOperation(root),
+    ...(kept === null ? {} : { alreadyResolved: true as const }),
   };
 }
 
@@ -82,14 +103,17 @@ const unionOf = (t: ConflictTexts): ReturnType<typeof unionGraphTexts> =>
 function combineSides(projectRoot: string): Combined {
   const index = readIndexStages(projectRoot);
   const union = index === null ? null : unionOf(index);
-  if (union?.ok === true) return { ok: true, source: 'index', union, baseKnown: true };
+  if (union?.ok === true) {
+    return { ok: true, source: 'index', union, baseKnown: union.baseUnreadable === undefined };
+  }
   // A newer schema is not fixed by hand; any other unreadable stage can be, in the file.
   const markers = union?.newerVersion === undefined ? readMarkerSides(projectRoot) : null;
   const fromMarkers = markers === null ? null : unionOf(markers);
   if (fromMarkers?.ok === true) {
     const error = markerErrors(fromMarkers);
     if (error !== null) return { ok: false, error };
-    return { ok: true, source: 'markers', union: fromMarkers, baseKnown: markers!.base !== null };
+    const baseKnown = markers!.base !== null && fromMarkers.baseUnreadable === undefined;
+    return { ok: true, source: 'markers', union: fromMarkers, baseKnown };
   }
   const failure = union ?? fromMarkers;
   if (failure === null) {
@@ -114,12 +138,14 @@ export async function resolveLessonsConflict(projectRoot: string): Promise<Resol
   // The current file is unreadable by design, so the normal load-validate-write
   // transaction cannot run; take the same lock and write atomically instead.
   const release = await acquireLessonsLock(projectRoot);
+  let kept: LessonsGraph | null;
   try {
     // A holder paused past the stale window may have been evicted: never save over the next writer.
     if (!(await release.isHeld())) return { ok: false, error: new LessonsLockLostError().message };
-    saveLessonsGraph(projectRoot, combined.union.merged);
+    kept = alreadyResolvedGraph(projectRoot, combined.union);
+    if (kept === null) saveLessonsGraph(projectRoot, combined.union.merged);
   } finally {
     await release();
   }
-  return { ok: true, resolved: summarize(combined, projectRoot) };
+  return { ok: true, resolved: summarize(combined, projectRoot, kept) };
 }

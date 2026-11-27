@@ -92,25 +92,31 @@ export async function runLessons(
     return { subcommand: 'help', exitCode: 2, error: argError, data: null };
   }
 
-  // Like git, a subdirectory acts on the enclosing lessons project (as the hook
-  // and MCP server do); with none up the tree, the cwd itself is the project.
+  // Like git, a subdirectory acts on the enclosing project (as the hook and MCP
+  // server do): nearest lessons, else agentsmesh.yaml, else the git top level, else the cwd.
   const projectRoot = OWN_LOCATION.has(subcommand) ? cwd : resolveLessonsRoot(cwd);
   if (CREATES_GRAPH.has(subcommand) && isHomeDirectory(projectRoot)) {
     return { subcommand: 'help', exitCode: 2, error: HOME_REFUSAL, data: null };
   }
-  if (OWN_GRAPH_PROBLEM.has(subcommand)) return dispatch(subcommand, flags, args, projectRoot);
+  if (OWN_GRAPH_PROBLEM.has(subcommand)) return dispatch(subcommand, flags, args, projectRoot, cwd);
   // A failure caused by an unreadable graph gets the shared diagnosis (merge
   // conflict, corruption, newer schema) instead of raw parser or schema text.
   try {
-    const result = await dispatch(subcommand, flags, args, projectRoot);
+    const result = await dispatch(subcommand, flags, args, projectRoot, cwd);
     const problem =
       result.exitCode === 1 && result.error !== undefined ? graphProblem(projectRoot) : null;
-    return problem === null ? result : { ...result, error: problem };
+    return problem === null ? result : replaceError(result, problem);
   } catch (err) {
     const problem = graphProblem(projectRoot);
     if (problem === null) throw err;
     return { subcommand: 'help', exitCode: 1, error: problem, data: null };
   }
+}
+
+/** Swap in the graph-problem message; the `code` of the error it replaces no longer fits. */
+function replaceError(result: LessonsCommandResult, error: string): LessonsCommandResult {
+  const { code: _stale, ...rest } = result;
+  return { ...rest, error };
 }
 
 /** `lessons help [subcommand]`: the overview, or one subcommand's help. */
@@ -133,14 +139,15 @@ async function dispatch(
   flags: LessonsFlags,
   args: string[],
   projectRoot: string,
+  cwd: string,
 ): Promise<LessonsCommandResult> {
   const migration = await migrateForSubcommand(subcommand, projectRoot);
 
   switch (subcommand) {
     case 'query':
-      return doQuery(flags, projectRoot, migration.migrated, migration.error);
+      return doQuery(flags, projectRoot, migration.migrated, migration.error, cwd);
     case 'add':
-      return doAdd(flags, args[1], projectRoot);
+      return doAdd(flags, args[1], projectRoot, cwd);
     case 'topics':
       return doTopics(projectRoot);
     case 'show':

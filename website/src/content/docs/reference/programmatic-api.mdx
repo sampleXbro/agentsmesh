@@ -287,12 +287,17 @@ const { lessons, totalMatches } = await recallLessons(process.cwd(), {
 });
 console.log(`${lessons.length} of ${totalMatches} shown`, lessons.map((l) => l.lesson.rule));
 
-await captureLesson(process.cwd(), {
-  rule: 'Normalize CLI display paths.',
-  topic: 'windows-paths',
-  triggers: { files: ['src/cli/**/*.ts'] },
-  evidence: ['commit:abc1234'],
-});
+// An unknown topic throws `UnknownTopicError`; allow a new one and give it a summary.
+await captureLesson(
+  process.cwd(),
+  {
+    rule: 'Normalize CLI display paths.',
+    topic: 'windows-paths',
+    triggers: { files: ['src/cli/*.ts'] },
+    evidence: ['commit:abc1234'],
+  },
+  { allowNewTopic: true, topicSummary: 'Windows path handling.' },
+);
 
 const graph = tryLoadLessonsGraph(process.cwd());
 if (graph) {
@@ -303,25 +308,77 @@ if (graph) {
 
 `recallLessons(projectRoot, query, opts?)` is the migration-aware recall entry
 point: it migrates a legacy store, loads the graph, and returns the
-relevance-ranked, capped matches (default top 10 + ~1200-token budget). The
+relevance-ranked, capped matches (default top 10 + ~1200-token budget). When a
+legacy store could not be migrated, the result carries an optional
+`migrationError`, so an empty result is not read as "no match". The
 low-level `queryLessons(graph, { file, command, keyword })` returns the raw
 `active` candidate set — OR across triggers — without migrating or ranking. See
 the [recall semantics](../lessons/#recall-semantics) for the full contract.
 
 `addLesson(projectRoot, input, opts?)` is lock-serialized via the same primitive
 as `.generate.lock`. It is idempotent on repeat: re-adding the same rule + topic
-returns the existing lesson id without duplicating triggers.
+returns the existing lesson id without duplicating triggers. A rule that
+differs only by case, trailing punctuation or wrapping quotes counts as the
+same rule.
 
-### `scaffoldLessons(projectRoot)`
+### Lessons errors
+
+A capture or curation rejection is a typed error with a stable `code`. Catch it
+with `instanceof`, or narrow with `isCaptureRejection(err)`. The `LessonsErrorCode`
+type lists every code, and the CLI `--json` output and the MCP tools return the
+same strings.
+
+```ts
+import { captureLesson, isCaptureRejection, CatchAllGlobError } from 'agentsmesh/lessons';
+
+try {
+  await captureLesson(process.cwd(), { rule, topic, triggers: { files: ['**/*'] } });
+} catch (err) {
+  if (err instanceof CatchAllGlobError) console.error('Use scope: "always" instead.');
+  else if (isCaptureRejection(err)) console.error(err.code);
+  else throw err;
+}
+```
+
+| Export | `code` |
+| --- | --- |
+| `EmptyRuleError` | `EMPTY_RULE` |
+| `RuleTooLongError` | `OVERSIZED_RULE` |
+| `NoTriggerError` | `NO_TRIGGER` |
+| `UnrecallableLessonError` | `UNRECALLABLE_LESSON` |
+| `BroadCommandPatternError` | `BROAD_COMMAND_PATTERN` |
+| `CatchAllGlobError` | `CATCH_ALL_GLOB` |
+| `InvalidTopicIdError` | `INVALID_TOPIC_ID` |
+| `TopicSummaryRequiredError` | `TOPIC_SUMMARY_REQUIRED` |
+| `TriggerFileGlobError` | `TRIGGER_FILE_OUTSIDE_PROJECT`, `TRIGGER_FILE_IS_PROJECT_ROOT`, `TRIGGER_FILE_IS_DIRECTORY` or `UNSAFE_GLOB_PATTERN` |
+| `UnknownTopicError` | `UNKNOWN_TOPIC`: the topic does not exist and `allowNewTopic` was not set. |
+| `UnknownLessonError`, `UnknownSupersederError`, `InactiveLessonError`, `SelfMergeError` | `UNKNOWN_LESSON`, `UNKNOWN_SUPERSEDER`, `INACTIVE_LESSON`, `SELF_MERGE`: thrown by `mergeLessons`. |
+| `TriggerNotAttachedError`, `LastTriggerError` | `TRIGGER_NOT_ATTACHED`, `LAST_TRIGGER`: an `untrigger` was refused. |
+| `LessonsGraphExistsError` | `LESSONS_GRAPH_EXISTS`: `importLegacyLessons` found a graph that already has content and `force` was not set. |
+| `LessonsWriteRefusedError` | Thrown by every write when the validator refuses the change; `findings` lists why. |
+
+The first nine are the capture rejections (the `CaptureRejection` union). The CLI `deprecate` and `untrigger` and the MCP tools return the curation codes too.
+
+`LessonsErrorCode` also holds `LESSONS_DIR_OUTSIDE_PROJECT` (`.agentsmesh/lessons` is a link that leaves the project) and `LEGACY_TOPIC_PATH_OUTSIDE` (a legacy topic file points outside `.agentsmesh/lessons/`).
+
+### `scaffoldLessons(projectRoot, options?)`
 
 Creates `.agentsmesh/lessons/` with an empty `lessons.json` graph and appends
 the procedural rule to `.agentsmesh/rules/_root.md`. Programmatic equivalent
-of `agentsmesh init --lessons`. Idempotent.
+of `agentsmesh init --lessons`. Async and idempotent.
 
 ```ts
 import { scaffoldLessons } from 'agentsmesh/lessons';
-scaffoldLessons(process.cwd());
+const result = await scaffoldLessons(process.cwd());
+console.log(result.recallHook.status); // 'created' | 'wired' | 'current' | 'skipped'
+if (result.hooksFeatureWarning !== null) console.warn(result.hooksFeatureWarning);
 ```
+
+`options` (type `ScaffoldLessonsOptions`) has one field. `hooksTemplate` is the content for a missing `.agentsmesh/hooks.yaml`.
+Without it, a missing file is left missing and the hook is reported as
+`skipped`. The result also has `recallHook` (a `RecallHookOutcome`: `created`,
+`wired`, `current`, or `skipped` with a `reason`) and `hooksFeatureWarning` (set
+when `hooks` is not in `features`, so `generate` would never project the hook).
 
 ### `importLegacyLessons(projectRoot, { migratedAt })`
 
@@ -332,7 +389,7 @@ do not need it.
 
 ```ts
 import { importLegacyLessons } from 'agentsmesh/lessons';
-importLegacyLessons(process.cwd(), { migratedAt: '2026-06-05' });
+await importLegacyLessons(process.cwd(), { migratedAt: '2026-06-05' });
 ```
 
 ### Catalog inspection
@@ -383,7 +440,7 @@ try {
 | Class | `code` | Thrown when |
 | --- | --- | --- |
 | `ConfigNotFoundError` | `AM_CONFIG_NOT_FOUND` | `agentsmesh.yaml` is missing. In `--global` scope the message points at `~/.agentsmesh/agentsmesh.yaml` and suggests `agentsmesh init --global`. |
-| `ConfigValidationError` | `AM_CONFIG_INVALID` | YAML parses but fails Zod validation. Carries `issues: readonly string[]`. |
+| `ConfigValidationError` | `AM_CONFIG_INVALID` | YAML parses but fails Zod validation. Carries `issues: readonly string[]`; each issue starts with the key path, such as `targets[1]: …`. |
 | `TargetNotFoundError` | `AM_TARGET_NOT_FOUND` | A target ID is referenced but neither built-in nor registered. |
 | `ImportError` | `AM_IMPORT_FAILED` | An importer failed to read or parse a target's native config. |
 | `GenerationError` | `AM_GENERATION_FAILED` | A target's generator threw, or output collisions could not be resolved. |

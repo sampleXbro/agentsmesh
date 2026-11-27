@@ -18,6 +18,13 @@ agentsmesh watch [flags]
 |------|-------------|
 | `--global` | Watch `~/.agentsmesh/` and regenerate user-level outputs. |
 | `--targets <csv>` | Limit regeneration to specific target IDs. |
+| `--force` | Bypass lock-strategy blocked feature violations on each regeneration. |
+| `--refresh-cache` | Refresh the remote `extends` cache on each regeneration. |
+| `--no-cache` | Alias for `--refresh-cache`. |
+| `--dry-run` | Preview each regeneration without writing outputs. |
+| `--check` | Check drift on each change instead of writing outputs. |
+
+These flags are passed to every regeneration, the same as for [`generate`](../generate/). With `--check`, each change reports drift and writes nothing; the watcher keeps running.
 
 ## Examples
 

@@ -38,8 +38,11 @@ Two habits, repeated all day: **recall before you act, capture after a failure**
 
    ```bash
    agentsmesh lessons add "Normalize CLI display paths to forward slashes" \
-     --topic windows-paths --trigger-file "src/cli/**/*.ts"
+     --topic windows-paths --new-topic --topic-summary "Cross-platform path handling" \
+     --trigger-file "src/cli/*.ts"
    ```
+
+   `--new-topic` creates the topic the first time; later captures can reuse it with just `--topic windows-paths`.
 
 </Steps>
 
@@ -49,11 +52,11 @@ That's the whole system. Recall reads the memory, capture writes it, and the loo
 
 A lesson is a short **rule** — the thing to remember — plus one or more **triggers** that decide _when_ it should resurface:
 
-- **File glob** (e.g. `src/cli/**/*.ts`) — fires when the agent is about to edit a matching file. The most reliable trigger; prefer it.
+- **File glob** (e.g. `src/cli/*.ts`) — fires when the agent is about to edit a matching file. The most reliable trigger; prefer it.
 - **Command pattern** (a regex) — fires when the agent is about to run a matching shell command.
 - **Keyword** (a short task phrase) — fires when the task description mentions it.
 
-A lesson that could never be recalled is rejected at capture time, and the error tells you why — so the memory never silently fills with unreachable rules.
+A lesson that could never be recalled is rejected at capture time, and the error tells you why — so the memory never silently fills with unreachable rules. A glob that matches every file (`**` or `**/*`) is refused too, because the lesson would fire on every edit. For a rule that applies to every task, add it with `--scope always`; for a file rule, use a file-class glob such as `src/build/*.ts`.
 
 ## Set it up once
 
@@ -65,7 +68,7 @@ A lesson that could never be recalled is rejected at capture time, and the error
    agentsmesh init --lessons
    ```
 
-   This creates the empty graph and a default `config.json`, adds an always-on rule ("recall before edits, capture after failures") to `.agentsmesh/rules/_root.md`, seeds the full operating manual as a `lessons` skill, and wires an auto-recall hook where the tool supports hooks. It also keeps the lessons logs and lock files out of git and sets up the git merge driver for `lessons.json` (see below).
+   This creates the empty graph and a default `config.json`, adds an always-on rule ("recall before edits, capture after failures") to `.agentsmesh/rules/_root.md`, seeds the full operating manual as a `lessons` skill, and wires an auto-recall hook where the tool supports hooks. It creates `.agentsmesh/hooks.yaml` when your project has none, and it always prints what happened to the hook (created, wired, already current, or skipped and why). If `hooks` is not in `features` in `agentsmesh.yaml`, it warns you, because `generate` would never project the hook. It also keeps the lessons logs and lock files out of git and sets up the git merge driver for `lessons.json` (see below).
 
    If your project has a `package.json`, add agentsmesh as a devDependency first. The hooks then run `npx --no --offline agentsmesh`, so teammates without a global install still get recall; without it, `init` and `generate` print a hint.
 
@@ -154,7 +157,7 @@ agentsmesh init --lessons && agentsmesh generate
 agentsmesh lessons add "Normalize CLI display paths to forward slashes" \
   --topic windows-paths \
   --new-topic --topic-summary "Cross-platform path handling" \
-  --trigger-file "src/cli/**/*.ts"
+  --trigger-file "src/cli/*.ts"
 
 # 3. Later, before editing a CLI file, the agent recalls it automatically:
 agentsmesh lessons query --file src/cli/foo.ts

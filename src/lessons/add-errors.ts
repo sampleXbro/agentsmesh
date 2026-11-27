@@ -32,6 +32,24 @@ export class BroadCommandPatternError extends Error {
   }
 }
 
+/**
+ * Thrown when a `--trigger-file` glob matches every file of the project (a bare
+ * globstar, or a globstar followed by a lone star segment). Such a trigger
+ * recalls the lesson on every edit, so it is not a file trigger — a rule for
+ * every task is `--scope always`.
+ */
+export class CatchAllGlobError extends Error {
+  readonly code = 'CATCH_ALL_GLOB';
+  constructor(public readonly pattern: string) {
+    super(
+      `File glob ${JSON.stringify(pattern)} matches every file, so the lesson would be recalled ` +
+        'on every edit. For a rule that applies to every task, use --scope always ' +
+        '(scope: "always" over MCP). Otherwise use a file-class glob like "src/lib/use*Form*.ts".',
+    );
+    this.name = 'CatchAllGlobError';
+  }
+}
+
 export class UnknownTopicError extends Error {
   readonly code = 'UNKNOWN_TOPIC';
   constructor(public readonly topic: string) {

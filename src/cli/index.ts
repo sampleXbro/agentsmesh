@@ -7,6 +7,7 @@ import { handleError } from './error-handler.js';
 import { muteLogger } from '../utils/output/logger.js';
 import { cmdHandlers } from './command-handlers.js';
 import { flagTakesValue } from './flag-spec.js';
+import { assertKnownFlags } from './flag-validation.js';
 import { silenceUi } from './ui/ui.js';
 import { makeStdioBlocking } from './stdio-blocking.js';
 
@@ -112,6 +113,7 @@ export async function main(parsed: ParseResult): Promise<void> {
       `Unknown command "${command}". Available: ${Object.keys(cmdHandlers).join(', ')}`,
     );
   }
+  assertKnownFlags(command, flags);
   await handler(flags, args);
 }
 

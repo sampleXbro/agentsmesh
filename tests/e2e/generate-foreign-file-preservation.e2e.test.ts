@@ -43,7 +43,7 @@ describe('generate preserves files inside managed dirs that it never wrote', () 
     project(dir, ['kiro'], ['rules']);
     write(dir, '.kiro/hooks/my-hook.kiro.hook', '{"name":"mine"}\n');
 
-    const result = await runCli('generate --no-matrix', dir);
+    const result = await runCli('generate', dir);
 
     expect(result.exitCode).toBe(0);
     expect(readFileSync(join(dir, '.kiro/hooks/my-hook.kiro.hook'), 'utf8')).toBe(
@@ -55,9 +55,9 @@ describe('generate preserves files inside managed dirs that it never wrote', () 
     dir = createTestProject();
     project(dir, ['kiro'], ['rules']);
 
-    await runCli('generate --no-matrix', dir);
+    await runCli('generate', dir);
     write(dir, '.kiro/hooks/my-hook.kiro.hook', '{"name":"mine"}\n');
-    const result = await runCli('generate --no-matrix', dir);
+    const result = await runCli('generate', dir);
 
     expect(result.exitCode).toBe(0);
     expect(existsSync(join(dir, '.kiro/hooks/my-hook.kiro.hook'))).toBe(true);
@@ -67,12 +67,12 @@ describe('generate preserves files inside managed dirs that it never wrote', () 
     dir = createTestProject();
     project(dir, ['cursor'], ['rules']);
     write(dir, '.agentsmesh/rules/typescript.md', '# TS\n\nUse strict mode.\n');
-    await runCli('generate --no-matrix', dir);
+    await runCli('generate', dir);
     expect(existsSync(join(dir, '.cursor/rules/typescript.mdc'))).toBe(true);
 
     const { renameSync } = await import('node:fs');
     renameSync(join(dir, '.agentsmesh/rules/typescript.md'), join(dir, '.agentsmesh/rules/ts.md'));
-    const result = await runCli('generate --no-matrix', dir);
+    const result = await runCli('generate', dir);
 
     expect(result.exitCode).toBe(0);
     expect(existsSync(join(dir, '.cursor/rules/ts.mdc'))).toBe(true);
@@ -87,11 +87,11 @@ describe('generate preserves files inside managed dirs that it never wrote', () 
       '.agentsmesh/agents/reviewer.md',
       '---\nname: reviewer\ndescription: Reviews code\n---\n\nReview it.\n',
     );
-    await runCli('generate --no-matrix', dir);
+    await runCli('generate', dir);
     const shared = join(dir, '.agents/skills/am-agent-reviewer/SKILL.md');
     expect(existsSync(shared)).toBe(true);
 
-    const result = await runCli('generate --targets zed --no-matrix', dir);
+    const result = await runCli('generate --targets zed', dir);
 
     expect(result.exitCode).toBe(0);
     expect(existsSync(shared)).toBe(true);
@@ -105,7 +105,7 @@ describe('generate preserves files inside managed dirs that it never wrote', () 
       '.agentsmesh/agents/reviewer.md',
       '---\nname: reviewer\ndescription: Reviews code\n---\n\nReview it.\n',
     );
-    await runCli('generate --no-matrix', dir);
+    await runCli('generate', dir);
     const projected = join(dir, '.windsurf/skills/am-agent-reviewer/SKILL.md');
     expect(existsSync(projected)).toBe(true);
 
@@ -115,7 +115,7 @@ describe('generate preserves files inside managed dirs that it never wrote', () 
       'version: 1\ntargets:\n  - windsurf\nfeatures:\n  - rules\n  - agents\n  - skills\n' +
         'conversions:\n  agents_to_skills:\n    windsurf: false\n',
     );
-    const result = await runCli('generate --no-matrix', dir);
+    const result = await runCli('generate', dir);
 
     expect(result.exitCode).toBe(0);
     expect(existsSync(projected)).toBe(false);
@@ -123,7 +123,7 @@ describe('generate preserves files inside managed dirs that it never wrote', () 
 
   it('still reports real drift through generate --check', async () => {
     dir = createTestProject('canonical-full');
-    await runCli('generate --no-matrix', dir);
+    await runCli('generate', dir);
     writeFileSync(join(dir, 'CLAUDE.md'), '# Drifted\n');
 
     const result = await runCli('generate --check', dir);
@@ -137,7 +137,7 @@ describe('generate preserves files inside managed dirs that it never wrote', () 
   it('surfaces an unlocked managed-dir file as a notice without failing `check`', async () => {
     dir = createTestProject();
     project(dir, ['cursor'], ['rules']);
-    await runCli('generate --no-matrix', dir);
+    await runCli('generate', dir);
     write(dir, '.cursor/rules/orphaned.mdc', 'hand written\n');
 
     const result = await runCli('check', dir);

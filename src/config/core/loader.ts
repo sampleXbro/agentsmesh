@@ -8,6 +8,7 @@ import { readFileSafe, exists } from '../../utils/filesystem/fs.js';
 import { logger } from '../../utils/output/logger.js';
 import { ConfigNotFoundError, ConfigValidationError } from '../../core/errors.js';
 import { configSchema, type ValidatedConfig } from './schema.js';
+import { formatConfigIssues } from './format-issues.js';
 
 const CONFIG_FILENAME = 'agentsmesh.yaml';
 const LOCAL_CONFIG_FILENAME = 'agentsmesh.local.yaml';
@@ -48,7 +49,7 @@ export async function loadConfig(configPath: string): Promise<ValidatedConfig> {
   const raw = parseYaml(content) as unknown;
   const result = configSchema.safeParse(raw);
   if (!result.success) {
-    const issues = result.error.issues.map((i) => i.message);
+    const issues = formatConfigIssues(result.error.issues);
     throw new ConfigValidationError(configPath, issues, { cause: result.error });
   }
   return result.data;
@@ -197,7 +198,7 @@ export async function loadConfigFromExactDir(
       if (parsed.success) {
         config = parsed.data;
       } else {
-        const issues = parsed.error.issues.map((i) => i.message).join('; ');
+        const issues = formatConfigIssues(parsed.error.issues).join('; ');
         logger.warn(
           `Ignoring invalid agentsmesh.local.yaml at ${localPath}: ${issues}. Using project config instead.`,
         );

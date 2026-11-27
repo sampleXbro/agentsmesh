@@ -14,6 +14,7 @@ import {
   buildCheckResult,
   handleGenerateOrDryRun,
 } from './generate-handlers.js';
+import { withRemovedOutputDrift } from './generate-removed.js';
 import type { GenerateData } from '../command-result.js';
 import type { ValidatedConfig } from '../../config/core/schema.js';
 import type { CanonicalFiles } from '../../core/types.js';
@@ -127,7 +128,13 @@ export async function runGenerate(
           loaded: { config, canonical },
         })
       : checkOnly
-        ? buildCheckResult(results, scope)
+        ? await withRemovedOutputDrift(buildCheckResult(results, scope), {
+            results,
+            scope,
+            context,
+            configuredTargets: allTargets,
+            flags,
+          })
         : await handleGenerateOrDryRun({
             results,
             dryRun,

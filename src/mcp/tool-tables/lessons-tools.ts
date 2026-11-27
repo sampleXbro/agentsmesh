@@ -19,7 +19,9 @@ const LessonsQueryInput = z
       .int()
       .positive()
       .optional()
-      .describe('Max ranked lessons to return (default 10). Results are relevance-ranked.'),
+      .describe(
+        'Max ranked lessons to return. Default: `recallLimit` from `.agentsmesh/lessons/config.json` (10 when unset). Results are relevance-ranked.',
+      ),
     max_tokens: z
       .number()
       .int()
@@ -109,7 +111,7 @@ export const LESSONS_TOOL_DESCRIPTORS: ToolDescriptor[] = [
   {
     name: 'lessons_query',
     description:
-      'Recall primitive — return active lessons whose triggers match the supplied (file, command, keyword) predicates, relevance-ranked (trigger specificity + per-query topic coherence + BM25 over rule text) and capped to `limit` (default 10). Pass at least one predicate OR `always:true` (a call with neither is rejected); always include `file` for an edit and `command` for a shell command — keyword-only recall misses file/command-scoped lessons. `always:true` additionally prepends the universal always-on lessons. Session dedup is ON by default (correlator: AGENTSMESH_SESSION_ID, else this server process): a lesson already delivered this session is suppressed and counted in `suppressed` — pass `no_dedup:true` to re-show everything (e.g. after context compaction), or `session` to control the scope. Returns compact `{id, rule}` by default; pass `verbose:true` for topics/triggers/evidence/score. Excludes deprecated and superseded lessons.',
+      'Recall primitive — return active lessons whose triggers match the supplied (file, command, keyword) predicates, relevance-ranked (trigger specificity + per-query topic coherence + BM25 over rule text) and capped to `limit` (default: `recallLimit` from `.agentsmesh/lessons/config.json`, else 10). Pass at least one predicate OR `always:true` (a call with neither is rejected); always include `file` for an edit and `command` for a shell command — keyword-only recall misses file/command-scoped lessons. `always:true` additionally prepends the universal always-on lessons. Session dedup is ON by default (correlator: AGENTSMESH_SESSION_ID, else this server process): a lesson already delivered this session is suppressed and counted in `suppressed` — pass `no_dedup:true` to re-show everything (e.g. after context compaction), or `session` to control the scope. Returns compact `{id, rule}` by default; pass `verbose:true` for topics/triggers/evidence/score. Excludes deprecated and superseded lessons. If the lessons graph cannot be read (merge conflict, corrupt JSON, newer schema, failed legacy migration) the result has empty `lessons` plus a `warning` naming the problem and the fix: recall is OFF, not "no match" — tell the user.',
     inputSchema: LessonsQueryInput,
     projectOptional: true,
     handler: (ctx, i) => lessonsHandlers.query(ctx, i as never),
@@ -117,7 +119,7 @@ export const LESSONS_TOOL_DESCRIPTORS: ToolDescriptor[] = [
   {
     name: 'lessons_add',
     description:
-      'Capture primitive — atomically add a new lesson. At least one EFFECTIVE trigger is REQUIRED — the add is rejected (UNRECALLABLE_LESSON, exit 2) when every trigger is dead on the mandatory file/command recall path (a stopword-only keyword whose needle loses all tokens to stopword filtering, or an invalid/ReDoS command regex). A lesson with a mix of live and dead triggers is NOT rejected: a dead command regex is dropped with a [DEAD_COMMAND_PATTERN] warning. Prefer a precise `trigger_files` glob, the most reliable trigger. Deduplicates triggers against the graph. Idempotent on repeat (same rule + topic → same id, no duplicate triggers). Returns non-blocking `warnings` (trigger-hygiene nudges: oversized trigger set, broad globs, keyword-only, glob whose file git history renamed or deleted [DEAD_GLOB], glob whose file does not exist yet [PENDING_GLOB], or rule closely paraphrasing an existing active lesson [NEAR_DUPLICATE_LESSON]) — heed them by preferring a few specific triggers.',
+      'Capture primitive — atomically add a new lesson. At least one EFFECTIVE trigger is REQUIRED — the add is rejected (VALIDATION_FAILED, `details.code` UNRECALLABLE_LESSON) when every trigger is dead on the mandatory file/command recall path (a stopword-only keyword whose needle loses all tokens to stopword filtering, or an invalid/ReDoS command regex). A lesson with a mix of live and dead triggers is NOT rejected: a dead command regex is dropped with a [DEAD_COMMAND_PATTERN] warning. Prefer a precise `trigger_files` glob, the most reliable trigger. Other guardrail rejections (empty or oversized rule, no trigger, over-broad command regex, unsafe or out-of-project file glob, a catch-all file glob such as `**/*` (CATCH_ALL_GLOB; use `scope: "always"` for a rule that applies to every task), bad topic id) are also VALIDATION_FAILED, each with its own `details.code`; an unknown topic is NOT_FOUND with `details.code` UNKNOWN_TOPIC (pass `new_topic` + `topic_summary` to create one). Deduplicates triggers against the graph. Idempotent on repeat (same rule + topic → same id, no duplicate triggers). Returns non-blocking `warnings` (trigger-hygiene nudges: oversized trigger set, broad globs, keyword-only, glob whose file git history renamed or deleted [DEAD_GLOB], glob whose file does not exist yet [PENDING_GLOB], or rule closely paraphrasing an existing active lesson [NEAR_DUPLICATE_LESSON]) — heed them by preferring a few specific triggers.',
     inputSchema: LessonsAddInput,
     projectOptional: true,
     handler: (ctx, i) => lessonsHandlers.add(ctx, i as never),
@@ -125,7 +127,7 @@ export const LESSONS_TOOL_DESCRIPTORS: ToolDescriptor[] = [
   {
     name: 'lessons_topics',
     description:
-      'List every topic id and summary — call before lessons_add to choose a valid --topic instead of guessing (which would create an unintended new topic).',
+      'List every topic id and summary — call before lessons_add to pick an existing `topic` instead of guessing (an unknown id is rejected as NOT_FOUND, and `new_topic` would create an unintended one).',
     inputSchema: z.object({}).strict(),
     projectOptional: true,
     handler: (ctx) => lessonsHandlers.topics(ctx),

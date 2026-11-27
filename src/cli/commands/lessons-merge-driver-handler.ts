@@ -1,8 +1,13 @@
 import { writeFileSync } from 'node:fs';
 import { LESSONS_GRAPH_PATH, serializeGraph } from '../../lessons/graph-store.js';
-import { describeUnreadableSide, unionGraphTexts } from '../../lessons/merge-sides.js';
+import {
+  describeUnreadableBase,
+  describeUnreadableSide,
+  unionGraphTexts,
+} from '../../lessons/merge-sides.js';
 import { writeTextualMerge } from '../../lessons/textual-merge.js';
 import { readTextOrEmpty as readText } from '../../utils/filesystem/fs.js';
+import { logger } from '../../utils/output/logger.js';
 import type { LessonsCommandResult } from './lessons-types.js';
 
 function result(exitCode: 0 | 1, merged: boolean, error?: string): LessonsCommandResult {
@@ -26,8 +31,12 @@ function result(exitCode: 0 | 1, merged: boolean, error?: string): LessonsComman
  * file for `agentsmesh lessons resolve` or a human.
  *
  * Two inputs are tolerated rather than treated as failures:
- * - An empty or unparsable base. Git passes an empty ancestor when the file is
- *   new on both branches, which is the common first-capture race.
+ * - An empty base. Git passes an empty ancestor when the file is new on both
+ *   branches, which is the common first-capture race. A base that is not empty
+ *   but cannot be read is also read as empty and still exits 0, because the
+ *   union loses no lesson; the only risk is a trigger or topic that one branch
+ *   deleted coming back, and that is cheap to fix. It is announced on stderr,
+ *   since a clean exit makes git finish the merge without anyone looking.
  * - Validation errors that already exist on any side. Only errors the merge
  *   itself introduces are worth a human's attention (same rule `mutateLessonsGraph`
  *   applies to captures).
@@ -55,6 +64,9 @@ export function doMergeDriver(args: readonly string[]): LessonsCommandResult {
   }
 
   writeFileSync(oursPath, serializeGraph(union.merged), 'utf8');
+  if (union.baseUnreadable !== undefined) {
+    logger.warn(`lessons merge-driver: ${describeUnreadableBase(union.baseUnreadable)}`);
+  }
   if (union.introduced.length > 0) {
     return result(
       1,

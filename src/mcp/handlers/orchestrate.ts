@@ -2,6 +2,7 @@ import type { McpContext } from '../context.js';
 import { loadProjectContext, lint as engineLint, diff as engineDiff } from '../../public/index.js';
 import { runCheck } from '../../cli/commands/check.js';
 import { runGenerate } from '../../cli/commands/generate.js';
+import { keptWarning } from '../../cli/renderers/generate.js';
 import { unmanagedSettingsMessage } from '../../canonical/load/unmanaged-settings.js';
 import {
   type CheckHandlerResult,
@@ -53,8 +54,13 @@ async function generate(
       byTarget,
       lockfileUpdated: lockWritten,
       errors: [],
-      warnings: skippedSettings.map(unmanagedSettingsMessage),
+      warnings: [
+        ...skippedSettings.map(unmanagedSettingsMessage),
+        ...(data.kept ?? []).map((kept) => keptWarning(data.scope, kept)),
+      ],
       skippedSettings,
+      removed: data.removed ?? [],
+      kept: data.kept ?? [],
     };
 
     if (input.verbose === true) result.files = data.files.map((f) => f.path);

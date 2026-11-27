@@ -10,7 +10,7 @@ import {
   type ResilientGraphLoad,
 } from './graph-store.js';
 import { readIndexStages, type ConflictTexts } from './merge-stages.js';
-import { parseGraphText, unionGraphTexts } from './merge-sides.js';
+import { missesMergeResult, parseGraphText, unionGraphTexts } from './merge-sides.js';
 
 /**
  * Why an existing lessons graph cannot be read, with the one safe next step.
@@ -112,18 +112,17 @@ function sameGraph(text: string | null, graph: LessonsGraph): boolean {
 
 /**
  * A git merge the file does not finish yet: git holds the graph unmerged and
- * the file lacks a lesson (or a lesson edit) that `lessons resolve` would keep.
- * A merge driver git could not start leaves exactly this: one branch's file,
- * no markers. When a side is unreadable there is no union to compare with, so
- * only a file still identical to one side counts.
+ * the file lacks a lesson that `lessons resolve` would keep, or is still exactly
+ * this branch's graph while the merge changed it (see missesMergeResult). A merge
+ * driver git could not start leaves exactly that: this branch's file, no
+ * markers. A graph repaired after a real union (`untrigger`, `prune`) is not
+ * flagged. When a side is unreadable there is no union to compare with, so only
+ * a file still identical to one side counts.
  */
 function missesMergeSide(stages: ConflictTexts, graph: LessonsGraph): boolean {
   const union = unionGraphTexts(stages.base, stages.ours, stages.theirs);
   if (!union.ok) return sameGraph(stages.ours, graph) || sameGraph(stages.theirs, graph);
-  return Object.entries(union.merged.lessons).some(([id, kept]) => {
-    const own = graph.lessons[id];
-    return own === undefined || stableStringify(own) !== stableStringify(kept);
-  });
+  return missesMergeResult(union, graph);
 }
 
 /**

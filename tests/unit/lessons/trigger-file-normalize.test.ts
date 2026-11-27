@@ -68,7 +68,7 @@ describe('mergeTriggers — refused file globs', () => {
     expect(err.message).toBe(
       `--trigger-file ${JSON.stringify(file)} points outside the project root. File triggers ` +
         'match project-relative paths, so it would never fire — pass a glob relative to the ' +
-        'project root (e.g. "src/**/*.ts").',
+        'project root (e.g. "src/cli/*.ts").',
     );
   });
 
@@ -93,7 +93,7 @@ describe('mergeTriggers — refused file globs', () => {
     expect(err.code).toBe('TRIGGER_FILE_IS_PROJECT_ROOT');
     expect(err.message).toBe(
       `--trigger-file ${JSON.stringify(given)} is the project root itself, and file triggers ` +
-        'match files. Pass a glob such as "src/**/*.ts".',
+        'match files. Pass a glob such as "src/cli/*.ts".',
     );
   });
 

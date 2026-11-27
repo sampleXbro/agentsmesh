@@ -117,7 +117,18 @@ import { getAllDescriptors as getAllFromSub } from 'agentsmesh/targets';
 import {
   recallLessons as recallLessonsFromSub,
   captureLesson as captureLessonFromSub,
+  CatchAllGlobError,
+  InactiveLessonError,
+  LastTriggerError,
+  SelfMergeError,
+  TriggerNotAttachedError,
+  UnknownLessonError,
+  UnknownSupersederError,
+  isCaptureRejection,
+  type LessonsErrorCode,
+  type RecallHookOutcome,
   type RecallResult as RecallResultFromSub,
+  type ScaffoldLessonsOptions,
 } from 'agentsmesh/lessons';
 
 async function exerciseRuntime(): Promise<void> {
@@ -271,6 +282,27 @@ function exerciseErrorTaxonomy(err: unknown): AgentsMeshErrorCode | null {
   return null;
 }
 
+// Lessons errors carry a stable code that narrows to LessonsErrorCode.
+function exerciseLessonsErrors(err: unknown): LessonsErrorCode | null {
+  if (err instanceof CatchAllGlobError) return err.code;
+  if (err instanceof UnknownLessonError) return err.code;
+  if (err instanceof UnknownSupersederError) return err.code;
+  if (err instanceof InactiveLessonError) return err.code;
+  if (err instanceof SelfMergeError) return err.code;
+  if (err instanceof TriggerNotAttachedError) return err.code;
+  if (err instanceof LastTriggerError) return err.code;
+  if (isCaptureRejection(err)) return err.code;
+  return null;
+}
+
+function exerciseLessonsScaffoldTypes(
+  outcome: RecallHookOutcome,
+  options: ScaffoldLessonsOptions,
+): string | undefined {
+  void options.hooksTemplate;
+  return outcome.status === 'skipped' ? outcome.reason : undefined;
+}
+
 // Exercise canonical type surface so each export is load-bearing.
 function exerciseCanonicalTypes(
   _rule: CanonicalRule,
@@ -357,6 +389,8 @@ function exerciseRegistration(descriptor: TargetDescriptor): void {
 export {
   exerciseRuntime,
   exerciseErrorTaxonomy,
+  exerciseLessonsErrors,
+  exerciseLessonsScaffoldTypes,
   exerciseCanonicalTypes,
   exerciseTargetTypes,
   exerciseRegistration,

@@ -28,6 +28,7 @@ import { mutateLessonsGraph } from './mutate.js';
 // (CLI/MCP surfacing, tests) keep working after the split into add-errors.ts.
 export {
   BroadCommandPatternError,
+  CatchAllGlobError,
   EmptyRuleError,
   InvalidTopicIdError,
   NoTriggerError,
@@ -82,8 +83,14 @@ interface AddLessonIntoOptions extends AddLessonOptions {
   readonly projectRoot?: string;
 }
 
-/** A non-blocking capture warning: a guardrail nudge or a dropped dead command trigger. */
-export type AddLessonWarning = GuardrailWarning | DeadCommandWarning;
+/** CLI only: a `--trigger-file` glob typed in a subfolder was saved project-relative. */
+export interface RebasedGlobWarning {
+  readonly code: 'TRIGGER_GLOB_REBASED';
+  readonly message: string;
+}
+
+/** A non-blocking capture warning: a guardrail nudge, a dropped dead command trigger, a moved glob. */
+export type AddLessonWarning = GuardrailWarning | DeadCommandWarning | RebasedGlobWarning;
 
 export interface AddLessonResult {
   readonly id: string;
@@ -138,7 +145,7 @@ export function addLessonInto(
   // Gates (see add-gates.ts): a throw aborts the transactional write.
   const existing = existingId !== null ? graph.lessons[existingId] : undefined;
   assertTriggerInputs(input, options, existing?.triggers.length ?? 0);
-  const merged = mergeTriggers(graph, input.triggers, options.projectRoot);
+  const merged = mergeTriggers(graph, input.triggers, options.projectRoot, existing?.triggers);
   const { triggerIds, newTriggerIds, dropped } = dropDeadCommandTriggers(graph, merged, options);
   if (!skipsTriggerGates(input, options)) {
     const resulting = existing === undefined ? triggerIds : union(existing.triggers, triggerIds);

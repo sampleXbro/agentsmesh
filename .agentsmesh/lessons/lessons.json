@@ -395,6 +395,18 @@
         "t-glob-21f9729c"
       ]
     },
+    "ci-and-release-security-in-github-actions-run-steps": {
+      "createdAt": "2026-11-25",
+      "evidence": [],
+      "rule": "In GitHub Actions run steps (default 'bash -e', no pipefail) never write SHA=$(curl URL | sha256sum | awk ...) && break: the pipeline status is the last command's, so a failed or not-yet-served download hashes empty input (e3b0c442...) into the Homebrew formula. Download with curl -fsSL -o file, require [ -s file ], reject the empty-input hash, and exit 1 after the last attempt; allow about 7.5 minutes because npm can take 5 minutes to serve a new version.",
+      "status": "active",
+      "topics": [
+        "ci-and-release-security"
+      ],
+      "triggers": [
+        "t-glob-7eced952"
+      ]
+    },
     "ci-and-release-security-rule-1": {
       "createdAt": "2026-06-05",
       "evidence": [
@@ -806,6 +818,18 @@
         "t-glob-78449aa1"
       ]
     },
+    "cli-presentation-report-what-a-generate-run": {
+      "createdAt": "2026-11-25",
+      "evidence": [],
+      "rule": "Report what a generate run removed or kept in the result data (removed/kept) and print it from renderGenerate; never log per-file lines from core or command code, because they run under the spinner, are lost under --json, and let the summary and the check verdict contradict them (stale errors, then 'in sync').",
+      "status": "active",
+      "topics": [
+        "cli-presentation"
+      ],
+      "triggers": [
+        "t-glob-ebc9f5cd"
+      ]
+    },
     "cli-presentation-test-a-fix-for-duplicated": {
       "createdAt": "2026-11-05",
       "evidence": [
@@ -820,6 +844,20 @@
         "t-glob-8173701c",
         "t-glob-ebc9f5cd",
         "t-kw-f2db7158"
+      ]
+    },
+    "cli-presentation-the-json-failure-envelope-is": {
+      "createdAt": "2026-11-25",
+      "evidence": [],
+      "rule": "The --json failure envelope is built in two places, handleResult (src/cli/json-handler.ts) and emitJson (src/cli/json-output.ts), not in command-result.ts: a new envelope field (e.g. error code) needs the CommandResult type, both emitters, and a test of the exact key order.",
+      "status": "active",
+      "topics": [
+        "cli-presentation"
+      ],
+      "triggers": [
+        "t-glob-84949cce",
+        "t-glob-78449aa1",
+        "t-glob-dbe11674"
       ]
     },
     "cli-presentation-when-auditing-spinner-vs-prompt": {
@@ -1026,6 +1064,20 @@
         "t-glob-64298c11",
         "t-cmd-024ed4d1",
         "t-kw-5ad21932"
+      ]
+    },
+    "dist-backed-tests-before-making-a-cli-parser": {
+      "createdAt": "2026-11-25",
+      "evidence": [],
+      "rule": "Before making a CLI parser reject unknown flags, sweep tests/e2e and tests/integration (and every handler) for flags the source never reads: a permissive parser lets a dead flag such as 'generate --no-matrix' pass silently in dist-backed tests, and the tests fail only after the rebuild, so list them for the test owner and never whitelist a dead flag to keep them green.",
+      "status": "active",
+      "topics": [
+        "dist-backed-tests"
+      ],
+      "triggers": [
+        "t-glob-5ae739ab",
+        "t-glob-1adbf269",
+        "t-glob-8a9e3ec5"
       ]
     },
     "dist-backed-tests-rule-1": {
@@ -1341,6 +1393,19 @@
       "triggers": [
         "t-glob-1377e63f",
         "t-glob-75a81240"
+      ]
+    },
+    "fixture-and-assertion-discipline-in-new-test-files-import": {
+      "createdAt": "2026-11-25",
+      "evidence": [],
+      "rule": "In new test files, import the tests/fixtures/plugins/rich-plugin descriptor with pathToFileURL(join(process.cwd(), 'tests/fixtures/plugins/rich-plugin/index.js')).href cast to { descriptor: TargetDescriptor }; a static dynamic import of '../../../fixtures/plugins/rich-plugin/index.js' fails tsc -p tsconfig.tests.json with TS7016, and new files may not join its baseline exclude list.",
+      "status": "active",
+      "topics": [
+        "fixture-and-assertion-discipline"
+      ],
+      "triggers": [
+        "t-glob-8ea7d861",
+        "t-kw-38827fe9"
       ]
     },
     "fixture-and-assertion-discipline-in-path-equality-endswith-test": {
@@ -1805,6 +1870,20 @@
         "t-glob-8173701c"
       ]
     },
+    "fixture-and-assertion-discipline-when-a-test-expects-the": {
+      "createdAt": "2026-11-25",
+      "evidence": [
+        "fixture-and-assertion-discipline-rule-7"
+      ],
+      "rule": "When a test expects the files a removed target deletes, include the shared root files it co-produced (AGENTS.md written by cursor goes too once no other target generates it); run a real first generate and read the tree before writing the exact removed list.",
+      "status": "active",
+      "topics": [
+        "fixture-and-assertion-discipline"
+      ],
+      "triggers": [
+        "t-glob-c6bdcfbe"
+      ]
+    },
     "fixture-and-assertion-discipline-when-adding-a-ranking-discrimination": {
       "createdAt": "2026-06-26",
       "evidence": [
@@ -2222,6 +2301,20 @@
         "t-glob-98419953",
         "t-glob-9f0a5990",
         "t-kw-ef1e743a"
+      ]
+    },
+    "generation-cleanup-when-a-sweep-deletes-lock": {
+      "createdAt": "2026-11-25",
+      "evidence": [],
+      "rule": "When a sweep deletes lock-claimed outputs of a target that is no longer configured (src/core/generate/removed-outputs.ts), require BOTH an on-disk checksum equal to the lock entry AND that no known descriptor (builtin or registered, via getAllRegisteredDescriptorIds) lists the path in managedOutputs.coOwnedFiles. An unchanged hash does not prove the user put nothing in a shared tool config (.codex/config.toml, .cursor/mcp.json) before agentsmesh first merged into it; deleting it is silent data loss. Existing tests that remove a target and expect its file to stay (openhands stale-cleanup) encode the old keep behaviour and need a hand-edit to model it.",
+      "status": "active",
+      "topics": [
+        "generation-cleanup"
+      ],
+      "triggers": [
+        "t-glob-6134670b",
+        "t-glob-8964922b",
+        "t-glob-cceb4b9f"
       ]
     },
     "generation-collision-source-maps-a-generator-that-merges-into": {
@@ -3552,6 +3645,19 @@
         "t-glob-d044343b"
       ]
     },
+    "init-when-a-re-run-of": {
+      "createdAt": "2026-11-25",
+      "evidence": [],
+      "rule": "When a re-run of a scaffold must keep a user-edited value (the recall hook matcher in hooks.yaml), do not stop writing it blindly: an earlier release wrote the old default (Edit|Write|Bash), and recall-hook-scaffold-invocation.test.ts pins its upgrade. Upgrade only values equal to a known earlier scaffold default (LEGACY_TOOL_MATCHER), keep every other value, and add the previous default to that list each time the scaffold default changes, or upgraded users stay stuck on the stale default.",
+      "status": "active",
+      "topics": [
+        "init"
+      ],
+      "triggers": [
+        "t-glob-629e24b4",
+        "t-glob-727973e7"
+      ]
+    },
     "init-when-making-a-cli-scope": {
       "createdAt": "2026-06-22",
       "evidence": [
@@ -4604,6 +4710,40 @@
         "t-glob-8bbff52e"
       ]
     },
+    "lessons-system-a-command-line-tokenizer-that": {
+      "createdAt": "2026-11-27",
+      "evidence": [
+        "lesson:windows-paths-rule-9"
+      ],
+      "rule": "A command-line tokenizer that treats every unquoted backslash as a POSIX escape deletes Windows path separators (C:\\Users\\x becomes C:Usersx), so a path-matching guard silently misses native paths from PowerShell or pasted paths while macOS tests stay green. Treat backslash as an escape only before characters a POSIX shell must escape (whitespace, quotes, $, backtick, backslash, ;&|()<>, *?[, #~!{}), keep it literal before any other character, then normalize with replaceAll('\\\\','/'). Cover it with a cross-platform test that swaps / for backslash in the graph path (it fails on macOS before the fix) plus a round-trip of a POSIX-escaped odd path; double-quoted words in src/lessons/git-staging-command.ts still drop every backslash.",
+      "status": "superseded",
+      "supersededBy": "lessons-system-a-command-line-tokenizer-that-2",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-f426999c",
+        "t-glob-de30ec51",
+        "t-kw-bc343b48"
+      ]
+    },
+    "lessons-system-a-command-line-tokenizer-that-2": {
+      "createdAt": "2026-11-27",
+      "evidence": [
+        "lesson:windows-paths-rule-9"
+      ],
+      "rule": "A command-line tokenizer that treats every backslash as a POSIX escape deletes Windows path separators (C:\\Users\\x becomes C:Usersx), so a path-matching guard silently misses native paths from PowerShell or pasted paths while macOS tests stay green. Unquoted, treat a backslash as an escape only before characters a POSIX shell must escape (whitespace, quotes, $, backtick, backslash, ;&|()<>, *?[, #~!{}); inside double quotes only before $ backtick \" backslash and newline; keep it literal otherwise, then normalize with replaceAll. Cover it with a test that swaps / for backslash in the graph path, quoted and unquoted (red on macOS before the fix).",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-f426999c",
+        "t-glob-00ddf156",
+        "t-glob-de30ec51",
+        "t-kw-bc343b48"
+      ]
+    },
     "lessons-system-a-command-pattern-that-is": {
       "createdAt": "2026-09-23",
       "evidence": [],
@@ -4735,6 +4875,21 @@
       "triggers": [
         "t-glob-cd11277c",
         "t-kw-544706af"
+      ]
+    },
+    "lessons-system-anchor-a-cwd-relative-lessons": {
+      "createdAt": "2026-11-25",
+      "evidence": [
+        "lesson:lessons-system-refuse-a-catch-all-file-2"
+      ],
+      "rule": "Anchor a cwd-relative lessons add --trigger-file in the CLI handler only (anchorTriggerGlob in src/cli/commands/lessons-trigger-glob.ts, called by doAdd with the cwd), reusing normalizeRecallFile on the glob's literal prefix so capture matches recall: a prefix that exists from the project root stays as typed, else one that exists from cwd moves onto cwd. The lessons core and MCP keep project-relative globs; report each moved glob as a TRIGGER_GLOB_REBASED warning in data.warnings.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-4c814d30",
+        "t-glob-1a5e6966"
       ]
     },
     "lessons-system-any-recall-dedup-path-that": {
@@ -5230,6 +5385,34 @@
         "t-glob-7fc51540"
       ]
     },
+    "lessons-system-find-a-lessons-root-only": {
+      "createdAt": "2026-11-25",
+      "evidence": [],
+      "rule": "Find a lessons root only through locateProjectRoot (src/lessons/project-root.ts): it checks nearest lessons, then agentsmesh.yaml, then the git top level, stops at the first .git entry (folder or file, worktrees and submodules use a file) and below home. A separate ancestor walk (findUp) splits one repo into two stores or lets a nested worktree read its parent checkout's graph; hookLocation keeps the session root for a file edited from the parent checkout by design.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-ead380c1",
+        "t-glob-db7e480d",
+        "t-glob-fa2e6273"
+      ]
+    },
+    "lessons-system-fix-a-wrong-capture-hint": {
+      "createdAt": "2026-11-25",
+      "evidence": [],
+      "rule": "Fix a wrong capture-hint or context-key program in commandClass itself (command-class.ts plus the WRAPPERS table in command-wrappers.ts), not in capture-trigger-hint.ts: both callers share it. splitSegments must not split inside $( ), leading VAR=value words (the value may hold spaces, quotes or $( )) and wrappers (sudo, env, time, nice, nohup, command, exec) are skipped, and a token starting with - or $ is never the program.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-00ddf156",
+        "t-glob-0779f319",
+        "t-glob-7a4844fc"
+      ]
+    },
     "lessons-system-for-a-stranded-legacy-graph": {
       "createdAt": "2026-06-06",
       "evidence": [
@@ -5359,6 +5542,22 @@
       ],
       "triggers": [
         "t-glob-07cf19c0"
+      ]
+    },
+    "lessons-system-keep-lessons-recall-in-one": {
+      "createdAt": "2026-11-25",
+      "evidence": [
+        "commit:97457aae"
+      ],
+      "rule": "Keep lessons recall in ONE shared pipeline: ranking with outcome-log effectiveness, session dedup, command fast-path refresh and telemetry all live in recallFromGraph (src/lessons/recall-core.ts), which recallLessons (MCP, hook) and the CLI 'lessons query' both call. The CLI handler may only add its print cap through the trim option and its --always rows through selectAlwaysLessons; a private rankLessons/commitSeen copy there made the CLI rank without effectiveness and re-print --always rules every call. Keep doQuery synchronous (tests call it without await), so share a graph-in sync core instead of routing the CLI through async recallLessons.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-9c525d4d",
+        "t-glob-830941b7",
+        "t-glob-a93a3ef5"
       ]
     },
     "lessons-system-keep-lessons-reference-documentation-syn": {
@@ -5504,6 +5703,33 @@
       "triggers": [
         "t-glob-db7e480d",
         "t-glob-04ffddd8"
+      ]
+    },
+    "lessons-system-lessons-resolve-and-the-unmerged": {
+      "createdAt": "2026-11-25",
+      "evidence": [],
+      "rule": "lessons resolve and the unmerged-graph check judge a merge-result file by which lesson ids it holds (missingLessonIds in merge-sides.ts), never by stored lesson content: the merge driver's own advice is to repair the union with untrigger or prune, and an edited lesson is not a lost one. Resolve must keep a file that already holds every merged lesson.",
+      "status": "superseded",
+      "supersededBy": "lessons-system-lessons-resolve-and-the-unmerged-2",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-aed91c26",
+        "t-glob-ab70f670"
+      ]
+    },
+    "lessons-system-lessons-resolve-and-the-unmerged-2": {
+      "createdAt": "2026-11-25",
+      "evidence": [],
+      "rule": "lessons resolve and the unmerged-graph check decide with missesMergeResult (merge-sides.ts): the file is a problem when it lacks a merged lesson id, OR when it is still exactly this branch's graph (stage 2, parsed, not bytes) while the union differs from it (git kept %A because the driver could not start). Never judge by stored lesson content otherwise: the driver's own advice is to repair the union with untrigger or prune, so a repaired file differs from ours and must be kept by resolve.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-aed91c26",
+        "t-glob-ab70f670"
       ]
     },
     "lessons-system-lessons-split-by-reach-named": {
@@ -5659,6 +5885,18 @@
       "triggers": [
         "t-glob-163a9800",
         "t-glob-b4f18da9"
+      ]
+    },
+    "lessons-system-never-add-a-git-call": {
+      "createdAt": "2026-11-25",
+      "evidence": [],
+      "rule": "Never add a git call to the recall hook (src/lessons/hook.ts, it runs on every tool call) unless a lexical check on the command gates it first: mayStageLessonsGraph in git-staging-command.ts guards the PreToolUse unmerged-graph warning, so a command like ls or git status spawns no git.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-72c19fb3"
       ]
     },
     "lessons-system-never-compile-an-author-supplied": {
@@ -5863,6 +6101,35 @@
         "t-kw-20503645",
         "t-kw-53259aa5",
         "t-kw-0e525ea1"
+      ]
+    },
+    "lessons-system-refuse-a-catch-all-file": {
+      "createdAt": "2026-11-25",
+      "evidence": [],
+      "rule": "Refuse a catch-all file glob (isCatchAllGlob in glob-breadth.ts, CatchAllGlobError CATCH_ALL_GLOB) inside mergeTriggers, only when projectRoot is set and only for a newly created trigger node, so legacy merge and re-adds of an existing lesson keep working. It probes the linear glob matcher on a fixed repo-shaped path corpus: a bare * (root files only), **/*.*, and negated globs stay warnings, and ** inside {} is outside the safe glob subset, so it is never a catch-all.",
+      "status": "superseded",
+      "supersededBy": "lessons-system-refuse-a-catch-all-file-2",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-4b9b7045",
+        "t-glob-2902047e"
+      ]
+    },
+    "lessons-system-refuse-a-catch-all-file-2": {
+      "createdAt": "2026-11-25",
+      "evidence": [
+        "lesson:lessons-system-refuse-a-catch-all-file"
+      ],
+      "rule": "Refuse a catch-all file glob in mergeTriggers (add-helpers.ts) for a new trigger node AND for an existing node the lesson does not already own: trigger nodes are content-addressed and shared, so a new-node-only check lets a second lesson attach another lesson's **/* node. Pass the lesson's own trigger ids as ownTriggerIds so a lesson re-adding its own catch-all still works, and keep legacy merge (no projectRoot) unrestricted.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-2902047e",
+        "t-glob-b6891973"
       ]
     },
     "lessons-system-reject-duplicate-ids-within-each": {
@@ -6293,6 +6560,20 @@
         "t-kw-27f3c3f6"
       ]
     },
+    "lessons-system-when-a-change-touches-a": {
+      "createdAt": "2026-11-25",
+      "evidence": [],
+      "rule": "When a change touches a lessons-graph validator invariant or a deprecate/merge write refusal, search tests/ for the finding code (rg -a INACTIVE_SUPERSEDER tests src) before finishing: tests/unit/cli/lessons-add-rejections.test.ts pins refusals at the CLI layer, outside tests/unit/lessons and tests/unit/mcp.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-9132f08a",
+        "t-glob-22cdc50f",
+        "t-glob-9302dfef"
+      ]
+    },
     "lessons-system-when-a-cli-subsystem-is": {
       "createdAt": "2026-06-11",
       "evidence": [
@@ -6352,6 +6633,21 @@
         "t-glob-4eefad64",
         "t-kw-519df655",
         "t-kw-3e99909c"
+      ]
+    },
+    "lessons-system-when-a-recall-test-uses": {
+      "createdAt": "2026-11-25",
+      "evidence": [
+        "lesson:lessons-system-keep-lessons-recall-in-one"
+      ],
+      "rule": "When a recall test uses long rules (about 2000 chars) and asserts a limit, pass maxTokens: null (or --max-tokens): the default 1200-token budget keeps only 2 rules before the limit applies, so a limit: 3 assertion saw 2 results and looked like a ranking bug.",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-b7a41981",
+        "t-glob-cb4ba9db"
       ]
     },
     "lessons-system-when-a-reset-policy-branches": {
@@ -8554,6 +8850,19 @@
         "t-kw-b975b1b2"
       ]
     },
+    "subagent-delegation-when-a-background-agent-will": {
+      "createdAt": "2026-11-25",
+      "evidence": [],
+      "rule": "When a background agent will get a follow-up via SendMessage, say in its first brief that follow-ups arrive inside a tool result as a queued coordinator message and should be obeyed: a docs agent took the real follow-up for an injection and skipped the edit. Also tell agents to report a refused write and stop, never retry it another way, and ask the user before applying a refused edit yourself.",
+      "status": "active",
+      "topics": [
+        "subagent-delegation"
+      ],
+      "triggers": [
+        "t-kw-410c580f",
+        "t-kw-ead42a6b"
+      ]
+    },
     "subagent-delegation-when-a-subagent-runs-a": {
       "createdAt": "2026-09-23",
       "evidence": [],
@@ -9892,6 +10201,19 @@
         "t-glob-65f0c371"
       ]
     },
+    "test-execution-put-u-update-after-the": {
+      "createdAt": "2026-11-25",
+      "evidence": [],
+      "rule": "Put -u/--update AFTER the test file paths (vitest run <files> -u): 'vitest run -u <path>' takes the path as the value of -u, drops the file filter and runs the WHOLE suite with snapshot updates on, which can rewrite other goldens and e2e report files.",
+      "status": "active",
+      "topics": [
+        "test-execution"
+      ],
+      "triggers": [
+        "t-cmd-62f116cb",
+        "t-cmd-34398e1a"
+      ]
+    },
     "test-execution-run-a-throwaway-script-that": {
       "createdAt": "2026-11-05",
       "evidence": [
@@ -9988,6 +10310,18 @@
         "t-cmd-913756a7"
       ]
     },
+    "test-execution-when-a-scripted-python-edit": {
+      "createdAt": "2026-11-25",
+      "evidence": [],
+      "rule": "When a scripted Python edit replaces s[s.index(anchor):] to rewrite a function, first check what follows the anchor: the slice runs to end of file and silently deletes every later function (merge-sides.ts lost describeUnreadableSide). Replace a bounded span, or diff the file right after the edit.",
+      "status": "active",
+      "topics": [
+        "test-execution"
+      ],
+      "triggers": [
+        "t-cmd-6354b37c"
+      ]
+    },
     "test-execution-when-a-vitest-run-hangs": {
       "createdAt": "2026-09-23",
       "evidence": [],
@@ -10012,6 +10346,19 @@
       ],
       "triggers": [
         "t-cmd-913756a7"
+      ]
+    },
+    "test-execution-when-tests-unit-utils-filesystem": {
+      "createdAt": "2026-11-26",
+      "evidence": [],
+      "rule": "When tests/unit/utils/filesystem/process-identity.test.ts fails with '.toMatch() expects to receive a string, but got object' inside the pre-commit hook or a full run, treat it as load, not a regression: processIdentity runs ps with a 2 s timeout (PS_TIMEOUT_MS) and returns null when ps is slow under a busy machine. Run the file alone to confirm it passes, then retry the commit; do not skip the hook.",
+      "status": "active",
+      "topics": [
+        "test-execution"
+      ],
+      "triggers": [
+        "t-glob-e6f4798b",
+        "t-glob-7d0242a2"
       ]
     },
     "test-execution-when-the-pnpm-shim-tries": {
@@ -11240,6 +11587,21 @@
         "t-cmd-2a2e013d"
       ]
     },
+    "website-docs-run-every-lessons-add-example": {
+      "createdAt": "2026-11-25",
+      "evidence": [
+        "commit:97457aae"
+      ],
+      "rule": "Run every lessons add example you put in docs or help text through the real CLI on a fresh graph. Use a file-class glob such as src/cli/*.ts, not src/cli/**/*.ts or src/**/*.ts: a ** segment with a wildcard basename trips BROAD_GLOB_TRIGGER, and a capture without --new-topic and --topic-summary fails on an empty graph.",
+      "status": "active",
+      "topics": [
+        "website-docs"
+      ],
+      "triggers": [
+        "t-glob-5134a300",
+        "t-glob-74262634"
+      ]
+    },
     "website-docs-website-node-modules-is-missing": {
       "createdAt": "2026-10-29",
       "evidence": [
@@ -12110,6 +12472,10 @@
       "kind": "command_pattern",
       "pattern": "sed.*SKILL.md"
     },
+    "t-cmd-34398e1a": {
+      "kind": "command_pattern",
+      "pattern": "\\bvitest run --update\\b"
+    },
     "t-cmd-34d713b6": {
       "kind": "command_pattern",
       "pattern": "install --sync"
@@ -12213,6 +12579,14 @@
     "t-cmd-627361ef": {
       "kind": "command_pattern",
       "pattern": "pnpm (audit|update)"
+    },
+    "t-cmd-62f116cb": {
+      "kind": "command_pattern",
+      "pattern": "\\bvitest run -u\\b"
+    },
+    "t-cmd-6354b37c": {
+      "kind": "command_pattern",
+      "pattern": "python3? -"
     },
     "t-cmd-64a39b90": {
       "kind": "command_pattern",
@@ -12618,6 +12992,10 @@
       "kind": "file_glob",
       "pattern": "src/targets/*/generator/**"
     },
+    "t-glob-0779f319": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/command-wrappers.ts"
+    },
     "t-glob-07cf19c0": {
       "kind": "file_glob",
       "pattern": "src/lessons/**/*.ts"
@@ -12830,6 +13208,10 @@
       "kind": "file_glob",
       "pattern": "src/core/check/lock-sync-types.ts"
     },
+    "t-glob-22cdc50f": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/deprecate.ts"
+    },
     "t-glob-23ebed0d": {
       "kind": "file_glob",
       "pattern": "src/lessons/auto-prune.ts"
@@ -12861,6 +13243,10 @@
     "t-glob-285fdf8b": {
       "kind": "file_glob",
       "pattern": "src/public/*.ts"
+    },
+    "t-glob-2902047e": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/add-helpers.ts"
     },
     "t-glob-29371cdf": {
       "kind": "file_glob",
@@ -13114,6 +13500,10 @@
       "kind": "file_glob",
       "pattern": "src/targets/**/mcp-format.ts"
     },
+    "t-glob-4c814d30": {
+      "kind": "file_glob",
+      "pattern": "src/cli/commands/lessons-trigger-glob.ts"
+    },
     "t-glob-4c8d45b0": {
       "kind": "file_glob",
       "pattern": "src/mcp/handlers/orchestrate.ts"
@@ -13133,6 +13523,10 @@
     "t-glob-4f36b2c0": {
       "kind": "file_glob",
       "pattern": "docs/marketing/**/*.md"
+    },
+    "t-glob-5134a300": {
+      "kind": "file_glob",
+      "pattern": "website/src/content/docs/cli/lessons.mdx"
     },
     "t-glob-51b8926c": {
       "kind": "file_glob",
@@ -13202,6 +13596,10 @@
       "kind": "file_glob",
       "pattern": "src/install/lock/install-lock.ts"
     },
+    "t-glob-5ae739ab": {
+      "kind": "file_glob",
+      "pattern": "src/cli/flag-validation.ts"
+    },
     "t-glob-5b1f3cd2": {
       "kind": "file_glob",
       "pattern": "src/install/run/install-sync.ts"
@@ -13241,6 +13639,10 @@
     "t-glob-611b8b3a": {
       "kind": "file_glob",
       "pattern": "src/utils/filesystem/process-lock*.ts"
+    },
+    "t-glob-6134670b": {
+      "kind": "file_glob",
+      "pattern": "src/core/generate/removed-outputs.ts"
     },
     "t-glob-6184efaf": {
       "kind": "file_glob",
@@ -13370,6 +13772,10 @@
       "kind": "file_glob",
       "pattern": "src/targets/continue/importer.ts"
     },
+    "t-glob-727973e7": {
+      "kind": "file_glob",
+      "pattern": "tests/unit/lessons/recall-hook-*.test.ts"
+    },
     "t-glob-72977c26": {
       "kind": "file_glob",
       "pattern": "src/cli/commands/lessons-merge-driver-handler.ts"
@@ -13462,6 +13868,10 @@
       "kind": "file_glob",
       "pattern": "src/install/uninstall/*.ts"
     },
+    "t-glob-7d0242a2": {
+      "kind": "file_glob",
+      "pattern": "src/utils/filesystem/process-identity.ts"
+    },
     "t-glob-7d39ded4": {
       "kind": "file_glob",
       "pattern": "src/config/core/conversions.ts"
@@ -13481,6 +13891,10 @@
     "t-glob-7e95936f": {
       "kind": "file_glob",
       "pattern": "src/targets/*/*merge*.ts"
+    },
+    "t-glob-7eced952": {
+      "kind": "file_glob",
+      "pattern": ".github/workflows/*.yml"
     },
     "t-glob-7f548275": {
       "kind": "file_glob",
@@ -13533,6 +13947,10 @@
     "t-glob-82cf3af5": {
       "kind": "file_glob",
       "pattern": "src/lessons/*hook*.ts"
+    },
+    "t-glob-830941b7": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/recall-core.ts"
     },
     "t-glob-840ca032": {
       "kind": "file_glob",
@@ -13606,6 +14024,10 @@
       "kind": "file_glob",
       "pattern": "src/targets/continue/config-merge.ts"
     },
+    "t-glob-8a9e3ec5": {
+      "kind": "file_glob",
+      "pattern": "src/cli/help-data.ts"
+    },
     "t-glob-8ac603bd": {
       "kind": "file_glob",
       "pattern": "src/lessons/action-match.ts"
@@ -13646,6 +14068,10 @@
       "kind": "file_glob",
       "pattern": "src/cli/commands/lessons-helpers.ts"
     },
+    "t-glob-8ea7d861": {
+      "kind": "file_glob",
+      "pattern": "tests/unit/core/generate/*plugin*.test.ts"
+    },
     "t-glob-8fe4e96b": {
       "kind": "file_glob",
       "pattern": "**/SKILL.md"
@@ -13653,6 +14079,10 @@
     "t-glob-90ecaacd": {
       "kind": "file_glob",
       "pattern": "src/cli/commands/import.ts"
+    },
+    "t-glob-9132f08a": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/validate-checks.ts"
     },
     "t-glob-918e29c2": {
       "kind": "file_glob",
@@ -13669,6 +14099,10 @@
     "t-glob-92a97f3a": {
       "kind": "file_glob",
       "pattern": "src/cli/commands/watch*.ts"
+    },
+    "t-glob-9302dfef": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/merge.ts"
     },
     "t-glob-94124781": {
       "kind": "file_glob",
@@ -13926,6 +14360,14 @@
       "kind": "file_glob",
       "pattern": "src/lessons/lexical-retrieval.ts"
     },
+    "t-glob-b6891973": {
+      "kind": "file_glob",
+      "pattern": "tests/unit/lessons/add-catch-all-glob.test.ts"
+    },
+    "t-glob-b7a41981": {
+      "kind": "file_glob",
+      "pattern": "tests/unit/lessons/recall-*.test.ts"
+    },
     "t-glob-b7eb318e": {
       "kind": "file_glob",
       "pattern": "src/utils/filesystem/transient-fs.ts"
@@ -14002,6 +14444,10 @@
       "kind": "file_glob",
       "pattern": "src/targets/copilot/hook-assets.ts"
     },
+    "t-glob-c6bdcfbe": {
+      "kind": "file_glob",
+      "pattern": "tests/**/*removed*.test.ts"
+    },
     "t-glob-c6e66385": {
       "kind": "file_glob",
       "pattern": "src/targets/*/generator/hooks.ts"
@@ -14038,6 +14484,10 @@
       "kind": "file_glob",
       "pattern": "website/src/content/docs/index.mdx"
     },
+    "t-glob-cb4ba9db": {
+      "kind": "file_glob",
+      "pattern": "tests/unit/cli/commands/lessons-query-*.test.ts"
+    },
     "t-glob-cc00a64d": {
       "kind": "file_glob",
       "pattern": "src/targets/factory-droid/generator.ts"
@@ -14045,6 +14495,10 @@
     "t-glob-cc6aab51": {
       "kind": "file_glob",
       "pattern": "src/install/run/run-install-marketplace.ts"
+    },
+    "t-glob-cceb4b9f": {
+      "kind": "file_glob",
+      "pattern": "tests/unit/targets/openhands/stale-cleanup.test.ts"
     },
     "t-glob-cd014ff3": {
       "kind": "file_glob",
@@ -14166,6 +14620,10 @@
       "kind": "file_glob",
       "pattern": "website/src/components/**/*.astro"
     },
+    "t-glob-de30ec51": {
+      "kind": "file_glob",
+      "pattern": "tests/unit/lessons/git-staging-command.test.ts"
+    },
     "t-glob-e0110795": {
       "kind": "file_glob",
       "pattern": "src/utils/filesystem/process-lock.ts"
@@ -14218,6 +14676,10 @@
       "kind": "file_glob",
       "pattern": "src/config/core/lock*.ts"
     },
+    "t-glob-e6f4798b": {
+      "kind": "file_glob",
+      "pattern": "tests/unit/utils/filesystem/process-identity*.test.ts"
+    },
     "t-glob-e9408176": {
       "kind": "file_glob",
       "pattern": "src/mcp/handlers/settings*.ts"
@@ -14233,6 +14695,10 @@
     "t-glob-ea0c6170": {
       "kind": "file_glob",
       "pattern": "src/lessons/seen-*.ts"
+    },
+    "t-glob-ead380c1": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/project-root.ts"
     },
     "t-glob-eb1e5fce": {
       "kind": "file_glob",
@@ -14285,6 +14751,10 @@
     "t-glob-f394f32c": {
       "kind": "file_glob",
       "pattern": "src/targets/cline/mcp-mapper.ts"
+    },
+    "t-glob-f426999c": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/git-staging-command.ts"
     },
     "t-glob-f564ed24": {
       "kind": "file_glob",
@@ -14618,6 +15088,10 @@
       "kind": "keyword",
       "pattern": "ANSI color stdout assertion"
     },
+    "t-kw-38827fe9": {
+      "kind": "keyword",
+      "pattern": "rich-plugin fixture"
+    },
     "t-kw-39fd552c": {
       "kind": "keyword",
       "pattern": "mcp.json generator strict schema"
@@ -14669,6 +15143,10 @@
     "t-kw-3eb8fd73": {
       "kind": "keyword",
       "pattern": "additionalContext"
+    },
+    "t-kw-410c580f": {
+      "kind": "keyword",
+      "pattern": "SendMessage follow-up"
     },
     "t-kw-4143c059": {
       "kind": "keyword",
@@ -15138,6 +15616,10 @@
       "kind": "keyword",
       "pattern": "stale lock failure recovery"
     },
+    "t-kw-bc343b48": {
+      "kind": "keyword",
+      "pattern": "backslash tokenizer windows path"
+    },
     "t-kw-bc36f123": {
       "kind": "keyword",
       "pattern": "merger fallback"
@@ -15301,6 +15783,10 @@
     "t-kw-ea86337d": {
       "kind": "keyword",
       "pattern": "exact generated artifact assertions"
+    },
+    "t-kw-ead42a6b": {
+      "kind": "keyword",
+      "pattern": "background agent brief"
     },
     "t-kw-ec5d186a": {
       "kind": "keyword",

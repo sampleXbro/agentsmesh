@@ -112,13 +112,18 @@ describe('where lessons are not set up', () => {
     expect(text.length).toBeLessThanOrEqual(600);
   });
 
-  it('says the first capture needs no setup, inside a git repository', () => {
+  it('says the first capture needs no setup, and where it is saved', () => {
     // Capture falls back to the repository root, so a plugin-only repo needs
     // no agentsmesh.yaml. Sending the model to `init` set up the whole tool.
+    // The lessons search stops at the first `.git` entry, so the place is
+    // inside this repository, never a parent folder's `agentsmesh.yaml`.
     const text = mcpServerInstructions(dir);
     expect(text).toMatch(/no setup/i);
-    expect(text).toContain('git repository');
-    expect(text).toContain('.agentsmesh/lessons/lessons.json');
+    expect(text).toContain(
+      'creates `.agentsmesh/lessons/lessons.json` inside this repository: in the nearest folder ' +
+        'with `agentsmesh.yaml`, else at the repository root.',
+    );
+    expect(text).not.toContain('git repository root');
   });
 
   it('ignores a stray graph in the home directory, from home or below it', () => {

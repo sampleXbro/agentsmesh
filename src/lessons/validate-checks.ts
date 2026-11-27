@@ -117,8 +117,10 @@ export function collectLifecycleInvariants(
       });
       continue;
     }
+    // Only a superseded lesson claims a live replacement. A deprecated lesson keeps
+    // its pointer as history, so a retired lineage may end in a deprecated lesson.
     const target = graph.lessons[lesson.supersededBy];
-    if (target !== undefined && target.status !== 'active') {
+    if (lesson.status === 'superseded' && target !== undefined && target.status !== 'active') {
       findings.push({
         level: 'error',
         code: 'INACTIVE_SUPERSEDER',
@@ -157,7 +159,7 @@ function collectSupersedeCycles(graph: LessonsGraph, findings: ValidationFinding
 
 export function collectReachability(graph: LessonsGraph, findings: ValidationFinding[]): void {
   for (const [lessonId, lesson] of Object.entries(graph.lessons)) {
-    if (lesson.status === 'active' && lesson.triggers.length === 0) {
+    if (lesson.status === 'active' && lesson.scope !== 'always' && lesson.triggers.length === 0) {
       findings.push({
         level: 'warning',
         code: 'UNREACHABLE_LESSON',

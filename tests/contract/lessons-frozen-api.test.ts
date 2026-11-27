@@ -4,6 +4,7 @@ import { CURRENT_GRAPH_VERSION, LessonsGraphSchema } from '../../src/lessons/gra
 import { LESSONS_USAGE, LESSONS_SUBCOMMANDS } from '../../src/cli/commands/lessons-usage.js';
 import { LESSONS_KNOWN_FLAGS, GLOBAL_FLAGS } from '../../src/cli/commands/lessons-known-flags.js';
 import { LESSONS_TOOL_DESCRIPTORS } from '../../src/mcp/tool-tables/lessons-tools.js';
+import * as lessonsPublic from '../../src/public/lessons.js';
 
 /**
  * FROZEN end-user API contract for the lessons subsystem.
@@ -11,7 +12,8 @@ import { LESSONS_TOOL_DESCRIPTORS } from '../../src/mcp/tool-tables/lessons-tool
  * The lessons-effectiveness work (outcome log, diff-aware recall, capture nudge,
  * validate health view) must not move the public surface: the on-disk graph
  * schema + version, the CLI subcommands/flags/usage signatures, and the MCP tool
- * names/descriptions/input schemas. This test snapshots that entire surface to a
+ * names/descriptions/input schemas, plus the runtime export names of the
+ * `agentsmesh/lessons` package entry. This test snapshots that entire surface to a
  * committed golden — any drift fails, so it is the gate every later slice keeps green.
  */
 
@@ -26,6 +28,7 @@ export function lessonsFrozenSurface(): unknown {
     usage: LESSONS_USAGE,
     globalFlags: [...GLOBAL_FLAGS],
     knownFlags: LESSONS_KNOWN_FLAGS,
+    publicExports: Object.keys(lessonsPublic).sort(),
     mcpTools: LESSONS_TOOL_DESCRIPTORS.map((t) => ({
       name: t.name,
       description: t.description,
@@ -59,6 +62,33 @@ describe('lessons frozen end-user API (contract)', () => {
       'lessons_topics',
       'lessons_show',
       'lessons_deprecate',
+    ]);
+  });
+
+  it('pins the error exports of the agentsmesh/lessons entry', () => {
+    const errorExports = Object.keys(lessonsPublic)
+      .filter((name) => name.endsWith('Error') || name === 'isCaptureRejection')
+      .sort();
+    expect(errorExports).toEqual([
+      'BroadCommandPatternError',
+      'CatchAllGlobError',
+      'EmptyRuleError',
+      'InactiveLessonError',
+      'InvalidTopicIdError',
+      'LastTriggerError',
+      'LessonsGraphExistsError',
+      'LessonsWriteRefusedError',
+      'NoTriggerError',
+      'RuleTooLongError',
+      'SelfMergeError',
+      'TopicSummaryRequiredError',
+      'TriggerFileGlobError',
+      'TriggerNotAttachedError',
+      'UnknownLessonError',
+      'UnknownSupersederError',
+      'UnknownTopicError',
+      'UnrecallableLessonError',
+      'isCaptureRejection',
     ]);
   });
 

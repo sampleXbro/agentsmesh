@@ -1,4 +1,4 @@
-import { UnknownTopicError } from '../../lessons/add.js';
+import { UnknownTopicError, type RebasedGlobWarning } from '../../lessons/add.js';
 import { captureLesson } from '../../lessons/capture.js';
 import { isCaptureRejection } from '../../lessons/capture-rejection.js';
 import { deprecateLesson } from '../../lessons/deprecate.js';
@@ -11,6 +11,8 @@ import {
   stringFlag,
   type LessonsFlags,
 } from './lessons-helpers.js';
+import { withErrorCode } from './lessons-error-code.js';
+import { anchorTriggerGlob } from './lessons-trigger-glob.js';
 import { lessonsAddHint } from './lessons-usage.js';
 import type { LessonsAddData, LessonsCommandResult } from './lessons-types.js';
 
@@ -23,10 +25,33 @@ export function errExitCode(err: unknown): 1 | 2 {
   return err instanceof LessonsWriteRefusedError ? 2 : 1;
 }
 
+/** The globs as saved, plus a note for each one that moved off the typed text. */
+function anchorTriggerFiles(
+  globs: readonly string[],
+  projectRoot: string,
+  cwd: string | undefined,
+): { files: string[]; notes: RebasedGlobWarning[] } {
+  const files: string[] = [];
+  const notes: RebasedGlobWarning[] = [];
+  for (const glob of globs) {
+    const anchored = cwd === undefined ? glob : anchorTriggerGlob(glob, projectRoot, cwd);
+    files.push(anchored);
+    if (anchored !== glob) {
+      notes.push({
+        code: 'TRIGGER_GLOB_REBASED',
+        message: `trigger glob ${JSON.stringify(glob)} rebased to ${anchored} (relative to the current folder)`,
+      });
+    }
+  }
+  return { files, notes };
+}
+
+/** `cwd` is the folder the command ran in; below the project root it anchors `--trigger-file`. */
 export async function doAdd(
   flags: LessonsFlags,
   positionalRule: string | undefined,
   projectRoot: string,
+  cwd?: string,
 ): Promise<LessonsCommandResult> {
   // The BLOCKING ritual in CLAUDE.md / README documents `add "<rule>" --topic`,
   // so accept the rule positionally; an explicit --rule flag takes precedence.
@@ -63,6 +88,11 @@ export async function doAdd(
     const error = `--scope must be "always" (got ${JSON.stringify(scopeFlag)}).${lessonsAddHint()}`;
     return errorResult('add', error, 2);
   }
+  const { files, notes } = anchorTriggerFiles(
+    repeatedFlag(flags, 'trigger-file'),
+    projectRoot,
+    cwd,
+  );
   try {
     // Route through captureLesson (not addLesson directly) so capture telemetry
     // records EVERY shell-driven add — the MCP path already routes here, and a
@@ -73,7 +103,7 @@ export async function doAdd(
         rule,
         topic,
         triggers: {
-          files: repeatedFlag(flags, 'trigger-file'),
+          files,
           commands: repeatedFlag(flags, 'trigger-cmd'),
           keywords: repeatedFlag(flags, 'trigger-kw'),
         },
@@ -86,20 +116,21 @@ export async function doAdd(
         topicSummary: stringFlag(flags, 'topic-summary') ?? undefined,
       },
     );
-    const data: LessonsAddData = { ...result, ...(activationNote ? { activationNote } : {}) };
+    const data: LessonsAddData = {
+      ...result,
+      warnings: [...result.warnings, ...notes],
+      ...(activationNote ? { activationNote } : {}),
+    };
     return { subcommand: 'add', exitCode: 0, data };
   } catch (err) {
     if (err instanceof UnknownTopicError) {
-      return errorResult(
-        'add',
-        `Unknown topic: ${err.topic}. Pass --new-topic --topic-summary "..." to create it.`,
-        1,
-      );
+      const message = `Unknown topic: ${err.topic}. Pass --new-topic --topic-summary "..." to create it.`;
+      return withErrorCode(errorResult('add', message, 1), err);
     }
     if (isCaptureRejection(err)) {
-      return errorResult('add', `${err.message}${lessonsAddHint()}`, 2);
+      return withErrorCode(errorResult('add', `${err.message}${lessonsAddHint()}`, 2), err);
     }
-    return errorResult('add', errMessage(err), errExitCode(err));
+    return withErrorCode(errorResult('add', errMessage(err), errExitCode(err)), err);
   }
 }
 
@@ -125,6 +156,6 @@ export async function doDeprecate(
     const hint = message.startsWith('Unknown lesson')
       ? ' Run `agentsmesh lessons journal` to list lesson ids (or `lessons query --ids` to see what recalled).'
       : '';
-    return errorResult('deprecate', `${message}${hint}`, errExitCode(err));
+    return withErrorCode(errorResult('deprecate', `${message}${hint}`, errExitCode(err)), err);
   }
 }

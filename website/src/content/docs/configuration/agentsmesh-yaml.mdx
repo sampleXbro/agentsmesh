@@ -142,3 +142,13 @@ overrides:
 <Aside type="note">
   `overrides` narrow down from the top-level `features`. You cannot add features in overrides that aren't in the top-level `features` list.
 </Aside>
+
+## Validation errors
+
+When `agentsmesh.yaml` does not match the schema, the command stops with `Invalid config at <path>: …`. Each problem starts with the key path, so you can see which entry is wrong:
+
+```text
+Invalid config at /project/agentsmesh.yaml: targets[1]: Invalid option: not one of the <N> supported values, e.g. "aider"|"amazon-q"|"amp"|… (full list: https://samplexbro.github.io/agentsmesh/reference/supported-tools/); features[0]: Invalid option: expected one of "rules"|"commands"|…
+```
+
+A key that accepts a long list of values, such as `targets`, does not print the whole list. The message shows a few examples and points to the [supported tools](../../reference/supported-tools/) page. The same key-path format is used for `agentsmesh.local.yaml`, where an invalid file is ignored with a warning and the project config is used instead.

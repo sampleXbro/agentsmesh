@@ -90,14 +90,21 @@ describe('writeTextualMerge', () => {
   });
   afterEach(() => rmSync(dir, { recursive: true, force: true }));
 
-  it('falls back to one whole-file conflict block when git cannot run', () => {
+  it('falls back to one whole-file conflict block, with the base, when git cannot run', () => {
     const [base, ours, theirs] = ['base', 'ours', 'theirs'].map((n) => join(dir, n));
-    writeFileSync(base!, '');
+    writeFileSync(base!, 'orig');
     writeFileSync(ours!, 'mine');
     writeFileSync(theirs!, 'yours\n');
     writeTextualMerge(base!, ours!, theirs!, () => ({ status: -1, stdout: '', stderr: '' }));
     expect(readFileSync(ours!, 'utf8')).toBe(
-      '<<<<<<< this branch\nmine\n=======\nyours\n>>>>>>> incoming branch\n',
+      '<<<<<<< this branch\nmine\n||||||| common ancestor\norig\n=======\nyours\n' +
+        '>>>>>>> incoming branch\n',
+    );
+  });
+
+  it('leaves an empty base section for an empty ancestor', () => {
+    expect(wholeFileConflict('a\n', 'b\n', '')).toBe(
+      '<<<<<<< this branch\na\n||||||| common ancestor\n=======\nb\n>>>>>>> incoming branch\n',
     );
   });
 

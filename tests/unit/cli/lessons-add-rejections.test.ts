@@ -95,7 +95,7 @@ describe('lessons write refusals exit 2 with a plain message', () => {
     });
     const before = await readFile(graphFilePath(root), 'utf8');
 
-    const r = await runLessons({ 'superseded-by': 't-new' }, ['deprecate', 't-mid'], root);
+    const r = await runLessons({ 'superseded-by': 't-old' }, ['deprecate', 't-mid'], root);
 
     expect(r.exitCode).toBe(2);
     expect(r.error).toMatch(

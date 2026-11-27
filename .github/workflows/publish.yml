@@ -252,11 +252,31 @@ jobs:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
           URL="https://registry.npmjs.org/agentsmesh/-/agentsmesh-${VERSION}.tgz"
-          for i in 1 2 3 4 5; do
-            SHA=$(curl -fsSL "$URL" | sha256sum | awk '{print $1}') && break
-            echo "Waiting for npm registry to serve v$VERSION (attempt $i)..."
-            sleep 15
+          # SHA-256 of empty input: what a failed or empty download would hash to.
+          EMPTY_SHA=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+          # npm can take about 5 minutes to serve a new version: 30 x 15s = 7.5 minutes.
+          ATTEMPTS=30
+          TARBALL="$(mktemp)"
+          SHA=""
+          for i in $(seq 1 "$ATTEMPTS"); do
+            rm -f "$TARBALL"
+            if curl -fsSL -o "$TARBALL" "$URL" && [ -s "$TARBALL" ]; then
+              SHA="$(sha256sum "$TARBALL" | awk '{print $1}')"
+              if [ -n "$SHA" ] && [ "$SHA" != "$EMPTY_SHA" ]; then
+                break
+              fi
+              SHA=""
+            fi
+            echo "Waiting for npm registry to serve v$VERSION (attempt $i of $ATTEMPTS)..."
+            if [ "$i" -lt "$ATTEMPTS" ]; then
+              sleep 15
+            fi
           done
+          rm -f "$TARBALL"
+          if [ -z "$SHA" ]; then
+            echo "npm did not serve a non-empty tarball for v$VERSION after $ATTEMPTS attempts: $URL" >&2
+            exit 1
+          fi
           echo "sha256=$SHA" >> "$GITHUB_OUTPUT"
 
       - name: Render formula

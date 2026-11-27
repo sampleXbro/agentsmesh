@@ -138,9 +138,24 @@ describe('lessons_deprecate refused by the write barrier', () => {
     expectRefused(err, ['INACTIVE_SUPERSEDER']);
   });
 
-  it('retiring the replacement of a superseded lesson is INACTIVE_SUPERSEDER', async () => {
-    const err = await refusal(lessonsHandlers.deprecate(ctx, { id: 'b' }));
-    expectRefused(err, ['INACTIVE_SUPERSEDER']);
-    expect(err.message).toContain('Lesson "old" is superseded by "b"');
+  // A lesson others were merged into must stay retirable: the write retires its
+  // whole lineage in one transaction instead of leaving "old" with a dead end.
+  it('retiring the replacement of a superseded lesson retires its lineage', async () => {
+    const result = await lessonsHandlers.deprecate(ctx, { id: 'b' });
+    expect(result).toEqual({ id: 'b', status: 'deprecated', supersededBy: null });
+    const { lessons } = JSON.parse(readFileSync(graphFilePath(root), 'utf8')) as {
+      lessons: Record<string, Lesson>;
+    };
+    expect(lessons['b']?.status).toBe('deprecated');
+    expect(lessons['old']).toMatchObject({ status: 'deprecated', supersededBy: 'b' });
+  });
+
+  it('retiring the replacement with a successor re-points the superseded lesson', async () => {
+    await lessonsHandlers.deprecate(ctx, { id: 'b', superseded_by: 'a' });
+    const { lessons } = JSON.parse(readFileSync(graphFilePath(root), 'utf8')) as {
+      lessons: Record<string, Lesson>;
+    };
+    expect(lessons['b']).toMatchObject({ status: 'superseded', supersededBy: 'a' });
+    expect(lessons['old']).toMatchObject({ status: 'superseded', supersededBy: 'a' });
   });
 });

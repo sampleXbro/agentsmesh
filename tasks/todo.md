@@ -1,3 +1,23 @@
+# Library audit fixes (2026-11-25)
+
+Wave 1: parallel Sonnet agents in this tree, disjoint files, no git writes, no builds.
+
+- [x] A1 lifecycle: merge keeps scope/rationale, supersede chains fold, retire a merge target, always-scope not "unreachable", typed curation errors (follow-ups: export curation errors; deprecate lesson lessons-system-lessons-deprecate-refuses-with-inactive after release)
+- [x] A2 query parity: CLI --always dedup, CLI ranks like MCP/hook, `--format json` hint, cwd-relative --file, migration error exposed (shared recallFromGraph core; MCP migrationError still to surface)
+- [x] A3 lessons root: one resolver for CLI/hook/MCP, walk stops at .git (follow-up: cwd-relative --trigger-file)
+- [x] A4 error contract: `code` in --json errors, exported error classes, MCP query `warning`, MCP wording, strip-markers errors (also touched json-output.ts/json-handler.ts; lessons-types.ts edit was denied, workaround type used)
+- [x] A5 capture gates: reject catch-all globs, case/punctuation dedup, sane nudge hints (loose key for upsert only; DUPLICATE_RULE unchanged)
+- [x] W2a follow-ups: public exports for new errors/types, add.ts gap, MCP migrationError, cwd-relative --trigger-file, `cd` hint, stale code on graph-problem errors
+- [x] A6 init wiring: retrofit creates hooks.yaml, warn when hooks feature off, keep user matcher (follow-up: export RecallHookOutcome/ScaffoldLessonsOptions)
+- [x] A7 merge safety: hook warns on git add/commit of unmerged graph, resolve keeps repairs, BOM, diff3, bad base warning (+ flags a file that still equals our side: driver-did-not-run edit loss closed)
+- [x] A8 CLI: reject unknown flags, config errors name the field, Homebrew SHA step (dead --no-matrix removed from 2 dist tests)
+- [x] A9 generate: remove unmodified outputs of removed targets (co-owned tool configs kept with a warning)
+- [x] W2c generate wiring: --check drift, zero-output path, honest summary, openhands test
+
+- [x] Wave 2: docs (README, website incl. generate.mdx), lessons-usage text, MCP generate removed/kept + warnings, result-type fields
+- [x] Gate: build, tsc (src+tests), eslint, knip, 1402 unit/integration files + coverage floor, 85 e2e files, catalog, matrix, publint, consumer smoke, astro; dist repros of every audit bug
+- [ ] After release: deprecate lesson lessons-system-lessons-deprecate-refuses-with-inactive (no longer true)
+
 # Lessons hook, merge driver and log papercuts (2026-09-23)
 
 All items confirmed in code at 05fc2e7e; none already fixed.

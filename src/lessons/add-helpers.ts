@@ -1,6 +1,9 @@
 import { createHash } from 'node:crypto';
+import { CatchAllGlobError } from './add-errors.js';
 import type { AddLessonInput, AddLessonTriggers } from './add.js';
+import { isCatchAllGlob } from './glob-breadth.js';
 import type { Lesson, LessonsGraph, Trigger, TriggerKind } from './graph-schema.js';
+import { looseRuleKey } from './rule-key.js';
 import { projectRelativeGlob } from './trigger-file-glob.js';
 
 export function normalizeRule(rule: string): string {
@@ -55,15 +58,18 @@ export function describeUpsert(before: Lesson, after: Lesson): string[] {
 }
 
 /**
- * Find an ACTIVE lesson with the same normalized rule. Inactive
+ * Find an ACTIVE lesson with the same rule, ignoring case, spacing, trailing
+ * sentence punctuation and wrapping quotes (see {@link looseRuleKey}), so a
+ * re-worded capture upserts instead of minting a near-duplicate. Inactive
  * (deprecated/superseded) lessons are ignored on purpose: re-capturing a rule
  * whose only match is dead must produce a fresh ACTIVE lesson (a live
  * replacement), not silently enrich a corpse that recall will never surface.
  */
 export function findExistingLessonByRule(graph: LessonsGraph, ruleKey: string): string | null {
+  const wanted = looseRuleKey(ruleKey);
   for (const [id, lesson] of Object.entries(graph.lessons)) {
     if (lesson.status !== 'active') continue;
-    if (normalizeRule(lesson.rule) === ruleKey) return id;
+    if (looseRuleKey(normalizeRule(lesson.rule)) === wanted) return id;
   }
   return null;
 }
@@ -76,12 +82,15 @@ interface TriggerSpec {
 /**
  * Resolve/create trigger nodes for the requested patterns; returns referenced +
  * newly-created ids. With `projectRoot`, an absolute file glob inside the
- * project is made relative and one outside it throws TriggerFileGlobError.
+ * project is made relative and one outside it throws TriggerFileGlobError, and
+ * a catch-all glob throws CatchAllGlobError unless `ownTriggerIds` (the
+ * lesson's current triggers) already holds that node.
  */
 export function mergeTriggers(
   graph: LessonsGraph,
   spec: AddLessonTriggers,
   projectRoot?: string,
+  ownTriggerIds: readonly string[] = [],
 ): { triggerIds: string[]; newTriggerIds: string[] } {
   const requested: TriggerSpec[] = [
     // Recall matches forward-slash, project-relative paths (normalizeRecallFile),
@@ -108,6 +117,16 @@ export function mergeTriggers(
   for (const spec of requested) {
     const key = triggerKey(spec);
     const existing = reverseLookup.get(key);
+    // Interactive capture only (legacy merge passes no root). A catch-all node
+    // is refused unless this lesson already owns it (a plain re-add).
+    if (
+      projectRoot !== undefined &&
+      spec.kind === 'file_glob' &&
+      (existing === undefined || !ownTriggerIds.includes(existing)) &&
+      isCatchAllGlob(spec.pattern)
+    ) {
+      throw new CatchAllGlobError(spec.pattern);
+    }
     if (existing !== undefined) {
       if (!triggerIds.includes(existing)) triggerIds.push(existing);
       continue;

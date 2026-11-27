@@ -29,12 +29,12 @@ function problemMessage(given: string, problem: GlobProblem, detail: string): st
       return (
         `--trigger-file ${given} points outside the project root. File triggers match ` +
         'project-relative paths, so it would never fire — pass a glob relative to the project ' +
-        'root (e.g. "src/**/*.ts").'
+        'root (e.g. "src/cli/*.ts").'
       );
     case 'root':
       return (
         `--trigger-file ${given} is the project root itself, and file triggers match files. ` +
-        'Pass a glob such as "src/**/*.ts".'
+        'Pass a glob such as "src/cli/*.ts".'
       );
     case 'folder':
       return (

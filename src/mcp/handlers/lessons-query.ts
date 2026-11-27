@@ -1,6 +1,4 @@
 import { lessonsRootOf, type McpContext } from '../context.js';
-import { problemFromLoad } from '../../lessons/graph-problem.js';
-import { loadLessonsGraphResilient } from '../../lessons/graph-store.js';
 import { recallLessons } from '../../lessons/recall.js';
 import { recallAlwaysLessons } from '../../lessons/recall-always.js';
 import { loadRecallConfig } from '../../lessons/recall-config.js';
@@ -8,6 +6,7 @@ import { clampText, MAX_RECALL_PAYLOAD_CHARS } from '../../lessons/rule-line.js'
 import { AUTO_SESSION_TTL_MS } from '../../lessons/seen-cache.js';
 import { sessionId as envSessionId } from '../../lessons/telemetry.js';
 import { McpError } from '../errors.js';
+import { recallWarning } from './lessons-query-warning.js';
 
 /**
  * `lessons_query` handler, split from lessons.ts for the 200-line limit.
@@ -68,6 +67,8 @@ export interface LessonsQueryOutput {
   totalMatches: number;
   /** Matches hidden by session dedup (already delivered this session). */
   suppressed?: number;
+  /** Set when the graph could not be read or migrated: empty `lessons` then means recall is off, not "no match". */
+  warning?: string;
 }
 
 /** Recall's token estimate (see ranking.ts estTokens). */
@@ -137,6 +138,7 @@ export async function lessonsQuery(
     suppressed,
     corrupt,
     newerVersion,
+    migrationError,
   } = await recallLessons(root, query, {
     limit: input.limit,
     maxTokens: payloadBoundedTokens(
@@ -145,15 +147,11 @@ export async function lessonsQuery(
     ),
     ...dedup,
   });
-  if (corrupt === true || newerVersion !== undefined) {
-    // Recall degrades to empty rather than throwing; the reason goes to stderr
-    // (stdout is the MCP protocol channel), worded like the CLI's warning. No
-    // git here: recall runs before every edit.
-    const problem = problemFromLoad(root, loadLessonsGraphResilient(root));
-    if (problem !== null) {
-      process.stderr.write(`agentsmesh: recall returned no lessons: ${problem.message}\n`);
-    }
-  }
+  const warning = recallWarning(root, {
+    corrupt,
+    newerVersion,
+    migrationError: migrationError ?? always?.migrationError,
+  });
   const hidden = suppressed + (always?.suppressed ?? 0);
   // Compact by default — return only id + rule to keep recall token-cheap.
   // Metadata (topics/triggers/evidence/score) is opt-in via `verbose`.
@@ -176,5 +174,6 @@ export async function lessonsQuery(
     ],
     totalMatches,
     ...(hidden > 0 ? { suppressed: hidden } : {}),
+    ...(warning !== undefined ? { warning } : {}),
   };
 }

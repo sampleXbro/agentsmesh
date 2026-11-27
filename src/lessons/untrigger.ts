@@ -1,3 +1,8 @@
+import {
+  LastTriggerError,
+  TriggerNotAttachedError,
+  UnknownLessonError,
+} from './curation-errors.js';
 import type { LessonsGraph } from './graph-schema.js';
 
 /**
@@ -26,16 +31,12 @@ export function untriggerLesson(
   triggerId: string,
 ): UntriggerResult {
   const lesson = graph.lessons[lessonId];
-  if (lesson === undefined) throw new Error(`Unknown lesson: ${lessonId}.`);
-  if (!lesson.triggers.includes(triggerId)) {
-    throw new Error(`Lesson "${lessonId}" does not reference trigger "${triggerId}".`);
-  }
-  // An active lesson with zero triggers can never be recalled (UNREACHABLE_LESSON).
-  // Inactive lessons are never recalled regardless, so allow stripping their last one.
-  if (lesson.status === 'active' && lesson.triggers.length <= 1) {
-    throw new Error(
-      `Refusing to remove the only trigger of active lesson "${lessonId}" — it would become unreachable. Add a replacement trigger first (lessons add "<same rule>" --topic ...), then untrigger.`,
-    );
+  if (lesson === undefined) throw new UnknownLessonError(lessonId);
+  if (!lesson.triggers.includes(triggerId)) throw new TriggerNotAttachedError(lessonId, triggerId);
+  // An active triggered lesson with zero triggers can never be recalled (UNREACHABLE_LESSON).
+  // Inactive lessons are never recalled, and always-on lessons need no trigger.
+  if (lesson.status === 'active' && lesson.scope !== 'always' && lesson.triggers.length <= 1) {
+    throw new LastTriggerError(lessonId);
   }
 
   const remaining = lesson.triggers.filter((t) => t !== triggerId);

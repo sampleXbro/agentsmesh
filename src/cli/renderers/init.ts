@@ -4,6 +4,7 @@
 
 import { relative } from 'node:path';
 import { mergeDriverSetupLine, type MergeDriverSetup } from '../../lessons/merge-driver-setup.js';
+import type { RecallHookOutcome } from '../../lessons/recall-hook-scaffold.js';
 import { logger } from '../../utils/output/logger.js';
 import type { InitCommandResult } from '../commands/init.js';
 
@@ -105,12 +106,9 @@ function renderLessons(lessons: NonNullable<InitCommandResult['data']['lessons']
   if (lessons.gitignoreUpdated) {
     logger.success('  Added the lessons runtime files (logs, lock, temp files) to .gitignore');
   }
-  if (lessons.recallHookInjected) {
-    logger.success(
-      '  Wired the lessons recall hook into .agentsmesh/hooks.yaml (deterministic recall on targets whose hooks can inject context)',
-    );
-  }
+  renderRecallHook(lessons.recallHook);
   if (lessons.recallHookTeamHint) logger.warn(`  ${lessons.recallHookTeamHint}`);
+  if (lessons.hooksFeatureWarning !== null) logger.warn(`  ${lessons.hooksFeatureWarning}`);
   if (lessons.gitattributesUpdated) {
     logger.success(
       '  Bound .agentsmesh/lessons/lessons.json to the merge driver in .gitattributes (commit it so concurrent captures union-merge)',
@@ -140,6 +138,25 @@ function renderLessons(lessons: NonNullable<InitCommandResult['data']['lessons']
   logger.info(
     '  Optional: set "telemetry": true in .agentsmesh/lessons/config.json to measure recall cost via `lessons stats`.',
   );
+}
+
+/** Always say what happened to the recall hook; "nothing printed" must not mean two things. */
+function renderRecallHook(outcome: RecallHookOutcome): void {
+  const reach = 'deterministic recall on targets whose hooks can inject context';
+  if (outcome.status === 'created') {
+    logger.success(
+      `  Created .agentsmesh/hooks.yaml and wired the lessons recall hook into it (${reach})`,
+    );
+  } else if (outcome.status === 'wired') {
+    logger.success(`  Wired the lessons recall hook into .agentsmesh/hooks.yaml (${reach})`);
+  } else if (outcome.status === 'current') {
+    logger.info('  Lessons recall hook in .agentsmesh/hooks.yaml is already current');
+  } else {
+    logger.warn(
+      `  Skipped the lessons recall hook: ${outcome.reason}. ` +
+        "Fix this, then re-run 'agentsmesh init --lessons'.",
+    );
+  }
 }
 
 function renderMergeDriver(setup: MergeDriverSetup | undefined): void {

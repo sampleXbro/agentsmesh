@@ -2,6 +2,7 @@ import { mergeLessons } from '../../lessons/merge.js';
 import { mutateLessonsGraph } from '../../lessons/mutate.js';
 import { stripMarkersInGraph } from '../../lessons/strip-markers.js';
 import { untriggerLesson } from '../../lessons/untrigger.js';
+import { withErrorCode } from './lessons-error-code.js';
 import { errorResult, type LessonsFlags } from './lessons-helpers.js';
 import type {
   LessonsCommandResult,
@@ -32,7 +33,7 @@ export async function doUntrigger(
     const data: LessonsUntriggerData = result;
     return { subcommand: 'untrigger', exitCode: 0, data };
   } catch (err) {
-    return errorResult('untrigger', errMessage(err), errExitCode(err));
+    return withErrorCode(errorResult('untrigger', errMessage(err), errExitCode(err)), err);
   }
 }
 
@@ -49,7 +50,7 @@ export async function doMerge(
     const data: LessonsMergeData = result;
     return { subcommand: 'merge', exitCode: 0, data };
   } catch (err) {
-    return errorResult('merge', errMessage(err), errExitCode(err));
+    return withErrorCode(errorResult('merge', errMessage(err), errExitCode(err)), err);
   }
 }
 
@@ -58,11 +59,22 @@ export async function doStripMarkers(
   projectRoot: string,
 ): Promise<LessonsCommandResult> {
   const dryRun = flags['dry-run'] === true;
-  const report = await stripMarkersInGraph(projectRoot, { dryRun });
-  const data: LessonsStripMarkersData = {
-    changedIds: report.changedIds,
-    changedCount: report.changedCount,
-    dryRun,
-  };
-  return { subcommand: 'strip-markers', exitCode: 0, data };
+  try {
+    const report = await stripMarkersInGraph(projectRoot, { dryRun });
+    const data: LessonsStripMarkersData = {
+      changedIds: report.changedIds,
+      changedCount: report.changedCount,
+      dryRun,
+    };
+    return { subcommand: 'strip-markers', exitCode: 0, data };
+  } catch (err) {
+    const data: LessonsStripMarkersData = { changedIds: [], changedCount: 0, dryRun };
+    const failed = {
+      subcommand: 'strip-markers' as const,
+      exitCode: errExitCode(err),
+      error: errMessage(err),
+      data,
+    };
+    return withErrorCode(failed, err);
+  }
 }

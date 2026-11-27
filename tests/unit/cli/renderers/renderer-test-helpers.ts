@@ -65,6 +65,8 @@ export function lessonsInit(lessons: Partial<ScaffoldLessonsResult> = {}): InitC
         gitignoreUpdated: false,
         gitattributesUpdated: false,
         recallHookInjected: true,
+        recallHook: { status: 'wired' },
+        hooksFeatureWarning: null,
         // 'unchanged' and null print nothing, like a retrofit that changed neither.
         mergeDriver: { status: 'unchanged', command: 'agentsmesh lessons merge-driver' },
         recallHookTeamHint: null,

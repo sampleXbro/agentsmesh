@@ -1,6 +1,7 @@
 import { McpError } from '../errors.js';
 import { TargetNotFoundError } from '../../public/index.js';
 import type { SkippedSettings } from '../../canonical/load/unmanaged-settings.js';
+import type { KeptOutput } from '../../core/generate/removed-outputs.js';
 
 export interface GenerateHandlerResult {
   filesWritten: number;
@@ -11,6 +12,10 @@ export interface GenerateHandlerResult {
   warnings: string[];
   /** Pack and extends settings the user's own files do not manage; `warnings` explains each. */
   skippedSettings: SkippedSettings[];
+  /** Generated files of a target removed from `targets:`; a full run deleted them (a dry run lists what it would). */
+  removed: string[];
+  /** Files of such a target left on disk (edited, or a shared tool config); `warnings` has one line for each. */
+  kept: KeptOutput[];
   files?: string[];
 }
 
