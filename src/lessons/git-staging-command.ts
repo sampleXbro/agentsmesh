@@ -24,6 +24,14 @@ const GIT_VALUE_FLAGS = new Set([
 const STAGE_ALL_FLAGS = new Set(['--all', '--update', '--patch', '--interactive']);
 const ASSIGNMENT = /^[A-Za-z_][A-Za-z0-9_]*=/;
 const MAX_SHELL_DEPTH = 2;
+/**
+ * A backslash escapes only a character POSIX shells treat as special: space, quotes,
+ * `$`, `` ` ``, `\`, the `;&|()<>` operators, the `*?[` globs, and `#~!{}`. Before any
+ * other character it is a literal path separator, as in a Windows path or PowerShell.
+ */
+const ESCAPABLE = /[\s"'`$\\;&|()<>*?[#~!{}]/;
+/** Inside double quotes a backslash escapes only these, as in POSIX shells. */
+const QUOTED_ESCAPABLE = /["`$\\\n]/;
 
 /** Words of each simple command: split on `;`, `&`, `|`, `(`, `)` and newlines outside quotes. */
 function tokenize(text: string): string[][] {
@@ -46,12 +54,13 @@ function tokenize(text: string): string[][] {
     const ch = text[i]!;
     if (quote !== null) {
       if (ch === quote) quote = null;
-      else if (ch === '\\' && quote === '"' && i + 1 < text.length) word += text[++i];
-      else word += ch;
+      else if (ch === '\\' && quote === '"' && QUOTED_ESCAPABLE.test(text[i + 1] ?? '')) {
+        word += text[++i];
+      } else word += ch;
     } else if (ch === '"' || ch === "'") {
       quote = ch;
       inWord = true;
-    } else if (ch === '\\' && i + 1 < text.length) {
+    } else if (ch === '\\' && i + 1 < text.length && ESCAPABLE.test(text[i + 1]!)) {
       const next = text[++i]!;
       if (next !== '\n') {
         word += next;

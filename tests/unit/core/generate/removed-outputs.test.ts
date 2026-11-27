@@ -213,11 +213,12 @@ describe('planRemovedOutputs with a plugin descriptor', () => {
 });
 
 function tree(dir: string, base = dir): string[] {
+  const rel = (path: string): string => path.slice(base.length + 1).replaceAll('\\', '/');
   return readdirSync(dir, { withFileTypes: true })
     .flatMap((e) =>
       e.isDirectory()
-        ? [`${join(dir, e.name).slice(base.length + 1)}/`, ...tree(join(dir, e.name), base)]
-        : [join(dir, e.name).slice(base.length + 1)],
+        ? [`${rel(join(dir, e.name))}/`, ...tree(join(dir, e.name), base)]
+        : [rel(join(dir, e.name))],
     )
     .sort();
 }

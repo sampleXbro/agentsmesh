@@ -7,6 +7,8 @@ import { mayStageLessonsGraph } from '../../../src/lessons/git-staging-command.j
 const start = join(tmpdir(), 'am-staging-proj');
 const graphFile = join(start, LESSONS_GRAPH_PATH);
 const stages = (command: string): boolean => mayStageLessonsGraph(command, start, graphFile);
+const backslashed = (path: string): string => path.replaceAll('/', '\\');
+const posixEscaped = (path: string): string => path.replace(/[\s"'`$\\;&|()<>*?[#~!{}]/g, '\\$&');
 
 describe('mayStageLessonsGraph — commands that can stage lessons.json', () => {
   it.each([
@@ -34,6 +36,9 @@ describe('mayStageLessonsGraph — commands that can stage lessons.json', () => 
     `git add ${graphFile}`,
     `git add ${start}`,
     'git add ..',
+    'git add -v .agentsmesh/lessons/lessons.json',
+    'git add packages/app/.agentsmesh/lessons/lessons.json',
+    'git --no-pager commit -m x',
     'git commit -m "x"',
     'git commit -am x',
     'git commit -a',
@@ -90,6 +95,10 @@ describe('mayStageLessonsGraph — commands that cannot', () => {
     'git add lessons',
     'git add ../other',
     'git add --verbose src/x.ts',
+    'git add -v src/x.ts',
+    'git --no-pager log',
+    'FOO=1',
+    'bash ./deploy.sh',
     'git merge feature',
     'git merge --abort',
     'git rebase main',
@@ -112,5 +121,47 @@ describe('mayStageLessonsGraph — commands that cannot', () => {
 
   it('does not stage from a directory below the project', () => {
     expect(mayStageLessonsGraph('git add .', join(start, 'src'), graphFile)).toBe(false);
+  });
+});
+
+describe('mayStageLessonsGraph — a command that may have changed directory', () => {
+  it('matches the project-relative graph path from a folder below the project', () => {
+    const command = 'git add .agentsmesh/lessons/lessons.json';
+    expect(mayStageLessonsGraph(command, join(start, 'src'), graphFile)).toBe(true);
+  });
+});
+
+describe('mayStageLessonsGraph — backslash paths', () => {
+  it.each([
+    'git add .agentsmesh\\lessons\\lessons.json',
+    'git add .\\.agentsmesh\\lessons\\lessons.json',
+    'git add .agentsmesh\\lessons',
+    'git add src\\a.ts .agentsmesh\\lessons\\lessons.json',
+    `git add ${backslashed(graphFile)}`,
+    `git add ${backslashed(start)}`,
+    'git add ".agentsmesh\\lessons\\lessons.json"',
+    `git add "${backslashed(graphFile)}"`,
+    'git add "a\\"b" .agentsmesh/lessons/lessons.json',
+    'git commit -m "wip\\',
+  ])('keeps the backslash as a path separator: %s', (command) => {
+    expect(stages(command)).toBe(true);
+  });
+
+  it.each([
+    'git add src\\a.ts',
+    'git add .agentsmesh\\rules\\a.md',
+    'git add .agentsmesh\\lessons\\other.json',
+    'git add my\\ dir/file',
+    'git add .agentsmesh/lessons/lessons.json\\ copy',
+    'echo a\\; git commit -m x',
+    'echo "a\\"; git commit"',
+  ])('still reads a backslash before a shell character as an escape: %s', (command) => {
+    expect(stages(command)).toBe(false);
+  });
+
+  it('reads every POSIX escape in an absolute path', () => {
+    const odd = join(tmpdir(), "am odd $x (1);&#~!{a}[b]`'");
+    const command = `git add ${posixEscaped(odd)}`;
+    expect(mayStageLessonsGraph(command, start, join(odd, LESSONS_GRAPH_PATH))).toBe(true);
   });
 });

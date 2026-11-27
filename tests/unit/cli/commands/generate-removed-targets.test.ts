@@ -49,10 +49,9 @@ function setTargets(targets: string[]): void {
 }
 
 function tree(dir = root): string[] {
+  const rel = (path: string): string => path.slice(root.length + 1).replaceAll('\\', '/');
   return readdirSync(dir, { withFileTypes: true })
-    .flatMap((e) =>
-      e.isDirectory() ? tree(join(dir, e.name)) : [join(dir, e.name).slice(root.length + 1)],
-    )
+    .flatMap((e) => (e.isDirectory() ? tree(join(dir, e.name)) : [rel(join(dir, e.name))]))
     .sort();
 }
 
