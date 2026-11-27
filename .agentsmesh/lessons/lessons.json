@@ -4710,6 +4710,40 @@
         "t-glob-8bbff52e"
       ]
     },
+    "lessons-system-a-command-line-tokenizer-that": {
+      "createdAt": "2026-11-27",
+      "evidence": [
+        "lesson:windows-paths-rule-9"
+      ],
+      "rule": "A command-line tokenizer that treats every unquoted backslash as a POSIX escape deletes Windows path separators (C:\\Users\\x becomes C:Usersx), so a path-matching guard silently misses native paths from PowerShell or pasted paths while macOS tests stay green. Treat backslash as an escape only before characters a POSIX shell must escape (whitespace, quotes, $, backtick, backslash, ;&|()<>, *?[, #~!{}), keep it literal before any other character, then normalize with replaceAll('\\\\','/'). Cover it with a cross-platform test that swaps / for backslash in the graph path (it fails on macOS before the fix) plus a round-trip of a POSIX-escaped odd path; double-quoted words in src/lessons/git-staging-command.ts still drop every backslash.",
+      "status": "superseded",
+      "supersededBy": "lessons-system-a-command-line-tokenizer-that-2",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-f426999c",
+        "t-glob-de30ec51",
+        "t-kw-bc343b48"
+      ]
+    },
+    "lessons-system-a-command-line-tokenizer-that-2": {
+      "createdAt": "2026-11-27",
+      "evidence": [
+        "lesson:windows-paths-rule-9"
+      ],
+      "rule": "A command-line tokenizer that treats every backslash as a POSIX escape deletes Windows path separators (C:\\Users\\x becomes C:Usersx), so a path-matching guard silently misses native paths from PowerShell or pasted paths while macOS tests stay green. Unquoted, treat a backslash as an escape only before characters a POSIX shell must escape (whitespace, quotes, $, backtick, backslash, ;&|()<>, *?[, #~!{}); inside double quotes only before $ backtick \" backslash and newline; keep it literal otherwise, then normalize with replaceAll. Cover it with a test that swaps / for backslash in the graph path, quoted and unquoted (red on macOS before the fix).",
+      "status": "active",
+      "topics": [
+        "lessons-system"
+      ],
+      "triggers": [
+        "t-glob-f426999c",
+        "t-glob-00ddf156",
+        "t-glob-de30ec51",
+        "t-kw-bc343b48"
+      ]
+    },
     "lessons-system-a-command-pattern-that-is": {
       "createdAt": "2026-09-23",
       "evidence": [],
@@ -14586,6 +14620,10 @@
       "kind": "file_glob",
       "pattern": "website/src/components/**/*.astro"
     },
+    "t-glob-de30ec51": {
+      "kind": "file_glob",
+      "pattern": "tests/unit/lessons/git-staging-command.test.ts"
+    },
     "t-glob-e0110795": {
       "kind": "file_glob",
       "pattern": "src/utils/filesystem/process-lock.ts"
@@ -14713,6 +14751,10 @@
     "t-glob-f394f32c": {
       "kind": "file_glob",
       "pattern": "src/targets/cline/mcp-mapper.ts"
+    },
+    "t-glob-f426999c": {
+      "kind": "file_glob",
+      "pattern": "src/lessons/git-staging-command.ts"
     },
     "t-glob-f564ed24": {
       "kind": "file_glob",
@@ -15573,6 +15615,10 @@
     "t-kw-baecf908": {
       "kind": "keyword",
       "pattern": "stale lock failure recovery"
+    },
+    "t-kw-bc343b48": {
+      "kind": "keyword",
+      "pattern": "backslash tokenizer windows path"
     },
     "t-kw-bc36f123": {
       "kind": "keyword",
